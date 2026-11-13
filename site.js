@@ -272,13 +272,13 @@ form?.addEventListener("submit",async event=>{
     try{copied=document.execCommand("copy");}catch(error){copied=false;}
     temp.remove();
   }
-  const message=copied
+  const feedbackMessage=copied
     ?"Inquiry copied. Open our Facebook page and paste it into a message."
     :"Copy isn't available in this browser. Your details are still here—select and copy them manually.";
   form.classList.toggle("is-success",copied);
   form.classList.toggle("is-warning",!copied);
   window.setTimeout(()=>form.classList.remove("is-success","is-warning"),1800);
-  if(window.TokiMotion?.updateText)window.TokiMotion.updateText(status,message);
-  else status.textContent=message;
+  if(window.TokiMotion?.updateText)window.TokiMotion.updateText(status,feedbackMessage);
+  else status.textContent=feedbackMessage;
 });
 const year=document.querySelector("#year");if(year)year.textContent=String(new Date().getFullYear());
