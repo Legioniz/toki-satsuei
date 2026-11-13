@@ -64,6 +64,12 @@ def main():
             frame = page.locator("#facebook-page-embed")
             assert frame.count() == 1, "Facebook Page iframe is missing"
             assert frame.get_attribute("loading") == "lazy", "Facebook iframe should be lazy-loaded"
+            assert frame.get_attribute("scrolling") is None, "Facebook iframe must keep native scrolling enabled"
+            assert frame.get_attribute("height") == "980", "Facebook timeline viewport should be tall enough to browse posts"
+            story_link = page.locator(".facebook-story-link")
+            assert story_link.get_attribute("href") == PAGE_URL, "Story shortcut should open the live Page"
+            assert "CURRENT STORY" in story_link.inner_text()
+            assert "SCROLL INSIDE TO BROWSE" in page.locator(".facebook-embed-toolbar").inner_text()
             assert frame.get_attribute("title") == "TOKI SATSUEI Facebook Page timeline"
 
             fallback = page.locator("#facebook-feed-help a")
@@ -115,10 +121,14 @@ def main():
                             documentWidth: document.documentElement.scrollWidth,
                             viewportWidth: innerWidth,
                             loading: iframe.loading,
+                            frameHeight: iframe.clientHeight,
+                            frameScrolling: iframe.getAttribute("scrolling"),
                             title: iframe.title
                         };
                     }"""
                 )
+                assert state["frameHeight"] == 980, f"Facebook timeline is too short to browse at {width}px: {state}"
+                assert state["frameScrolling"] is None, f"Facebook iframe native scrolling was disabled: {state}"
                 assert state["frameRight"] <= state["shellRight"] + 1, (
                     f"Facebook iframe exceeds its shell at {width}px: {state}"
                 )
@@ -134,6 +144,7 @@ def main():
                 assert params.get("href", [None])[0] == PAGE_URL
                 assert params.get("tabs", [None])[0] == "timeline"
                 assert params.get("adapt_container_width", [None])[0] == "true"
+                assert params.get("height", [None])[0] == "980"
             seen_network_widths = {
                 parse_qs(urlparse(url).query).get("width", [None])[0]
                 for url in requests
@@ -144,7 +155,7 @@ def main():
             browser.close()
         print(
             "PASS TOKI SATSUEI Facebook feed QA: "
-            f"{checks} viewport/orientation checks, {len(requests)} mocked plugin request(s)."
+            f"{checks} viewport/orientation checks, a tall scrollable timeline, Stories hand-off, and {len(requests)} mocked plugin request(s)."
         )
     finally:
         server.shutdown()

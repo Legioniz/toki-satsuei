@@ -245,7 +245,7 @@ function initFacebookPageEmbed(){
       href:pageUrl,
       tabs:"timeline",
       width:String(width),
-      height:"720",
+      height:"980",
       small_header:"true",
       adapt_container_width:"true",
       hide_cover:"true",
@@ -253,7 +253,7 @@ function initFacebookPageEmbed(){
     });
 
     iframe.width=String(width);
-    iframe.height="720";
+    iframe.height="980";
     iframe.dataset.embedWidth=String(width);
     iframe.src="https://www.facebook.com/plugins/page.php?"+params.toString();
   }

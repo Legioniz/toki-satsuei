@@ -37,3 +37,28 @@
   .facebook-embed-shell iframe{height:720px;min-height:720px}
   .facebook-embed-fallback{justify-content:flex-start;text-align:left}
 }
+
+
+/* Expanded Facebook timeline, with a clear scroll cue and Stories hand-off. */
+.facebook-feed-actions{display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+.facebook-story-link{display:inline-flex;align-items:center;gap:12px;min-height:44px;padding:8px 2px;color:#5f574f;font-size:9px;font-weight:700;letter-spacing:.1em;border-bottom:1px solid #c6bdb2}
+.facebook-story-link span{color:var(--red);font-size:14px}
+.facebook-story-link:hover{color:var(--red)}
+.facebook-story-note{margin:10px 0 0;color:#837b72;font-size:10px;line-height:1.8;max-width:34ch}
+.facebook-embed-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 9px;color:#887f75;font-size:8px;letter-spacing:.14em;font-weight:700;line-height:1.5}
+.facebook-scroll-mark{color:var(--red);font-size:13px;vertical-align:-1px}
+.facebook-embed-shell{min-height:980px;overflow:visible;overscroll-behavior:contain}
+.facebook-embed-shell iframe{height:980px;min-height:980px;max-width:100%;touch-action:pan-y}
+.facebook-embed-fallback{max-width:500px;text-align:left;justify-content:space-between}
+@media(max-width:680px){
+  .facebook-feed-actions{gap:8px}
+  .facebook-embed-toolbar{font-size:7px;letter-spacing:.1em}
+  .facebook-embed-shell{min-height:980px}
+  .facebook-embed-shell iframe{height:980px;min-height:980px}
+  .facebook-embed-fallback{display:block}
+  .facebook-embed-fallback a{margin-left:4px}
+}
+@media(max-width:360px){
+  .facebook-embed-toolbar{align-items:flex-start;flex-direction:column;gap:3px}
+  .facebook-embed-shell iframe{width:100%}
+}
