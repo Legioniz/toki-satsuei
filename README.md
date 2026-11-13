@@ -8,7 +8,9 @@ The complete standalone TOKI SATSUEI website, kept separate from the Legioniz pe
 
 ## Included
 
-- Homepage, services, session guide, and inquiry form
+- Homepage, services, session guide, FAQs, and inquiry form
+- Public booking, payment, rescheduling, privacy, and photo-consent guidelines
+- Branded 404 page, `robots.txt`, and XML sitemap for search discovery
 - Curated Facebook post rail with native Meta embeds, category filters, and search
 - Responsive photo archive with search, category rails, and album viewer
 - Shared editorial design system for layout, spacing, color grading, responsive orientation, and visual consistency
@@ -37,7 +39,14 @@ python tests/toki-layout-browser-qa.py
 python tests/toki-adaptive-interaction-qa.py
 python tests/toki-facebook-embed-qa.py
 python tests/toki-facebook-feed-data-qa.py
+python tests/toki-public-pages-qa.py
 ```
+
+## Booking, privacy, and image consent
+
+The public [booking and photo policies](https://legioniz.github.io/toki-satsuei/policies.html) describe how inquiries are confirmed, how prices and payment terms are agreed, how schedule changes are handled, how files are delivered, and how client photographs may be shared. The inquiry form only prepares and copies a message in the visitor's browser; it does not submit personal information to a server. Client photographs are not added to the public portfolio without permission from the people featured.
+
+The site currently labels its existing gallery images as practice/detail studies. It does not claim to have a finished public cosplay or portrait client portfolio yet.
 
 ## Media note
 
