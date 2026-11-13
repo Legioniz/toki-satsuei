@@ -147,6 +147,8 @@ def check_home(page, width):
     assert process_grid.count() == 1 and process_grid.locator(".process-step").count() == 3, \
         f"{label}: the session process section is incomplete"
     process_box = process_grid.bounding_box()
+    process_box["right"] = process_box["x"] + process_box["width"]
+    process_box["bottom"] = process_box["y"] + process_box["height"]
     process_items = process_grid.locator(".process-step").evaluate_all("""nodes => nodes.map(node => {
       const r=node.getBoundingClientRect(), s=getComputedStyle(node);
       return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height,display:s.display};
