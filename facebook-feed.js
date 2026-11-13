@@ -173,7 +173,9 @@
       return;
     }
 
-    status.textContent = "SHOWING " + shown.length + " OF " + posts.length + " POSTS · SCROLL TO EXPLORE";
+    status.textContent = shown.length > 1
+      ? "SHOWING " + shown.length + " OF " + posts.length + " POSTS · SCROLL TO EXPLORE"
+      : "1 SELECTED POST · FROM THE TOKI SATSUEI PAGE";
     list.setAttribute("aria-busy", "true");
 
     const embeds = [];
