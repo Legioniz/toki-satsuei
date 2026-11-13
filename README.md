@@ -38,3 +38,31 @@ The current hero, sample gallery photographs, and main brushstroke emblem are re
 
 ## Facebook timeline behavior
 The homepage uses Meta's official Page Plugin iframe rather than scraping or copying posts. The embed is measured against its column, constrained to 180–500 px, given a taller 980 px browsing area, and left natively scrollable so visitors can browse posts inside the frame. Facebook's own Like, comment, and share controls remain inside the embedded timeline and may require sign-in. A separate Stories shortcut opens the Page itself because Page Stories are not exposed as a separate Page Plugin tab; Facebook controls whether a current Story is visible. Automated tests mock the cross-origin plugin so responsive sizing, scroll settings, and the Stories hand-off can be checked reliably without depending on Facebook's availability during CI.
+
+
+## Facebook public post feed
+
+The homepage no longer depends on a third-party Page timeline iframe to render its feed. A scheduled GitHub Actions workflow retrieves the Page's own published posts from Meta's official Graph API and writes a small public facebook-feed.json snapshot. The browser renders post text and images as normal accessible site content; **React** and **Comment** open the original post, while **Share** opens Facebook's sharing flow. The Page's Stories shortcut still opens Facebook directly because Page Stories are not part of the Page Feed endpoint.
+
+### One-time Meta connection
+
+The repository is intentionally shipped without a Page token. To enable automatic posts:
+
+1. In Meta for Developers, create or select an app and use an account that has the Page's content-management or moderation task.
+2. Authorize the app for **pages_read_engagement**, **pages_read_user_content**, and **pages_show_list**; obtain the **Page access token** for the TOKI SATSUEI Page and its numeric Page ID. Meta may require app review / Page Public Content Access depending on the app and Page access context.
+3. In GitHub, open **Settings → Secrets and variables → Actions → New repository secret**. Add:
+   - **META_PAGE_ID** — the Page's numeric ID
+   - **META_PAGE_ACCESS_TOKEN** — the Page access token
+4. Open **Actions → Refresh TOKI SATSUEI Facebook feed → Run workflow**. The feed is then refreshed automatically every six hours. The refresh workflow commits only the public post snapshot; the token is never committed or sent to the visitor's browser.
+
+When the secrets are not configured, the homepage shows an explicit connection-needed message and a direct Page link instead of an empty or unresponsive box. When Meta temporarily rejects a refresh, the workflow preserves the last successful snapshot.
+
+Official references:
+- [Meta Page Feed endpoint](https://developers.facebook.com/docs/graph-api/reference/page/feed/)
+- [Meta Page permissions and public Page access](https://developers.facebook.com/docs/graph-api/reference/page/)
+- [Meta oEmbed Post](https://developers.facebook.com/docs/graph-api/reference/oembed-post/) — useful when embedding a known individual public post; it does not discover the Page's newest posts.
+
+### Local QA
+
+- **python tests/toki-facebook-feed-data-qa.py**
+- **python tests/toki-facebook-embed-qa.py**

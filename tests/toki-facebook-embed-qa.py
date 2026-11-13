@@ -1,22 +1,37 @@
 #!/usr/bin/env python3
-"""Responsive and fallback regression checks for the embedded Facebook Page timeline."""
+"""Browser QA for the rendered TOKI SATSUEI Facebook post feed."""
 from __future__ import annotations
 
+import json
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Thread
-from urllib.parse import parse_qs, urlparse
 
 from playwright.sync_api import sync_playwright
 
+
 PUBLIC = Path(__file__).resolve().parents[1]
 PAGE_URL = "https://www.facebook.com/tokisatsuiephotography/"
+POST_URL = "https://www.facebook.com/tokisatsuiephotography/posts/123456789"
 VIEWPORTS = [
     (1440, 900), (1024, 768), (820, 900), (768, 900),
     (680, 800), (430, 932), (390, 844), (360, 800),
     (320, 568), (844, 390), (390, 844),
 ]
+SAMPLE = {
+    "schema_version": 1,
+    "status": "ready",
+    "updated_at": "2026-11-14T03:00:00+00:00",
+    "page": {"name": "TOKI SATSUEI", "url": PAGE_URL},
+    "posts": [{
+        "id": "page_123",
+        "message": "A real post preview should render as text. <script>window.feedInjected = true</script>",
+        "created_at": "2026-11-14T02:45:00+00:00",
+        "permalink_url": POST_URL,
+        "image_url": "https://scontent.xx.fbcdn.net/sample.jpg",
+    }],
+}
 
 
 class QuietHandler(SimpleHTTPRequestHandler):
@@ -32,7 +47,8 @@ def main():
     thread = Thread(target=server.serve_forever, daemon=True)
     thread.start()
     base = f"http://127.0.0.1:{server.server_port}"
-    requests = []
+    feed_requests = []
+    external_facebook_requests = []
     page_errors = []
 
     try:
@@ -45,117 +61,96 @@ def main():
             context.route("https://fonts.googleapis.com/**", lambda route: route.abort())
             context.route("https://fonts.gstatic.com/**", lambda route: route.abort())
             context.route("https://media.base44.com/**", lambda route: route.abort())
-            context.route("https://www.facebook.com/**", lambda route: route.abort())
 
-            def serve_page_plugin(route):
-                requests.append(route.request.url)
-                route.fulfill(
-                    status=200,
-                    content_type="text/html",
-                    body="<!doctype html><html><body>Mock Facebook Page Plugin</body></html>",
-                )
+            def serve_feed(route):
+                feed_requests.append(route.request.url)
+                route.fulfill(status=200, content_type="application/json", body=json.dumps(SAMPLE))
 
-            # Register the specific mock after the general Facebook block rule.
-            context.route("https://www.facebook.com/plugins/page.php**", serve_page_plugin)
+            context.route("**/facebook-feed.json**", serve_feed)
+            context.route("https://scontent.xx.fbcdn.net/**", lambda route: route.fulfill(
+                status=200, content_type="image/gif",
+                body=bytes.fromhex("47494638396101000100800000000000ffffff21f90401000000002c00000000010001000002024401003b")
+            ))
+            context.route("https://www.facebook.com/**", lambda route: external_facebook_requests.append(route.request.url) or route.abort())
 
             page = context.new_page()
             page.on("pageerror", lambda error: page_errors.append(str(error)))
             page.goto(base + "/index.html", wait_until="domcontentloaded")
-            frame = page.locator("#facebook-page-embed")
-            assert frame.count() == 1, "Facebook Page iframe is missing"
-            assert frame.get_attribute("loading") == "lazy", "Facebook iframe should be lazy-loaded"
-            assert frame.get_attribute("scrolling") is None, "Facebook iframe must keep native scrolling enabled"
-            assert frame.get_attribute("height") == "980", "Facebook timeline viewport should be tall enough to browse posts"
-            story_link = page.locator(".facebook-story-link")
-            assert story_link.get_attribute("href") == PAGE_URL, "Story shortcut should open the live Page"
-            assert "CURRENT STORY" in story_link.inner_text()
-            assert "SCROLL INSIDE TO BROWSE" in page.locator(".facebook-embed-toolbar").inner_text()
-            assert frame.get_attribute("title") == "TOKI SATSUEI Facebook Page timeline"
+            page.locator(".facebook-post-card").wait_for(state="visible", timeout=7000)
 
-            fallback = page.locator("#facebook-feed-help a")
-            assert fallback.get_attribute("href") == PAGE_URL, "Direct Facebook fallback URL is incorrect"
-            assert fallback.get_attribute("target") == "_blank"
-            assert "noopener" in (fallback.get_attribute("rel") or "")
-            assert "noreferrer" in (fallback.get_attribute("rel") or "")
-
-            page.locator("#facebook-updates").scroll_into_view_if_needed()
-            page.wait_for_timeout(250)
-            page.wait_for_function(
-                """() => {
-                    const iframe = document.querySelector("#facebook-page-embed");
-                    return iframe && iframe.dataset.embedWidth &&
-                        new URL(iframe.src).searchParams.get("width") === iframe.dataset.embedWidth;
-                }""",
-                timeout=5000,
-            )
+            assert page.locator("#facebook-page-embed").count() == 0, "The old opaque Page iframe must not be the feed renderer"
+            assert page.locator(".fb-page").count() == 0, "The page should render first-party feed cards, not an empty FB SDK container"
+            assert page.locator(".facebook-post-card").count() == 1, "A fetched post should render as a visible card"
+            card = page.locator(".facebook-post-card").first
+            assert "TOKI SATSUEI" in card.inner_text()
+            assert "<script>window.feedInjected = true</script>" in card.inner_text(), "Post text must be rendered as text, not HTML"
+            assert card.locator("script").count() == 0, "Facebook post content must never be injected as markup"
+            assert card.locator(".facebook-post-image").count() == 1
+            assert card.locator(".facebook-post-image").get_attribute("alt")
+            assert card.locator(".facebook-post-action--react").get_attribute("href") == POST_URL
+            assert card.locator(".facebook-post-action--comment").get_attribute("href") == POST_URL
+            assert "facebook.com/sharer/sharer.php" in card.locator(".facebook-post-action--share").get_attribute("href")
+            for action in card.locator(".facebook-post-action").all():
+                assert action.get_attribute("target") == "_blank"
+                assert "noopener" in (action.get_attribute("rel") or "")
+                assert "noreferrer" in (action.get_attribute("rel") or "")
+            assert "PAGE FEED" in page.locator("#facebook-feed-status").inner_text()
+            assert "SYNCED" in page.locator("#facebook-feed-status").inner_text()
+            assert page.locator(".facebook-story-link").get_attribute("href") == PAGE_URL
+            assert page.locator(".facebook-follow-link").get_attribute("href") == PAGE_URL
+            assert feed_requests, "The same-origin feed snapshot was not requested"
 
             checks = 0
-            requested_widths = set()
             for width, height in VIEWPORTS:
                 page.set_viewport_size({"width": width, "height": height})
-                page.wait_for_function(
-                    """() => {
-                        const shell = document.querySelector(".facebook-embed-shell");
-                        const iframe = document.querySelector("#facebook-page-embed");
-                        if (!shell || !iframe || !shell.clientWidth) return false;
-                        const expected = Math.max(180, Math.min(500, Math.round(shell.clientWidth)));
-                        const url = new URL(iframe.src);
-                        return Number(iframe.dataset.embedWidth) === expected &&
-                            url.searchParams.get("width") === String(expected) &&
-                            url.searchParams.get("adapt_container_width") === "true";
-                    }""",
-                    timeout=5000,
-                )
-                page.wait_for_timeout(220)
+                page.wait_for_timeout(100)
                 state = page.evaluate(
-                    """() => {
-                        const shell = document.querySelector(".facebook-embed-shell");
-                        const iframe = document.querySelector("#facebook-page-embed");
-                        const shellRect = shell.getBoundingClientRect();
-                        const frameRect = iframe.getBoundingClientRect();
-                        return {
-                            width: Number(iframe.dataset.embedWidth),
-                            shellWidth: shell.clientWidth,
-                            shellRight: shellRect.right,
-                            frameRight: frameRect.right,
-                            documentWidth: document.documentElement.scrollWidth,
-                            viewportWidth: innerWidth,
-                            loading: iframe.loading,
-                            frameHeight: iframe.clientHeight,
-                            frameScrolling: iframe.getAttribute("scrolling"),
-                            title: iframe.title
-                        };
-                    }"""
+                    """() => ({
+                        viewport: innerWidth,
+                        document: document.documentElement.scrollWidth,
+                        feed: document.querySelector(".facebook-feed-column")?.getBoundingClientRect().width,
+                        cards: [...document.querySelectorAll(".facebook-post-card")].map(card => ({
+                            right: card.getBoundingClientRect().right,
+                            width: card.getBoundingClientRect().width
+                        }))
+                    })"""
                 )
-                assert state["frameHeight"] == 980, f"Facebook timeline is too short to browse at {width}px: {state}"
-                assert state["frameScrolling"] is None, f"Facebook iframe native scrolling was disabled: {state}"
-                assert state["frameRight"] <= state["shellRight"] + 1, (
-                    f"Facebook iframe exceeds its shell at {width}px: {state}"
-                )
-                assert state["documentWidth"] <= width + 1, (
-                    f"Facebook feed causes horizontal page overflow at {width}px: {state}"
-                )
-                requested_widths.add(str(state["width"]))
+                assert state["document"] <= width + 1, f"Horizontal page overflow at {width}px: {state}"
+                assert state["feed"] > 0, f"Feed column collapsed at {width}px: {state}"
+                assert all(card["right"] <= width + 1 for card in state["cards"]), f"Feed card overflow at {width}px: {state}"
                 checks += 1
 
-            assert requests, "The Facebook plugin iframe was never requested by the browser"
-            for request_url in requests:
-                params = parse_qs(urlparse(request_url).query)
-                assert params.get("href", [None])[0] == PAGE_URL
-                assert params.get("tabs", [None])[0] == "timeline"
-                assert params.get("adapt_container_width", [None])[0] == "true"
-                assert params.get("height", [None])[0] == "980"
-            seen_network_widths = {
-                parse_qs(urlparse(url).query).get("width", [None])[0]
-                for url in requests
-            }
-            assert seen_network_widths.issubset(requested_widths | seen_network_widths)
-            assert not page_errors, "Homepage JavaScript errors: " + "; ".join(page_errors)
+            before = len(feed_requests)
+            page.locator("#facebook-feed-refresh").click()
+            page.wait_for_function("document.querySelectorAll('.facebook-post-card').length === 1")
+            assert len(feed_requests) > before, "Reload feed did not request a fresh snapshot"
 
+            setup_page = context.new_page()
+            setup_page.route("**/facebook-feed.json**", lambda route: route.fulfill(
+                status=200, content_type="application/json",
+                body=json.dumps({"schema_version": 1, "status": "setup_required", "updated_at": None, "posts": []})
+            ))
+            setup_page.goto(base + "/index.html", wait_until="domcontentloaded")
+            setup_page.locator(".facebook-feed-state--setup").wait_for(state="visible", timeout=7000)
+            assert "FACEBOOK CONNECTION NEEDED" in setup_page.locator("#facebook-feed-status").inner_text()
+            assert "secure Page connection" in setup_page.locator(".facebook-feed-state").inner_text()
+            assert setup_page.locator(".facebook-state-link").get_attribute("href") == PAGE_URL
+
+            error_page = context.new_page()
+            error_page.route("**/facebook-feed.json**", lambda route: route.fulfill(status=503, body="Unavailable"))
+            error_page.goto(base + "/index.html", wait_until="domcontentloaded")
+            error_page.locator(".facebook-feed-state--error").wait_for(state="visible", timeout=7000)
+            assert "FEED COULD NOT LOAD" in error_page.locator("#facebook-feed-status").inner_text()
+            assert error_page.locator(".facebook-state-link").get_attribute("href") == PAGE_URL
+
+            assert not page_errors, "Homepage JavaScript errors: " + "; ".join(page_errors)
+            assert not external_facebook_requests, "The page should not call Facebook from the visitor's browser with private credentials"
             browser.close()
+
         print(
             "PASS TOKI SATSUEI Facebook feed QA: "
-            f"{checks} viewport/orientation checks, a tall scrollable timeline, Stories hand-off, and {len(requests)} mocked plugin request(s)."
+            f"{checks} viewport/orientation checks, rendered public-post cards, secure text handling, "
+            "working reload and post actions, setup-required state, and network-error fallback."
         )
     finally:
         server.shutdown()

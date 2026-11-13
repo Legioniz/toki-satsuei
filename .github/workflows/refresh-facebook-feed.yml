@@ -1,0 +1,43 @@
+name: Refresh TOKI SATSUEI Facebook feed
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: toki-satsuei-facebook-feed-refresh
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out main
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: '3.11'
+
+      - name: Fetch public Page posts
+        env:
+          META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
+          META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
+        run: python scripts/fetch_facebook_feed.py --output facebook-feed.json
+
+      - name: Commit updated public snapshot
+        run: |
+          if git diff --quiet -- facebook-feed.json; then
+            echo 'No new public feed snapshot to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add facebook-feed.json
+          git commit -m 'Refresh TOKI SATSUEI Facebook feed'
+          git push
