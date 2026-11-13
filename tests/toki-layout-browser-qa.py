@@ -182,6 +182,8 @@ def check_archive(page, width):
     check_header(page, width, label)
     toolbar = boxes(page, [".library-toolbar", ".library-toolbar-main", ".library-tools"])
     assert_no_pair_overlap(toolbar[1:], label + " archive toolbar")
+    assert all(item["width"] <= toolbar[0]["width"] + 1 for item in toolbar[1:]), \
+        f"{label}: archive toolbar child exceeds its container: {toolbar}"
     assert page.locator(".footer-socials a").count() == 2, f"{label}: archive footer social links are missing"
     check_footer(page, label)
 
