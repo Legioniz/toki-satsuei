@@ -76,12 +76,17 @@ if(hero&&heroPhoto&&hoverPointer&&!reducedMotion){
     if(!pointerFrame)pointerFrame=requestAnimationFrame(()=>{
       heroPhoto.style.setProperty("--hero-pan-x",pointerX.toFixed(1)+"px");
       heroPhoto.style.setProperty("--hero-pan-y",pointerY.toFixed(1)+"px");
+      const pointerRect=hero.getBoundingClientRect();
+      hero.style.setProperty("--hero-pointer-x",(((event.clientX-pointerRect.left)/Math.max(1,pointerRect.width))*100).toFixed(1)+"%");
+      hero.style.setProperty("--hero-pointer-y",(((event.clientY-pointerRect.top)/Math.max(1,pointerRect.height))*100).toFixed(1)+"%");
       pointerFrame=0;
     });
   });
   hero.addEventListener("pointerleave",()=>{
     heroPhoto.style.setProperty("--hero-pan-x","0px");
     heroPhoto.style.setProperty("--hero-pan-y","0px");
+    hero.style.setProperty("--hero-pointer-x","72%");
+    hero.style.setProperty("--hero-pointer-y","42%");
   });
 }
 
@@ -207,6 +212,18 @@ function selectSession(card,{moveToForm=true}={}) {
   }
 }
 sessionCards.forEach(card=>{
+  if(hoverPointer){
+    card.addEventListener("pointermove",event=>{
+      if(event.pointerType==="touch")return;
+      const rect=card.getBoundingClientRect();
+      card.style.setProperty("--card-pointer-x",((event.clientX-rect.left)/Math.max(1,rect.width)*100).toFixed(1)+"%");
+      card.style.setProperty("--card-pointer-y",((event.clientY-rect.top)/Math.max(1,rect.height)*100).toFixed(1)+"%");
+    },{passive:true});
+    card.addEventListener("pointerleave",()=>{
+      card.style.setProperty("--card-pointer-x","50%");
+      card.style.setProperty("--card-pointer-y","10%");
+    },{passive:true});
+  }
   card.addEventListener("click",event=>{
     if(event.target.closest("a,button,input,select,textarea"))return;
     selectSession(card);
