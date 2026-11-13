@@ -185,6 +185,7 @@
 /* Match the header surfaces to the original black TOKI SATSUEI logo artwork. */
 :root{--brand-black:#000}
 .announcement,.site-header,.primary-nav{background-color:var(--brand-black)}
+.site-header,.site-header.is-scrolled{background-color:var(--brand-black)}
 .site-header{border-bottom-color:rgba(255,255,255,.14)}
 @media(max-width:820px){
   .primary-nav{background-color:var(--brand-black)}
