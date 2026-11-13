@@ -86,7 +86,10 @@
     });
     activeAnimations.set(element, animation);
     return animation.finished.catch(() => {}).then(() => {
-      if (activeAnimations.get(element) === animation) activeAnimations.delete(element);
+      if (activeAnimations.get(element) === animation) {
+        activeAnimations.delete(element);
+        animation.cancel();
+      }
     });
   }
 
@@ -97,7 +100,7 @@
         [{ opacity: 1 }, { opacity: 0 }],
         { duration, easing: "ease-in", fill: "both", pseudoElement: "::backdrop" }
       );
-      return animation.finished.catch(() => {});
+      return animation.finished.catch(() => {}).then(() => animation.cancel());
     } catch (error) {
       return Promise.resolve();
     }
@@ -159,6 +162,7 @@
 
     if (open) {
       nav.classList.add("is-open");
+      links.forEach(link => link.classList.add("is-motion-visible"));
       const panel = animate(nav, [
         { opacity: 0, transform: "translateY(-10px) scaleY(.985)", transformOrigin: "top" },
         { opacity: 1, transform: "translateY(0) scaleY(1)", transformOrigin: "top" }
