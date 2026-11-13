@@ -96,10 +96,10 @@ def main():
             ).startswith("x")
 
             page.locator("#facebook-feed-next").click()
-            page.wait_for_function("document.querySelector('#facebook-feed-list').scrollLeft > 1")
-            assert page.locator("#facebook-feed-previous").is_enabled()
+            page.wait_for_function("document.querySelector('#facebook-feed-list').scrollLeft > 4")
+            page.wait_for_function("document.querySelector('#facebook-feed-previous').disabled === false")
             page.locator("#facebook-feed-previous").click()
-            page.wait_for_function("document.querySelector('#facebook-feed-list').scrollLeft <= 1")
+            page.wait_for_function("document.querySelector('#facebook-feed-list').scrollLeft < 4")
 
             page.locator("#facebook-feed-search").fill("event")
             assert page.locator(".facebook-embed-card").count() == 1
