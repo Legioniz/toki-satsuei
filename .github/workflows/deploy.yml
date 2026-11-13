@@ -53,6 +53,9 @@ jobs:
       - name: Verify curated Facebook feed data
         run: python tests/toki-facebook-feed-data-qa.py
 
+      - name: Verify public pages and search discovery
+        run: python tests/toki-public-pages-qa.py
+
       - name: Verify Facebook post embeds and scroll rail
         run: python tests/toki-facebook-embed-qa.py
 
@@ -61,11 +64,16 @@ jobs:
           set -euo pipefail
           rm -rf dist
           mkdir -p dist
-          cp index.html library.html styles.css library.css refinement.css motion-system.css motion-system.js site.js library.js facebook-feed.js facebook-posts.json media-library.json dist/
+          cp index.html library.html policies.html 404.html styles.css library.css refinement.css policies.css motion-system.css motion-system.js site.js library.js facebook-feed.js facebook-posts.json media-library.json robots.txt sitemap.xml dist/
           cp -R media-library dist/
           touch dist/.nojekyll
           test -s dist/index.html
           test -s dist/library.html
+          test -s dist/policies.html
+          test -s dist/404.html
+          test -s dist/policies.css
+          test -s dist/robots.txt
+          test -s dist/sitemap.xml
           test -s dist/styles.css
           test -s dist/refinement.css
           test -s dist/motion-system.css
