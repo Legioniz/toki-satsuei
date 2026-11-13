@@ -286,7 +286,7 @@ def main():
                 assert panel_metrics["scrollHeight"] <= panel_metrics["clientHeight"] + 2, \
                     f"archive dialog content is vertically clipped at {width}px: {panel_metrics}"
                 archive.locator(".album-dialog-close").click()
-                archive.wait_for_timeout(30)
+                archive.wait_for_function("!document.querySelector('#album-dialog').open", timeout=1500)
                 checks += 1
 
             empty_manifest = {
