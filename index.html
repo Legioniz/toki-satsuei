@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="icon" href="./media/brand-icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./styles.css?v=20261114-standalone-1">
+  <link rel="stylesheet" href="./styles.css?v=20261114-feed-responsive-2">
   <link rel="preload" as="image" href="https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/3db8c3355_242599.jpg">
   <style id="homepage-hero-critical-styles">
     .hero-opening{width:100%;max-width:none;margin:0;min-height:clamp(630px,calc(100svh - 114px),820px);padding:76px max(32px,calc((100% - 1220px)/2)) 82px;display:flex;align-items:center;position:relative;isolation:isolate;overflow:hidden;background:#090909;color:#f4f0e9}
@@ -51,7 +51,7 @@
     @media(max-width:680px){.hero-opening{min-height:max(640px,calc(100svh - 100px));min-height:max(640px,calc(100dvh - 100px))}.hero-opening .hero-bottom-rule{align-items:flex-start;flex-wrap:wrap}.hero-opening .hero-bottom-rule span:first-child{white-space:nowrap}.hero-opening .hero-bottom-rule span:last-child{max-width:100%;text-align:left}}
     @media(max-height:560px) and (orientation:landscape){.hero-opening{min-height:540px;padding-top:64px;padding-bottom:64px}.hero-opening h1{font-size:clamp(48px,7.5vw,74px)}.hero-opening .hero-footnote{margin-top:18px}.hero-opening .hero-bottom-rule{padding-block:9px}.hero-opening .hero-frame{display:none}}
   </style>
-  <script src="./site.js?v=20261114-standalone-1" defer></script>
+  <script src="./site.js?v=20261114-feed-responsive-2" defer></script>
 </head>
 <body>
   <div class="announcement"><span class="red-dot"></span> QUEZON CITY, PHILIPPINES <span class="announce-divider">/</span> SMALL TEAM, BIG APPRECIATION FOR EVERY FRAME</div>
@@ -151,18 +151,21 @@
           <div class="facebook-embed-column">
             <div class="facebook-embed-shell">
               <iframe
+                id="facebook-page-embed"
+                class="facebook-page-iframe"
                 title="TOKI SATSUEI Facebook Page timeline"
+                data-page-url="https://www.facebook.com/tokisatsuiephotography/"
                 src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Ftokisatsuiephotography%2F&amp;tabs=timeline&amp;width=500&amp;height=720&amp;small_header=true&amp;adapt_container_width=true&amp;hide_cover=true&amp;show_facepile=false"
                 width="500"
                 height="720"
                 loading="lazy"
                 scrolling="no"
-                frameborder="0"
                 allow="encrypted-media; picture-in-picture; web-share"
+                allowfullscreen
                 referrerpolicy="origin"
-                aria-label="Latest public posts from TOKI SATSUEI on Facebook"></iframe>
+                aria-label="Latest public posts from TOKI SATSUEI on Facebook" aria-describedby="facebook-feed-help"></iframe>
             </div>
-            <p class="facebook-embed-fallback">Not seeing the timeline? <a href="https://www.facebook.com/tokisatsuiephotography/" target="_blank" rel="noopener noreferrer">Open our Facebook Page directly <span>↗</span></a>.</p>
+            <p class="facebook-embed-fallback" id="facebook-feed-help">Facebook may limit embedded timelines in some browsers or privacy settings. <a href="https://www.facebook.com/tokisatsuiephotography/" target="_blank" rel="noopener noreferrer">Open our Facebook Page directly <span>↗</span></a>.</p>
           </div>
         </div>
       </div>

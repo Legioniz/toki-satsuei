@@ -219,3 +219,59 @@ form?.addEventListener("submit",async event=>{
     :"Copy isn't available in this browser. Your details are still here—select and copy them manually.";
 });
 const year=document.querySelector("#year");if(year)year.textContent=String(new Date().getFullYear());
+
+
+// Facebook Page Plugin: re-render at the measured container width after layout changes.
+function initFacebookPageEmbed(){
+  const shell=document.querySelector(".facebook-embed-shell");
+  const iframe=document.querySelector("#facebook-page-embed");
+  if(!shell||!iframe)return;
+
+  const pageUrl=iframe.dataset.pageUrl||"https://www.facebook.com/tokisatsuiephotography/";
+  let renderedWidth=0;
+  let resizeTimer=0;
+
+  function renderFacebookFrame(){
+    resizeTimer=0;
+    const containerWidth=Math.round(shell.clientWidth);
+    if(!containerWidth)return;
+
+    // Meta's Page Plugin accepts widths from 180px to 500px.
+    const width=Math.max(180,Math.min(500,containerWidth));
+    if(width===renderedWidth)return;
+    renderedWidth=width;
+
+    const params=new URLSearchParams({
+      href:pageUrl,
+      tabs:"timeline",
+      width:String(width),
+      height:"720",
+      small_header:"true",
+      adapt_container_width:"true",
+      hide_cover:"true",
+      show_facepile:"false"
+    });
+
+    iframe.width=String(width);
+    iframe.height="720";
+    iframe.dataset.embedWidth=String(width);
+    iframe.src="https://www.facebook.com/plugins/page.php?"+params.toString();
+  }
+
+  function scheduleFacebookResize(){
+    window.clearTimeout(resizeTimer);
+    resizeTimer=window.setTimeout(renderFacebookFrame,160);
+  }
+
+  // Set the correct initial width before the lazy iframe is brought into view.
+  renderFacebookFrame();
+
+  if("ResizeObserver" in window){
+    const observer=new ResizeObserver(scheduleFacebookResize);
+    observer.observe(shell);
+  }
+  window.addEventListener("resize",scheduleFacebookResize,{passive:true});
+  window.addEventListener("orientationchange",scheduleFacebookResize,{passive:true});
+}
+
+initFacebookPageEmbed();

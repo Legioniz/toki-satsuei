@@ -8,7 +8,7 @@ The complete standalone TOKI SATSUEI website, kept separate from the Legioniz pe
 
 ## Included
 - Homepage, services, session guide, and inquiry form
-- Embedded live-updating Facebook Page timeline
+- Responsive Facebook Page timeline that recalculates its embed width on viewport and orientation changes, with a direct-Page fallback
 - Responsive photo archive with search, category rails, and album viewer
 - TOKI brand SVG, upload-ready media folders, and automatic archive manifest generator
 - Dedicated GitHub Pages workflow and responsive browser regression tests
@@ -30,7 +30,11 @@ python -m playwright install --with-deps chromium
 python scripts/build-toki-media-library.py
 python tests/toki-layout-browser-qa.py
 python tests/toki-adaptive-interaction-qa.py
+python tests/toki-facebook-embed-qa.py
 ```
 
 ## Media note
 The current hero, sample gallery photographs, and main brushstroke emblem are referenced from the original hosted media CDN. The website source and its upload-ready archive structure are independent in this repository; those existing hosted image files have not been copied into Git because the available GitHub file-transfer connection cannot retrieve the original binary media. New archive uploads can be stored directly in this repository under `media-library/`.
+
+## Facebook timeline behavior
+The homepage uses Meta's official Page Plugin iframe rather than scraping or copying posts. The embed is measured against its column, constrained to the plugin's supported 180–500 px width, and re-rendered only when the column width changes. The feed is lazy-loaded and a direct Page link remains available when Facebook blocks an embed or asks a visitor to sign in. Automated tests mock the cross-origin plugin so responsive sizing and fallback behavior can be checked reliably without depending on Facebook's availability during CI.
