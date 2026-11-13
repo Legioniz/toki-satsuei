@@ -348,3 +348,21 @@ html.motion-system-ready :where(.button,.facebook-feed-scroll-button,.library-fi
   .form-status,
   .footer-bottom a { transition: none !important; }
 }
+
+
+/* Preserve the slower, image-led hover rhythm on primary photography cards. */
+html.motion-system-ready .gallery-card {
+  transition:
+    transform .46s var(--motion-ease),
+    box-shadow .46s var(--motion-ease),
+    border-color .32s var(--motion-ease),
+    opacity .32s var(--motion-ease);
+}
+html.motion-system-ready .package-card {
+  transition:
+    transform .48s var(--motion-ease),
+    background-color .35s var(--motion-ease),
+    border-color .35s var(--motion-ease),
+    box-shadow .48s var(--motion-ease),
+    filter .35s var(--motion-ease);
+}
