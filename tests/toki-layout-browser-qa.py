@@ -148,8 +148,8 @@ def check_home(page, width):
         f"{label}: the session process section is incomplete"
     process_box = process_grid.bounding_box()
     process_items = process_grid.locator(".process-step").evaluate_all("""nodes => nodes.map(node => {
-      const r=node.getBoundingClientRect();
-      return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height};
+      const r=node.getBoundingClientRect(), s=getComputedStyle(node);
+      return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height,display:s.display};
     })""")
     assert_no_pair_overlap(process_items, label + " session process steps")
     for item in process_items:
