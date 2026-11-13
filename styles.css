@@ -162,7 +162,7 @@
 .facebook-feed-scroll-button:hover:not(:disabled){border-color:var(--red);color:var(--red)}
 .facebook-feed-scroll-button:disabled{opacity:.28;cursor:default}
 .facebook-feed-scroll-button:focus-visible,.facebook-post-list:focus-visible{outline:2px solid var(--red);outline-offset:3px}
-.facebook-post-list{scrollbar-gutter:stable;scroll-behavior:smooth}
+.facebook-post-list{max-height:none;overflow-x:auto;overflow-y:hidden;scrollbar-gutter:stable;scroll-behavior:smooth}
 .facebook-post-list:focus{outline:none}
 .facebook-post-list::-webkit-scrollbar{height:8px}
 .facebook-post-list::-webkit-scrollbar-track{background:#d8d1c7}
