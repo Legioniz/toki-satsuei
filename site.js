@@ -154,8 +154,13 @@ const visibleGalleryCards=()=>galleryCards.filter(card=>!card.hidden);
 let lightboxCards=[],lightboxIndex=0,touchStartX=0,touchStartY=0;
 function renderLightboxFrame(){
   const card=lightboxCards[lightboxIndex];if(!card)return;
-  lightboxImage.src=card.dataset.full;
-  lightboxImage.alt=card.querySelector("img")?.alt||card.dataset.title||"TOKI SATSUEI photograph";
+  const updateImage=()=>{
+    lightboxImage.src=card.dataset.full;
+    lightboxImage.alt=card.querySelector("img")?.alt||card.dataset.title||"TOKI SATSUEI photograph";
+  };
+  if(lightboxImage.getAttribute("src")&&window.TokiMotion?.swap){
+    window.TokiMotion.swap(lightboxImage,updateImage,{duration:110,enterDuration:230});
+  }else updateImage();
   lightboxTitle.textContent=card.dataset.title||"";
   lightboxCaption.textContent=card.dataset.caption||"";
   lightboxPosition.textContent=String(lightboxIndex+1).padStart(2,"0")+" / "+String(lightboxCards.length).padStart(2,"0");
