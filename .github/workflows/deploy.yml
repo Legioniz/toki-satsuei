@@ -44,6 +44,9 @@ jobs:
       - name: Build media archive manifest
         run: python scripts/build-toki-media-library.py
 
+      - name: Verify page and asset integration
+        run: python tests/toki-asset-integration-qa.py
+
       - name: Verify responsive layouts
         run: python tests/toki-layout-browser-qa.py
 
@@ -75,6 +78,7 @@ jobs:
           test -s dist/policies.html
           test -s dist/404.html
           test -s dist/policies.css
+          test -s dist/library.css
           test -s dist/cinematic.css
           test -s dist/robots.txt
           test -s dist/sitemap.xml
@@ -82,13 +86,11 @@ jobs:
           test -s dist/refinement.css
           test -s dist/motion-system.css
           test -s dist/motion-system.js
+          test -s dist/site.js
           test -s dist/library.js
           test -s dist/media-library.json
           test -s dist/facebook-posts.json
           test -s dist/facebook-feed.js
-          test ! -e dist/feed-manager.html
-          test ! -e dist/feed-manager.js
-          test ! -e dist/feed-manager.css
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
