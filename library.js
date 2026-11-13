@@ -367,10 +367,8 @@ function showEmpty(message,query=""){
       shelfGrid.append(shelf);
     });
     empty.append(shelfGrid);
-    const guide=element("a","archive-upload-guide","HOW TO ADD PHOTOGRAPHS ↗");
-    guide.href="https://github.com/Legioniz/toki-satsuei/blob/main/media-library/README.md";
-    guide.target="_blank";
-    guide.rel="noopener noreferrer";
+    const guide=element("a","archive-upload-guide","EXPLORE SELECTED FRAMES ↗");
+    guide.href="./index.html#work";
     empty.append(guide);
   }else{
     const back=element("button","archive-empty-action","VIEW ALL COLLECTIONS");
