@@ -138,12 +138,87 @@
     swap(element, () => { element.textContent = next; }, { duration: 110, enterDuration: 190 });
   }
 
+  const menuTokens = new WeakMap();
+  function setMenuOpen(button, nav, open) {
+    if (!button || !nav) return Promise.resolve();
+    const alreadyOpen = button.getAttribute("aria-expanded") === "true";
+    if (alreadyOpen === open) return Promise.resolve();
+
+    const token = (menuTokens.get(nav) || 0) + 1;
+    menuTokens.set(nav, token);
+    button.setAttribute("aria-expanded", String(open));
+    button.setAttribute("aria-label", open ? "Close navigation" : "Open navigation");
+    const links = Array.from(nav.querySelectorAll("a"));
+
+    if (open) {
+      nav.classList.add("is-open");
+      const panel = animate(nav, [
+        { opacity: 0, transform: "translateY(-10px) scaleY(.985)", transformOrigin: "top" },
+        { opacity: 1, transform: "translateY(0) scaleY(1)", transformOrigin: "top" }
+      ], { duration: 260 });
+      links.forEach((link, index) => animate(link, [
+        { opacity: 0, transform: "translateY(-7px)" },
+        { opacity: 1, transform: "translateY(0)" }
+      ], { duration: 210, delay: 24 + index * 28 }));
+      return panel;
+    }
+
+    if (reduced) {
+      nav.classList.remove("is-open");
+      return Promise.resolve();
+    }
+
+    const closing = [
+      animateOut(nav, {
+        duration: 190,
+        frames: [
+          { opacity: 1, transform: "translateY(0) scaleY(1)", transformOrigin: "top" },
+          { opacity: 0, transform: "translateY(-7px) scaleY(.99)", transformOrigin: "top" }
+        ]
+      }),
+      ...links.map((link, index) => animateOut(link, {
+        duration: 130,
+        delay: Math.max(0, links.length - index - 1) * 18,
+        frames: [
+          { opacity: 1, transform: "translateY(0)" },
+          { opacity: 0, transform: "translateY(-4px)" }
+        ]
+      }))
+    ];
+    return Promise.all(closing).then(() => {
+      if (menuTokens.get(nav) === token && button.getAttribute("aria-expanded") !== "true") {
+        nav.classList.remove("is-open");
+      }
+    });
+  }
+
+  const closingDialogs = new WeakSet();
+  function closeDialog(dialog, options = {}) {
+    if (!dialog?.open || closingDialogs.has(dialog)) return Promise.resolve();
+    closingDialogs.add(dialog);
+    const duration = options.duration ?? 220;
+    return Promise.all([
+      animateOut(dialog, {
+        duration,
+        frames: [
+          { opacity: 1, transform: "translateY(0) scale(1)" },
+          { opacity: 0, transform: "translateY(9px) scale(.985)" }
+        ]
+      }),
+      animateBackdropOut(dialog, Math.max(160, duration - 20))
+    ]).then(() => {
+      if (dialog.open) dialog.close();
+    }).finally(() => closingDialogs.delete(dialog));
+  }
+
   window.TokiMotion = Object.freeze({
     animate,
     animateOut,
     animateBackdropOut,
     swap,
     updateText,
+    setMenuOpen,
+    closeDialog,
     get reduced() { return reduced; }
   });
 
