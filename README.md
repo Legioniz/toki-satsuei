@@ -42,6 +42,7 @@ python tests/toki-facebook-embed-qa.py
 python tests/toki-facebook-feed-data-qa.py
 python tests/toki-public-pages-qa.py
 python tests/toki-cinematic-design-qa.py
+python tests/toki-asset-integration-qa.py
 ```
 
 ## Booking, privacy, and image consent
@@ -68,3 +69,21 @@ Official references:
 - [Meta Embedded Posts / Social Plugins](https://developers.facebook.com/docs/plugins/embedded-posts/)
 - [Meta Graph API — oEmbed Post](https://developers.facebook.com/docs/graph-api/reference/oembed-post/)
 - [Meta's official Meta Embeds WordPress plugin](https://github.com/facebook/meta-embeds-for-wordpress)
+
+
+## Runtime integration map
+
+The site is delivered as four static pages with shared behavior and page-specific controllers:
+
+| File | Used by | Responsibility |
+| --- | --- | --- |
+| `styles.css`, `refinement.css`, `cinematic.css`, `motion-system.css` | All public pages | Foundation, refinements, cinematic art direction, and shared motion |
+| `library.css` | `library.html` | Archive layout and album presentation |
+| `policies.css` | Home, policies, and 404 pages | Policy-page and shared long-form page details |
+| `motion-system.js` | Home, archive, and policies | Shared motion, menu, and dialog helpers |
+| `site.js` | Home, archive, and policies | Shared navigation, header behavior, page progress, and home-page interactions |
+| `library.js` | `library.html` | Archive filters, search, media manifest, and album viewer |
+| `facebook-feed.js` + `facebook-posts.json` | `index.html` | Curated Facebook embeds and feed controls |
+| `media-library.json` + `media-library/` | `library.html` | Generated archive index and uploaded media |
+
+Scripts load with `defer` in dependency order: shared motion first, shared page behavior second, and page-specific behavior last. Controllers are scoped so local declarations cannot collide. The archive manifest separates image, video, and total-media counts; the interface labels the combined count as items instead of treating videos as photographs. The asset-integration QA verifies local links, script ordering, runtime data dependencies, media-manifest totals, stylesheet/script usage, and the standalone Pages package. Empty category folders under `media-library/` are intentional upload shelves, not unused assets.
