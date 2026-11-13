@@ -258,3 +258,93 @@ html.motion-system-ready :where(.button,.facebook-feed-scroll-button,.library-fi
   }
   .announcement .red-dot { animation: none !important; }
 }
+
+
+/* Focused finishing pass: mobile navigation, exit states, and fine-grained choreography. */
+.menu-toggle span {
+  transform-origin: center;
+  transition: transform .28s var(--motion-ease),opacity .2s var(--motion-ease),width .28s var(--motion-ease);
+}
+.menu-toggle[aria-expanded="true"] span:first-child { transform: translateY(3.5px) rotate(45deg); }
+.menu-toggle[aria-expanded="true"] span:last-child { transform: translateY(-3.5px) rotate(-45deg); }
+@media (max-width: 820px) {
+  .primary-nav.is-open { transform-origin: top center; }
+  .primary-nav a:not(.nav-contact) {
+    transition: color .22s var(--motion-ease),background-color .22s var(--motion-ease),padding-left .22s var(--motion-ease);
+  }
+  .primary-nav a:not(.nav-contact):hover,
+  .primary-nav a:not(.nav-contact):focus-visible {
+    padding-left: 10px;
+    background: rgba(255,255,255,.045);
+  }
+}
+
+/* Inputs reveal validation feedback only after a visitor has interacted. */
+.inquiry-form input:user-invalid,
+.inquiry-form select:user-invalid,
+.inquiry-form textarea:user-invalid {
+  border-color: #d66a73;
+  box-shadow: 0 0 0 3px rgba(214,106,115,.12);
+}
+.inquiry-form input:user-valid,
+.inquiry-form select:user-valid,
+.inquiry-form textarea:user-valid {
+  border-color: rgba(135,174,146,.72);
+}
+.inquiry-form.is-success .form-submit {
+  border-color: #829d86;
+  background: #536e58;
+  color: #fff;
+}
+.inquiry-form.is-warning .form-submit {
+  border-color: #d66a73;
+  box-shadow: 0 0 0 3px rgba(214,106,115,.12);
+}
+.form-status {
+  min-height: 1.8em;
+  transition: color .25s var(--motion-ease),opacity .2s var(--motion-ease);
+}
+.facebook-feed-filter {
+  transition:
+    color .24s var(--motion-ease),
+    background-color .24s var(--motion-ease),
+    border-color .24s var(--motion-ease),
+    transform .25s var(--motion-ease),
+    box-shadow .25s var(--motion-ease);
+}
+.facebook-feed-filter:hover { transform: translateY(-2px); }
+.facebook-feed-filter:active { transform: scale(.97); }
+.facebook-feed-state {
+  transition: opacity .3s var(--motion-ease),transform .3s var(--motion-ease);
+}
+.facebook-feed-status-wrap { overflow: hidden; }
+.facebook-feed-status { display: inline-block; }
+.archive-group-head .archive-group-kicker,
+.archive-group-head .archive-group-title,
+.archive-group-head .archive-group-description,
+.archive-group-meta {
+  transition: color .28s var(--motion-ease),opacity .28s var(--motion-ease);
+}
+.album-dialog-head .album-dialog-description { transition: opacity .25s var(--motion-ease); }
+.album-frame figcaption { transition: color .24s var(--motion-ease); }
+.album-frame:hover figcaption { color: #f0c4c5; }
+.footer-bottom a { transition: color .25s var(--motion-ease),transform .25s var(--motion-ease); }
+.footer-bottom a:hover { color: #e6a0a5; transform: translateY(-2px); }
+
+/* Respect native dialog dimensions while animating the panel and backdrop. */
+.lightbox[open],
+.library-page .album-dialog[open] {
+  will-change: opacity,transform;
+}
+.lightbox[open]::backdrop,
+.library-page .album-dialog[open]::backdrop {
+  animation: motion-backdrop-arrive .28s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-toggle span { transform: none !important; }
+  .primary-nav a,
+  .facebook-feed-filter,
+  .form-status,
+  .footer-bottom a { transition: none !important; }
+}
