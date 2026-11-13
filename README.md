@@ -10,7 +10,7 @@ The complete standalone TOKI SATSUEI website, kept separate from the Legioniz pe
 - Homepage, services, session guide, and inquiry form
 - Responsive Facebook Page timeline that recalculates its embed width on viewport and orientation changes, with a direct-Page fallback
 - Responsive photo archive with search, category rails, and album viewer
-- TOKI brand SVG, upload-ready media folders, and automatic archive manifest generator
+- Original TOKI SATSUEI brushstroke logo, upload-ready media folders, and automatic archive manifest generator
 - Dedicated GitHub Pages workflow and responsive browser regression tests
 
 ## Enable GitHub Pages (one-time setup)
@@ -34,7 +34,7 @@ python tests/toki-facebook-embed-qa.py
 ```
 
 ## Media note
-The current hero, sample gallery photographs, and main brushstroke emblem are referenced from the original hosted media CDN. The website source and its upload-ready archive structure are independent in this repository; those existing hosted image files have not been copied into Git because the available GitHub file-transfer connection cannot retrieve the original binary media. New archive uploads can be stored directly in this repository under `media-library/`.
+The official TOKI SATSUEI brushstroke logo and the current hero/sample gallery photographs are referenced directly from their original hosted media CDN assets. The logo is used unchanged: the site does not redraw, recolor, or generate a replacement. The website source and upload-ready archive structure remain independent in this repository; those original hosted image files have not been copied into Git because the available GitHub file-transfer connection cannot retrieve the binary media. New archive uploads can be stored directly in this repository under `media-library/`.
 
 ## Facebook timeline behavior
 The homepage uses Meta's official Page Plugin iframe rather than scraping or copying posts. The embed is measured against its column, constrained to 180–500 px, given a taller 980 px browsing area, and left natively scrollable so visitors can browse posts inside the frame. Facebook's own Like, comment, and share controls remain inside the embedded timeline and may require sign-in. A separate Stories shortcut opens the Page itself because Page Stories are not exposed as a separate Page Plugin tab; Facebook controls whether a current Story is visible. Automated tests mock the cross-origin plugin so responsive sizing, scroll settings, and the Stories hand-off can be checked reliably without depending on Facebook's availability during CI.

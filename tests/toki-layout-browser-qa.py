@@ -12,6 +12,8 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC = ROOT
+OFFICIAL_LOGO = "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/30515ce50_Toki_Satsuei_Brushstroke_Emblem.png"
+TEST_IMAGE = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
 FIXTURE = {
     "schema_version": 1, "brand": "TOKI SATSUEI",
     "categories": [{
@@ -23,8 +25,8 @@ FIXTURE = {
             "title": "A long album title used to test wrapping at narrow widths",
             "description": "Responsive modal content must remain within its panel.",
             "media": [
-                {"type": "image", "src": "./media/brand-icon.svg", "title": "First frame", "alt": "First test frame"},
-                {"type": "image", "src": "./media/brand-icon.svg", "title": "Second frame", "alt": "Second test frame"}
+                {"type": "image", "src": TEST_IMAGE, "title": "First frame", "alt": "First test frame"},
+                {"type": "image", "src": TEST_IMAGE, "title": "Second frame", "alt": "Second test frame"}
             ]
         }]
     }]
@@ -85,6 +87,12 @@ def document_width(page, label, width):
 def check_header(page, width, label):
     header, brand, nav, toggle = boxes(page, [".site-header", ".brand", ".primary-nav", ".menu-toggle"])
     assert not header.get("missing"), f"{label}: site header is missing"
+    logo = page.locator(".brand-mark")
+    assert logo.get_attribute("src") == OFFICIAL_LOGO, f"{label}: incorrect logo asset"
+    assert logo.get_attribute("alt") == "TOKI SATSUEI official logo", f"{label}: logo alt text is missing"
+    assert page.locator("link[rel='icon']").get_attribute("href") == OFFICIAL_LOGO, f"{label}: incorrect favicon asset"
+    assert page.locator(".brand-copy").count() == 0, f"{label}: duplicate text logo remains beside the official mark"
+    assert page.locator(".footer-brand img").get_attribute("src") == OFFICIAL_LOGO, f"{label}: footer does not use the official logo"
     if width <= 820:
         assert toggle["display"] != "none", f"{label}: tablet/mobile menu toggle is hidden at {width}px"
         assert nav["display"] == "none", f"{label}: closed navigation is occupying layout at {width}px"

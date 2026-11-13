@@ -8,6 +8,7 @@ from pathlib import Path
 from threading import Thread
 from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parents[1]
+OFFICIAL_LOGO="https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/30515ce50_Toki_Satsuei_Brushstroke_Emblem.png"
 P1="https://www.facebook.com/tokisatsuiephotography/posts/123456789"
 P2="https://www.facebook.com/tokisatsuiephotography/reel/987654321"
 SAMPLE={"schema_version":2,"posts":[{"url":P1,"label":"LATEST FRAME","category":"cosplay","featured":True},{"url":P2,"label":"EVENT RECAP","category":"events","featured":False}]}
@@ -35,7 +36,7 @@ def main():
     page.set_viewport_size({"width":width,"height":850});s=page.evaluate("""()=>({doc:document.documentElement.scrollWidth,col:document.querySelector('.facebook-feed-column').getBoundingClientRect().width,rights:[...document.querySelectorAll('.facebook-embed-card')].map(x=>x.getBoundingClientRect().right),offenders:[...document.body.querySelectorAll('*')].map(x=>{const r=x.getBoundingClientRect(),z=getComputedStyle(x);return {tag:x.tagName,cls:String(x.className||''),right:Math.round(r.right*10)/10,width:Math.round(r.width*10)/10,overflowX:z.overflowX,position:z.position};}).filter(x=>x.right>innerWidth+0.5&&x.width>0).slice(0,12)})""")
     assert s["doc"]<=width+1 and s["col"]>0 and all(x<=width+1 for x in s["rights"]), "Responsive feed overflow at "+str(width)+"px: "+repr(s);checks+=1
    manager=context.new_page();manager.on("pageerror",lambda e:errors.append(str(e)));manager.route("**/facebook-posts.json**",lambda r:r.fulfill(status=200,content_type="application/json",body=json.dumps(SAMPLE)));manager.goto(base+"/feed-manager.html",wait_until="domcontentloaded")
-   manager.locator(".manager-post-row").nth(1).wait_for(state="visible",timeout=6000);assert manager.locator(".manager-post-row").count()==2
+   manager.locator(".manager-post-row").nth(1).wait_for(state="visible",timeout=6000);assert manager.locator(".brand-mark").get_attribute("src")==OFFICIAL_LOGO;assert manager.locator("link[rel='icon']").get_attribute("href")==OFFICIAL_LOGO;assert manager.locator(".brand-copy").count()==0;assert manager.locator(".manager-post-row").count()==2
    manager.locator("#manager-search").fill("event");assert manager.locator(".manager-post-row").count()==1;manager.locator("#manager-search").fill("")
    manager.locator("#manager-url").fill("https://www.facebook.com/tokisatsuiephotography/posts/555555555");manager.locator("#manager-label").fill("Foundation Day");manager.locator("#manager-category").select_option("events");manager.locator("#manager-featured").check();manager.locator("#manager-add-form button[type=submit]").click();assert manager.locator(".manager-post-row").count()==3
    manager.locator("#manager-bulk-input").fill("https://www.facebook.com/tokisatsuiephotography/posts/666666666\nhttps://www.facebook.com/tokisatsuiephotography/posts/777777777");manager.locator("#manager-bulk-add").click();assert manager.locator(".manager-post-row").count()==5

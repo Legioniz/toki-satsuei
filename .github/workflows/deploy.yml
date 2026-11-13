@@ -55,7 +55,7 @@ jobs:
           rm -rf dist
           mkdir -p dist
           cp index.html library.html styles.css library.css site.js library.js facebook-feed.js feed-manager.html feed-manager.js feed-manager.css facebook-posts.json media-library.json dist/
-          cp -R media media-library dist/
+          cp -R media-library dist/
           touch dist/.nojekyll
           test -s dist/index.html
           test -s dist/library.html
@@ -67,7 +67,6 @@ jobs:
           test -s dist/feed-manager.html
           test -s dist/feed-manager.js
           test -s dist/feed-manager.css
-          test -s dist/media/brand-icon.svg
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
