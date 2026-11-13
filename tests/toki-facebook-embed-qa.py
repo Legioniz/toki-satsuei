@@ -33,7 +33,7 @@ def main():
    checks=0
    for width in [1440,1024,820,680,430,390,360,320]:
     page.set_viewport_size({"width":width,"height":850});s=page.evaluate("""()=>({doc:document.documentElement.scrollWidth,col:document.querySelector('.facebook-feed-column').getBoundingClientRect().width,rights:[...document.querySelectorAll('.facebook-embed-card')].map(x=>x.getBoundingClientRect().right)})""")
-    assert s["doc"]<=width+1 and s["col"]>0 and all(x<=width+1 for x in s["rights"]);checks+=1
+    assert s["doc"]<=width+1 and s["col"]>0 and all(x<=width+1 for x in s["rights"]), "Responsive feed overflow at "+str(width)+"px: "+repr(s);checks+=1
    manager=context.new_page();manager.on("pageerror",lambda e:errors.append(str(e)));manager.route("**/facebook-posts.json**",lambda r:r.fulfill(status=200,content_type="application/json",body=json.dumps(SAMPLE)));manager.goto(base+"/feed-manager.html",wait_until="domcontentloaded")
    manager.locator(".manager-post-row").nth(1).wait_for(state="visible",timeout=6000);assert manager.locator(".manager-post-row").count()==2
    manager.locator("#manager-search").fill("event");assert manager.locator(".manager-post-row").count()==1;manager.locator("#manager-search").fill("")

@@ -143,3 +143,11 @@
 
 /* Curated feed search, filters, categories, and featured post treatment. */
 .facebook-feed-tools{display:grid;gap:8px;margin:0 0 13px}.facebook-feed-search-label{color:#82796f;font-size:8px;font-weight:700;letter-spacing:.12em}.facebook-feed-search{width:100%;height:42px;padding:0 12px;border:1px solid #d4ccc1;background:#faf9f6;color:#312c26;font:11px var(--sans);outline:none}.facebook-feed-search:focus{border-color:var(--red)}.facebook-feed-filters{display:flex;gap:6px;overflow-x:auto;padding:2px 0 5px;scrollbar-width:thin}.facebook-feed-filter{flex:0 0 auto;min-height:34px;padding:0 10px;border:1px solid #d7cfc5;background:transparent;color:#756c62;font-size:8px;font-weight:700;letter-spacing:.06em;cursor:pointer}.facebook-feed-filter.is-active,.facebook-feed-filter:hover{border-color:#a91f2c;background:#f4e9e6;color:#a91f2c}.facebook-embed-meta{display:grid;gap:3px;min-width:0}.facebook-embed-category{color:#82796f;font-size:8px;letter-spacing:.06em}.facebook-embed-featured{display:inline-flex;width:max-content;padding:3px 6px;background:#f2e2df;color:#a91f2c;font-size:7px;font-weight:700;letter-spacing:.1em}.facebook-embed-card.is-featured{border-color:#c9aaa3;box-shadow:inset 3px 0 #a91f2c,0 8px 22px #211b1508}
+
+/* Keep feed controls inside the column on narrow mobile screens. */
+.facebook-feed-column,.facebook-feed-tools,.facebook-feed-filters{min-width:0;max-width:100%}
+.facebook-feed-tools{grid-template-columns:minmax(0,1fr)}
+.facebook-feed-filters{width:100%;overflow-x:auto;overscroll-behavior-inline:contain}
+.facebook-feed-toolbar{min-width:0;flex-wrap:wrap}
+.facebook-feed-status-wrap{min-width:0;max-width:100%}
+.facebook-feed-status{min-width:0;overflow-wrap:anywhere}
