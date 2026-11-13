@@ -317,12 +317,24 @@ function makeCategoryGroup(category){
   return section;
 }
 function showEmpty(message,query=""){
-  const empty=element("div","archive-empty");
-  empty.append(element("div","archive-empty-mark","時の記憶"));
-  empty.append(element("h2","",message));
-  empty.append(element("p","","Try another search or choose a different collection. The archive will fill itself as new albums are uploaded."));
+  const empty=element("section","archive-empty");
+  const currentCategory=archiveCategories.find(category=>category.id===activeCategory);
+  const intro=element("div","archive-empty-intro");
+  const mark=element("div","archive-empty-mark","時の記憶");
+  const copy=element("div","archive-empty-copy");
+  const kicker=element("p","archive-empty-kicker",query?"SEARCH THE ARCHIVE":currentCategory?"COLLECTION / "+currentCategory.code:"THE COLLECTION INDEX");
+  const heading=element("h2","",message);
+  const description=element("p","",query
+    ?"Try another title or clear the search to browse every collection."
+    :currentCategory
+      ?currentCategory.description+" This shelf is ready for its first album."
+      :"Six collections are ready for future shoots. Albums and photographs will appear here automatically when they are uploaded.");
+  copy.append(kicker,heading,description);
+  intro.append(mark,copy);
+  empty.append(intro);
+
   if(query){
-    const clear=element("button","archive-clear-search","CLEAR SEARCH");
+    const clear=element("button","archive-empty-action","CLEAR SEARCH");
     clear.type="button";
     clear.addEventListener("click",()=>{
       searchInput.value="";
@@ -331,11 +343,45 @@ function showEmpty(message,query=""){
       searchInput.focus();
     });
     empty.append(clear);
+  }else if(activeCategory==="all"&&archiveCategories.length){
+    const shelfGrid=element("div","archive-shelf-grid");
+    archiveCategories.forEach((category,index)=>{
+      const shelf=element("button","archive-shelf");
+      shelf.type="button";
+      shelf.dataset.category=category.id;
+      shelf.style.setProperty("--shelf-index",String(index));
+      shelf.setAttribute("aria-label","Browse the "+category.title+" collection");
+      const code=element("span","archive-shelf-code",category.code+" / COLLECTION");
+      const title=element("strong","archive-shelf-title",category.title);
+      const detail=element("span","archive-shelf-description",category.description);
+      const meta=element("span","archive-shelf-meta",countWords(category.album_count,"ALBUM","ALBUMS")+"  ·  "+countWords(category.image_count,"FRAME","FRAMES"));
+      const action=element("span","archive-shelf-action","OPEN COLLECTION  ↗");
+      shelf.append(code,title,detail,meta,action);
+      shelf.addEventListener("click",()=>{
+        activeCategory=category.id;
+        updateFilters();
+        animateChange(groups,renderGroups);
+        const activeFilter=filters.querySelector('[data-category="'+category.id+'"]');
+        activeFilter?.focus({preventScroll:true});
+      });
+      shelfGrid.append(shelf);
+    });
+    empty.append(shelfGrid);
+    const guide=element("a","archive-upload-guide","HOW TO ADD PHOTOGRAPHS ↗");
+    guide.href="https://github.com/Legioniz/toki-satsuei/blob/main/media-library/README.md";
+    guide.target="_blank";
+    guide.rel="noopener noreferrer";
+    empty.append(guide);
   }else{
-    const link=element("a","","OPEN MEDIA FOLDERS ↗");
-    link.href="https://github.com/Legioniz/Legioniz.github.io/tree/main/public/toki-satsuei/media-library";
-    link.target="_blank";link.rel="noopener noreferrer";
-    empty.append(link);
+    const back=element("button","archive-empty-action","VIEW ALL COLLECTIONS");
+    back.type="button";
+    back.addEventListener("click",()=>{
+      activeCategory="all";
+      updateFilters();
+      animateChange(groups,renderGroups);
+      filters.querySelector('[data-category="all"]')?.focus({preventScroll:true});
+    });
+    empty.append(back);
   }
   groups.replaceChildren(empty);
 }
