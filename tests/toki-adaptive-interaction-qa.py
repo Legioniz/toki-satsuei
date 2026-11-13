@@ -50,10 +50,12 @@ def main():
    assert home.locator(".lightbox-caption strong").inner_text()==first_title
    home.locator(".lightbox-next").click()
    assert home.locator(".lightbox-caption strong").inner_text()!=first_title,"Next button did not change image"
+   home.wait_for_function("document.querySelector('.lightbox-image').getAnimations().some(animation=>animation.playState==='running')",timeout=2000)
    home.keyboard.press("ArrowLeft")
    assert home.locator(".lightbox-caption strong").inner_text()==first_title,"Left arrow did not return to first image"
    assert home.locator(".lightbox-position").inner_text()=="01 / 04"
    home.locator(".lightbox-close").click()
+   assert dialog.evaluate("(el)=>el.getAnimations().some(animation=>animation.playState==='running')"),"Lightbox exit transition did not start"
    home.wait_for_function("!document.querySelector('#lightbox').open")
    assert not dialog.evaluate("(el)=>el.open")
    passed+=1
@@ -87,6 +89,7 @@ def main():
    assert icon_transform != "none", "Mobile menu icon did not animate into its open state"
    home.keyboard.press("Escape")
    assert menu.get_attribute("aria-expanded")=="false"
+   assert home.locator(".primary-nav").evaluate("(el)=>el.getAnimations().some(animation=>animation.playState==='running')"),"Mobile menu exit transition did not start"
    home.wait_for_function("!document.querySelector('.primary-nav').classList.contains('is-open')")
    menu.click()
    home.evaluate("document.querySelector('.hero-opening').dispatchEvent(new MouseEvent('click',{bubbles:true}))")
@@ -117,6 +120,7 @@ def main():
    archive.keyboard.press("Home")
    archive.wait_for_function("document.querySelector('#album-dialog-position').textContent==='01 / 03'")
    archive.locator(".album-dialog-close").click()
+   assert album_dialog.evaluate("(el)=>el.getAnimations().some(animation=>animation.playState==='running')"),"Album dialog exit transition did not start"
    archive.wait_for_function("!document.querySelector('#album-dialog').open")
    assert not album_dialog.evaluate("(el)=>el.open")
    assert card.evaluate("(el)=>el===document.activeElement"),"Album dialog did not restore focus to its launch card"
