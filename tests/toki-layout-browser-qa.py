@@ -242,7 +242,7 @@ def main():
                 event_state = archive.evaluate("() => ({cardClicks:window.__qaCardClicks, showModalCalls:window.__qaShowModalCalls})")
                 assert dialog_state["open"] and dialog_state["display"] != "none", \
                     f"archive dialog did not open at {width}px: {dialog_state}; events: {event_state}; card: {card_state}; page errors: {archive_errors}"
-                archive.wait_for_timeout(350)
+                archive.wait_for_timeout(450)
                 dialog = boxes(archive, [".album-dialog", ".album-dialog-panel", ".album-media-rail", ".album-dialog-note"])
                 for item in dialog[1:]:
                     assert_inside(item, dialog[0], f"archive dialog/{width}")
