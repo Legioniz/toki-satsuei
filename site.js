@@ -11,14 +11,17 @@ let reducedMotion=reduceMotionQuery.matches;
 
 function setMenuOpen(open,returnFocus=false){
   if(!menuButton||!nav)return;
-  nav.classList.toggle("is-open",open);
-  menuButton.setAttribute("aria-expanded",String(open));
-  menuButton.setAttribute("aria-label",open?"Close navigation":"Open navigation");
+  if(window.TokiMotion?.setMenuOpen)window.TokiMotion.setMenuOpen(menuButton,nav,open);
+  else{
+    nav.classList.toggle("is-open",open);
+    menuButton.setAttribute("aria-expanded",String(open));
+    menuButton.setAttribute("aria-label",open?"Close navigation":"Open navigation");
+  }
   if(open)setHeaderHidden(false);
   if(!open&&returnFocus)menuButton.focus();
 }
 if(menuButton&&nav){
-  menuButton.addEventListener("click",()=>setMenuOpen(!nav.classList.contains("is-open")));
+  menuButton.addEventListener("click",()=>setMenuOpen(menuButton.getAttribute("aria-expanded")!=="true"));
   nav.querySelectorAll("a").forEach(link=>link.addEventListener("click",()=>setMenuOpen(false)));
   document.addEventListener("click",event=>{
     if(nav.classList.contains("is-open")&&!siteHeader?.contains(event.target))setMenuOpen(false);
@@ -173,9 +176,14 @@ function stepLightbox(direction){
 galleryCards.forEach(card=>card.addEventListener("click",()=>openLightbox(card)));
 lightboxPrevious?.addEventListener("click",()=>stepLightbox(-1));
 lightboxNext?.addEventListener("click",()=>stepLightbox(1));
-function closeLightbox(){if(lightbox?.open)lightbox.close();}
+function closeLightbox(){
+  if(!lightbox?.open)return;
+  if(window.TokiMotion?.closeDialog)window.TokiMotion.closeDialog(lightbox);
+  else lightbox.close();
+}
 document.querySelector(".lightbox-close")?.addEventListener("click",closeLightbox);
 lightbox?.addEventListener("click",event=>{if(event.target===lightbox)closeLightbox();});
+lightbox?.addEventListener("cancel",event=>{event.preventDefault();closeLightbox();});
 lightbox?.addEventListener("touchstart",event=>{
   const touch=event.changedTouches?.[0];if(!touch)return;
   touchStartX=touch.clientX;touchStartY=touch.clientY;
@@ -203,7 +211,11 @@ function selectSession(card,{moveToForm=true}={}) {
   });
   sessionSelect.value=card.dataset.session;
   sessionSelect.dispatchEvent(new Event("change",{bubbles:true}));
-  if(status)status.textContent="Selected "+(card.dataset.sessionTitle||"session")+". Add your preferred date and shoot details below.";
+  if(status){
+    const message="Selected "+(card.dataset.sessionTitle||"session")+". Add your preferred date and shoot details below.";
+    if(window.TokiMotion?.updateText)window.TokiMotion.updateText(status,message);
+    else status.textContent=message;
+  }
   form?.classList.add("is-prefilled");
   window.setTimeout(()=>form?.classList.remove("is-prefilled"),1100);
   if(moveToForm&&form){
@@ -255,8 +267,13 @@ form?.addEventListener("submit",async event=>{
     try{copied=document.execCommand("copy");}catch(error){copied=false;}
     temp.remove();
   }
-  status.textContent=copied
+  const message=copied
     ?"Inquiry copied. Open our Facebook page and paste it into a message."
     :"Copy isn't available in this browser. Your details are still here—select and copy them manually.";
+  form.classList.toggle("is-success",copied);
+  form.classList.toggle("is-warning",!copied);
+  window.setTimeout(()=>form.classList.remove("is-success","is-warning"),1800);
+  if(window.TokiMotion?.updateText)window.TokiMotion.updateText(status,message);
+  else status.textContent=message;
 });
 const year=document.querySelector("#year");if(year)year.textContent=String(new Date().getFullYear());
