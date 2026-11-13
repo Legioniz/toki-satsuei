@@ -1,0 +1,260 @@
+/* TOKI SATSUEI — shared motion system
+   Editorial entrances, tactile controls, and restrained interaction feedback. */
+:root {
+  --motion-ease: cubic-bezier(.2,.7,.2,1);
+  --motion-fast: 220ms;
+  --motion-medium: 420ms;
+}
+
+/* Motion is applied to meaningful content blocks, never to every text node. */
+html.motion-system-ready :where(a,button,input,select,textarea,summary,[role="button"]) {
+  -webkit-tap-highlight-color: transparent;
+  transition-property: color,background-color,border-color,box-shadow,opacity,transform,filter;
+  transition-duration: var(--motion-fast);
+  transition-timing-function: var(--motion-ease);
+}
+html.motion-system-ready :where(img,video) {
+  transition-property: opacity,filter,transform;
+  transition-duration: .55s,.4s,.7s;
+  transition-timing-function: var(--motion-ease);
+}
+html.motion-system-ready :where(h1,h2,h3,h4,p,small,strong,em,label,figcaption) {
+  transition: color .28s var(--motion-ease),text-shadow .32s var(--motion-ease);
+}
+
+.motion-item {
+  opacity: 0;
+  translate: 0 18px;
+  filter: blur(2px);
+  transition:
+    opacity .72s var(--motion-ease),
+    translate .72s var(--motion-ease),
+    filter .72s var(--motion-ease);
+  transition-delay: var(--motion-delay,0ms);
+  will-change: opacity,translate;
+}
+.motion-item.is-motion-visible {
+  opacity: 1;
+  translate: 0 0;
+  filter: none;
+  will-change: auto;
+}
+
+/* Header, navigation, and page chrome. */
+.announcement .red-dot {
+  box-shadow: 0 0 0 0 rgba(194,58,69,.28);
+  animation: motion-beacon 4.8s ease-out infinite;
+}
+.brand,
+.footer-brand {
+  transform-origin: center;
+  transition: transform .42s var(--motion-ease),filter .42s var(--motion-ease);
+}
+.brand:hover,
+.footer-brand:hover { transform: translateY(-2px); filter: brightness(1.1); }
+.primary-nav a {
+  transition: color .25s var(--motion-ease),background-color .25s var(--motion-ease),border-color .25s var(--motion-ease);
+}
+.primary-nav a:not(.nav-contact):hover,
+.primary-nav a[aria-current="location"] { color: #fff; }
+.primary-nav .nav-contact span,
+.nav-contact span,
+.hero-actions a span,
+.text-link span,
+.facebook-follow-link span,
+.facebook-story-link span,
+.package-link span,
+.service-arrow,
+.gallery-meta i,
+.album-card-arrow,
+.footer-socials a {
+  transition: transform .3s var(--motion-ease),color .25s var(--motion-ease),opacity .25s var(--motion-ease);
+}
+.primary-nav .nav-contact:hover span,
+.nav-contact:hover span { transform: translate(3px,-2px); }
+.menu-toggle {
+  transition: background-color .25s var(--motion-ease),border-color .25s var(--motion-ease),transform .25s var(--motion-ease);
+}
+.menu-toggle:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.65); }
+.menu-toggle:active { transform: scale(.96); }
+
+/* Buttons and links share one tactile response without changing their layout. */
+html.motion-system-ready :where(.button,.nav-contact,.facebook-follow-link,.facebook-feed-scroll-button,.filter-button,.library-filter,.rail-button,.album-dialog-close,.lightbox-close,.lightbox-nav,.back-to-top,.back-top,.archive-clear-search) {
+  transition:
+    color .24s var(--motion-ease),
+    background-color .24s var(--motion-ease),
+    border-color .24s var(--motion-ease),
+    box-shadow .3s var(--motion-ease),
+    transform .28s var(--motion-ease),
+    opacity .24s var(--motion-ease);
+}
+html.motion-system-ready :where(.button,.facebook-follow-link,.facebook-feed-scroll-button,.library-filter,.rail-button,.album-dialog-close,.lightbox-close,.lightbox-nav,.back-to-top,.archive-clear-search):hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 9px 22px rgba(24,19,16,.12);
+}
+html.motion-system-ready :where(.button,.facebook-feed-scroll-button,.library-filter,.rail-button,.album-dialog-close,.lightbox-close,.lightbox-nav,.back-to-top,.archive-clear-search):active:not(:disabled) {
+  transform: translateY(0) scale(.97);
+  box-shadow: none;
+}
+.text-link:hover,
+.facebook-story-link:hover { color: var(--red-bright); }
+.text-link:hover span,
+.hero-actions a:hover span,
+.facebook-follow-link:hover span,
+.facebook-story-link:hover span { transform: translate(3px,-2px); }
+
+/* Work gallery, social feed, services, and session details. */
+.gallery-card {
+  transition:
+    transform .46s var(--motion-ease),
+    box-shadow .46s var(--motion-ease),
+    border-color .32s var(--motion-ease),
+    opacity .32s var(--motion-ease);
+}
+.gallery-card:active { transform: translateY(-1px) scale(.992); }
+.gallery-card:hover .gallery-meta i { transform: translate(3px,-3px); color: var(--red); }
+.gallery-card:focus-visible { outline-offset: 4px; }
+.filter-button { position: relative; }
+.filter-button span { transition: color .25s var(--motion-ease),transform .25s var(--motion-ease); }
+.filter-button:hover span { transform: translateY(-2px); color: var(--red); }
+.facebook-embed-card {
+  transition: transform .4s var(--motion-ease),box-shadow .4s var(--motion-ease),border-color .3s var(--motion-ease),opacity .35s;
+}
+.facebook-feed-scroll-button:not(:disabled):hover { box-shadow: 0 8px 18px rgba(150,42,52,.18); }
+.service-row {
+  transition: padding .34s var(--motion-ease),background-color .34s var(--motion-ease),border-color .34s var(--motion-ease);
+}
+.service-row h3 { transition: color .28s var(--motion-ease); }
+.service-row:hover h3 { color: #fff; }
+.service-row:hover .service-number { transform: translateX(3px); }
+.service-number { transition: transform .3s var(--motion-ease),color .3s var(--motion-ease); }
+.session-notes > div {
+  transition: background-color .3s var(--motion-ease),transform .3s var(--motion-ease),padding .3s var(--motion-ease);
+}
+.session-notes > div:hover { background: rgba(255,255,255,.22); transform: translateY(-2px); }
+.package-art { transition: filter .4s var(--motion-ease),background-position .65s var(--motion-ease); }
+.package-card:hover .package-art { filter: saturate(1.12) brightness(1.06); }
+.package-card:active { filter: brightness(.98); }
+
+/* About, inquiry form, footer, and return-to-top control. */
+.about-visual {
+  transition: box-shadow .45s var(--motion-ease),transform .45s var(--motion-ease);
+}
+.about-visual:hover { transform: translateY(-3px); box-shadow: 0 30px 72px rgba(28,22,18,.2); }
+.about-copy .about-signature { transition: border-color .3s var(--motion-ease),transform .3s var(--motion-ease); }
+.about-copy:hover .about-signature { border-color: rgba(150,42,52,.45); transform: translateX(3px); }
+.contact-panel { transition: box-shadow .45s var(--motion-ease),border-color .35s var(--motion-ease); }
+.contact-panel:focus-within { border-color: rgba(192,74,85,.7); }
+.inquiry-form label {
+  transition: color .25s var(--motion-ease),transform .25s var(--motion-ease);
+}
+.inquiry-form label:focus-within { color: #f0c3c4; transform: translateX(2px); }
+.inquiry-form input,
+.inquiry-form select,
+.inquiry-form textarea,
+.archive-search {
+  transition:
+    border-color .26s var(--motion-ease),
+    background-color .26s var(--motion-ease),
+    box-shadow .3s var(--motion-ease),
+    transform .26s var(--motion-ease);
+}
+.inquiry-form input:focus,
+.inquiry-form select:focus,
+.inquiry-form textarea:focus,
+.archive-search:focus-within {
+  box-shadow: 0 0 0 3px rgba(192,74,85,.13);
+}
+.form-submit span { display: inline-block; transition: transform .3s var(--motion-ease); }
+.form-submit:hover span { transform: translate(4px,-3px); }
+.footer-socials a:hover { color: #f0a1a6; transform: translateY(-3px); }
+.footer-main .back-top:hover { transform: translateY(-2px); }
+.back-to-top {
+  transition: opacity .35s var(--motion-ease),transform .35s var(--motion-ease),background-color .25s,box-shadow .3s;
+}
+.back-to-top.is-visible { animation: motion-button-arrive .42s var(--motion-ease) both; }
+
+/* Archive controls, album cards, and modal transitions. */
+.library-page .library-filter,
+.library-page .rail-button,
+.library-page .album-card,
+.library-page .album-dialog-close {
+  transition-timing-function: var(--motion-ease);
+}
+.library-page .library-filter:hover:not([aria-pressed="true"]),
+.library-page .rail-button:hover:not(:disabled) { transform: translateY(-2px); }
+.library-page .album-card {
+  transition: transform .42s var(--motion-ease),opacity .35s var(--motion-ease),filter .35s var(--motion-ease);
+}
+.library-page .album-card:hover { filter: saturate(1.08); }
+.library-page .album-card:active { transform: translateY(-1px) scale(.99); }
+.library-page .album-card:hover .album-card-arrow { transform: translate(4px,-3px); }
+.library-page .album-cover img,
+.library-page .album-cover video {
+  transition: transform .75s var(--motion-ease),filter .42s var(--motion-ease),opacity .4s;
+}
+.library-page .album-dialog[open],
+.lightbox[open] {
+  animation: motion-dialog-arrive .38s var(--motion-ease) both;
+}
+.library-page .album-dialog::backdrop,
+.lightbox::backdrop {
+  animation: motion-backdrop-arrive .36s ease both;
+}
+.album-dialog-close:hover,
+.lightbox-close:hover { transform: rotate(90deg) scale(1.04); }
+.lightbox-nav:hover:not(:disabled) { transform: translateY(-50%) scale(1.06); }
+.library-page .album-dialog-tools .rail-button:hover { transform: translateY(-2px); }
+
+/* Subtle section and page transitions. */
+@keyframes motion-beacon {
+  0%,72%,100% { box-shadow: 0 0 0 0 rgba(194,58,69,0); }
+  82% { box-shadow: 0 0 0 5px rgba(194,58,69,.13); }
+}
+@keyframes motion-button-arrive {
+  from { opacity: 0; translate: 0 7px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes motion-dialog-arrive {
+  from { opacity: 0; transform: translateY(12px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes motion-backdrop-arrive {
+  from { background: rgba(0,0,0,0); }
+  to { background: rgba(0,0,0,.72); }
+}
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: motion-page-leave .2s ease both; }
+::view-transition-new(root) { animation: motion-page-arrive .32s var(--motion-ease) both; }
+@keyframes motion-page-leave {
+  to { opacity: 0; filter: blur(2px); }
+}
+@keyframes motion-page-arrive {
+  from { opacity: 0; filter: blur(2px); }
+  to { opacity: 1; filter: blur(0); }
+}
+
+@media (hover: none) {
+  .session-notes > div:hover,
+  .about-visual:hover,
+  .brand:hover { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.motion-system-ready *,
+  html.motion-system-ready *::before,
+  html.motion-system-ready *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+  .motion-item,
+  .motion-item.is-motion-visible {
+    opacity: 1 !important;
+    translate: none !important;
+    filter: none !important;
+    transition: none !important;
+    will-change: auto !important;
+  }
+  .announcement .red-dot { animation: none !important; }
+}
