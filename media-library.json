@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "brand": "TOKI SATSUEI",
+  "categories": [
+    {
+      "id": "cosplay",
+      "title": "Cosplay",
+      "description": "Character portraits, costumes, and the details that bring a concept to life.",
+      "code": "01",
+      "album_count": 0,
+      "image_count": 0,
+      "albums": []
+    },
+    {
+      "id": "portraits",
+      "title": "Portraits",
+      "description": "Individual portraits made at an easy pace, with room for personality.",
+      "code": "02",
+      "album_count": 0,
+      "image_count": 0,
+      "albums": []
+    },
+    {
+      "id": "duo-groups",
+      "title": "Duo & groups",
+      "description": "Shared frames, paired characters, and the people behind them.",
+      "code": "03",
+      "album_count": 0,
+      "image_count": 0,
+      "albums": []
+    },
+    {
+      "id": "events",
+      "title": "Events",
+      "description": "Convention days, gatherings, performances, and moments in between.",
+      "code": "04",
+      "album_count": 0,
+      "image_count": 0,
+      "albums": []
+    },
+    {
+      "id": "casual-outdoor",
+      "title": "Casual & outdoor",
+      "description": "Unhurried sessions in the places where memories happen.",
+      "code": "05",
+      "album_count": 0,
+      "image_count": 0,
+      "albums": []
+    },
+    {
+      "id": "behind-the-scenes",
+      "title": "Behind the camera",
+      "description": "Setups, preparation, and the people making each frame.",
+      "code": "06",
+      "album_count": 0,
+      "image_count": 0,
+      "albums": []
+    }
+  ]
+}

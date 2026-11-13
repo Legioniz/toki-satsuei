@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101010">
+  <meta name="description" content="Browse the TOKI SATSUEI photography archive: cosplay, portraits, events, group sessions, and everyday moments.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="TOKI SATSUEI — The Archive">
+  <meta property="og:description" content="A growing archive of people, characters, and moments worth keeping.">
+  <meta property="og:url" content="https://legioniz.github.io/toki-satsuei/library.html">
+  <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"Organization","name":"TOKI SATSUEI Photography","url":"https://legioniz.github.io/toki-satsuei/","sameAs":["https://www.facebook.com/tokisatsuiephotography/","https://www.instagram.com/tokisatsuiephotography/"]}
+  </script>
+  <title>TOKI SATSUEI — The Archive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="./media/brand-icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css?v=20261114-standalone-1">
+  <link rel="stylesheet" href="./library.css?v=20261114-standalone-1">
+  <script src="./library.js?v=20261114-standalone-1" defer></script>
+</head>
+<body class="library-page">
+  <div class="announcement"><span class="red-dot"></span> QUEZON CITY, PHILIPPINES <span class="announce-divider">/</span> THE TOKI SATSUEI ARCHIVE</div>
+  <div class="page-progress" aria-hidden="true"><span id="page-progress-bar"></span></div>
+  <header class="site-header" id="top">
+    <a class="brand" href="./index.html" aria-label="TOKI SATSUEI home">
+      <img src="https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/30515ce50_Toki_Satsuei_Brushstroke_Emblem.png" alt="" class="brand-mark">
+      <span class="brand-copy"><strong>TOKI SATSUEI</strong><small>時の記憶</small></span>
+    </a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation"><span></span><span></span></button>
+    <nav id="primary-nav" class="primary-nav" aria-label="Main navigation">
+      <a href="./index.html#work">Selected frames</a>
+      <a class="is-current" href="./library.html" aria-current="page">The archive</a>
+      <a href="./index.html#sessions">Sessions</a>
+      <a href="./index.html#about">Our story</a>
+      <a class="nav-contact" href="./index.html#contact">Let's talk <span>↗</span></a>
+    </nav>
+  </header>
+  <main class="library-main">
+    <section class="library-hero section-wrap">
+      <p class="eyebrow"><span>08</span> THE TOKI SATSUEI ARCHIVE</p>
+      <h1>A place for<br><em>every frame.</em></h1>
+      <div class="library-hero-bottom">
+        <p>Browse by kind, then open an album to move through its moments. New folders find their place here automatically after the next site deployment.</p>
+        <span class="archive-signature"><span>時</span><span>の</span><span>記</span><span>憶</span></span>
+      </div>
+      <div class="library-rule"><span>COLLECTED WITH CARE</span><span>PHOTOGRAPHS · STORIES · SMALL MOMENTS</span></div>
+    </section>
+    <section class="library-content section-wrap" aria-label="Media archive">
+      <div class="library-toolbar reveal-on-scroll">
+        <div class="library-toolbar-main">
+          <p class="eyebrow"><span>01</span> BROWSE COLLECTIONS</p>
+          <div class="library-filters" id="library-filters" role="group" aria-label="Filter archive by category"></div>
+        </div>
+        <div class="library-tools">
+          <label class="archive-search" for="archive-search">
+            <span class="archive-search-icon" aria-hidden="true">⌕</span>
+            <input id="archive-search" type="search" placeholder="Find an album" autocomplete="off" spellcheck="false">
+            <kbd>/</kbd>
+          </label>
+          <p class="library-count" id="library-count" aria-live="polite">Preparing the archive…</p>
+        </div>
+      </div>
+      <div class="library-groups" id="library-groups" aria-live="polite"></div>
+      <noscript><p class="library-empty">Please enable JavaScript to browse the interactive archive.</p></noscript>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="section-wrap footer-main">
+      <a class="footer-brand" href="./index.html">TOKI SATSUEI<span>時の記憶</span></a>
+      <div class="footer-socials" role="group" aria-label="Official TOKI SATSUEI social accounts">
+        <a class="back-top" href="https://www.facebook.com/tokisatsuiephotography/" target="_blank" rel="noopener noreferrer" aria-label="TOKI SATSUEI on Facebook">FACEBOOK ↗</a>
+        <a class="back-top" href="https://www.instagram.com/tokisatsuiephotography/" target="_blank" rel="noopener noreferrer" aria-label="TOKI SATSUEI on Instagram">INSTAGRAM ↗</a>
+      </div>
+      <p>CAPTURING MOMENTS,<br>PRESERVING MEMORIES.</p>
+      <a class="back-top" href="#top">BACK TO TOP ↑</a>
+    </div>
+    <div class="section-wrap footer-bottom"><span>© <span id="year">2026</span> TOKI SATSUEI</span><span>QUEZON CITY, PHILIPPINES</span><span>MADE WITH CARE, ONE FRAME AT A TIME.</span></div>
+  </footer>
+  <dialog class="album-dialog" id="album-dialog" aria-labelledby="album-dialog-title">
+    <div class="album-dialog-panel">
+      <div class="album-dialog-head">
+        <div>
+          <p class="eyebrow"><span id="album-dialog-category">THE ARCHIVE</span></p>
+          <h2 id="album-dialog-title">Album title</h2>
+          <p class="album-dialog-description" id="album-dialog-description"></p>
+        </div>
+        <button class="album-dialog-close" type="button" aria-label="Close album">×</button>
+      </div>
+      <div class="album-dialog-tools">
+        <div class="album-dialog-status">
+          <span class="album-dialog-count" id="album-dialog-count"></span>
+          <span class="album-dialog-position" id="album-dialog-position">01 / 01</span>
+        </div>
+        <div class="rail-controls">
+          <button class="rail-button" type="button" data-dialog-scroll="-1" aria-label="Scroll album left">←</button>
+          <button class="rail-button" type="button" data-dialog-scroll="1" aria-label="Scroll album right">→</button>
+        </div>
+      </div>
+      <div class="album-dialog-progress" aria-hidden="true"><span id="album-progress-bar"></span></div>
+      <div class="album-media-rail" id="album-media-rail" tabindex="0" role="region" aria-label="Album photographs"></div>
+      <p class="album-dialog-note">Swipe, scroll, or use the arrows to move between frames. Images stay at a comfortable viewing size.</p>
+    </div>
+  </dialog>
+</body>
+</html>

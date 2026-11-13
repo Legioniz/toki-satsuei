@@ -1,0 +1,83 @@
+name: Build and deploy TOKI SATSUEI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: toki-satsuei-pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-and-package:
+    permissions:
+      contents: read
+      pages: write
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: '3.11'
+
+      - name: Install browser test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-test.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Build media archive manifest
+        run: python scripts/build-toki-media-library.py
+
+      - name: Verify responsive layouts
+        run: python tests/toki-layout-browser-qa.py
+
+      - name: Verify adaptive interactions
+        run: python tests/toki-adaptive-interaction-qa.py
+
+      - name: Assemble standalone Pages artifact
+        run: |
+          set -euo pipefail
+          rm -rf dist
+          mkdir -p dist
+          cp index.html library.html styles.css library.css site.js library.js media-library.json dist/
+          cp -R media media-library dist/
+          touch dist/.nojekyll
+          test -s dist/index.html
+          test -s dist/library.html
+          test -s dist/styles.css
+          test -s dist/library.js
+          test -s dist/media-library.json
+          test -s dist/media/brand-icon.svg
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
+        with:
+          path: ./dist
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    runs-on: ubuntu-24.04
+    needs: verify-and-package
+    steps:
+      - name: Deploy verified Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346

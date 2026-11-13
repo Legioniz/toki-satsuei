@@ -7,11 +7,11 @@ The complete standalone TOKI SATSUEI website, kept separate from the Legioniz pe
 - **Instagram:** https://www.instagram.com/tokisatsuiephotography/
 
 ## Included
-- Homepage, service guide, session packages, and inquiry form
+- Homepage, services, session guide, and inquiry form
 - Embedded live-updating Facebook Page timeline
 - Responsive photo archive with search, category rails, and album viewer
-- TOKI brand SVG, media-library upload folders, and archive manifest generator
-- Dedicated GitHub Pages workflow and browser regression tests
+- TOKI brand SVG, upload-ready media folders, and automatic archive manifest generator
+- Dedicated GitHub Pages workflow and responsive browser regression tests
 
 ## Add photos and videos
 Upload web-ready JPG, JPEG, PNG, WEBP, AVIF, GIF, MP4, or WEBM files into an album folder under `media-library/`.
@@ -30,4 +30,4 @@ python tests/toki-adaptive-interaction-qa.py
 ```
 
 ## Media note
-The current hero, sample gallery photographs, and main brushstroke emblem are referenced from the original hosted media CDN. The portfolio source and its upload-ready archive structure are independent in this repository; those existing hosted image files have not been copied into Git because the available file-transfer connection cannot retrieve the original binary media. New archive uploads can be stored directly in this repository under `media-library/`.
+The current hero, sample gallery photographs, and main brushstroke emblem are referenced from the original hosted media CDN. The website source and its upload-ready archive structure are independent in this repository; those existing hosted image files have not been copied into Git because the available GitHub file-transfer connection cannot retrieve the original binary media. New archive uploads can be stored directly in this repository under `media-library/`.
