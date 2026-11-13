@@ -51,8 +51,8 @@
     @media(max-width:680px){.hero-opening{min-height:max(640px,calc(100svh - 100px));min-height:max(640px,calc(100dvh - 100px))}.hero-opening .hero-bottom-rule{align-items:flex-start;flex-wrap:wrap}.hero-opening .hero-bottom-rule span:first-child{white-space:nowrap}.hero-opening .hero-bottom-rule span:last-child{max-width:100%;text-align:left}}
     @media(max-height:560px) and (orientation:landscape){.hero-opening{min-height:540px;padding-top:64px;padding-bottom:64px}.hero-opening h1{font-size:clamp(48px,7.5vw,74px)}.hero-opening .hero-footnote{margin-top:18px}.hero-opening .hero-bottom-rule{padding-block:9px}.hero-opening .hero-frame{display:none}}
   </style>
-  <link rel="stylesheet" href="./refinement.css?v=20261114-art-direction-1">
-  <script src="./site.js?v=20261114-feature-pack-1" defer></script>
+  <link rel="stylesheet" href="./refinement.css?v=20261114-motion-interactions-1">
+  <script src="./site.js?v=20261114-motion-interactions-1" defer></script>
   <script src="./facebook-feed.js?v=20261114-logo-match-3" defer></script>
 </head>
 <body>
@@ -168,34 +168,37 @@
         <div><p class="eyebrow"><span>06</span> SESSION GUIDE</p><h2>Choose your <em>pace.</em></h2></div>
         <p class="section-aside">A starting point for planning your shoot. We'll confirm availability, location, and the final details through chat.</p>
       </div>
-      <div class="package-grid" data-reveal="up">
-        <article class="package-card" data-reveal="up">
+      <div class="package-grid" data-reveal="up" role="group" aria-label="Choose a photography session">
+        <article class="package-card" data-reveal="up" data-session="Cosplay photoshoot" data-session-title="Quick Snap" role="button" tabindex="0" aria-pressed="false" aria-label="Select Quick Snap, 15 minutes, ₱200">
+          <div class="package-art package-art--quick" aria-hidden="true"><span class="package-art-index">01 / QUICK</span><span class="package-art-title">Quick<br>Snap</span><span class="package-art-mark">時</span><span class="package-art-caption">A little time, a frame to keep.</span></div>
           <div class="package-top"><span>01 / QUICK</span><span>15 MIN</span></div>
           <h3>Quick Snap</h3><p class="package-price">₱200</p>
           <ul><li>3 edited photos</li><li>Selected unedited JPEGs</li><li>1 character / outfit</li><li>Basic colour grading</li></ul>
-          <a href="#contact" class="package-link" data-session="Cosplay photoshoot">Ask about Quick Snap <span>↗</span></a>
+          <span class="package-link" aria-hidden="true">SELECT THIS SESSION <span>↗</span></span>
         </article>
-        <article class="package-card package-featured" data-reveal="up">
+        <article class="package-card package-featured" data-reveal="up" data-session="Individual portrait" data-session-title="Toki Portraits" role="button" tabindex="0" aria-pressed="false" aria-label="Select Toki Portraits, 30 minutes, ₱350">
+          <div class="package-art package-art--portrait" aria-hidden="true"><span class="package-art-index">02 / PORTRAIT</span><span class="package-art-title">Toki<br>Portraits</span><span class="package-art-mark">の</span><span class="package-art-caption">Your character, your way.</span></div>
           <div class="package-top"><span>02 / PORTRAIT</span><span>30 MIN</span></div>
           <div class="package-ribbon">TOKI PORTRAITS</div>
           <h3>Toki Portraits</h3><p class="package-price">₱350</p>
           <ul><li>6 edited photos</li><li>Selected unedited JPEGs</li><li>Multiple poses & compositions</li><li>Basic adjustments</li></ul>
-          <a href="#contact" class="package-link" data-session="Individual portrait">Ask about Toki Portraits <span>↗</span></a>
+          <span class="package-link" aria-hidden="true">SELECT THIS SESSION <span>↗</span></span>
         </article>
-        <article class="package-card" data-reveal="up">
+        <article class="package-card" data-reveal="up" data-session="Individual portrait" data-session-title="Signature Session" role="button" tabindex="0" aria-pressed="false" aria-label="Select Signature Session, 60 minutes, ₱500">
+          <div class="package-art package-art--signature" aria-hidden="true"><span class="package-art-index">03 / SIGNATURE</span><span class="package-art-title">Signature<br>Session</span><span class="package-art-mark">記</span><span class="package-art-caption">More room to create.</span></div>
           <div class="package-top"><span>03 / SIGNATURE</span><span>60 MIN</span></div>
           <h3>Signature Session</h3><p class="package-price">₱500</p>
           <ul><li>10 edited photos</li><li>Selected unedited JPEGs</li><li>More creative poses</li><li>Individual adjustments</li></ul>
-          <a href="#contact" class="package-link" data-session="Individual portrait">Ask about Signature <span>↗</span></a>
+          <span class="package-link" aria-hidden="true">SELECT THIS SESSION <span>↗</span></span>
         </article>
-        <article class="package-card" data-reveal="up">
+        <article class="package-card" data-reveal="up" data-session="Duo / group session" data-session-title="Duo Session" role="button" tabindex="0" aria-pressed="false" aria-label="Select Duo Session, 30 minutes, ₱450">
+          <div class="package-art package-art--duo" aria-hidden="true"><span class="package-art-index">04 / TOGETHER</span><span class="package-art-title">Duo<br>Session</span><span class="package-art-mark">憶</span><span class="package-art-caption">Two stories, one frame.</span></div>
           <div class="package-top"><span>04 / TOGETHER</span><span>30 MIN</span></div>
           <h3>Duo Session</h3><p class="package-price">₱450</p>
           <ul><li>Up to 2 cosplayers</li><li>6 edited photos</li><li>Selected unedited JPEGs</li><li>Individual & duo shots</li></ul>
-          <a href="#contact" class="package-link" data-session="Duo / group session">Ask about Duo Session <span>↗</span></a>
+          <span class="package-link" aria-hidden="true">SELECT THIS SESSION <span>↗</span></span>
         </article>
-      </div>
-      <div class="session-notes" data-reveal="up">
+      </div>      <div class="session-notes" data-reveal="up">
         <div><small>ADD-ONS</small><p>Additional edited photo <b>₱30</b><br>Additional 15 minutes <b>₱75</b><br>Additional participant <b>₱50</b></p></div>
         <div><small>DELIVERY</small><p>Edited photos and selected unedited JPEGs through Google Drive, within 7 days.</p></div>
         <div><small>LOCATION</small><p>Free transportation within Quezon City. Travel outside QC is discussed before confirmation.</p></div>
