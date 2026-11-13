@@ -49,11 +49,11 @@ a,button{ -webkit-tap-highlight-color:transparent }
 }
 .announcement .red-dot{background:#c64c56}
 .site-header{
-  background:#080808!important;
+  background:#000!important;
   border-bottom:1px solid rgba(255,255,255,.15);
   box-shadow:0 9px 28px rgba(0,0,0,.12);
 }
-.site-header.is-scrolled{background:#080808!important}
+.site-header.is-scrolled{background:#000!important}
 .brand-mark{filter:none}
 .primary-nav{gap:clamp(12px,1.6vw,24px)}
 .primary-nav a{color:#c8c0b5;font-size:8px;letter-spacing:.15em;text-transform:uppercase}
@@ -690,7 +690,7 @@ a,button{ -webkit-tap-highlight-color:transparent }
 
 /* Archive / sketchbook spread. */
 .library-page{background:#e8e0d4}
-.library-page .site-header{background:#080807!important}
+.library-page .site-header{background:#000!important}
 .library-page .library-hero{
   position:relative;
   isolation:isolate;
@@ -783,7 +783,7 @@ a,button{ -webkit-tap-highlight-color:transparent }
 
 /* Policy + recovery pages use the same paper, ink, and pencil language. */
 .policies-page{background:#e8e0d4}
-.policies-page .site-header{background:#080807!important}
+.policies-page .site-header{background:#000!important}
 .policy-hero{
   background:
     linear-gradient(90deg,transparent 0 7%,rgba(169,46,57,.11) 7.05%,transparent 7.12%),
@@ -807,7 +807,7 @@ a,button{ -webkit-tap-highlight-color:transparent }
 .policy-article p:not(.policy-number){font-size:11px;line-height:2}
 .policy-disclaimer{background:#ddd3c7}
 .not-found-page{background:#0c0b0a}
-.not-found-page .site-header{background:#080807!important}
+.not-found-page .site-header{background:#000!important}
 .not-found-main{background:radial-gradient(ellipse at 85% 35%,rgba(169,46,57,.14),transparent 42%)}
 .not-found-art{font-family:var(--journal-hand)}
 .not-found-main h1{font-size:clamp(59px,8.5vw,104px)}
@@ -825,7 +825,7 @@ a,button{ -webkit-tap-highlight-color:transparent }
   }
 }
 @media(max-width:820px){
-  .primary-nav{background:#080807!important}
+  .primary-nav{background:#000!important}
   .intro-inner{grid-template-columns:minmax(0,1fr);row-gap:18px}
   .intro-inner .eyebrow{margin-top:0}
   .frame-intention{grid-template-columns:minmax(0,1fr);gap:10px}
