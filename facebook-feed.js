@@ -222,7 +222,10 @@
             item.note.textContent = "Embedded directly from Facebook. Use the controls inside the post to react, comment, and share.";
             item.note.classList.add("is-embedded");
           } else {
-            item.note.textContent = "Facebook could not display this post here. It may be private, removed, or restricted. Open the original post above.";
+            const postUrl = item.embed.getAttribute("data-href") || "";
+            item.note.textContent = /\/share\/[pr]\//i.test(postUrl)
+              ? "Facebook did not resolve this short share link as an embeddable permalink. The original link is still available above. To show the full post here, send its direct post permalink (open the post, then copy the link from its date/time) or its official Embed Post link."
+              : "Facebook could not display this post here. It may be private, removed, or restricted. Open the original post above.";
             item.note.classList.add("is-unavailable");
           }
         });
