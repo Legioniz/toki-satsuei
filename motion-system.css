@@ -79,7 +79,7 @@ html.motion-system-ready :where(h1,h2,h3,h4,p,small,strong,em,label,figcaption) 
 .menu-toggle:active { transform: scale(.96); }
 
 /* Buttons and links share one tactile response without changing their layout. */
-html.motion-system-ready :where(.button,.nav-contact,.facebook-follow-link,.facebook-feed-scroll-button,.filter-button,.library-filter,.rail-button,.album-dialog-close,.lightbox-close,.lightbox-nav,.back-to-top,.back-top,.archive-clear-search) {
+html.motion-system-ready :where(.button,.nav-contact,.facebook-follow-link,.facebook-feed-scroll-button,.filter-button,.library-filter,.rail-button,.back-to-top,.back-top,.archive-clear-search) {
   transition:
     color .24s var(--motion-ease),
     background-color .24s var(--motion-ease),
