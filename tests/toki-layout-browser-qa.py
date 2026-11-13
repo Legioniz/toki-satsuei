@@ -87,6 +87,11 @@ def document_width(page, label, width):
 def check_header(page, width, label):
     header, brand, nav, toggle = boxes(page, [".site-header", ".brand", ".primary-nav", ".menu-toggle"])
     assert not header.get("missing"), f"{label}: site header is missing"
+    skip_link = page.locator(".skip-link")
+    assert skip_link.get_attribute("href") == "#main-content", f"{label}: keyboard skip link is missing"
+    assert page.locator("#main-content").count() == 1, f"{label}: skip-link destination is missing"
+    skip_link.focus()
+    assert skip_link.evaluate("(node) => getComputedStyle(node).transform === 'matrix(1, 0, 0, 1, 0, 0)'"), f"{label}: skip link is not revealed on keyboard focus"
     logo = page.locator(".brand-mark")
     assert logo.get_attribute("src") == OFFICIAL_LOGO, f"{label}: incorrect logo asset"
     assert logo.get_attribute("alt") == "TOKI SATSUEI official logo", f"{label}: logo alt text is missing"
