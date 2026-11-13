@@ -109,7 +109,7 @@
       { opacity: 1, transform: "translateY(0) scale(1)" },
       { opacity: 0, transform: "translateY(8px) scale(.985)" }
     ];
-    return animate(element, frames, { duration, easing: "ease-in" });
+    return animate(element, frames, { duration, delay: options.delay ?? 0, easing: "ease-in" });
   }
 
   function swap(element, render, options = {}) {
