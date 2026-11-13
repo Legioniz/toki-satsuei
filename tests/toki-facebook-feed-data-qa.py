@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
+from unittest.mock import patch
+from urllib.parse import parse_qs, urlparse
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -38,7 +41,25 @@ def main() -> None:
         }]}
     }
     assert MODULE.image_from_post(nested).endswith("/nested.jpg")
-    print("PASS TOKI SATSUEI Facebook feed data QA: Page URL validation, safe plain-text fields, and attachment image extraction.")
+
+    class FakeResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return None
+
+        def read(self):
+            return json.dumps({"data": [source]}).encode("utf-8")
+
+    with patch.object(MODULE, "urlopen", return_value=FakeResponse()) as mocked:
+        result = MODULE.fetch_page_posts("123456", "test-secret-token")
+        request = mocked.call_args.args[0]
+        assert request.get_header("Authorization") == "Bearer test-secret-token"
+        assert "access_token" not in parse_qs(urlparse(request.full_url).query)
+        assert len(result["data"]) == 1
+
+    print("PASS TOKI SATSUEI Facebook feed data QA: URL validation, safe text, image extraction, and header-only token transport.")
 
 
 if __name__ == "__main__":
