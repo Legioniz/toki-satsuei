@@ -52,7 +52,10 @@ def build_category(folder:Path)->dict:
   if not files: continue
   album_title=label(album_folder.name)
   albums.append({"id":category_id+"-"+re.sub(r"[^a-z0-9]+","-",album_folder.name.casefold()).strip("-"),"title":album_title,"description":"A collection from the "+title.lower()+" archive.","media":[media_record(path,title,album_title) for path in files]})
- return {"id":category_id,"title":title,"description":description,"code":code,"album_count":len(albums),"image_count":sum(len(album["media"]) for album in albums),"albums":albums}
+ media=[item for album in albums for item in album["media"]]
+ image_count=sum(item["type"]=="image" for item in media)
+ video_count=sum(item["type"]=="video" for item in media)
+ return {"id":category_id,"title":title,"description":description,"code":code,"album_count":len(albums),"image_count":image_count,"video_count":video_count,"media_count":len(media),"albums":albums}
 
 def main()->None:
  LIBRARY.mkdir(parents=True,exist_ok=True)
@@ -61,11 +64,11 @@ def main()->None:
  names=[name for name in order if name in folders]
  names.extend(sorted((name for name in folders if name not in CATEGORY_INFO),key=str.casefold))
  categories=[build_category(folders[name]) for name in names]
- manifest={"schema_version":1,"brand":"TOKI SATSUEI","categories":categories}
+ manifest={"schema_version":2,"brand":"TOKI SATSUEI","categories":categories}
  OUTPUT.write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
  albums=sum(category["album_count"] for category in categories)
- frames=sum(category["image_count"] for category in categories)
- print(f"Built TOKI SATSUEI archive: {len(categories)} categories, {albums} albums, {frames} media files.")
+ media_items=sum(category["media_count"] for category in categories)
+ print(f"Built TOKI SATSUEI archive: {len(categories)} categories, {albums} albums, {media_items} media items.")
 
 if __name__=="__main__":
  main()
