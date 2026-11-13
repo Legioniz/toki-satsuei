@@ -56,7 +56,6 @@
     ".inquiry-form > .form-split",
     ".inquiry-form > .form-submit",
     ".library-page .library-hero > *",
-    ".library-page .library-toolbar > *",
     ".library-page .library-filter",
     ".library-page .archive-search",
     ".library-page .rail-button",
