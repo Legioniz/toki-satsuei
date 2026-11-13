@@ -7,6 +7,8 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: toki-satsuei-facebook-feed-refresh
@@ -15,6 +17,9 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Check out main
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
@@ -30,14 +35,42 @@ jobs:
           META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
         run: python scripts/fetch_facebook_feed.py --output facebook-feed.json
 
-      - name: Commit updated public snapshot
+      - name: Rebuild the photo archive manifest
+        run: python scripts/build-toki-media-library.py
+
+      - name: Commit changed public snapshots
         run: |
-          if git diff --quiet -- facebook-feed.json; then
-            echo 'No new public feed snapshot to commit.'
-            exit 0
+          if git diff --quiet -- facebook-feed.json media-library.json; then
+            echo 'No new public feed or archive snapshot to commit.'
+          else
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add facebook-feed.json media-library.json
+            git commit -m 'Refresh TOKI SATSUEI public site data'
+            git push
           fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add facebook-feed.json
-          git commit -m 'Refresh TOKI SATSUEI Facebook feed'
-          git push
+
+      - name: Assemble standalone Pages artifact
+        run: |
+          set -euo pipefail
+          rm -rf dist
+          mkdir -p dist
+          cp index.html library.html styles.css library.css site.js library.js media-library.json facebook-feed.json dist/
+          cp -R media media-library dist/
+          touch dist/.nojekyll
+          test -s dist/index.html
+          test -s dist/library.html
+          test -s dist/styles.css
+          test -s dist/library.js
+          test -s dist/media-library.json
+          test -s dist/facebook-feed.json
+          test -s dist/media/brand-icon.svg
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
+        with:
+          path: ./dist
+
+      - name: Deploy refreshed Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346
