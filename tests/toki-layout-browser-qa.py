@@ -91,7 +91,7 @@ def check_header(page, width, label):
     assert skip_link.get_attribute("href") == "#main-content", f"{label}: keyboard skip link is missing"
     assert page.locator("#main-content").count() == 1, f"{label}: skip-link destination is missing"
     skip_link.focus()
-    assert skip_link.evaluate("(node) => getComputedStyle(node).transform === 'matrix(1, 0, 0, 1, 0, 0)'"), f"{label}: skip link is not revealed on keyboard focus"
+    assert skip_link.evaluate("(node) => node.matches(':focus') && node.getBoundingClientRect().top >= 0 && getComputedStyle(node).visibility !== 'hidden'"), f"{label}: skip link is not revealed on keyboard focus"
     logo = page.locator(".brand-mark")
     assert logo.get_attribute("src") == OFFICIAL_LOGO, f"{label}: incorrect logo asset"
     assert logo.get_attribute("alt") == "TOKI SATSUEI official logo", f"{label}: logo alt text is missing"
