@@ -1411,3 +1411,9 @@ html.motion-ready .package-grid [data-reveal]:nth-child(4) { --reveal-delay: 3; 
 .skip-link{position:fixed;z-index:10000;top:12px;left:12px;transform:translateY(calc(-100% - 18px));padding:12px 16px;background:#f4f0e8;color:#151313;border:1px solid #c43a45;font:600 11px/1.2 var(--sans);letter-spacing:.06em;text-decoration:none;box-shadow:0 8px 28px #0004;transition:transform .2s ease}
 .skip-link:focus{transform:translateY(0);outline:2px solid #c43a45;outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.skip-link{transition:none}}
+
+
+/* FAQ and policy page additions. */
+.faq-section .section-heading,.faq-layout,.faq-list,.policy-index,.policy-articles{min-width:0;max-width:100%}
+.form-privacy-note a{color:#f0d5d4;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:680px){.faq-section .section-heading{margin-bottom:24px}.faq-layout{gap:22px}}
