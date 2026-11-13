@@ -13,7 +13,8 @@ The complete standalone TOKI SATSUEI website, kept separate from the Legioniz pe
 - Branded 404 page, `robots.txt`, and XML sitemap for search discovery
 - Curated Facebook post rail with native Meta embeds, category filters, and search
 - Responsive photo archive with search, category rails, and album viewer
-- Shared editorial design system for layout, spacing, color grading, responsive orientation, and visual consistency
+- Cinematic sketchbook art direction: darkroom imagery, contact-sheet galleries, pencil annotations, warm paper textures, and restrained motion
+- Shared responsive design system for layout, spacing, color grading, and visual consistency
 - Original TOKI SATSUEI brushstroke logo, upload-ready media folders, and automatic archive manifest generator
 - Dedicated GitHub Pages workflow and responsive browser regression tests
 
@@ -40,6 +41,7 @@ python tests/toki-adaptive-interaction-qa.py
 python tests/toki-facebook-embed-qa.py
 python tests/toki-facebook-feed-data-qa.py
 python tests/toki-public-pages-qa.py
+python tests/toki-cinematic-design-qa.py
 ```
 
 ## Booking, privacy, and image consent
