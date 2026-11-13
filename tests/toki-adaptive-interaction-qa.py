@@ -10,8 +10,8 @@ from playwright.sync_api import sync_playwright
 
 PUBLIC=Path(__file__).resolve().parents[1]
 TEST_IMAGE="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
-FIXTURE={"schema_version":1,"brand":"TOKI SATSUEI","categories":[{
- "id":"cosplay","title":"Cosplay","description":"Character portraits and costume details.","code":"01","image_count":3,
+FIXTURE={"schema_version":2,"brand":"TOKI SATSUEI","categories":[{
+ "id":"cosplay","title":"Cosplay","description":"Character portraits and costume details.","code":"01","image_count":3,"video_count":0,"media_count":3,
  "albums":[{"id":"adaptive-check","title":"Adaptive interaction test album","description":"A multi-frame album used to validate keyboard browsing.",
  "media":[{"type":"image","src":TEST_IMAGE,"title":f"Frame {i}","alt":f"Test frame {i}"} for i in range(1,4)]}]
 }]}
