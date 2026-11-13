@@ -187,9 +187,8 @@
           { opacity: 0, transform: "translateY(-7px) scaleY(.99)", transformOrigin: "top" }
         ]
       }),
-      ...links.map((link, index) => animateOut(link, {
-        duration: 130,
-        delay: Math.max(0, links.length - index - 1) * 18,
+      ...links.map(link => animateOut(link, {
+        duration: 190,
         frames: [
           { opacity: 1, transform: "translateY(0)" },
           { opacity: 0, transform: "translateY(-4px)" }
