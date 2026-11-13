@@ -103,7 +103,17 @@
         element.style.removeProperty("--motion-delay");
       });
     } else if ("IntersectionObserver" in window) {
-      if (mutationObserver) scan(document);
+      observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) reveal(entry.target);
+        });
+      }, {
+        threshold: 0.08,
+        rootMargin: "0px 0px -7% 0px"
+      });
+      document.querySelectorAll(".motion-item:not(.is-motion-visible)").forEach(element => {
+        observer.observe(element);
+      });
     }
   });
 
