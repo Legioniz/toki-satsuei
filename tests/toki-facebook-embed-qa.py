@@ -11,12 +11,12 @@ from threading import Thread
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
-P1 = "https://www.facebook.com/tokisatsuiephotography/posts/123456789"
+P1 = "https://web.facebook.com/TokiSatsuiePhotography/posts/pfbid0GxzMUmfEWvmskpu2NnyWqSbYPSAzrsxMpARvHKpUbvQ7uf28Y65zcAdZFQjDan58l"
 P2 = "https://www.facebook.com/tokisatsuiephotography/reel/987654321"
 SAMPLE = {
     "schema_version": 2,
     "posts": [
-        {"url": P1, "label": "LATEST FRAME", "category": "cosplay", "featured": True},
+        {"url": P1, "label": "TOKI SATSUEI — Facebook post", "category": "cosplay", "featured": True},
         {"url": P2, "label": "EVENT RECAP", "category": "events", "featured": False},
     ],
 }
@@ -85,6 +85,7 @@ def main():
             cards = page.locator(".facebook-embed-card")
             assert cards.count() == 2
             assert cards.nth(0).locator(".facebook-embed-category").inner_text() == "Cosplay"
+            assert cards.nth(0).locator(".fb-post").get_attribute("data-href") == P1
             assert "is-featured" in cards.nth(0).get_attribute("class")
             assert page.evaluate("window.__fbParseCount") == 2
             assert page.locator('a[href*="feed-manager"]').count() == 0
