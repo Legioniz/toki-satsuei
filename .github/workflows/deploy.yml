@@ -54,7 +54,7 @@ jobs:
           set -euo pipefail
           rm -rf dist
           mkdir -p dist
-          cp index.html library.html styles.css library.css site.js library.js facebook-feed.js feed-manager.html facebook-posts.json media-library.json dist/
+          cp index.html library.html styles.css library.css site.js library.js facebook-feed.js feed-manager.html feed-manager.js feed-manager.css facebook-posts.json media-library.json dist/
           cp -R media media-library dist/
           touch dist/.nojekyll
           test -s dist/index.html
@@ -65,6 +65,8 @@ jobs:
           test -s dist/facebook-posts.json
           test -s dist/facebook-feed.js
           test -s dist/feed-manager.html
+          test -s dist/feed-manager.js
+          test -s dist/feed-manager.css
           test -s dist/media/brand-icon.svg
 
       - name: Upload Pages artifact

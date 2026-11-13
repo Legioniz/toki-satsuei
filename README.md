@@ -51,7 +51,7 @@ The homepage displays selected public Facebook posts as individual Meta post emb
 3. Select **Copy Updated JSON**, then open the GitHub editor for [facebook-posts.json](https://github.com/Legioniz/toki-satsuei/edit/main/facebook-posts.json).
 4. Replace the file contents with the copied JSON and commit the change. GitHub Actions tests and deploys the updated site.
 
-The manager does not require Meta developer credentials or store a Facebook token. It prepares a change for the static file; committing through GitHub is the save/publish step. Up to 12 posts can be curated. The order in the manager is the display order on the website.
+The manager does not require Meta developer credentials or store a Facebook token. It prepares a change for the static file; committing through GitHub is the save/publish step. Up to 12 posts can be curated. The order in the manager is the display order on the website. The manager also supports per-post labels and categories, featured markers, bulk URL import, JSON import/export/download, search and category filtering, drag-and-drop ordering, individual embed previews, and browser-local draft recovery. The public feed includes category filters and text search.
 
 ### Supported content
 

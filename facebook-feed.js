@@ -1,69 +1,17 @@
 (function(){
 "use strict";
-const list=document.querySelector("#facebook-feed-list"),status=document.querySelector("#facebook-feed-status");
+const list=document.querySelector("#facebook-feed-list"),status=document.querySelector("#facebook-feed-status"),search=document.querySelector("#facebook-feed-search"),filters=document.querySelector("#facebook-feed-filters");
 if(!list||!status)return;
-const PAGE="https://www.facebook.com/tokisatsuiephotography/";
-let sdkPromise=null;
-function el(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=String(txt);return n;}
-function validUrl(value){
- try{
-  const u=new URL(String(value||"").trim()),host=u.hostname.toLowerCase(),p=u.pathname.toLowerCase();
-  if(u.protocol!=="https:"||!["facebook.com","www.facebook.com","m.facebook.com","web.facebook.com"].includes(host))return "";
-  if(!(/\/(posts|permalink|videos|reel|photo|watch|share\/p|share\/r)(\/|$)/.test(p)||p.endsWith("/photo.php")||u.searchParams.has("story_fbid")||u.searchParams.has("fbid")||u.searchParams.has("v")))return "";
-  u.hash="";return u.href;
- }catch(e){return "";}
-}
-function showEmpty(){
- const state=el("div","facebook-feed-state");
- state.append(el("span","facebook-state-mark","時"),el("strong","","No selected posts yet."),el("p","","Add a public post URL to the curated collection. New selections will appear here after the update is published."));
- const link=el("a","facebook-state-link","OPEN THE FEED MANAGER ↗");link.href="./feed-manager.html";state.append(link);
- list.replaceChildren(state);list.setAttribute("aria-busy","false");
-}
-function loadSDK(){
- if(window.FB&&window.FB.XFBML)return Promise.resolve(window.FB);
- if(sdkPromise)return sdkPromise;
- sdkPromise=new Promise(function(resolve,reject){
-  let script=document.getElementById("facebook-jssdk");
-  if(!script){script=document.createElement("script");script.id="facebook-jssdk";script.async=true;script.defer=true;script.crossOrigin="anonymous";script.src="https://connect.facebook.net/en_US/sdk.js#xfbml=0&version=v27.0";document.head.append(script);}
-  script.addEventListener("load",function(){if(window.FB&&window.FB.XFBML)resolve(window.FB);else reject(new Error("Facebook embed SDK did not initialize."));},{once:true});
-  script.addEventListener("error",function(){reject(new Error("Facebook embed SDK was blocked."));},{once:true});
- });
- return sdkPromise;
-}
-function render(posts){
- list.replaceChildren();const entries=[];
- posts.forEach(function(post,index){
-  const card=el("article","facebook-embed-card"),head=el("div","facebook-embed-heading");
-  head.append(el("span","facebook-embed-index",String(index+1).padStart(2,"0")),el("span","facebook-embed-label",post.label||"FROM THE TOKI SATSUEI PAGE"));
-  const open=el("a","facebook-embed-open","OPEN POST ↗");open.href=post.url;open.target="_blank";open.rel="noopener noreferrer";open.referrerPolicy="no-referrer";head.append(open);
-  const plugin=el("div","fb-post");plugin.setAttribute("data-href",post.url);plugin.setAttribute("data-show-text","true");plugin.setAttribute("data-lazy","true");
-  const note=el("p","facebook-embed-note","Loading the original Facebook post…");
-  card.append(head,plugin,note);list.append(card);entries.push({plugin,note});
- });
- list.setAttribute("aria-busy","false");
- loadSDK().then(function(FB){
-  if(typeof FB.init==="function")FB.init({xfbml:false,version:"v27.0"});
-  FB.XFBML.parse(list);
-  window.setTimeout(function(){entries.forEach(function(x){
-   if(x.plugin.querySelector("iframe")){x.note.textContent="Embedded directly from Facebook. Use the controls inside the post to react or comment.";x.note.classList.add("is-embedded");}
-   else{x.note.textContent="Facebook could not display this post here. Open the original post above; it may be private, removed, or restricted.";x.note.classList.add("is-unavailable");}
-  });},6500);
- }).catch(function(){entries.forEach(function(x){x.note.textContent="Facebook's embed was blocked or unavailable. Open the original post above.";x.note.classList.add("is-unavailable");});});
-}
-fetch("./facebook-posts.json?v="+Date.now(),{cache:"no-store",headers:{Accept:"application/json"}})
-.then(function(r){if(!r.ok)throw new Error("Post list unavailable.");return r.json();})
-.then(function(config){
- const seen=new Set(),posts=(Array.isArray(config.posts)?config.posts:[]).map(function(item){
-  const url=validUrl(typeof item==="string"?item:item&&item.url);if(!url||seen.has(url))return null;seen.add(url);
-  return {url:url,label:typeof item==="object"&&item&&typeof item.label==="string"?item.label.trim().slice(0,90):""};
- }).filter(Boolean).slice(0,12);
- status.textContent=posts.length?"SELECTED FACEBOOK POSTS · "+posts.length+" "+(posts.length===1?"POST":"POSTS"):"THE COLLECTION IS READY FOR ITS FIRST POST";
- if(posts.length)render(posts);else showEmpty();
-})
-.catch(function(){
- status.textContent="POST COLLECTION COULD NOT LOAD";
- const state=el("div","facebook-feed-state");state.append(el("span","facebook-state-mark","時"),el("strong","","We couldn't load the selected posts."),el("p","","Reload the page or open our Facebook Page directly."));
- const link=el("a","facebook-state-link","OPEN FACEBOOK PAGE ↗");link.href=PAGE;link.target="_blank";link.rel="noopener noreferrer";state.append(link);
- list.replaceChildren(state);list.setAttribute("aria-busy","false");
-});
+const PAGE="https://www.facebook.com/tokisatsuiephotography/",CATS={cosplay:"Cosplay",events:"Events",announcements:"Announcements","behind-the-scenes":"Behind the scenes",community:"Community",other:"Other"};
+let posts=[],active="all",term="",sdk=null;
+function node(t,c,x){const n=document.createElement(t);if(c)n.className=c;if(x!==undefined)n.textContent=String(x);return n;}
+function safeUrl(v){try{const u=new URL(String(v||"").trim()),p=u.pathname.toLowerCase();if(u.protocol!=="https:"||!["facebook.com","www.facebook.com","m.facebook.com","web.facebook.com"].includes(u.hostname.toLowerCase()))return "";if(!(/\/(posts|permalink|videos|reel|photo|watch|share\/p|share\/r)(\/|$)/.test(p)||p.endsWith("/photo.php")||u.searchParams.has("story_fbid")||u.searchParams.has("fbid")||u.searchParams.has("v")))return "";u.hash="";return u.href;}catch(e){return "";}}
+function label(v){return CATS[v]||"Other";}
+function visible(){return posts.filter(p=>(active==="all"||p.category===active)&&(!term||(p.label+" "+label(p.category)+" "+p.url).toLowerCase().includes(term)));}
+function loadSdk(){if(window.FB&&window.FB.XFBML)return Promise.resolve(window.FB);if(sdk)return sdk;sdk=new Promise((resolve,reject)=>{let s=document.getElementById("facebook-jssdk");if(!s){s=document.createElement("script");s.id="facebook-jssdk";s.async=true;s.defer=true;s.crossOrigin="anonymous";s.src="https://connect.facebook.net/en_US/sdk.js#xfbml=0&version=v27.0";document.head.append(s);}s.addEventListener("load",()=>window.FB&&window.FB.XFBML?resolve(window.FB):reject(new Error("Facebook SDK unavailable")),{once:true});s.addEventListener("error",()=>reject(new Error("Facebook SDK blocked")),{once:true});});return sdk;}
+function empty(title,copy,toManager){const box=node("div","facebook-feed-state");box.append(node("span","facebook-state-mark","時"),node("strong","",title),node("p","",copy));const a=node("a","facebook-state-link",toManager?"OPEN THE FEED MANAGER ↗":"OPEN FACEBOOK PAGE ↗");a.href=toManager?"./feed-manager.html":PAGE;if(!toManager){a.target="_blank";a.rel="noopener noreferrer";}box.append(a);list.replaceChildren(box);list.setAttribute("aria-busy","false");}
+function drawFilters(){if(!filters)return;filters.replaceChildren();const counts={all:posts.length};posts.forEach(p=>counts[p.category]=(counts[p.category]||0)+1);["all"].concat(Object.keys(CATS).filter(k=>counts[k])).forEach(key=>{const b=node("button","facebook-feed-filter"+(active===key?" is-active":" "),(key==="all"?"All":label(key))+" · "+counts[key]);b.type="button";b.setAttribute("aria-pressed",String(active===key));b.addEventListener("click",()=>{active=key;drawFilters();drawPosts();});filters.append(b);});}
+function drawPosts(){const shown=visible();list.replaceChildren();if(!shown.length){empty(posts.length?"No posts match this filter.":"No selected posts yet.",posts.length?"Try another category or search term.":"Add public Facebook post URLs in the feed manager.",!posts.length);status.textContent=posts.length?"NO MATCHING POSTS":"THE COLLECTION IS READY FOR ITS FIRST POST";return;}status.textContent="SHOWING "+shown.length+" OF "+posts.length+" SELECTED POSTS";list.setAttribute("aria-busy","true");const items=[];shown.forEach((p,i)=>{const card=node("article","facebook-embed-card"+(p.featured?" is-featured":"")),head=node("div","facebook-embed-heading"),number=node("span","facebook-embed-index",String(i+1).padStart(2,"0")),meta=node("div","facebook-embed-meta");meta.append(node("span","facebook-embed-label",p.label||"FROM THE TOKI SATSUEI PAGE"),node("span","facebook-embed-category",label(p.category)));if(p.featured)meta.append(node("span","facebook-embed-featured","FEATURED"));const open=node("a","facebook-embed-open","OPEN POST ↗");open.href=p.url;open.target="_blank";open.rel="noopener noreferrer";open.referrerPolicy="no-referrer";head.append(number,meta,open);const plug=node("div","fb-post");plug.setAttribute("data-href",p.url);plug.setAttribute("data-show-text","true");plug.setAttribute("data-lazy","true");const note=node("p","facebook-embed-note","Loading the original Facebook post…");card.append(head,plug,note);list.append(card);items.push({plug:plug,note:note});});loadSdk().then(FB=>{if(!window.__tokiFacebookSdkInitialized){FB.init({xfbml:false,version:"v27.0"});window.__tokiFacebookSdkInitialized=true;}FB.XFBML.parse(list);window.setTimeout(()=>{items.forEach(x=>{if(x.plug.querySelector("iframe")){x.note.textContent="Embedded directly from Facebook. Use the controls inside the post to react, comment, and share.";x.note.classList.add("is-embedded");}else{x.note.textContent="Facebook could not display this post here. It may be private, removed, or restricted. Open the original post above.";x.note.classList.add("is-unavailable");}});list.setAttribute("aria-busy","false");},7000);}).catch(()=>{items.forEach(x=>{x.note.textContent="Facebook's embed was blocked or unavailable. Open the original post above.";x.note.classList.add("is-unavailable");});list.setAttribute("aria-busy","false");});}
+if(search)search.addEventListener("input",()=>{term=search.value.trim().toLowerCase();drawPosts();});
+fetch("./facebook-posts.json?v="+Date.now(),{cache:"no-store",headers:{Accept:"application/json"}}).then(r=>{if(!r.ok)throw new Error("Post list unavailable");return r.json();}).then(data=>{const seen=new Set();posts=(Array.isArray(data.posts)?data.posts:[]).map(raw=>{if(!raw||typeof raw!=="object")return null;const u=safeUrl(raw.url);if(!u||seen.has(u))return null;seen.add(u);return {url:u,label:typeof raw.label==="string"?raw.label.trim().slice(0,90):"",category:Object.prototype.hasOwnProperty.call(CATS,raw.category)?raw.category:"other",featured:raw.featured===true};}).filter(Boolean).slice(0,12);drawFilters();drawPosts();}).catch(()=>{status.textContent="POST COLLECTION COULD NOT LOAD";empty("We couldn't load the selected posts.","Reload the page or open our Facebook Page directly.",false);});
 })();
