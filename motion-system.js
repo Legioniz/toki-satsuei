@@ -66,7 +66,6 @@
     ".library-page .archive-empty > *",
     ".library-page .archive-shelf",
     ".library-page .archive-upload-guide",
-    ".album-dialog-head > *",
     ".album-frame",
     ".footer-main > *",
     ".footer-bottom > *",
