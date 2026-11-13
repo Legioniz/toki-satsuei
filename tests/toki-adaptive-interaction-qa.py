@@ -58,8 +58,17 @@ def main():
    home.wait_for_function("document.querySelectorAll('.gallery-card:not([hidden])').length===4")
    passed+=1
 
-   home.locator('.package-link[data-session="Duo / group session"]').click()
+   duo_card=home.locator('.package-card[data-session="Duo / group session"]')
+   duo_card.click()
+   assert duo_card.get_attribute("aria-pressed")=="true"
    assert home.locator('select[name="session"]').input_value()=="Duo / group session"
+   assert "Duo Session" in home.locator("#form-status").inner_text()
+   assert home.locator('.package-card[aria-pressed="true"]').count()==1
+   portrait_card=home.locator('.package-card[data-session="Cosplay photoshoot"]')
+   portrait_card.focus()
+   home.keyboard.press("Enter")
+   assert portrait_card.get_attribute("aria-pressed")=="true"
+   assert home.locator('select[name="session"]').input_value()=="Cosplay photoshoot"
    passed+=1
 
    home.evaluate("window.scrollTo({top:0,behavior:'instant'})")
