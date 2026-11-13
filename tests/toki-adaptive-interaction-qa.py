@@ -32,7 +32,8 @@ def main():
    home.on("pageerror",lambda error:errors.append(str(error)))
    home.goto(base+"/index.html",wait_until="domcontentloaded")
    home.wait_for_selector(".site-header");home.wait_for_timeout(220)
-   home.wait_for_function("document.documentElement.classList.contains('motion-system-ready') && document.querySelector('.gallery-card.motion-item')")
+   home.wait_for_function("document.documentElement.classList.contains('motion-system-ready') && window.TokiMotion && document.querySelector('.gallery-card.motion-item')")
+   assert home.evaluate("typeof window.TokiMotion.closeDialog === 'function' && typeof window.TokiMotion.setMenuOpen === 'function'"), "Shared menu/dialog transition helpers are missing"
    assert home.locator(".motion-item").count() >= 10, "Shared motion system did not prepare enough homepage content"
    gallery_transition=home.locator(".gallery-card").first.evaluate("(el)=>getComputedStyle(el).transitionDuration")
    assert "0.46s" in gallery_transition, "Gallery cards are missing the shared interaction transition"
@@ -53,6 +54,7 @@ def main():
    assert home.locator(".lightbox-caption strong").inner_text()==first_title,"Left arrow did not return to first image"
    assert home.locator(".lightbox-position").inner_text()=="01 / 04"
    home.locator(".lightbox-close").click()
+   home.wait_for_function("!document.querySelector('#lightbox').open")
    assert not dialog.evaluate("(el)=>el.open")
    passed+=1
 
@@ -66,6 +68,7 @@ def main():
    duo_card.click()
    assert duo_card.get_attribute("aria-pressed")=="true"
    assert home.locator('select[name="session"]').input_value()=="Duo / group session"
+   home.wait_for_function("document.querySelector('#form-status').textContent.includes('Duo Session')")
    assert "Duo Session" in home.locator("#form-status").inner_text()
    assert home.locator('.package-card[aria-pressed="true"]').count()==1
    portrait_card=home.locator('.package-card[data-session="Cosplay photoshoot"]')
@@ -79,8 +82,12 @@ def main():
    home.set_viewport_size({"width":390,"height":844})
    menu=home.locator(".menu-toggle");menu.click()
    assert menu.get_attribute("aria-expanded")=="true"
+   home.wait_for_function("document.querySelector('.primary-nav').getAnimations().length > 0")
+   icon_transform=home.locator(".menu-toggle span").first.evaluate("(el)=>getComputedStyle(el).transform")
+   assert icon_transform != "none", "Mobile menu icon did not animate into its open state"
    home.keyboard.press("Escape")
    assert menu.get_attribute("aria-expanded")=="false"
+   home.wait_for_function("!document.querySelector('.primary-nav').classList.contains('is-open')")
    menu.click()
    home.evaluate("document.querySelector('.hero-opening').dispatchEvent(new MouseEvent('click',{bubbles:true}))")
    assert menu.get_attribute("aria-expanded")=="false","Outside click did not close mobile navigation"
@@ -110,6 +117,7 @@ def main():
    archive.keyboard.press("Home")
    archive.wait_for_function("document.querySelector('#album-dialog-position').textContent==='01 / 03'")
    archive.locator(".album-dialog-close").click()
+   archive.wait_for_function("!document.querySelector('#album-dialog').open")
    assert not album_dialog.evaluate("(el)=>el.open")
    assert card.evaluate("(el)=>el===document.activeElement"),"Album dialog did not restore focus to its launch card"
    archive.set_viewport_size({"width":390,"height":844})
