@@ -13,6 +13,9 @@ The complete standalone TOKI SATSUEI website, kept separate from the Legioniz pe
 - TOKI brand SVG, upload-ready media folders, and automatic archive manifest generator
 - Dedicated GitHub Pages workflow and responsive browser regression tests
 
+## Enable GitHub Pages (one-time setup)
+In this repository, open **Settings → Pages → Build and deployment** and set **Source** to **GitHub Actions**. GitHub does not allow this workflow connection to create the Pages site automatically for a new repository. After selecting GitHub Actions, rerun the latest workflow from the **Actions** tab. Future pushes to `main` will build and deploy the site automatically.
+
 ## Add photos and videos
 Upload web-ready JPG, JPEG, PNG, WEBP, AVIF, GIF, MP4, or WEBM files into an album folder under `media-library/`.
 
