@@ -188,14 +188,38 @@ document.addEventListener("keydown",event=>{
 });
 
 const sessionSelect=form?.querySelector('select[name="session"]');
-document.querySelectorAll(".package-link[data-session]").forEach(link=>link.addEventListener("click",()=>{
-  if(!sessionSelect)return;
-  sessionSelect.value=link.dataset.session;
+const sessionCards=[...document.querySelectorAll(".package-card[data-session]")];
+function selectSession(card,{moveToForm=true}={}) {
+  if(!card||!sessionSelect)return;
+  sessionCards.forEach(item=>{
+    const selected=item===card;
+    item.classList.toggle("is-selected",selected);
+    item.setAttribute("aria-pressed",String(selected));
+  });
+  sessionSelect.value=card.dataset.session;
   sessionSelect.dispatchEvent(new Event("change",{bubbles:true}));
-  if(status)status.textContent="Selected "+link.dataset.session+". Add your preferred date and shoot details below.";
+  if(status)status.textContent="Selected "+(card.dataset.sessionTitle||"session")+". Add your preferred date and shoot details below.";
   form?.classList.add("is-prefilled");
   window.setTimeout(()=>form?.classList.remove("is-prefilled"),1100);
-}));
+  if(moveToForm&&form){
+    form.scrollIntoView({behavior:reducedMotion?"auto":"smooth",block:"center"});
+    sessionSelect.focus({preventScroll:true});
+  }
+}
+sessionCards.forEach(card=>{
+  card.addEventListener("click",event=>{
+    if(event.target.closest("a,button,input,select,textarea"))return;
+    selectSession(card);
+  });
+  card.addEventListener("keydown",event=>{
+    if(event.target!==card)return;
+    if(event.key==="Enter"||event.key===" "){
+      event.preventDefault();
+      selectSession(card);
+    }
+  });
+});
+
 form?.addEventListener("submit",async event=>{
   event.preventDefault();
   const data=new FormData(form);
