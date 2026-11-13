@@ -32,6 +32,10 @@ def main():
    home.on("pageerror",lambda error:errors.append(str(error)))
    home.goto(base+"/index.html",wait_until="domcontentloaded")
    home.wait_for_selector(".site-header");home.wait_for_timeout(220)
+   home.wait_for_function("document.documentElement.classList.contains('motion-system-ready') && document.querySelector('.gallery-card.motion-item')")
+   assert home.locator(".motion-item").count() >= 10, "Shared motion system did not prepare enough homepage content"
+   gallery_transition=home.locator(".gallery-card").first.evaluate("(el)=>getComputedStyle(el).transitionDuration")
+   assert "0.46s" in gallery_transition, "Gallery cards are missing the shared interaction transition"
    hero=home.locator(".hero-opening").bounding_box()
    home.mouse.move(hero["x"]+hero["width"]*.78,hero["y"]+hero["height"]*.3)
    home.wait_for_function("getComputedStyle(document.querySelector('.hero-photo')).translate !== 'none' && getComputedStyle(document.querySelector('.hero-photo')).translate !== '0px 0px'")
@@ -84,6 +88,9 @@ def main():
 
    reduced=context.new_page();reduced.emulate_media(reduced_motion="reduce")
    reduced.goto(base+"/index.html",wait_until="domcontentloaded");reduced.wait_for_timeout(100)
+   reduced.wait_for_function("document.documentElement.classList.contains('motion-system-ready')")
+   reduced_opacity=reduced.locator(".gallery-card").first.evaluate("(el)=>getComputedStyle(el).opacity")
+   assert reduced_opacity == "1", "Reduced-motion mode left a content card hidden"
    reduced_state=reduced.locator(".hero-photo").evaluate("(el)=>getComputedStyle(el).transition")
    assert "0s" in reduced_state or reduced_state.startswith("none"),"Reduced-motion preference did not disable hero parallax transition"
    reduced.close();home.close();passed+=1
@@ -93,6 +100,8 @@ def main():
    archive.route("**/media-library.json*",lambda route:route.fulfill(status=200,content_type="application/json",body=json.dumps(FIXTURE)))
    archive.goto(base+"/library.html",wait_until="domcontentloaded")
    archive.wait_for_selector(".album-card")
+   archive.wait_for_function("document.querySelector('.album-card')?.classList.contains('motion-item')")
+   assert archive.locator(".album-card.motion-item").count() >= 1, "Archive cards were not enrolled in shared motion"
    card=archive.locator(".album-card").first;card.click()
    album_dialog=archive.locator("#album-dialog")
    assert album_dialog.evaluate("(el)=>el.open"),"Album dialog did not open"
