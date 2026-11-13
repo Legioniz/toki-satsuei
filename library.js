@@ -46,14 +46,17 @@ const nav=document.querySelector(".primary-nav");
 const archiveNavHeader=document.querySelector(".site-header");
 function setArchiveMenuOpen(open,returnFocus=false){
  if(!menuButton||!nav)return;
- nav.classList.toggle("is-open",open);
- menuButton.setAttribute("aria-expanded",String(open));
- menuButton.setAttribute("aria-label",open?"Close navigation":"Open navigation");
+ if(window.TokiMotion?.setMenuOpen)window.TokiMotion.setMenuOpen(menuButton,nav,open);
+ else{
+  nav.classList.toggle("is-open",open);
+  menuButton.setAttribute("aria-expanded",String(open));
+  menuButton.setAttribute("aria-label",open?"Close navigation":"Open navigation");
+ }
  if(open)setArchiveHeaderHidden(false);
  if(!open&&returnFocus)menuButton.focus();
 }
 if(menuButton&&nav){
- menuButton.addEventListener("click",()=>setArchiveMenuOpen(!nav.classList.contains("is-open")));
+ menuButton.addEventListener("click",()=>setArchiveMenuOpen(menuButton.getAttribute("aria-expanded")!=="true"));
  nav.querySelectorAll("a").forEach(link=>link.addEventListener("click",()=>setArchiveMenuOpen(false)));
  document.addEventListener("click",event=>{
   if(nav.classList.contains("is-open")&&!archiveNavHeader?.contains(event.target))setArchiveMenuOpen(false);
@@ -408,7 +411,9 @@ function openAlbum(category,album){
   closeDialog.focus();
 }
 function closeAlbum(){
-  if(dialog.open)dialog.close();
+  if(!dialog.open)return;
+  if(window.TokiMotion?.closeDialog)window.TokiMotion.closeDialog(dialog);
+  else dialog.close();
 }
 document.querySelectorAll("[data-dialog-scroll]").forEach(button=>{
   button.addEventListener("click",()=>scrollTrack(mediaRail,Number(button.dataset.dialogScroll)));
@@ -416,6 +421,7 @@ document.querySelectorAll("[data-dialog-scroll]").forEach(button=>{
 mediaRail.addEventListener("scroll",updateDialogProgress,{passive:true});
 closeDialog.addEventListener("click",closeAlbum);
 dialog.addEventListener("click",event=>{if(event.target===dialog)closeAlbum();});
+dialog.addEventListener("cancel",event=>{event.preventDefault();closeAlbum();});
 dialog.addEventListener("close",()=>{
   mediaRail.querySelectorAll("video").forEach(video=>{video.pause();video.currentTime=0;});
   dialog.classList.remove("is-opening","album-dialog--cinematic");
