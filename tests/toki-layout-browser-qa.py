@@ -234,7 +234,7 @@ def main():
             )
             assert archive_route_hits, f"Archive fixture was not requested; page errors: {archive_errors}"
             loaded_count = archive.locator("#library-count").inner_text()
-            assert "1 ALBUM" in loaded_count and "2 FRAMES" in loaded_count, \
+            assert "1 ALBUM" in loaded_count and "2 MEDIA ITEMS" in loaded_count, \
                 f"Archive fixture did not populate the expected album cards: {loaded_count!r}; page errors: {archive_errors}"
             archive.wait_for_selector(".album-card", state="attached", timeout=5000)
             for width, height in VIEWPORTS:
