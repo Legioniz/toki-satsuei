@@ -151,3 +151,6 @@
 .facebook-feed-toolbar{min-width:0;flex-wrap:wrap}
 .facebook-feed-status-wrap{min-width:0;max-width:100%}
 .facebook-feed-status{min-width:0;overflow-wrap:anywhere}
+
+/* Clip off-canvas reveal motion so it cannot widen the document before the section is revealed. */
+.about-section{overflow-x:clip}
