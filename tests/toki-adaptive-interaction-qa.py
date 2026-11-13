@@ -66,6 +66,17 @@ def main():
    home.wait_for_function("document.querySelectorAll('.gallery-card:not([hidden])').length===4")
    passed+=1
 
+   home.wait_for_function("document.querySelector('.facebook-feed-filter')",timeout=8000)
+   feed_filter=home.locator(".facebook-feed-filter").last
+   feed_filter.scroll_into_view_if_needed();feed_filter.click()
+   assert home.locator(".facebook-post-list").evaluate("(el)=>el.getAnimations().some(animation=>animation.playState==='running')"),"Facebook feed refresh did not animate"
+   passed+=1
+
+   name_field=home.locator('input[name="name"]')
+   name_field.fill("Motion QA");name_field.fill("")
+   assert name_field.evaluate("(el)=>el.matches(':user-invalid')"),"Inquiry form validation feedback did not activate"
+   passed+=1
+
    duo_card=home.locator('.package-card[data-session="Duo / group session"]')
    duo_card.click()
    assert duo_card.get_attribute("aria-pressed")=="true"
