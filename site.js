@@ -1,3 +1,6 @@
+(() => {
+  "use strict";
+
 const menuButton=document.querySelector(".menu-toggle");
 const nav=document.querySelector(".primary-nav");
 const siteHeader=document.querySelector(".site-header");
@@ -282,3 +285,4 @@ form?.addEventListener("submit",async event=>{
   else status.textContent=feedbackMessage;
 });
 const year=document.querySelector("#year");if(year)year.textContent=String(new Date().getFullYear());
+})();
