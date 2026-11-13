@@ -119,3 +119,24 @@
   .facebook-post-source{font-size:7px}
 }
 @media(prefers-reduced-motion:reduce){.facebook-post-card,.facebook-feed-refresh{transition:none!important}}
+
+/* Curated individual Facebook post embeds. */
+.facebook-feed-column{min-width:0;max-width:620px}
+.facebook-feed-status{color:#655e56;font-size:8px;font-weight:700;letter-spacing:.12em;line-height:1.6;overflow-wrap:anywhere}
+.facebook-feed-manage{display:inline-flex;align-items:center;min-height:42px;gap:9px;color:#6e655b;font-size:8px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.facebook-feed-manage span{color:var(--red);font-size:14px}
+.facebook-feed-manage:hover{color:var(--red)}
+.facebook-embed-card{min-width:0;padding:15px;background:#faf9f6;border:1px solid #ded8ce}
+.facebook-embed-card+.facebook-embed-card{margin-top:13px}
+.facebook-embed-heading{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.facebook-embed-index{display:grid;place-items:center;width:32px;height:32px;border:1px solid #d0c7bc;color:var(--red);font:500 16px var(--serif)}
+.facebook-embed-label{color:#625a51;font-size:8px;font-weight:700;letter-spacing:.13em}
+.facebook-embed-open{margin-left:auto;color:#766c61;font-size:8px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.facebook-embed-open:hover{color:var(--red)}
+.facebook-embed-card .fb-post{width:100%;min-width:0}
+.facebook-embed-card .fb-post iframe{max-width:100%}
+.facebook-embed-note{margin:9px 0 0;color:#82796f;font-size:9px;line-height:1.7}
+.facebook-embed-note.is-unavailable{color:#a14b4d}
+.facebook-embed-note.is-embedded{color:#81796f}
+@media(max-width:680px){.facebook-feed-manage{font-size:7px}.facebook-embed-card{padding:10px}.facebook-embed-heading{gap:7px}.facebook-embed-label,.facebook-embed-open{font-size:7px}}
+@media(prefers-reduced-motion:reduce){.facebook-embed-card{transition:none!important}}

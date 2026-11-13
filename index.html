@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="icon" href="./media/brand-icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./styles.css?v=20261114-live-feed-1">
+  <link rel="stylesheet" href="./styles.css?v=20261114-curated-feed-1">
   <link rel="preload" as="image" href="https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/3db8c3355_242599.jpg">
   <style id="homepage-hero-critical-styles">
     .hero-opening{width:100%;max-width:none;margin:0;min-height:clamp(630px,calc(100svh - 114px),820px);padding:76px max(32px,calc((100% - 1220px)/2)) 82px;display:flex;align-items:center;position:relative;isolation:isolate;overflow:hidden;background:#090909;color:#f4f0e9}
@@ -51,7 +51,8 @@
     @media(max-width:680px){.hero-opening{min-height:max(640px,calc(100svh - 100px));min-height:max(640px,calc(100dvh - 100px))}.hero-opening .hero-bottom-rule{align-items:flex-start;flex-wrap:wrap}.hero-opening .hero-bottom-rule span:first-child{white-space:nowrap}.hero-opening .hero-bottom-rule span:last-child{max-width:100%;text-align:left}}
     @media(max-height:560px) and (orientation:landscape){.hero-opening{min-height:540px;padding-top:64px;padding-bottom:64px}.hero-opening h1{font-size:clamp(48px,7.5vw,74px)}.hero-opening .hero-footnote{margin-top:18px}.hero-opening .hero-bottom-rule{padding-block:9px}.hero-opening .hero-frame{display:none}}
   </style>
-  <script src="./site.js?v=20261114-live-feed-1" defer></script>
+  <script src="./site.js?v=20261114-curated-feed-1" defer></script>
+  <script src="./facebook-feed.js?v=20261114-curated-feed-1" defer></script>
 </head>
 <body>
   <div class="announcement"><span class="red-dot"></span> QUEZON CITY, PHILIPPINES <span class="announce-divider">/</span> SMALL TEAM, BIG APPRECIATION FOR EVERY FRAME</div>
@@ -140,30 +141,30 @@
       <div class="section-wrap">
         <div class="section-heading" data-reveal="up">
           <div><p class="eyebrow"><span>04</span> THE LATEST FROM OUR PAGE</p><h2 id="facebook-updates-title">From our <em>feed.</em></h2></div>
-          <p class="section-aside">Announcements, new frames, event days, and small updates from TOKI SATSUEI — collected in one place.</p>
+          <p class="section-aside">A hand-picked collection of public posts from TOKI SATSUEI — the moments and updates we want to keep close.</p>
         </div>
         <div class="facebook-feed-layout" data-reveal="up">
           <div class="facebook-feed-intro">
-            <p>See our recent public Facebook posts without leaving the portfolio. Each update is displayed here as a readable preview; Facebook handles the original reactions, comments, and sharing.</p>
+            <p>Selected posts from our Facebook Page, gathered here for easier browsing. Each post is embedded directly from Facebook, so its original reactions, comments, and sharing stay with the post.</p>
             <div class="facebook-feed-actions">
               <a class="facebook-follow-link" href="https://www.facebook.com/tokisatsuiephotography/" target="_blank" rel="noopener noreferrer">FOLLOW TOKI SATSUEI ON FACEBOOK <span>↗</span></a>
               <a class="facebook-story-link" href="https://www.facebook.com/tokisatsuiephotography/" target="_blank" rel="noopener noreferrer">CHECK FOR A CURRENT STORY <span>↗</span></a>
             </div>
-            <p class="facebook-story-note">Stories are visible on the Facebook Page while active. Facebook may ask you to sign in.</p>
-            <p class="facebook-feed-caption"><span class="red-square"></span> PUBLIC PAGE POSTS · UPDATED AUTOMATICALLY</p>
+            <p class="facebook-story-note">Stories remain on Facebook while active. Public posts selected for this collection appear here as individual embeds.</p>
+            <p class="facebook-feed-caption"><span class="red-square"></span> CURATED PUBLIC POSTS · HAND-PICKED UPDATES</p>
           </div>
           <div class="facebook-feed-column">
             <div class="facebook-feed-toolbar">
               <div class="facebook-feed-status-wrap">
                 <span class="facebook-feed-status-dot" aria-hidden="true"></span>
-                <span class="facebook-feed-status" id="facebook-feed-status" role="status" aria-live="polite">CHECKING THE LATEST SNAPSHOT…</span>
+                <span class="facebook-feed-status" id="facebook-feed-status" role="status" aria-live="polite">LOADING SELECTED POSTS…</span>
               </div>
-              <button class="facebook-feed-refresh" id="facebook-feed-refresh" type="button">RELOAD FEED <span aria-hidden="true">↻</span></button>
+              <a class="facebook-feed-manage" href="./feed-manager.html">MANAGE POSTS <span>↗</span></a>
             </div>
-            <div class="facebook-post-list" id="facebook-feed-list" role="feed" aria-label="Recent TOKI SATSUEI Facebook posts" aria-busy="true">
-              <div class="facebook-feed-state"><span class="facebook-state-mark">時</span><strong>Opening the latest updates.</strong><p>Checking the most recent public posts from our Page.</p></div>
+            <div class="facebook-post-list" id="facebook-feed-list" aria-live="polite" aria-busy="true">
+              <div class="facebook-feed-state"><span class="facebook-state-mark">時</span><strong>Opening the selected posts.</strong><p>Facebook posts will appear here once they are added to the collection.</p></div>
             </div>
-            <p class="facebook-feed-footnote">Post previews are synced from Facebook. REACT and COMMENT open the original post; SHARE opens Facebook's sharing flow. New public posts sync automatically when the Page connection is configured.</p>
+            <p class="facebook-feed-footnote">Only public Facebook posts can be embedded. Facebook may ask visitors to sign in or accept cookies. If an embed is unavailable, use its original-post link.</p>
           </div>
         </div>
       </div>
