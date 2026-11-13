@@ -1,71 +1,5 @@
-const pageProgressBar=document.querySelector("#page-progress-bar"),archiveHeader=document.querySelector(".site-header");
-const hoverHeaderEnabled=window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-let scrollTicking=false;
-let lastScrollY=window.scrollY;
-let lastScrollDirection="up";
-let hoverRevealed=false;
-function setArchiveHeaderHidden(hidden){
- if(!archiveHeader)return;
- const menuOpen=Boolean(archiveHeader.querySelector(".primary-nav.is-open"));
- const shouldHide=Boolean(hidden)&&window.scrollY>64&&!menuOpen;
- archiveHeader.classList.toggle("is-auto-hidden",shouldHide);
-}
-function updateArchiveChrome(){
- const root=document.documentElement,currentY=window.scrollY,delta=currentY-lastScrollY;
- if(currentY<=36){
-  lastScrollDirection="up";hoverRevealed=false;setArchiveHeaderHidden(false);
- }else if(delta>1){
-  lastScrollDirection="down";hoverRevealed=false;setArchiveHeaderHidden(true);
- }else if(delta< -1){
-  lastScrollDirection="up";hoverRevealed=false;setArchiveHeaderHidden(false);
- }
- if(archiveHeader?.querySelector(".primary-nav.is-open"))setArchiveHeaderHidden(false);
- lastScrollY=currentY;
- const progress=Math.min(1,Math.max(0,currentY/Math.max(1,root.scrollHeight-window.innerHeight)));
- if(pageProgressBar)pageProgressBar.style.transform="scaleX("+progress+")";
- archiveHeader?.classList.toggle("is-scrolled",currentY>28);scrollTicking=false;
-}
-window.addEventListener("scroll",()=>{if(!scrollTicking){requestAnimationFrame(updateArchiveChrome);scrollTicking=true;}},{passive:true});
-window.addEventListener("resize",updateArchiveChrome,{passive:true});
-if(archiveHeader){
- window.addEventListener("pointermove",event=>{
-  if(!hoverHeaderEnabled||event.pointerType==="touch")return;
-  if(event.clientY<=40){
-   hoverRevealed=true;setArchiveHeaderHidden(false);return;
-  }
-  if(hoverRevealed&&event.clientY>archiveHeader.offsetHeight+14){
-   hoverRevealed=false;
-   if(lastScrollDirection==="down"&&window.scrollY>64)setArchiveHeaderHidden(true);
-  }
- },{passive:true});
- archiveHeader.addEventListener("focusin",()=>{hoverRevealed=false;setArchiveHeaderHidden(false);});
-}
-updateArchiveChrome();
-const menuButton=document.querySelector(".menu-toggle");
-const nav=document.querySelector(".primary-nav");
-const archiveNavHeader=document.querySelector(".site-header");
-function setArchiveMenuOpen(open,returnFocus=false){
- if(!menuButton||!nav)return;
- if(window.TokiMotion?.setMenuOpen)window.TokiMotion.setMenuOpen(menuButton,nav,open);
- else{
-  nav.classList.toggle("is-open",open);
-  menuButton.setAttribute("aria-expanded",String(open));
-  menuButton.setAttribute("aria-label",open?"Close navigation":"Open navigation");
- }
- if(open)setArchiveHeaderHidden(false);
- if(!open&&returnFocus)menuButton.focus();
-}
-if(menuButton&&nav){
- menuButton.addEventListener("click",()=>setArchiveMenuOpen(menuButton.getAttribute("aria-expanded")!=="true"));
- nav.querySelectorAll("a").forEach(link=>link.addEventListener("click",()=>setArchiveMenuOpen(false)));
- document.addEventListener("click",event=>{
-  if(nav.classList.contains("is-open")&&!archiveNavHeader?.contains(event.target))setArchiveMenuOpen(false);
- });
- document.addEventListener("keydown",event=>{
-  if(event.key==="Escape"&&nav.classList.contains("is-open")){event.preventDefault();setArchiveMenuOpen(false,true);}
- });
- window.matchMedia("(min-width: 821px)").addEventListener?.("change",event=>{if(event.matches)setArchiveMenuOpen(false);});
-}
+(() => {
+  "use strict";
 
 const filters=document.querySelector("#library-filters");
 const groups=document.querySelector("#library-groups");
@@ -143,8 +77,8 @@ function revealWithin(root){
 }
 function setCount(visibleCategories){
   const albums=visibleCategories.reduce((sum,category)=>sum+category.albums.length,0);
-  const frames=visibleCategories.reduce((sum,category)=>sum+category.albums.reduce((total,album)=>total+album.media.length,0),0);
-  countLabel.textContent=countWords(albums,"ALBUM","ALBUMS")+"  /  "+countWords(frames,"FRAME","FRAMES");
+  const mediaItems=visibleCategories.reduce((sum,category)=>sum+category.albums.reduce((total,album)=>total+album.media.length,0),0);
+  countLabel.textContent=countWords(albums,"ALBUM","ALBUMS")+"  /  "+countWords(mediaItems,"MEDIA ITEM","MEDIA ITEMS");
 }
 function updateFilters(){
   filters.querySelectorAll("button").forEach(button=>{
@@ -212,14 +146,14 @@ function makeAlbumCard(category,album){
     const overlay=element("span","album-cover-overlay");
     overlay.append(
       element("small","album-cover-kicker",cinematicLabel),
-      element("span","album-cover-detail",countWords(album.media.length,"FRAME","FRAMES")+"  ·  OPEN ALBUM ↗")
+      element("span","album-cover-detail",countWords(album.media.length,"ITEM","ITEMS")+"  ·  OPEN ALBUM ↗")
     );
     cover.append(overlay);
   }
   const meta=element("span","album-card-meta");
   const text=element("span");
   text.append(element("strong","album-card-title",album.title));
-  text.append(element("small","album-card-count",countWords(album.media.length,"frame","frames")));
+  text.append(element("small","album-card-count",countWords(album.media.length,"item","items")));
   meta.append(text,element("span","album-card-arrow","↗"));
   button.append(cover,meta);
   button.addEventListener("click",()=>openAlbum(category,album));
@@ -293,7 +227,7 @@ function makeCategoryGroup(category){
     element("h2","archive-group-title",category.title),
     element("p","archive-group-description",category.description||"A collection of moments worth keeping.")
   );
-  head.append(copy,element("span","archive-group-meta",countWords(category.albums.length,"ALBUM","ALBUMS")+"  ·  "+category.image_count+" FRAMES"));
+  head.append(copy,element("span","archive-group-meta",countWords(category.albums.length,"ALBUM","ALBUMS")+"  ·  "+category.media_count+" ITEMS"));
   const rail=element("div","album-rail");
   rail.tabIndex=0;rail.setAttribute("role","region");rail.setAttribute("aria-label",category.title+" albums. Use arrow keys or drag to browse.");
   category.albums.forEach(album=>rail.append(makeAlbumCard(category,album)));
@@ -354,7 +288,7 @@ function showEmpty(message,query=""){
       const code=element("span","archive-shelf-code",category.code+" / COLLECTION");
       const title=element("strong","archive-shelf-title",category.title);
       const detail=element("span","archive-shelf-description",category.description);
-      const meta=element("span","archive-shelf-meta",countWords(category.album_count,"ALBUM","ALBUMS")+"  ·  "+countWords(category.image_count,"FRAME","FRAMES"));
+      const meta=element("span","archive-shelf-meta",countWords(category.album_count,"ALBUM","ALBUMS")+"  ·  "+countWords(category.media_count,"ITEM","ITEMS"));
       const action=element("span","archive-shelf-action","OPEN COLLECTION  ↗");
       shelf.append(code,title,detail,meta,action);
       shelf.addEventListener("click",()=>{
@@ -390,7 +324,8 @@ function renderGroups(){
       if(!activeQuery)return true;
       return normalize(category.title+" "+album.title+" "+(album.description||"")).includes(activeQuery);
     });
-    return {...category,albums,image_count:albums.reduce((total,album)=>total+album.media.length,0)};
+    const media=albums.flatMap(album=>album.media);
+    return {...category,albums,media_count:media.length,image_count:media.filter(item=>item.type==="image").length,video_count:media.filter(item=>item.type==="video").length};
   });
   const populated=matching.filter(category=>category.albums.length);
   groups.replaceChildren();
@@ -425,7 +360,7 @@ function openAlbum(category,album){
   dialogTitle.textContent=album.title;
   dialogCategory.textContent=category.title.toUpperCase();
   dialogDescription.textContent=album.description||"A collection from the TOKI SATSUEI archive.";
-  dialogCount.textContent=countWords(album.media.length,"FRAME","FRAMES");
+  dialogCount.textContent=countWords(album.media.length,"ITEM","ITEMS");
   mediaRail.replaceChildren();
   album.media.forEach((item,index)=>{
     const figure=element("figure","album-frame");
@@ -511,7 +446,13 @@ async function loadArchive(){
     if(!archiveCategories.length)throw new Error("No archive categories were found.");
     archiveCategories.forEach(category=>{
       category.albums=Array.isArray(category.albums)?category.albums:[];
-      category.image_count=Number(category.image_count||category.albums.reduce((total,album)=>total+(album.media||[]).length,0));
+      const media=category.albums.flatMap(album=>Array.isArray(album.media)?album.media:[]);
+      const imageCount=media.filter(item=>item.type==="image").length;
+      const videoCount=media.filter(item=>item.type==="video").length;
+      category.album_count=Number.isFinite(Number(category.album_count))?Number(category.album_count):category.albums.length;
+      category.image_count=Number.isFinite(Number(category.image_count))?Number(category.image_count):imageCount;
+      category.video_count=Number.isFinite(Number(category.video_count))?Number(category.video_count):videoCount;
+      category.media_count=Number.isFinite(Number(category.media_count))?Number(category.media_count):media.length;
     });
     buildFilters();
     renderGroups();
@@ -528,3 +469,4 @@ loadArchive();
 if(hasViewTransitions&&document.documentElement){
   document.documentElement.classList.add("supports-view-transitions");
 }
+})();
