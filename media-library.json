@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "brand": "TOKI SATSUEI",
   "categories": [
     {
@@ -9,6 +9,8 @@
       "code": "01",
       "album_count": 0,
       "image_count": 0,
+      "video_count": 0,
+      "media_count": 0,
       "albums": []
     },
     {
@@ -18,6 +20,8 @@
       "code": "02",
       "album_count": 0,
       "image_count": 0,
+      "video_count": 0,
+      "media_count": 0,
       "albums": []
     },
     {
@@ -27,6 +31,8 @@
       "code": "03",
       "album_count": 0,
       "image_count": 0,
+      "video_count": 0,
+      "media_count": 0,
       "albums": []
     },
     {
@@ -36,6 +42,8 @@
       "code": "04",
       "album_count": 0,
       "image_count": 0,
+      "video_count": 0,
+      "media_count": 0,
       "albums": []
     },
     {
@@ -45,6 +53,8 @@
       "code": "05",
       "album_count": 0,
       "image_count": 0,
+      "video_count": 0,
+      "media_count": 0,
       "albums": []
     },
     {
@@ -54,6 +64,8 @@
       "code": "06",
       "album_count": 0,
       "image_count": 0,
+      "video_count": 0,
+      "media_count": 0,
       "albums": []
     }
   ]
