@@ -66,9 +66,9 @@
   }
 
   function syncScrollControls() {
-    const hasCards = Boolean(list.querySelector(".facebook-embed-card"));
+    const cardCount = list.querySelectorAll(".facebook-embed-card").length;
     const maxScroll = Math.max(0, list.scrollWidth - list.clientWidth);
-    const canScroll = hasCards && maxScroll > 2;
+    const canScroll = cardCount > 1 && maxScroll > 2;
 
     if (scrollControls) scrollControls.hidden = !canScroll;
     if (previous) previous.disabled = !canScroll || list.scrollLeft <= 2;
