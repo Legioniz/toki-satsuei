@@ -1405,3 +1405,9 @@ html.motion-ready .package-grid [data-reveal]:nth-child(4) { --reveal-delay: 3; 
   .process-step,
   .process-step h3 { transition: none !important; }
 }
+
+
+/* Keyboard-first skip navigation. */
+.skip-link{position:fixed;z-index:10000;top:12px;left:12px;transform:translateY(calc(-100% - 18px));padding:12px 16px;background:#f4f0e8;color:#151313;border:1px solid #c43a45;font:600 11px/1.2 var(--sans);letter-spacing:.06em;text-decoration:none;box-shadow:0 8px 28px #0004;transition:transform .2s ease}
+.skip-link:focus{transform:translateY(0);outline:2px solid #c43a45;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.skip-link{transition:none}}
