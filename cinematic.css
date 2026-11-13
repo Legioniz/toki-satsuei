@@ -894,3 +894,46 @@ a,button{ -webkit-tap-highlight-color:transparent }
   .hero-opening .hero-photo,.hero-opening:hover .hero-photo{animation:none!important;transform:none!important;transition:none!important}
   .gallery-card,.gallery-image img,.package-card,.service-row,.about-visual img{transition:none!important}
 }
+
+
+/* Social journal spread — the feed is presented as dated fragments, not a widget dump. */
+.facebook-section{
+  position:relative;overflow:hidden;padding-block:clamp(78px,8.5vw,116px);
+  background:radial-gradient(ellipse at 12% 8%,rgba(165,52,61,.18),transparent 35%),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0,rgba(255,255,255,.018) 1px,transparent 1px,transparent 5px),#171513;
+  color:#eee6dc;border-block:1px solid rgba(255,255,255,.14);
+}
+.facebook-section::before{content:"OPEN NOTES / PUBLIC FRAGMENTS";position:absolute;top:28px;right:max(24px,calc((100% - 1220px)/2));color:#a99a8a;font:600 6px var(--sans);letter-spacing:.2em}
+.facebook-section .section-heading h2{color:#f1e9df}
+.facebook-section .section-heading h2 em{color:#d8757d}
+.facebook-section .section-aside{color:#bfb3a6}
+.facebook-feed-intro>p:first-child{color:#c8bcae;line-height:2}
+.facebook-feed-caption{color:#bbaea0}
+.facebook-follow-link,.facebook-story-link{color:#e6d8c9;border-color:rgba(255,255,255,.3)}
+.facebook-feed-status{color:#d1c4b6}
+.facebook-feed-scroll-hint{color:#a89b8d}
+.facebook-feed-scroll-button{border-color:rgba(255,255,255,.27);color:#f1e8dc}
+.facebook-feed-scroll-button:hover:not(:disabled){border-color:#d8757d;color:#f5c5c4}
+.facebook-post-list{scrollbar-color:#8f8072 rgba(255,255,255,.08)}
+.facebook-post-list::-webkit-scrollbar-track{background:rgba(255,255,255,.1)}
+.facebook-post-list::-webkit-scrollbar-thumb{background:#8f8072}
+.facebook-embed-card{background:#f4eee5;border:7px solid #e9e0d5;box-shadow:0 14px 34px rgba(0,0,0,.28)}
+.facebook-embed-heading{border-bottom:1px solid #d8cdbf;padding-bottom:10px}
+.facebook-embed-index{border-color:#c8b9a8;color:#a12e39}
+.facebook-embed-label{color:#62574d}
+.facebook-embed-note{color:#7b7065}
+
+/* Pencil marks and paper corners stay subtle enough for a working portfolio. */
+.work-section .section-heading>div:first-child::after,
+.sessions-section .section-heading>div:first-child::after{transform:rotate(-2deg);transform-origin:left center}
+.gallery-card:nth-child(2){transform:rotate(.16deg)}
+.gallery-card:nth-child(3){transform:rotate(-.18deg)}
+.gallery-card-portrait{transform:rotate(.08deg)}
+.gallery-card:nth-child(2):hover,.gallery-card:nth-child(3):hover,.gallery-card-portrait:hover{transform:translateY(-4px) rotate(0deg)}
+.library-page .archive-shelf:nth-child(odd){transform:rotate(-.15deg)}
+.library-page .archive-shelf:nth-child(even){transform:rotate(.12deg)}
+.library-page .archive-shelf:nth-child(odd):hover,.library-page .archive-shelf:nth-child(even):hover{transform:translateY(-4px) rotate(0deg)}
+.hero-annotation{filter:drop-shadow(0 2px 8px rgba(0,0,0,.3))}
+.hero-annotation strong{position:relative}
+.hero-annotation strong::after{content:"";position:absolute;left:-4px;right:5px;bottom:-5px;height:5px;border-bottom:1px solid rgba(220,126,130,.68);border-radius:50%;transform:rotate(-2deg)}
+@media(max-width:680px){.facebook-section{padding-block:68px}.facebook-section::before{top:18px;right:18px;font-size:5px}.facebook-embed-card{border-width:5px}}
