@@ -56,6 +56,9 @@ jobs:
       - name: Verify public pages and search discovery
         run: python tests/toki-public-pages-qa.py
 
+      - name: Verify cinematic field-journal design
+        run: python tests/toki-cinematic-design-qa.py
+
       - name: Verify Facebook post embeds and scroll rail
         run: python tests/toki-facebook-embed-qa.py
 
@@ -64,7 +67,7 @@ jobs:
           set -euo pipefail
           rm -rf dist
           mkdir -p dist
-          cp index.html library.html policies.html 404.html styles.css library.css refinement.css policies.css motion-system.css motion-system.js site.js library.js facebook-feed.js facebook-posts.json media-library.json robots.txt sitemap.xml dist/
+          cp index.html library.html policies.html 404.html styles.css library.css refinement.css policies.css cinematic.css motion-system.css motion-system.js site.js library.js facebook-feed.js facebook-posts.json media-library.json robots.txt sitemap.xml dist/
           cp -R media-library dist/
           touch dist/.nojekyll
           test -s dist/index.html
@@ -72,6 +75,7 @@ jobs:
           test -s dist/policies.html
           test -s dist/404.html
           test -s dist/policies.css
+          test -s dist/cinematic.css
           test -s dist/robots.txt
           test -s dist/sitemap.xml
           test -s dist/styles.css
