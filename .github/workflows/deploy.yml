@@ -34,6 +34,13 @@ jobs:
           python -m pip install -r requirements-test.txt
           python -m playwright install --with-deps chromium
 
+      - name: Verify JavaScript syntax
+        run: |
+          node --check motion-system.js
+          node --check site.js
+          node --check library.js
+          node --check facebook-feed.js
+
       - name: Build media archive manifest
         run: python scripts/build-toki-media-library.py
 
