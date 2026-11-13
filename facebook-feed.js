@@ -110,6 +110,11 @@
     return sdkPromise;
   }
 
+  function updateFeedStatus(message) {
+    if (window.TokiMotion?.updateText) window.TokiMotion.updateText(status, message);
+    else status.textContent = message;
+  }
+
   function showEmptyState(title, description) {
     const box = node("div", "facebook-feed-state");
     box.append(node("span", "facebook-state-mark", "時"));
@@ -127,7 +132,7 @@
     syncScrollControls();
   }
 
-  function drawFilters() {
+  function drawFiltersNow() {
     if (!filters) return;
 
     filters.replaceChildren();
@@ -150,14 +155,14 @@
     });
   }
 
-  function drawPosts() {
+  function drawPostsNow() {
     const shown = visiblePosts();
     list.replaceChildren();
     list.scrollTo({ left: 0, behavior: "auto" });
 
     if (!posts.length) {
       if (tools) tools.hidden = true;
-      status.textContent = "THE COLLECTION IS READY TO GROW";
+      updateFeedStatus("THE COLLECTION IS READY TO GROW");
       showEmptyState(
         "A few more moments, kept close.",
         "Our selected Facebook posts will appear here as a scrollable collection. Follow the page to catch the latest updates."
@@ -168,14 +173,14 @@
     if (tools) tools.hidden = false;
 
     if (!shown.length) {
-      status.textContent = "NO POSTS MATCH THIS FILTER";
+      updateFeedStatus("NO POSTS MATCH THIS FILTER");
       showEmptyState("No posts match this view.", "Try another category or a different search term.");
       return;
     }
 
-    status.textContent = shown.length > 1
+    updateFeedStatus(shown.length > 1
       ? "SHOWING " + shown.length + " OF " + posts.length + " POSTS · SCROLL TO EXPLORE"
-      : "1 SELECTED POST · FROM THE TOKI SATSUEI PAGE";
+      : "1 SELECTED POST · FROM THE TOKI SATSUEI PAGE");
     list.setAttribute("aria-busy", "true");
 
     const embeds = [];
@@ -244,6 +249,18 @@
     });
   }
 
+  function drawFilters() {
+    if (window.TokiMotion?.swap) {
+      window.TokiMotion.swap(filters, drawFiltersNow, { duration: 110, enterDuration: 190 });
+    } else drawFiltersNow();
+  }
+
+  function drawPosts() {
+    if (window.TokiMotion?.swap) {
+      window.TokiMotion.swap(list, drawPostsNow, { duration: 145, enterDuration: 240 });
+    } else drawPostsNow();
+  }
+
   if (search) {
     search.addEventListener("input", () => {
       searchTerm = search.value.trim().toLowerCase();
@@ -282,7 +299,7 @@
     drawPosts();
   }).catch(() => {
     if (tools) tools.hidden = true;
-    status.textContent = "POST COLLECTION COULD NOT LOAD";
+    updateFeedStatus("POST COLLECTION COULD NOT LOAD");
     showEmptyState("We couldn't load the selected posts.", "Reload the page or open our Facebook Page directly.");
   });
 
