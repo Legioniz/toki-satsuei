@@ -74,6 +74,7 @@ def main():
 
    name_field=home.locator('input[name="name"]')
    name_field.fill("Motion QA");name_field.fill("")
+   name_field.blur()
    assert name_field.evaluate("(el)=>el.matches(':user-invalid')"),"Inquiry form validation feedback did not activate"
    passed+=1
 
