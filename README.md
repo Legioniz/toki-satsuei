@@ -1,6 +1,6 @@
 # TOKI SATSUEI — Photography portfolio
 
-The complete standalone TOKI SATSUEI website, kept separate from the Legioniz personal portfolio.
+The complete standalone TOKI SATSUEI website, kept separate from the Legioniz personal portfolio. A shared editorial design system keeps the homepage and archive visually consistent across screen sizes and orientations.
 
 - **Live site:** https://legioniz.github.io/toki-satsuei/
 - **Facebook:** https://www.facebook.com/tokisatsuiephotography/
@@ -11,6 +11,7 @@ The complete standalone TOKI SATSUEI website, kept separate from the Legioniz pe
 - Homepage, services, session guide, and inquiry form
 - Curated Facebook post rail with native Meta embeds, category filters, and search
 - Responsive photo archive with search, category rails, and album viewer
+- Shared editorial design system for layout, spacing, color grading, responsive orientation, and visual consistency
 - Original TOKI SATSUEI brushstroke logo, upload-ready media folders, and automatic archive manifest generator
 - Dedicated GitHub Pages workflow and responsive browser regression tests
 
