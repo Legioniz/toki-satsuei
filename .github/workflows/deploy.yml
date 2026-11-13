@@ -41,6 +41,9 @@ jobs:
           node --check library.js
           node --check facebook-feed.js
 
+      - name: Verify Python test and build syntax
+        run: python -m compileall -q scripts tests
+
       - name: Build media archive manifest
         run: python scripts/build-toki-media-library.py
 
