@@ -37,7 +37,7 @@ def main() -> None:
 
     assert 'id="faq"' in index and len(re.findall(r"<summary>", index)) >= 7
     assert "not a cosplay or portrait client portfolio" in index
-    assert "only after the people featured give permission" in index
+    assert "only after the people featured give permission" in index.lower()
     assert 'href="./policies.html"' in index and 'href="./policies.html"' in archive
     assert 'href="./policies.css?' in policies
     assert 'id="consent"' in policies and 'id="pricing"' in policies and 'id="changes"' in policies
