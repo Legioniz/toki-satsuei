@@ -74,7 +74,7 @@
 .facebook-feed-refresh span{color:var(--red);font-size:15px}
 .facebook-feed-refresh:hover:not(:disabled){border-color:var(--red);color:var(--red)}
 .facebook-feed-refresh:disabled{opacity:.55;cursor:wait}
-.facebook-post-list{display:grid;gap:12px;max-height:820px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#b5aca0 #e4dfd7;padding:12px 7px 12px 0}
+.facebook-post-list{display:flex;align-items:stretch;gap:14px;width:100%;max-height:none;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-padding-inline:4px;scrollbar-width:thin;scrollbar-color:#8e8378 #d8d1c7;padding:12px 4px 16px 0;-webkit-overflow-scrolling:touch}
 .facebook-post-card{min-width:0;padding:18px 18px 14px;background:#faf9f6;border:1px solid #ded8ce;box-shadow:0 8px 24px #211b1508}
 .facebook-post-header{display:flex;align-items:center;gap:11px;min-width:0}
 .facebook-post-mark{display:grid;place-items:center;width:38px;height:38px;flex:0 0 38px;border:1px solid #c6bcb0;color:var(--red);font:500 20px var(--serif)}
@@ -123,11 +123,8 @@
 /* Curated individual Facebook post embeds. */
 .facebook-feed-column{min-width:0;max-width:620px}
 .facebook-feed-status{color:#655e56;font-size:8px;font-weight:700;letter-spacing:.12em;line-height:1.6;overflow-wrap:anywhere}
-.facebook-feed-manage{display:inline-flex;align-items:center;min-height:42px;gap:9px;color:#6e655b;font-size:8px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
-.facebook-feed-manage span{color:var(--red);font-size:14px}
-.facebook-feed-manage:hover{color:var(--red)}
-.facebook-embed-card{min-width:0;padding:15px;background:#faf9f6;border:1px solid #ded8ce}
-.facebook-embed-card+.facebook-embed-card{margin-top:13px}
+.facebook-embed-card{box-sizing:border-box;flex:0 0 min(100%,520px);width:min(100%,520px);max-width:100%;min-width:0;margin:0!important;padding:15px;background:#faf9f6;border:1px solid #ded8ce;scroll-snap-align:start;scroll-snap-stop:normal}
+.facebook-embed-card+.facebook-embed-card{margin-top:0}
 .facebook-embed-heading{display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .facebook-embed-index{display:grid;place-items:center;width:32px;height:32px;border:1px solid #d0c7bc;color:var(--red);font:500 16px var(--serif)}
 .facebook-embed-label{color:#625a51;font-size:8px;font-weight:700;letter-spacing:.13em}
@@ -138,7 +135,7 @@
 .facebook-embed-note{margin:9px 0 0;color:#82796f;font-size:9px;line-height:1.7}
 .facebook-embed-note.is-unavailable{color:#a14b4d}
 .facebook-embed-note.is-embedded{color:#81796f}
-@media(max-width:680px){.facebook-feed-manage{font-size:7px}.facebook-embed-card{padding:10px}.facebook-embed-heading{gap:7px}.facebook-embed-label,.facebook-embed-open{font-size:7px}}
+@media(max-width:680px){.facebook-embed-card{padding:10px}.facebook-embed-heading{gap:7px}.facebook-embed-label,.facebook-embed-open{font-size:7px}}
 @media(prefers-reduced-motion:reduce){.facebook-embed-card{transition:none!important}}
 
 /* Curated feed search, filters, categories, and featured post treatment. */
@@ -154,3 +151,32 @@
 
 /* Clip off-canvas reveal motion so it cannot widen the document before the section is revealed. */
 .about-section{overflow-x:clip}
+
+
+/* Scrollable Facebook post rail: swipe, trackpad, keyboard, or use the arrow controls. */
+.facebook-feed-toolbar{align-items:center}
+.facebook-feed-scroll-controls{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+.facebook-feed-scroll-controls[hidden]{display:none}
+.facebook-feed-scroll-hint{margin-right:4px;color:#81786e;font-size:7px;font-weight:700;letter-spacing:.12em;white-space:nowrap}
+.facebook-feed-scroll-button{display:grid;place-items:center;width:38px;height:38px;border:1px solid #c9c1b6;background:transparent;color:#433c35;font-size:17px;cursor:pointer;touch-action:manipulation}
+.facebook-feed-scroll-button:hover:not(:disabled){border-color:var(--red);color:var(--red)}
+.facebook-feed-scroll-button:disabled{opacity:.28;cursor:default}
+.facebook-feed-scroll-button:focus-visible,.facebook-post-list:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+.facebook-post-list{scrollbar-gutter:stable;scroll-behavior:smooth}
+.facebook-post-list:focus{outline:none}
+.facebook-post-list::-webkit-scrollbar{height:8px}
+.facebook-post-list::-webkit-scrollbar-track{background:#d8d1c7}
+.facebook-post-list::-webkit-scrollbar-thumb{background:#8e8378}
+.facebook-embed-card .fb-post{width:100%;min-width:0;max-width:100%}
+.facebook-embed-card .fb-post iframe{display:block;width:100%;max-width:100%}
+.facebook-feed-tools[hidden]{display:none!important}
+@media(max-width:680px){
+  .facebook-feed-toolbar{gap:10px}
+  .facebook-feed-scroll-controls{gap:5px}
+  .facebook-feed-scroll-hint{display:none}
+  .facebook-feed-scroll-button{width:42px;height:42px}
+  .facebook-embed-card{padding:12px}
+}
+@media(prefers-reduced-motion:reduce){
+  .facebook-post-list{scroll-behavior:auto}
+}
