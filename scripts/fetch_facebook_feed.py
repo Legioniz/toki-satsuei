@@ -102,12 +102,12 @@ def fetch_page_posts(page_id: str, token: str) -> dict:
     query = urlencode({
         "fields": "id,message,created_time,permalink_url,full_picture,attachments",
         "limit": str(POST_LIMIT),
-        "access_token": token,
     })
     endpoint = f"https://graph.facebook.com/{API_VERSION}/{page_id}/posts?{query}"
     request = Request(endpoint, headers={
         "Accept": "application/json",
         "User-Agent": "TOKI-SATSUEI-SiteFeed/1.0",
+        "Authorization": f"Bearer {token}",
     })
     try:
         with urlopen(request, timeout=25) as response:
