@@ -7,16 +7,19 @@ The complete standalone TOKI SATSUEI website, kept separate from the Legioniz pe
 - **Instagram:** https://www.instagram.com/tokisatsuiephotography/
 
 ## Included
+
 - Homepage, services, session guide, and inquiry form
-- Responsive Facebook Page timeline that recalculates its embed width on viewport and orientation changes, with a direct-Page fallback
+- Curated Facebook post rail with native Meta embeds, category filters, and search
 - Responsive photo archive with search, category rails, and album viewer
 - Original TOKI SATSUEI brushstroke logo, upload-ready media folders, and automatic archive manifest generator
 - Dedicated GitHub Pages workflow and responsive browser regression tests
 
 ## Enable GitHub Pages (one-time setup)
+
 In this repository, open **Settings → Pages → Build and deployment** and set **Source** to **GitHub Actions**. GitHub does not allow this workflow connection to create the Pages site automatically for a new repository. After selecting GitHub Actions, rerun the latest workflow from the **Actions** tab. Future pushes to `main` will build and deploy the site automatically.
 
 ## Add photos and videos
+
 Upload web-ready JPG, JPEG, PNG, WEBP, AVIF, GIF, MP4, or WEBM files into an album folder under `media-library/`.
 
 Example: `media-library/cosplay/november-convention-2026/portrait-001.jpg`
@@ -24,6 +27,7 @@ Example: `media-library/cosplay/november-convention-2026/portrait-001.jpg`
 The build scans those folders and generates `media-library.json` automatically. Do not upload private client-only files or camera RAW files to this public repository.
 
 ## Local testing
+
 ```bash
 python -m pip install -r requirements-test.txt
 python -m playwright install --with-deps chromium
@@ -31,38 +35,24 @@ python scripts/build-toki-media-library.py
 python tests/toki-layout-browser-qa.py
 python tests/toki-adaptive-interaction-qa.py
 python tests/toki-facebook-embed-qa.py
+python tests/toki-facebook-feed-data-qa.py
 ```
 
 ## Media note
+
 The official TOKI SATSUEI brushstroke logo and the current hero/sample gallery photographs are referenced directly from their original hosted media CDN assets. The logo is used unchanged: the site does not redraw, recolor, or generate a replacement. The website source and upload-ready archive structure remain independent in this repository; those original hosted image files have not been copied into Git because the available GitHub file-transfer connection cannot retrieve the binary media. New archive uploads can be stored directly in this repository under `media-library/`.
 
-## Facebook timeline behavior
-The homepage uses Meta's official Page Plugin iframe rather than scraping or copying posts. The embed is measured against its column, constrained to 180–500 px, given a taller 980 px browsing area, and left natively scrollable so visitors can browse posts inside the frame. Facebook's own Like, comment, and share controls remain inside the embedded timeline and may require sign-in. A separate Stories shortcut opens the Page itself because Page Stories are not exposed as a separate Page Plugin tab; Facebook controls whether a current Story is visible. Automated tests mock the cross-origin plugin so responsive sizing, scroll settings, and the Stories hand-off can be checked reliably without depending on Facebook's availability during CI.
+## Facebook post collection
 
+The homepage contains a dedicated, horizontally scrollable collection of individual public Facebook posts. Visitors can swipe or scroll sideways through the posts on touchscreens and trackpads, use the previous/next controls, search by label or category, and filter by category. Each item is embedded directly from Facebook, preserving the original post's media, reactions, comments, and sharing controls where Facebook allows the embed to load.
 
-## Curated Facebook post feed
+To add posts, send the website maintainer the individual public Facebook post links. Those links are integrated into `facebook-posts.json` and published with the next website update. There is no public Feed Manager page or on-site publishing interface.
 
-The homepage displays selected public Facebook posts as individual Meta post embeds. This avoids the unreliable Page timeline discovery approach: each post is added deliberately by URL, and Facebook retains the original content, reactions, comments, and sharing controls inside its embed. Only public posts can be embedded; private, removed, age-restricted, or audience-limited posts may fail to display.
+Use individual post permalinks copied from the Facebook post menu—not the Page homepage. Public posts, Reels, and supported video posts may embed. Stories are not displayed as post embeds; the website's Stories shortcut opens the Facebook Page. Private, deleted, age-restricted, or audience-limited posts may fail to display, and visitors may need to sign in or allow Facebook cookies.
 
-### Add or remove posts
-
-1. Open the site's **Manage Posts** link or visit https://legioniz.github.io/toki-satsuei/feed-manager.html.
-2. Copy the link for an individual public post from the TOKI SATSUEI Facebook Page and add it to the manager. You can reorder or remove saved links.
-3. Select **Copy Updated JSON**, then open the GitHub editor for [facebook-posts.json](https://github.com/Legioniz/toki-satsuei/edit/main/facebook-posts.json).
-4. Replace the file contents with the copied JSON and commit the change. GitHub Actions tests and deploys the updated site.
-
-The manager does not require Meta developer credentials or store a Facebook token. It prepares a change for the static file; committing through GitHub is the save/publish step. Up to 12 posts can be curated. The order in the manager is the display order on the website. The manager also supports per-post labels and categories, featured markers, bulk URL import, JSON import/export/download, search and category filtering, drag-and-drop ordering, individual embed previews, and browser-local draft recovery. The public feed includes category filters and text search.
-
-### Supported content
-
-Use individual post permalinks, not the Page homepage. Copy the post link from Facebook's post menu. The individual Meta embed is rendered through the Facebook JavaScript SDK with fluid width and post text enabled. Stories are not supported as embedded posts; the Stories link opens the Page itself. Visitors may need to sign in or allow Facebook cookies depending on their browser settings.
+Only up to 12 posts are included at once to keep the collection focused and the page manageable. The order in `facebook-posts.json` is the display order on the website.
 
 Official references:
 - [Meta Embedded Posts / Social Plugins](https://developers.facebook.com/docs/plugins/embedded-posts/)
-- [Meta Graph API — oEmbed Post](https://developers.facebook.com/docs/graph-api/reference/oembed-post/) — Meta removed the access-token requirement for public Facebook oEmbed content on June 15, 2026; the oEmbed API needs a specific post URL and does not discover newest Page posts.
-- [Meta's official Meta Embeds WordPress plugin](https://github.com/facebook/meta-embeds-for-wordpress) — confirms tokenless embedding of public Facebook post and Reel URLs.
-
-### Local QA
-
-- **python tests/toki-facebook-embed-qa.py**
-- **python tests/toki-facebook-feed-data-qa.py**
+- [Meta Graph API — oEmbed Post](https://developers.facebook.com/docs/graph-api/reference/oembed-post/)
+- [Meta's official Meta Embeds WordPress plugin](https://github.com/facebook/meta-embeds-for-wordpress)
