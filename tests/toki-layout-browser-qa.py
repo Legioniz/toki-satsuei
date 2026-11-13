@@ -94,6 +94,10 @@ def check_header(page, width, label):
     announcement_background = page.locator(".announcement").evaluate("(node) => getComputedStyle(node).backgroundColor")
     assert header_background == "rgb(0, 0, 0)", f"{label}: header must match the original logo black"
     assert announcement_background == header_background, f"{label}: announcement strip must match the header and logo"
+    page.locator(".site-header").evaluate("(node) => node.classList.add('is-scrolled')")
+    scrolled_header_background = page.locator(".site-header").evaluate("(node) => getComputedStyle(node).backgroundColor")
+    assert scrolled_header_background == header_background, f"{label}: scrolled header must keep matching the logo black"
+    page.locator(".site-header").evaluate("(node) => node.classList.remove('is-scrolled')")
     assert page.locator("link[rel='icon']").get_attribute("href") == OFFICIAL_LOGO, f"{label}: incorrect favicon asset"
     assert page.locator(".brand-copy").count() == 0, f"{label}: duplicate text logo remains beside the official mark"
     assert page.locator(".footer-brand img").get_attribute("src") == OFFICIAL_LOGO, f"{label}: footer does not use the official logo"
