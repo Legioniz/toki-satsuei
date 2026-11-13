@@ -865,7 +865,6 @@ a,button{ -webkit-tap-highlight-color:transparent }
   .service-number{width:32px;height:32px}
   .service-row h3{font-size:25px}
   .sessions-section{padding-block:68px}
-  .package-grid{grid-template-columns:minmax(0,1fr)!important}
   .package-card{padding:0 16px 18px}
   .package-art{margin-inline:-16px}
   .process-section{padding-block:68px!important}
