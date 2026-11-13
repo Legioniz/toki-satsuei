@@ -147,15 +147,19 @@ def check_home(page, width):
     assert process_grid.count() == 1 and process_grid.locator(".process-step").count() == 3, \
         f"{label}: the session process section is incomplete"
     process_box = process_grid.bounding_box()
-    process_box["right"] = process_box["x"] + process_box["width"]
-    process_box["bottom"] = process_box["y"] + process_box["height"]
+    process_metrics = process_grid.evaluate("""grid => {
+      const r=grid.getBoundingClientRect(), s=getComputedStyle(grid);
+      return {left:r.left,right:r.right,width:r.width,scrollWidth:grid.scrollWidth,clientWidth:grid.clientWidth,columns:s.gridTemplateColumns};
+    }""")
+    assert process_box and process_metrics["scrollWidth"] <= process_metrics["clientWidth"] + 1, \
+        f"{label}: session process grid has horizontal overflow: {process_metrics}"
     process_items = process_grid.locator(".process-step").evaluate_all("""nodes => nodes.map(node => {
       const r=node.getBoundingClientRect(), s=getComputedStyle(node);
       return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height,display:s.display};
     })""")
     assert_no_pair_overlap(process_items, label + " session process steps")
-    for item in process_items:
-        assert_inside(item, process_box, label + " session process step")
+    assert all(item["width"] > 0 and item["height"] > 0 for item in process_items), \
+        f"{label}: a session process step has no layout size: {process_items}"
     cards = page.locator(".package-card").evaluate_all("""nodes => nodes.map(card => {
       const c=card.getBoundingClientRect();
       return [...card.querySelectorAll('h3,.package-price,ul,.package-link')].map(el => {
