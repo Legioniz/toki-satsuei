@@ -109,6 +109,7 @@ def check_header(page, width, label):
         assert opened[1]["display"] != "none", f"{label}: navigation did not open at {width}px"
         assert opened[1]["x"] >= -1 and opened[1]["right"] <= width + 1, f"{label}: open navigation is clipped: {opened[1]}"
         page.locator(".menu-toggle").click()
+        page.wait_for_function("!document.querySelector('.primary-nav').classList.contains('is-open')", timeout=2000)
     else:
         assert nav["display"] != "none", f"{label}: desktop navigation is hidden at {width}px"
         assert brand["right"] <= nav["x"] + 1, f"{label}: brand overlaps navigation at {width}px"
@@ -138,6 +139,21 @@ def check_home(page, width):
     assert_no_pair_overlap(contact[1:], label + " contact columns")
     for child in contact[1:]:
         assert_inside(child, contact[0], label + " contact panel")
+    package_columns = page.locator(".package-grid").evaluate("(node) => getComputedStyle(node).gridTemplateColumns.split(' ').length")
+    expected_package_columns = 1 if width <= 520 else (2 if width <= 960 else 4)
+    assert package_columns == expected_package_columns, \
+        f"{label}: package grid is unbalanced at {width}px: expected {expected_package_columns} columns, got {package_columns}"
+    process_grid = page.locator(".process-grid")
+    assert process_grid.count() == 1 and process_grid.locator(".process-step").count() == 3, \
+        f"{label}: the session process section is incomplete"
+    process_box = process_grid.bounding_box()
+    process_items = process_grid.locator(".process-step").evaluate_all("""nodes => nodes.map(node => {
+      const r=node.getBoundingClientRect();
+      return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height};
+    })""")
+    assert_no_pair_overlap(process_items, label + " session process steps")
+    for item in process_items:
+        assert_inside(item, process_box, label + " session process step")
     cards = page.locator(".package-card").evaluate_all("""nodes => nodes.map(card => {
       const c=card.getBoundingClientRect();
       return [...card.querySelectorAll('h3,.package-price,ul,.package-link')].map(el => {
@@ -258,6 +274,34 @@ def main():
                 archive.locator(".album-dialog-close").click()
                 archive.wait_for_timeout(30)
                 checks += 1
+
+            empty_manifest = {
+                "schema_version": 1, "brand": "TOKI SATSUEI",
+                "categories": [
+                    {"id": "cosplay", "title": "Cosplay", "description": "Character portraits and costume details.", "code": "01", "album_count": 0, "image_count": 0, "albums": []},
+                    {"id": "portraits", "title": "Portraits", "description": "Individual portraits.", "code": "02", "album_count": 0, "image_count": 0, "albums": []},
+                    {"id": "duo-groups", "title": "Duo & groups", "description": "Shared frames and paired characters.", "code": "03", "album_count": 0, "image_count": 0, "albums": []},
+                    {"id": "events", "title": "Events", "description": "Conventions and gatherings.", "code": "04", "album_count": 0, "image_count": 0, "albums": []},
+                    {"id": "casual-outdoor", "title": "Casual & outdoor", "description": "Unhurried outdoor sessions.", "code": "05", "album_count": 0, "image_count": 0, "albums": []},
+                    {"id": "behind-the-scenes", "title": "Behind the camera", "description": "Setup and preparation.", "code": "06", "album_count": 0, "image_count": 0, "albums": []}
+                ]
+            }
+            empty_archive = context.new_page()
+            empty_archive.route("**/media-library.json*", lambda route: route.fulfill(
+                status=200, content_type="application/json", body=json.dumps(empty_manifest)
+            ))
+            empty_archive.goto(base + "/library.html", wait_until="domcontentloaded")
+            empty_archive.wait_for_function("document.querySelectorAll('.archive-shelf').length === 6")
+            assert "0 ALBUMS" in empty_archive.locator("#library-count").inner_text()
+            empty_archive.set_viewport_size({"width":390,"height":844})
+            document_width(empty_archive, "archive-empty/390", 390)
+            shelf_columns = empty_archive.locator(".archive-shelf-grid").evaluate("(node) => getComputedStyle(node).gridTemplateColumns.split(' ').length")
+            assert shelf_columns == 1, f"archive-empty/390: category shelves should stack on mobile, got {shelf_columns} columns"
+            empty_archive.locator(".archive-shelf").first.click()
+            empty_archive.wait_for_function("document.querySelector('.archive-empty-action') !== null")
+            empty_archive.locator(".archive-empty-action").click()
+            empty_archive.wait_for_function("document.querySelectorAll('.archive-shelf').length === 6")
+            empty_archive.close()
             browser.close()
         print(f"PASS TOKI SATSUEI layout QA: {checks} responsive page and dialog checks.")
     finally:
