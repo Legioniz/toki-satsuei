@@ -130,6 +130,11 @@ def check_home(page, width):
     label = f"homepage/{width}"
     document_width(page, label, width)
     check_header(page, width, label)
+    hero = page.locator(".hero-opening").bounding_box()
+    viewport_height = page.evaluate("innerHeight")
+    chrome_height = page.locator(".announcement").evaluate("(node) => node.getBoundingClientRect().height") + page.locator(".site-header").evaluate("(node) => node.getBoundingClientRect().height")
+    assert hero and hero["height"] >= max(640, viewport_height - chrome_height - 2), \\
+        f"{label}: hero does not extend to the available viewport height: hero={hero}, viewport={viewport_height}, chrome={chrome_height}"
     contact = boxes(page, [".contact-panel", ".contact-copy", ".inquiry-form"])
     assert_no_pair_overlap(contact[1:], label + " contact columns")
     for child in contact[1:]:
