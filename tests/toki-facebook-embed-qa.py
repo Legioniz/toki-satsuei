@@ -130,24 +130,7 @@ def main():
                         railRight: railRect.right,
                         cardWidths: cards.map(card => card.getBoundingClientRect().width),
                         railScrollWidth: rail.scrollWidth,
-                        railClientWidth: rail.clientWidth,
-                        overflowingElements: [...document.querySelectorAll("body *")]
-                          .map(element => {
-                            const rect = element.getBoundingClientRect();
-                            const style = getComputedStyle(element);
-                            const parent = element.parentElement;
-                            return {
-                              tag: element.tagName.toLowerCase(),
-                              className: typeof element.className === "string" ? element.className : "",
-                              left: Math.round(rect.left * 10) / 10,
-                              right: Math.round(rect.right * 10) / 10,
-                              width: Math.round(rect.width * 10) / 10,
-                              overflowX: style.overflowX,
-                              parent: parent ? parent.tagName.toLowerCase() + "." + String(parent.className || "").slice(0, 60) : ""
-                            };
-                          })
-                          .filter(item => item.width > 0 && (item.right > window.innerWidth + 0.5 || item.left < -0.5))
-                          .slice(0, 20)
+                        railClientWidth: rail.clientWidth
                       };
                     }"""
                 )
