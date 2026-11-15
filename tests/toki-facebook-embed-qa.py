@@ -103,12 +103,16 @@ def main():
             page.wait_for_function("document.querySelector('#facebook-feed-list').scrollLeft < 4")
 
             page.locator("#facebook-feed-search").fill("event")
+            page.wait_for_function("document.querySelectorAll('.facebook-embed-card').length === 1")
             assert page.locator(".facebook-embed-card").count() == 1
             assert page.locator("#facebook-feed-scroll-controls").is_hidden()
             page.locator("#facebook-feed-search").fill("")
+            page.wait_for_function("document.querySelectorAll('.facebook-embed-card').length === 2")
             page.locator(".facebook-feed-filter").filter(has_text="Cosplay").click()
+            page.wait_for_function("document.querySelectorAll('.facebook-embed-card').length === 1")
             assert page.locator(".facebook-embed-card").count() == 1
             page.locator(".facebook-feed-filter").filter(has_text="All").click()
+            page.wait_for_function("document.querySelectorAll('.facebook-embed-card').length === 2")
 
             checks = 0
             for width in [1440, 1024, 820, 680, 430, 390, 360, 320]:
