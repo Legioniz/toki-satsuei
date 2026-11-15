@@ -30,6 +30,7 @@ def main() -> None:
         assert path.is_file() and path.stat().st_size > 0, f"Missing public page asset: {filename}"
 
     index = (ROOT / "index.html").read_text(encoding="utf-8")
+    site = (ROOT / "site.js").read_text(encoding="utf-8")
     archive = (ROOT / "library.html").read_text(encoding="utf-8")
     policies = (ROOT / "policies.html").read_text(encoding="utf-8")
     not_found = (ROOT / "404.html").read_text(encoding="utf-8")
@@ -43,6 +44,13 @@ def main() -> None:
     assert 'id="consent"' in policies and 'id="pricing"' in policies and 'id="changes"' in policies
     assert "within 7 days after the session" in policies
     assert "deposit, payment deadline" in policies
+    assert 'id="inquiry-form"' in index and 'name="privacy_consent"' in index
+    assert 'name="contact_method"' in index and 'name="preferred_date"' in index
+    assert 'name="website"' in index and "Send booking request" in index
+    assert "TOKI_BOOKING_ENDPOINT" in site and 'kind:"toki_booking"' in site
+    assert "copy inquiry message" not in index.lower()
+    assert "private.toki_booking_requests" in policies
+    assert "does not reserve a date" in policies
     assert 'name="robots" content="noindex,follow"' in not_found
     assert "Return home" in not_found and "Browse the archive" in not_found
     assert "Sitemap: " + BASE_URL + "/sitemap.xml" in robots
