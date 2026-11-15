@@ -48,8 +48,8 @@ function doPost(e) {
   const participants = Number(b.participants);
   const valid = /^TOKI-[A-F0-9]{8}$/.test(ref) && name && contact &&
     ["instagram","facebook","email"].includes(method) && session &&
-    /^\\d{4}-\\d{2}-\\d{2}$/.test(date) &&
-    (!alt || /^\\d{4}-\\d{2}-\\d{2}$/.test(alt)) &&
+    /^\d{4}-\d{2}-\d{2}$/.test(date) &&
+    (!alt || /^\d{4}-\d{2}-\d{2}$/.test(alt)) &&
     ["Morning","Afternoon","Evening","Flexible"].includes(time) &&
     location.length >= 2 && notes.length >= 10 &&
     Number.isInteger(participants) && participants >= 1 && participants <= 12;
@@ -67,9 +67,9 @@ function doPost(e) {
       ["Session",session],["Preferred date",date],["Alternative date",alt || "Not supplied"],
       ["Preferred time",time],["Location",location],["Participants",String(participants)],["Notes",notes]
     ];
-    const plain = "A new TOKI SATSUEI booking inquiry was saved.\\n\\n" +
-      rows.map(r => r[0] + ": " + r[1]).join("\\n") +
-      "\\n\\nInquiry only. The date is not reserved until you confirm it.";
+    const plain = "A new TOKI SATSUEI booking inquiry was saved.\n\n" +
+      rows.map(r => r[0] + ": " + r[1]).join("\n") +
+      "\n\nInquiry only. The date is not reserved until you confirm it.";
     const htmlRows = rows.map(r => "<tr><th align='left' style='padding:8px;border-bottom:1px solid #ddd'>" +
       escape_(r[0]) + "</th><td style='padding:8px;border-bottom:1px solid #ddd'>" +
       escape_(r[1]) + "</td></tr>").join("");
@@ -85,7 +85,7 @@ function doPost(e) {
       htmlBody: html,
       name: TOKI_PROPS.getProperty("TOKI_SENDER_NAME") || "TOKI SATSUEI Booking Desk"
     };
-    if (method === "email" && /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(contact)) message.replyTo = contact;
+    if (method === "email" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact)) message.replyTo = contact;
     MailApp.sendEmail(message);
 
     const next = (Array.isArray(sent) ? sent : []).filter(v => v !== ref);
