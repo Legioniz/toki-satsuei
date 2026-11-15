@@ -15,6 +15,9 @@ assert "MailApp.sendEmail(message)" in gas
 assert "TOKI_SENT_REFS" in gas
 assert "LockService.getScriptLock()" in gas
 assert "input.secret" in gas
+assert r"^\d{4}-\d{2}-\d{2}$" in gas
+assert r"\n\n" in gas
+assert r"[^\s@]+" in gas
 assert "TOKI_EMAIL_WEBHOOK_SECRET" in edge
 assert "TOKI_EMAIL_WEBHOOK_URL" in edge
 assert "await sendTokiBookingNotification" in edge
