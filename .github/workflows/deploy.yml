@@ -65,6 +65,9 @@ jobs:
       - name: Verify Supabase-backed booking form and request flow
         run: python tests/toki-booking-browser-qa.py
 
+      - name: Verify private Gmail notification relay source
+        run: python tests/toki-email-notification-qa.py
+
       - name: Verify cinematic field-journal design
         run: python tests/toki-cinematic-design-qa.py
 
