@@ -117,6 +117,12 @@ def main():
             checks = 0
             for width in [1440, 1024, 820, 680, 430, 390, 360, 320]:
                 page.set_viewport_size({"width": width, "height": 850})
+                if width <= 680:
+                    page.wait_for_function(
+                        """() => [...document.querySelectorAll('[data-reveal="left"], [data-reveal="right"]')]
+                          .every(element => getComputedStyle(element).transform === "none")""",
+                        timeout=2500,
+                    )
                 measurements = page.evaluate(
                     """() => {
                       const column = document.querySelector(".facebook-feed-column").getBoundingClientRect();
