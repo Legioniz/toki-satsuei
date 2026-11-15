@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timedelta
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Thread
+from zoneinfo import ZoneInfo
 
 from playwright.sync_api import sync_playwright
 
@@ -23,11 +25,14 @@ class QuietHandler(SimpleHTTPRequestHandler):
         pass
 
 
-def fill_valid_form(page) -> None:
+def fill_valid_form(page) -> tuple[str, str]:
+    today = datetime.now(ZoneInfo("Asia/Manila")).date()
+    preferred_date = (today + timedelta(days=20)).isoformat()
+    alternate_date = (today + timedelta(days=21)).isoformat()
     page.locator('input[name="name"]').fill("Alex Cosplayer")
     page.locator('select[name="session"]').select_option("Duo Session")
-    page.locator('input[name="preferred_date"]').fill("2026-12-18")
-    page.locator('input[name="alternate_date"]').fill("2026-12-19")
+    page.locator('input[name="preferred_date"]').fill(preferred_date)
+    page.locator('input[name="alternate_date"]').fill(alternate_date)
     page.locator('select[name="preferred_time"]').select_option("Afternoon")
     page.locator('select[name="contact_method"]').select_option("instagram")
     page.locator('input[name="contact_value"]').fill("@alex.cosplay")
@@ -35,6 +40,7 @@ def fill_valid_form(page) -> None:
     page.locator('input[name="location"]').fill("Quezon City")
     page.locator('textarea[name="notes"]').fill("Duo cosplay session for two characters. We can meet near the venue entrance.")
     page.locator('input[name="privacy_consent"]').check()
+    return preferred_date, alternate_date
 
 
 def main() -> None:
@@ -93,7 +99,7 @@ def main() -> None:
             page.locator('button[type="submit"]').click()
             assert len(submissions) == 0
 
-            fill_valid_form(page)
+            preferred_date, alternate_date = fill_valid_form(page)
             assert page.locator('input[name="contact_value"]').get_attribute("type") == "text"
             page.locator('select[name="contact_method"]').select_option("email")
             assert page.locator('input[name="contact_value"]').get_attribute("type") == "email"
@@ -113,8 +119,8 @@ def main() -> None:
             assert payload["contact_method"] == "instagram"
             assert payload["contact_value"] == "@alex.cosplay"
             assert payload["session_type"] == "Duo Session"
-            assert payload["preferred_date"] == "2026-12-18"
-            assert payload["alternate_date"] == "2026-12-19"
+            assert payload["preferred_date"] == preferred_date
+            assert payload["alternate_date"] == alternate_date
             assert payload["preferred_time"] == "Afternoon"
             assert payload["participants"] == 2
             assert payload["privacy_consent"] is True
@@ -141,7 +147,7 @@ def main() -> None:
             error_context.route(SUPABASE_HOST + "/functions/v1/portfolio-submit", rate_limited)
             error_page = error_context.new_page()
             error_page.goto(base + "/index.html#contact", wait_until="domcontentloaded")
-            fill_valid_form(error_page)
+            failure_preferred_date, _ = fill_valid_form(error_page)
             error_page.locator('button[type="submit"]').click()
             error_page.get_by_text("Too many submissions. Please try again later.").wait_for(state="visible", timeout=7000)
             assert len(failure_requests) == 1
@@ -151,7 +157,7 @@ def main() -> None:
 
             # Duplicate alternate dates are invalid before the edge function
             # receives the request.
-            error_page.locator('input[name="alternate_date"]').fill("2026-12-18")
+            error_page.locator('input[name="alternate_date"]').fill(failure_preferred_date)
             error_page.locator('button[type="submit"]').click()
             assert len(failure_requests) == 1
 
