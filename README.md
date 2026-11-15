@@ -90,24 +90,24 @@ The site is delivered as four static pages with shared behavior and page-specifi
 Scripts load with `defer` in dependency order: shared motion first, shared page behavior second, and page-specific behavior last. Controllers are scoped so local declarations cannot collide. The archive manifest separates image, video, and total-media counts; the interface labels the combined count as items instead of treating videos as photographs. The asset-integration QA verifies local links, script ordering, runtime data dependencies, media-manifest totals, stylesheet/script usage, and the standalone Pages package. Empty category folders under `media-library/` are intentional upload shelves, not unused assets.
 
 
-## Free private booking email alerts
+## Free private booking alerts and owner log via Make
 
-The existing Supabase `portfolio-submit` Edge Function saves each TOKI inquiry first, then makes a best-effort call to a Google Apps Script relay. The relay sends a notification to the private owner inbox using the Google account that authorises the script. The recipient address is stored only in Apps Script Script Properties, not in the public website. An email failure never rolls back a saved booking.
+The website keeps its existing custom booking form. The Supabase `portfolio-submit` Edge Function saves each TOKI booking in the private `toki_booking_requests` table first, then makes a best-effort HTTPS call to a private Make.com Custom Webhook. Make can add the booking to a private Google Sheet and send an administrative email through the owner's connected Google account. A Make, Sheets, or Gmail failure never rolls back a saved booking.
 
 ### One-time owner setup
 
-1. Create a project at [script.google.com](https://script.google.com/) using the Google account that should send the alerts.
-2. Replace the default `Code.gs` with `google-apps-script/Code.gs` from this repository.
-3. In **Project Settings → Script Properties**, add:
-   - `TOKI_WEBHOOK_SECRET`: the private random token supplied in the setup message.
-   - `TOKI_NOTIFICATION_EMAIL`: the private inbox that should receive alerts.
-   - `TOKI_SENDER_NAME`: `TOKI SATSUEI Booking Desk` (optional).
-4. Select **Deploy → New deployment → Web app**. Set **Execute as** to **Me** and **Who has access** to **Anyone**. Authorise the requested Google Mail permission, then deploy and copy the Web App URL.
-5. In the Supabase Dashboard for project `pjuwrngnrrvdiwqspkic`, open **Edge Functions → Secrets** and add:
-   - `TOKI_EMAIL_WEBHOOK_URL`: the deployed Web App URL.
-   - `TOKI_EMAIL_WEBHOOK_SECRET`: the exact same private token used in Apps Script.
-6. Submit one real test booking with your own test contact details. Confirm the request appears in the private TOKI BOOKINGS view and that the email arrives. Remove any test request afterward if desired.
+1. In Make, create a scenario with **Webhooks → Custom webhook** and copy its generated URL.
+2. Add **Google Sheets → Add a Row** and select a spreadsheet that is private to the TOKI owner. Suggested columns: received time, reference code, name, contact method, contact detail, session, preferred date, alternate date, preferred time, location, participants, and notes.
+3. Add **Gmail → Send an Email** and connect the owner's Google account. Send the alert to the private owner inbox. Map the booking fields from the Custom Webhook module's `booking` object.
+4. Keep the scenario private and switch it on after the module mappings are complete.
+5. In Make's Custom Webhook settings, optionally enable **API Key authentication** and create a key. This is recommended; Make requires that key in the `x-make-apikey` request header.
+6. In the Supabase Dashboard for project `pjuwrngnrrvdiwqspkic`, open **Edge Functions → Secrets** and add:
+   - `TOKI_EMAIL_WEBHOOK_URL`: the Make Custom Webhook URL.
+   - `TOKI_EMAIL_WEBHOOK_API_KEY`: the Make API key, only when API Key authentication is enabled.
+7. Send a test webhook while the Make scenario is in **Run once**, confirm the incoming field structure, then map and test both the Sheets row and Gmail email. Afterward, submit one real test booking with your own test contact details and verify that it appears in Supabase, Sheets, and the owner inbox.
 
-The shared token must not be committed to GitHub, added to website JavaScript, or shared with visitors. Google Apps Script sends through the account that owns the script; the display name can be branded as TOKI SATSUEI, but the mail transport itself is not an anonymous third-party sender. Personal Gmail accounts have daily sending quotas, so alerts may stop temporarily after the daily limit is reached. Booking records remain saved regardless.
+Never put the webhook URL or API key in website JavaScript, a public repository, screenshots, or a public spreadsheet. Keep the spreadsheet and Make scenario restricted to the owner. The booking details contain personal contact information and are passed to Make and Google only for this owner-side workflow.
 
-The source of the live Supabase intake function is tracked at `supabase/functions/portfolio-submit/index.ts` in this repository. This function is shared with the main Legioniz portfolio backend; the notification logic runs only for `kind: "toki_booking"` requests.
+Make's default webhook response is HTTP 200 with plain-text `Accepted`. The backend treats that as queued for processing, not proof that the later email and spreadsheet modules succeeded. Add error notifications in Make and periodically check scenario execution history. New bookings remain saved in Supabase even if the Make workflow fails.
+
+The source of the Supabase intake function is tracked at `supabase/functions/portfolio-submit/index.ts` in this repository. This function is shared with the main Legioniz portfolio backend; the Make notification call runs only for `kind: "toki_booking"` requests.
