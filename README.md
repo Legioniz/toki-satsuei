@@ -88,3 +88,26 @@ The site is delivered as four static pages with shared behavior and page-specifi
 | `media-library.json` + `media-library/` | `library.html` | Generated archive index and uploaded media |
 
 Scripts load with `defer` in dependency order: shared motion first, shared page behavior second, and page-specific behavior last. Controllers are scoped so local declarations cannot collide. The archive manifest separates image, video, and total-media counts; the interface labels the combined count as items instead of treating videos as photographs. The asset-integration QA verifies local links, script ordering, runtime data dependencies, media-manifest totals, stylesheet/script usage, and the standalone Pages package. Empty category folders under `media-library/` are intentional upload shelves, not unused assets.
+
+
+## Free private booking email alerts
+
+The existing Supabase `portfolio-submit` Edge Function saves each TOKI inquiry first, then makes a best-effort call to a Google Apps Script relay. The relay sends a notification to the private owner inbox using the Google account that authorises the script. The recipient address is stored only in Apps Script Script Properties, not in the public website. An email failure never rolls back a saved booking.
+
+### One-time owner setup
+
+1. Create a project at [script.google.com](https://script.google.com/) using the Google account that should send the alerts.
+2. Replace the default `Code.gs` with `google-apps-script/Code.gs` from this repository.
+3. In **Project Settings → Script Properties**, add:
+   - `TOKI_WEBHOOK_SECRET`: the private random token supplied in the setup message.
+   - `TOKI_NOTIFICATION_EMAIL`: the private inbox that should receive alerts.
+   - `TOKI_SENDER_NAME`: `TOKI SATSUEI Booking Desk` (optional).
+4. Select **Deploy → New deployment → Web app**. Set **Execute as** to **Me** and **Who has access** to **Anyone**. Authorise the requested Google Mail permission, then deploy and copy the Web App URL.
+5. In the Supabase Dashboard for project `pjuwrngnrrvdiwqspkic`, open **Edge Functions → Secrets** and add:
+   - `TOKI_EMAIL_WEBHOOK_URL`: the deployed Web App URL.
+   - `TOKI_EMAIL_WEBHOOK_SECRET`: the exact same private token used in Apps Script.
+6. Submit one real test booking with your own test contact details. Confirm the request appears in the private TOKI BOOKINGS view and that the email arrives. Remove any test request afterward if desired.
+
+The shared token must not be committed to GitHub, added to website JavaScript, or shared with visitors. Google Apps Script sends through the account that owns the script; the display name can be branded as TOKI SATSUEI, but the mail transport itself is not an anonymous third-party sender. Personal Gmail accounts have daily sending quotas, so alerts may stop temporarily after the daily limit is reached. Booking records remain saved regardless.
+
+The source of the live Supabase intake function is tracked at `supabase/functions/portfolio-submit/index.ts` in this repository. This function is shared with the main Legioniz portfolio backend; the notification logic runs only for `kind: "toki_booking"` requests.
