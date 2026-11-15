@@ -306,6 +306,7 @@ contactMethod?.addEventListener("change",updateContactInput);
 form?.addEventListener("submit",async event=>{
   event.preventDefault();
   if(!form||!bookingButton||form.dataset.submitting==="true")return;
+  if(!form.reportValidity())return;
   const data=new FormData(form);
   const participants=Number(data.get("participants"));
   const payload={
