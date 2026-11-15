@@ -54,7 +54,7 @@ def main() -> None:
     assert "TOKI_BOOKING_ENDPOINT" in site
     assert "kind:\"toki_booking\"" in site
     assert "clipboard.writeText" not in site
-    assert "private" in policies.lower() and "toki_booking_requests" in policies
+    assert "private database table" in policies and "does not reserve a date" in policies.lower()
     assert "not a reservation" in policies.lower() or "does not reserve" in policies.lower()
 
     server = ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler))
