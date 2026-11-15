@@ -41,6 +41,7 @@ python tests/toki-adaptive-interaction-qa.py
 python tests/toki-facebook-embed-qa.py
 python tests/toki-facebook-feed-data-qa.py
 python tests/toki-public-pages-qa.py
+python tests/toki-booking-browser-qa.py
 python tests/toki-cinematic-design-qa.py
 python tests/toki-asset-integration-qa.py
 ```
