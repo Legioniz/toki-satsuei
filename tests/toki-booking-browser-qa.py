@@ -95,10 +95,10 @@ def main() -> None:
 
             fill_valid_form(page)
             assert page.locator('input[name="contact_value"]').get_attribute("type") == "text"
-            await page.locator('select[name="contact_method"]').select_option("email")
+            page.locator('select[name="contact_method"]').select_option("email")
             assert page.locator('input[name="contact_value"]').get_attribute("type") == "email"
             page.locator('input[name="contact_value"]').fill("alex@example.com")
-            await page.locator('select[name="contact_method"]').select_option("instagram")
+            page.locator('select[name="contact_method"]').select_option("instagram")
             page.locator('input[name="contact_value"]').fill("@alex.cosplay")
 
             page.locator('button[type="submit"]').click()
@@ -119,7 +119,7 @@ def main() -> None:
             assert payload["participants"] == 2
             assert payload["privacy_consent"] is True
             assert page.locator('input[name="name"]').input_value() == ""
-            assert "not confirmed" in page.locator("#form-status").inner_text().lower()
+            assert "not reserved" in page.locator("#form-status").inner_text().lower()
             assert page.locator('button[type="submit"]').is_enabled()
 
             page.close()
