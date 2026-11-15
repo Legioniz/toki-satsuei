@@ -130,7 +130,34 @@ def main():
                         railRight: railRect.right,
                         cardWidths: cards.map(card => card.getBoundingClientRect().width),
                         railScrollWidth: rail.scrollWidth,
-                        railClientWidth: rail.clientWidth
+                        railClientWidth: rail.clientWidth,
+                        root: {
+                          html: document.documentElement.getBoundingClientRect().toJSON(),
+                          body: document.body.getBoundingClientRect().toJSON(),
+                          htmlOverflowX: getComputedStyle(document.documentElement).overflowX,
+                          bodyOverflowX: getComputedStyle(document.body).overflowX
+                        },
+                        overflowElements: [...document.querySelectorAll("body *")]
+                          .map(element => {
+                            const rect = element.getBoundingClientRect();
+                            const style = getComputedStyle(element);
+                            return {
+                              tag: element.tagName.toLowerCase(),
+                              className: typeof element.className === "string" ? element.className : "",
+                              reveal: element.getAttribute("data-reveal"),
+                              left: Math.round(rect.left * 10) / 10,
+                              right: Math.round(rect.right * 10) / 10,
+                              width: Math.round(rect.width * 10) / 10,
+                              transform: style.transform,
+                              translate: style.translate,
+                              marginLeft: style.marginLeft,
+                              marginRight: style.marginRight,
+                              position: style.position,
+                              overflowX: style.overflowX
+                            };
+                          })
+                          .filter(item => item.width > 0 && (item.right > window.innerWidth + 0.5 || item.left < -0.5))
+                          .slice(0, 35)
                       };
                     }"""
                 )
