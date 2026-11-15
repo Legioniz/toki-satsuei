@@ -78,18 +78,18 @@ def main():
    assert name_field.evaluate("(el)=>el.matches(':user-invalid')"),"Inquiry form validation feedback did not activate"
    passed+=1
 
-   duo_card=home.locator('.package-card[data-session="Duo / group session"]')
+   duo_card=home.locator('.package-card[data-session="Duo Session"]')
    duo_card.click()
    assert duo_card.get_attribute("aria-pressed")=="true"
-   assert home.locator('select[name="session"]').input_value()=="Duo / group session"
+   assert home.locator('select[name="session"]').input_value()=="Duo Session"
    home.wait_for_function("document.querySelector('#form-status').textContent.includes('Duo Session')")
    assert "Duo Session" in home.locator("#form-status").inner_text()
    assert home.locator('.package-card[aria-pressed="true"]').count()==1
-   portrait_card=home.locator('.package-card[data-session="Cosplay photoshoot"]')
+   portrait_card=home.locator('.package-card[data-session="Toki Portraits"]')
    portrait_card.focus()
    home.keyboard.press("Enter")
    assert portrait_card.get_attribute("aria-pressed")=="true"
-   assert home.locator('select[name="session"]').input_value()=="Cosplay photoshoot"
+   assert home.locator('select[name="session"]').input_value()=="Toki Portraits"
    passed+=1
 
    home.evaluate("window.scrollTo({top:0,behavior:'instant'})")

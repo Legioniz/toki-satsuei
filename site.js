@@ -257,32 +257,113 @@ sessionCards.forEach(card=>{
   });
 });
 
+const TOKI_SUPABASE_URL="https://pjuwrngnrrvdiwqspkic.supabase.co";
+const TOKI_SUPABASE_PUBLISHABLE_KEY="sb_publishable_PRGb0-smtTzCm9VHuM9NOQ_ZFh1wKRS";
+const TOKI_BOOKING_ENDPOINT=TOKI_SUPABASE_URL+"/functions/v1/portfolio-submit";
+const bookingButton=form?.querySelector(".form-submit");
+const contactMethod=form?.querySelector("#contact-method");
+const contactValue=form?.querySelector("#contact-value");
+const preferredDate=form?.querySelector('input[name="preferred_date"]');
+const alternateDate=form?.querySelector('input[name="alternate_date"]');
+const submitLabel=bookingButton?.innerHTML||"Send booking request ↗";
+
+function manilaDate(){
+  const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Manila",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
+  const value=type=>parts.find(item=>item.type===type)?.value||"";
+  return value("year")+"-"+value("month")+"-"+value("day");
+}
+function updateDateLimits(){
+  const minimum=manilaDate();
+  if(preferredDate)preferredDate.min=minimum;
+  if(alternateDate)alternateDate.min=minimum;
+  if(alternateDate)alternateDate.setCustomValidity(alternateDate.value&&preferredDate?.value===alternateDate.value?"Choose a different alternative date.":"");
+}
+function updateContactInput(){
+  if(!contactMethod||!contactValue)return;
+  const method=contactMethod.value;
+  contactValue.type=method==="email"?"email":"text";
+  contactValue.autocomplete=method==="email"?"email":"off";
+  contactValue.inputMode=method==="email"?"email":"text";
+  contactValue.placeholder=method==="instagram"?"Instagram username or profile link":method==="facebook"?"Facebook profile or Messenger contact":method==="email"?"Email address":"Choose a contact channel first";
+  contactValue.setAttribute("aria-label",method==="email"?"Email address":method==="facebook"?"Facebook Messenger contact":method==="instagram"?"Instagram username or profile link":"Contact detail");
+}
+function updateBookingStatus(message,state=""){
+  if(!status)return;
+  form?.classList.toggle("is-success",state==="success");
+  form?.classList.toggle("is-warning",state==="error");
+  form?.classList.toggle("is-submitting",state==="busy");
+  if(window.TokiMotion?.updateText)window.TokiMotion.updateText(status,message);
+  else status.textContent=message;
+}
+updateDateLimits();
+updateContactInput();
+preferredDate?.addEventListener("change",()=>{
+  if(alternateDate)alternateDate.setCustomValidity(alternateDate.value&&preferredDate.value===alternateDate.value?"Choose a different alternative date.":"");
+});
+alternateDate?.addEventListener("change",updateDateLimits);
+contactMethod?.addEventListener("change",updateContactInput);
+
 form?.addEventListener("submit",async event=>{
   event.preventDefault();
+  if(!form||!bookingButton||form.dataset.submitting==="true")return;
+  if(!form.reportValidity())return;
   const data=new FormData(form);
-  const name=(data.get("name")||"").toString().trim();
-  const session=(data.get("session")||"").toString().trim();
-  const date=(data.get("date")||"").toString().trim()||"Flexible";
-  const location=(data.get("location")||"").toString().trim()||"To be discussed";
-  const message=(data.get("message")||"").toString().trim()||"No additional details yet.";
-  const draft=["Hello, TOKI SATSUEI!","","I'd like to ask about a photoshoot.","Name: "+name,"Session: "+session,"Preferred date: "+date,"Location / event: "+location,"Details: "+message,"","Please let me know your availability and the next steps. Thank you!"].join("\n");
-  let copied=false;
-  try{if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(draft);copied=true;}}catch(error){copied=false;}
-  if(!copied){
-    const temp=document.createElement("textarea");
-    temp.value=draft;temp.setAttribute("readonly","");temp.style.position="fixed";temp.style.opacity="0";temp.style.pointerEvents="none";
-    document.body.appendChild(temp);temp.select();
-    try{copied=document.execCommand("copy");}catch(error){copied=false;}
-    temp.remove();
+  const participants=Number(data.get("participants"));
+  const payload={
+    kind:"toki_booking",
+    website:(data.get("website")||"").toString(),
+    name:(data.get("name")||"").toString().trim(),
+    contact_method:(data.get("contact_method")||"").toString(),
+    contact_value:(data.get("contact_value")||"").toString().trim(),
+    session_type:(data.get("session")||"").toString(),
+    preferred_date:(data.get("preferred_date")||"").toString(),
+    alternate_date:(data.get("alternate_date")||"").toString()||null,
+    preferred_time:(data.get("preferred_time")||"").toString(),
+    location:(data.get("location")||"").toString().trim(),
+    participants,
+    notes:(data.get("notes")||"").toString().trim(),
+    privacy_consent:form.querySelector('input[name="privacy_consent"]')?.checked===true
+  };
+  form.dataset.submitting="true";
+  bookingButton.disabled=true;
+  bookingButton.innerHTML="SENDING REQUEST…";
+  updateBookingStatus("Sending your request securely. Please keep this page open for confirmation.","busy");
+  try{
+    const response=await fetch(TOKI_BOOKING_ENDPOINT,{
+      method:"POST",
+      headers:{
+        "apikey":TOKI_SUPABASE_PUBLISHABLE_KEY,
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify(payload),
+      cache:"no-store"
+    });
+    let result={};
+    try{result=await response.json();}catch(error){result={};}
+    if(!response.ok||result.ok!==true||typeof result.reference_code!=="string"){
+      const message=typeof result.message==="string"?result.message:
+        response.status===429?"Too many requests. Please wait a little before trying again.":"We could not confirm that your request was saved. Please try again or message us through our official social page.";
+      throw new Error(message);
+    }
+    const reference=result.reference_code;
+    form.reset();
+    form.classList.remove("is-prefilled");
+    sessionCards.forEach(card=>{
+      card.classList.remove("is-selected");
+      card.setAttribute("aria-pressed","false");
+    });
+    updateDateLimits();
+    updateContactInput();
+    updateBookingStatus("Request received. Your reference is "+reference+". We’ll review the details and contact you through your selected channel. Your date is not reserved until we confirm it with you in writing. No payment has been taken.","success");
+  }catch(error){
+    const message=error instanceof Error?error.message:"The booking service could not be reached. Please try again or contact us through Facebook or Instagram.";
+    updateBookingStatus(message+" Your entries are still here; you can retry or message our official page.","error");
+  }finally{
+    form.dataset.submitting="false";
+    bookingButton.disabled=false;
+    bookingButton.innerHTML=submitLabel;
+    form.classList.remove("is-submitting");
   }
-  const feedbackMessage=copied
-    ?"Inquiry copied. Open our Facebook page and paste it into a message."
-    :"Copy isn't available in this browser. Your details are still here—select and copy them manually.";
-  form.classList.toggle("is-success",copied);
-  form.classList.toggle("is-warning",!copied);
-  window.setTimeout(()=>form.classList.remove("is-success","is-warning"),1800);
-  if(window.TokiMotion?.updateText)window.TokiMotion.updateText(status,feedbackMessage);
-  else status.textContent=feedbackMessage;
 });
 const year=document.querySelector("#year");if(year)year.textContent=String(new Date().getFullYear());
 })();

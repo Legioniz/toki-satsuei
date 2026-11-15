@@ -41,13 +41,14 @@ python tests/toki-adaptive-interaction-qa.py
 python tests/toki-facebook-embed-qa.py
 python tests/toki-facebook-feed-data-qa.py
 python tests/toki-public-pages-qa.py
+python tests/toki-booking-browser-qa.py
 python tests/toki-cinematic-design-qa.py
 python tests/toki-asset-integration-qa.py
 ```
 
 ## Booking, privacy, and image consent
 
-The public [booking and photo policies](https://legioniz.github.io/toki-satsuei/policies.html) describe how inquiries are confirmed, how prices and payment terms are agreed, how schedule changes are handled, how files are delivered, and how client photographs may be shared. The inquiry form only prepares and copies a message in the visitor's browser; it does not submit personal information to a server. Client photographs are not added to the public portfolio without permission from the people featured.
+The public [booking and photo policies](https://legioniz.github.io/toki-satsuei/policies.html) describe how requests are reviewed, how prices and payment terms are agreed, how schedule changes are handled, how files are delivered, and how client photographs may be shared. The inquiry form sends the details you choose to provide to a Supabase Edge Function, which stores them in the private `public.toki_booking_requests` table. Anonymous visitors cannot read or insert directly into that table; the server-side intake is rate-limited and the owner dashboard reads requests under administrator-only Row Level Security. New requests are not reservations, do not hold a date, and do not request payment. The TOKI BOOKINGS view is available in the private Legioniz portfolio owner console. Client photographs are not added to the public portfolio without permission from the people featured.
 
 The site currently labels its existing gallery images as practice/detail studies. It does not claim to have a finished public cosplay or portrait client portfolio yet.
 

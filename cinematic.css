@@ -936,3 +936,11 @@ a,button{ -webkit-tap-highlight-color:transparent }
 .hero-annotation strong{position:relative}
 .hero-annotation strong::after{content:"";position:absolute;left:-4px;right:5px;bottom:-5px;height:5px;border-bottom:1px solid rgba(220,126,130,.68);border-radius:50%;transform:rotate(-2deg)}
 @media(max-width:680px){.facebook-section{padding-block:68px}.facebook-section::before{top:18px;right:18px;font-size:5px}.facebook-embed-card{border-width:5px}}
+
+/* On narrow screens, keep reveal motion vertical so content never shifts beyond the viewport. */
+@media (max-width: 680px) {
+  html.motion-ready [data-reveal="left"],
+  html.motion-ready [data-reveal="right"] {
+    transform: none !important;
+  }
+}
