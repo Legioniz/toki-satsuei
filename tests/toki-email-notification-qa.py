@@ -24,6 +24,8 @@ assert "await sendTokiBookingNotification" in edge
 assert "notification_status" in edge
 assert "/functions/v1/portfolio-submit" in site
 assert "private owner inbox" in readme
+assert "Google Apps Script relay" in policy
+assert "recipient address is not published" in policy
 assert "The shared token must not be committed to GitHub" in readme
 assert "tokisatsuiephotography@gmail.com" not in gas
 assert "tokisatsuiephotography@gmail.com" not in edge
