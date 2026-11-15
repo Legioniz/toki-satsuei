@@ -75,7 +75,7 @@ def main() -> None:
                 page.goto(base + "/" + page_name, wait_until="domcontentloaded")
                 assert page.locator("main#main-content").count() == 1, f"{page_name}: main landmark missing"
                 assert page.locator(".skip-link").get_attribute("href") == "#main-content"
-                assert page.locator("title").inner_text() or page.title()
+                assert page.title().strip(), f"{page_name}: document title missing"
                 for width in [320, 390, 680, 768, 1024, 1440]:
                     page.set_viewport_size({"width": width, "height": 850})
                     page.wait_for_timeout(30)
