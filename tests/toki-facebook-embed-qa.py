@@ -146,7 +146,7 @@ def main():
                               parent: parent ? parent.tagName.toLowerCase() + "." + String(parent.className || "").slice(0, 60) : ""
                             };
                           })
-                          .filter(item => item.width > 0 && (item.right > width + 0.5 || item.left < -0.5))
+                          .filter(item => item.width > 0 && (item.right > window.innerWidth + 0.5 || item.left < -0.5))
                           .slice(0, 20)
                       };
                     }"""
