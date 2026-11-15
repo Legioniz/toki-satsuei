@@ -190,3 +190,48 @@
 @media(max-width:820px){
   .primary-nav{background-color:var(--brand-black)}
 }
+
+
+/* Supabase booking inquiry controls */
+.booking-consent {
+  display: grid !important;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px !important;
+  padding: 13px;
+  border: 1px solid #47423d;
+  background: #191919;
+  color: #c7c0b7 !important;
+  font-size: 9px !important;
+  line-height: 1.7;
+  letter-spacing: .015em !important;
+  text-transform: none !important;
+}
+.booking-consent input[type="checkbox"] {
+  width: 17px !important;
+  height: 17px;
+  margin: 1px 0 0;
+  padding: 0;
+  accent-color: #bd3945;
+}
+.booking-honeypot {
+  position: absolute !important;
+  left: -10000px !important;
+  top: auto !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+.inquiry-form .form-submit:disabled {
+  opacity: .58;
+  cursor: wait;
+}
+.inquiry-form .form-status {
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.inquiry-form.is-success .form-status { color: #e2c6a1; }
+.inquiry-form.is-warning .form-status { color: #e98c89; }
+.inquiry-form.is-submitting { opacity: .96; }
