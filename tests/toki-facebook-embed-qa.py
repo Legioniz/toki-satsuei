@@ -117,6 +117,12 @@ def main():
             checks = 0
             for width in [1440, 1024, 820, 680, 430, 390, 360, 320]:
                 page.set_viewport_size({"width": width, "height": 850})
+                if width <= 680:
+                    page.wait_for_function(
+                        """() => [...document.querySelectorAll('[data-reveal="left"], [data-reveal="right"]')]
+                          .every(element => getComputedStyle(element).transform === "none")""",
+                        timeout=2500,
+                    )
                 measurements = page.evaluate(
                     """() => {
                       const column = document.querySelector(".facebook-feed-column").getBoundingClientRect();
@@ -130,46 +136,7 @@ def main():
                         railRight: railRect.right,
                         cardWidths: cards.map(card => card.getBoundingClientRect().width),
                         railScrollWidth: rail.scrollWidth,
-                        railClientWidth: rail.clientWidth,
-                        root: {
-                          html: document.documentElement.getBoundingClientRect().toJSON(),
-                          body: document.body.getBoundingClientRect().toJSON(),
-                          htmlOverflowX: getComputedStyle(document.documentElement).overflowX,
-                          bodyOverflowX: getComputedStyle(document.body).overflowX,
-                          narrowMediaMatches: matchMedia("(max-width: 680px)").matches,
-                          styleSheets: [...document.styleSheets].map(sheet => {
-                            let relevantRules = [];
-                            try {
-                              relevantRules = [...sheet.cssRules]
-                                .map(rule => rule.cssText)
-                                .filter(rule => rule.includes("[data-reveal") || rule.includes("mobile screens"));
-                            } catch (error) {
-                              relevantRules = ["CSSOM unavailable: " + String(error)];
-                            }
-                            return { href: sheet.href, media: sheet.media.mediaText, relevantRules };
-                          })
-                        },
-                        overflowElements: [...document.querySelectorAll("body *")]
-                          .map(element => {
-                            const rect = element.getBoundingClientRect();
-                            const style = getComputedStyle(element);
-                            return {
-                              tag: element.tagName.toLowerCase(),
-                              className: typeof element.className === "string" ? element.className : "",
-                              reveal: element.getAttribute("data-reveal"),
-                              left: Math.round(rect.left * 10) / 10,
-                              right: Math.round(rect.right * 10) / 10,
-                              width: Math.round(rect.width * 10) / 10,
-                              transform: style.transform,
-                              translate: style.translate,
-                              marginLeft: style.marginLeft,
-                              marginRight: style.marginRight,
-                              position: style.position,
-                              overflowX: style.overflowX
-                            };
-                          })
-                          .filter(item => item.width > 0 && (item.right > window.innerWidth + 0.5 || item.left < -0.5))
-                          .slice(0, 35)
+                        railClientWidth: rail.clientWidth
                       };
                     }"""
                 )
