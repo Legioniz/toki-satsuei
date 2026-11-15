@@ -135,7 +135,19 @@ def main():
                           html: document.documentElement.getBoundingClientRect().toJSON(),
                           body: document.body.getBoundingClientRect().toJSON(),
                           htmlOverflowX: getComputedStyle(document.documentElement).overflowX,
-                          bodyOverflowX: getComputedStyle(document.body).overflowX
+                          bodyOverflowX: getComputedStyle(document.body).overflowX,
+                          narrowMediaMatches: matchMedia("(max-width: 680px)").matches,
+                          styleSheets: [...document.styleSheets].map(sheet => {
+                            let relevantRules = [];
+                            try {
+                              relevantRules = [...sheet.cssRules]
+                                .map(rule => rule.cssText)
+                                .filter(rule => rule.includes("[data-reveal") || rule.includes("mobile screens"));
+                            } catch (error) {
+                              relevantRules = ["CSSOM unavailable: " + String(error)];
+                            }
+                            return { href: sheet.href, media: sheet.media.mediaText, relevantRules };
+                          })
                         },
                         overflowElements: [...document.querySelectorAll("body *")]
                           .map(element => {
