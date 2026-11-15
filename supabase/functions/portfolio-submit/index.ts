@@ -135,11 +135,11 @@ async function insertRecord(table: string, record: Record<string, unknown>, retu
 
 
 const TOKI_EMAIL_WEBHOOK_URL = Deno.env.get('TOKI_EMAIL_WEBHOOK_URL') ?? ''
-const TOKI_EMAIL_WEBHOOK_SECRET = Deno.env.get('TOKI_EMAIL_WEBHOOK_SECRET') ?? ''
+const TOKI_EMAIL_WEBHOOK_API_KEY = Deno.env.get('TOKI_EMAIL_WEBHOOK_API_KEY') ?? ''
 
 async function sendTokiBookingNotification(booking: Record<string, unknown>) {
-  if (!TOKI_EMAIL_WEBHOOK_URL || !TOKI_EMAIL_WEBHOOK_SECRET) {
-    console.warn('TOKI email relay is not configured; booking remains saved.')
+  if (!TOKI_EMAIL_WEBHOOK_URL) {
+    console.warn('TOKI Make webhook is not configured; booking remains saved.')
     return 'not_configured'
   }
   const controller = new AbortController()
@@ -147,20 +147,22 @@ async function sendTokiBookingNotification(booking: Record<string, unknown>) {
   try {
     const result = await fetch(TOKI_EMAIL_WEBHOOK_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ kind: 'toki_booking_notification', secret: TOKI_EMAIL_WEBHOOK_SECRET, booking }),
+      headers: {
+        'Content-Type': 'application/json',
+        ...(TOKI_EMAIL_WEBHOOK_API_KEY ? { 'x-make-apikey': TOKI_EMAIL_WEBHOOK_API_KEY } : {}),
+      },
+      body: JSON.stringify({ kind: 'toki_booking_notification', booking }),
       signal: controller.signal,
     })
-    const text = await result.text()
-    let payload: Record<string, unknown> = {}
-    try { payload = JSON.parse(text) as Record<string, unknown> } catch { payload = {} }
-    if (!result.ok || payload.ok !== true) {
-      console.warn('TOKI email relay did not confirm delivery:', result.status)
+    // Make's default Custom Webhook response is HTTP 200 with plain-text "Accepted".
+    // That confirms queue acceptance, not successful completion of later Gmail/Sheets modules.
+    if (!result.ok) {
+      console.warn('TOKI Make webhook rejected the booking notification:', result.status)
       return 'failed'
     }
-    return 'sent'
+    return 'queued'
   } catch (error) {
-    console.warn('TOKI email relay request failed:', error instanceof Error ? error.name : 'unknown')
+    console.warn('TOKI Make webhook request failed:', error instanceof Error ? error.name : 'unknown')
     return 'failed'
   } finally {
     clearTimeout(timeout)
