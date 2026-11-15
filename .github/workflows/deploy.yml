@@ -62,6 +62,9 @@ jobs:
       - name: Verify public pages and search discovery
         run: python tests/toki-public-pages-qa.py
 
+      - name: Verify Supabase-backed booking form and request flow
+        run: python tests/toki-booking-browser-qa.py
+
       - name: Verify cinematic field-journal design
         run: python tests/toki-cinematic-design-qa.py
 
