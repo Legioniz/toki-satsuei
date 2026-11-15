@@ -72,6 +72,13 @@ def main() -> None:
 
             def successful_submission(route):
                 request = route.request
+                if request.method == "OPTIONS":
+                    route.fulfill(status=204, headers={
+                        "Access-Control-Allow-Origin": request.headers.get("origin", "*"),
+                        "Access-Control-Allow-Methods": "POST, OPTIONS",
+                        "Access-Control-Allow-Headers": "apikey, content-type",
+                    })
+                    return
                 submissions.append({
                     "headers": request.headers,
                     "payload": request.post_data_json,
@@ -138,6 +145,13 @@ def main() -> None:
             failure_requests = []
 
             def rate_limited(route):
+                if route.request.method == "OPTIONS":
+                    route.fulfill(status=204, headers={
+                        "Access-Control-Allow-Origin": route.request.headers.get("origin", "*"),
+                        "Access-Control-Allow-Methods": "POST, OPTIONS",
+                        "Access-Control-Allow-Headers": "apikey, content-type",
+                    })
+                    return
                 failure_requests.append(route.request.post_data_json)
                 route.fulfill(status=429, content_type="application/json", body=json.dumps({
                     "ok": False,
