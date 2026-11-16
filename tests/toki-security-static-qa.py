@@ -25,7 +25,7 @@ SECRET_PATTERNS = [
 # Contact details must not be embedded in the browser-facing website or public Edge Function source.
 PUBLIC_SOURCE_FILES = [
     "index.html", "library.html", "policies.html", "404.html",
-    "site.js", "availability.js", "library.js", "facebook-feed.js",
+    "site.js", "availability.js", "library.js",
     "supabase/functions/portfolio-submit/index.ts",
     "supabase/functions/toki-calendar/index.ts",
 ]
