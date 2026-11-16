@@ -89,8 +89,8 @@ def main() -> None:
             assert page.locator(".primary-nav a").count() == 7
             assert page.locator(".booking-expectation").is_visible()
             assert page.locator(".booking-terms-panel").is_visible()
-            assert page.locator('input[name="booking_terms_consent"]').is_required()
-            assert page.locator('input[name="privacy_consent"]').is_required()
+            assert page.locator('input[name="booking_terms_consent"]').evaluate("(node) => node.required")
+            assert page.locator('input[name="privacy_consent"]').evaluate("(node) => node.required")
             assert page.locator(".package-duration").count() == 4
             duration_cards = [" ".join(value.split()) for value in page.locator(".package-duration").all_inner_texts()]
             assert ["15 minutes" in duration_cards[0], "30 minutes" in duration_cards[1],
