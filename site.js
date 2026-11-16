@@ -266,13 +266,25 @@ const contactValue=form?.querySelector("#contact-value");
 const preferredDate=form?.querySelector('input[name="preferred_date"]');
 const alternateDate=form?.querySelector('input[name="alternate_date"]');
 const submitLabel=bookingButton?.innerHTML||"Send booking request ↗";
-const turnstileWidget=form?.querySelector(".cf-turnstile");
+const turnstileContainer=form?.querySelector("#toki-turnstile");
+let turnstileWidgetId=null;
+function mountTurnstile(){
+  if(!turnstileContainer||!window.turnstile?.render||turnstileWidgetId)return;
+  const sitekey=turnstileContainer.dataset.sitekey||"";
+  if(!sitekey)return;
+  turnstileWidgetId=window.turnstile.render("#toki-turnstile",{
+    sitekey,
+    action:"toki_booking",
+    theme:"light"
+  });
+}
+if(window.turnstile?.ready)window.turnstile.ready(mountTurnstile);
 function readTurnstileToken(){
-  if(!turnstileWidget||!window.turnstile?.getResponse)return "";
-  return window.turnstile.getResponse(turnstileWidget)||"";
+  if(!turnstileWidgetId||!window.turnstile?.getResponse)return "";
+  return window.turnstile.getResponse(turnstileWidgetId)||"";
 }
 function resetTurnstile(){
-  if(turnstileWidget&&window.turnstile?.reset)window.turnstile.reset(turnstileWidget);
+  if(turnstileWidgetId&&window.turnstile?.reset)window.turnstile.reset(turnstileWidgetId);
 }
 
 function manilaDate(){
