@@ -74,6 +74,8 @@ def main() -> None:
     assert "turnstileToken" in site and "getResponse" in site
     assert "Human verification failed" in edge
     assert "TOKI_TURNSTILE_SECRET_KEY" in edge
+    assert "TOKI Turnstile configuration" in edge
+    assert "secretConfigured: Boolean(TOKI_TURNSTILE_SECRET)" in edge
     assert "TURNSTILE_SECRET_KEY" in edge
     assert "const secret = isTokiBooking ? TOKI_TURNSTILE_SECRET : TURNSTILE_SECRET" in edge
     assert "failClosedWhenUnconfigured" in edge
