@@ -56,6 +56,7 @@
   let requestController = null;
   let refreshInFlight = false;
   let lastSuccessfulRefresh = 0;
+  let refreshTimer = null;
   let selectionNotice = "";
 
   function setStatus(message, state = "live") {
