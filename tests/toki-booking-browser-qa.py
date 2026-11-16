@@ -59,7 +59,13 @@ def main() -> None:
     assert "preferredTimePattern" in edge and "preferred_time: preferredTime" in edge
     assert "allowedTimes = ['Morning', 'Afternoon', 'Evening', 'Flexible']" not in edge
     assert "clipboard.writeText" not in site
-    assert "private database table" in policies and "does not reserve a date" in policies.lower()
+    assert "private Supabase booking table" in policies and "does not reserve a date" in policies.lower()
+    assert 'class="cf-turnstile"' in index
+    assert 'data-action="toki_booking"' in index
+    assert 'data-sitekey="0x4AAAAAAGDDFcLp8PfycH-f"' in index
+    assert "turnstileToken" in site and "getResponse" in site
+    assert "Human verification failed" in edge
+    assert "'toki_booking'" in edge and "return false" in edge
     assert "not a reservation" in policies.lower() or "does not reserve" in policies.lower()
 
     server = ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler))
@@ -73,6 +79,13 @@ def main() -> None:
             context = browser.new_context(viewport={"width": 1440, "height": 950})
             context.route("https://fonts.googleapis.com/**", lambda route: route.abort())
             context.route("https://fonts.gstatic.com/**", lambda route: route.abort())
+            context.route("https://challenges.cloudflare.com/**", lambda route: route.abort())
+            context.add_init_script("""
+                window.turnstile = {
+                    getResponse: () => "test-turnstile-token",
+                    reset: () => { window.__turnstileReset = true; }
+                };
+            """)
             submissions = []
 
             def successful_submission(route):
@@ -130,7 +143,8 @@ def main() -> None:
             assert request["headers"].get("authorization") is None
             payload = request["payload"]
             assert payload["kind"] == "toki_booking"
-            assert payload["name"] == "Alex Cosplayer"
+            assert payload["turnstileToken"] == "test-turnstile-token"
+            assert payload["name"] == "Alex Cosplayer
             assert payload["contact_method"] == "instagram"
             assert payload["contact_value"] == "@alex.cosplay"
             assert payload["session_type"] == "Duo Session"
@@ -150,6 +164,13 @@ def main() -> None:
             error_context = browser.new_context(viewport={"width": 390, "height": 844})
             error_context.route("https://fonts.googleapis.com/**", lambda route: route.abort())
             error_context.route("https://fonts.gstatic.com/**", lambda route: route.abort())
+            error_context.route("https://challenges.cloudflare.com/**", lambda route: route.abort())
+            error_context.add_init_script("""
+                window.turnstile = {
+                    getResponse: () => "test-turnstile-token",
+                    reset: () => { window.__turnstileReset = true; }
+                };
+            """)
             failure_requests = []
 
             def rate_limited(route):
@@ -190,13 +211,34 @@ def main() -> None:
                 assert page_width <= width + 1, f"Form layout overflow at {width}px ({page_width}px)"
 
             error_context.close()
+
+            # An unavailable or incomplete challenge must stop the browser before it posts.
+            gate_context = browser.new_context(viewport={"width": 390, "height": 844})
+            gate_context.route("https://fonts.googleapis.com/**", lambda route: route.abort())
+            gate_context.route("https://fonts.gstatic.com/**", lambda route: route.abort())
+            gate_context.route("https://challenges.cloudflare.com/**", lambda route: route.abort())
+            gate_context.add_init_script("""
+                window.turnstile = {
+                    getResponse: () => "",
+                    reset: () => {}
+                };
+            """)
+            gate_requests = []
+            gate_context.route(SUPABASE_HOST + "/functions/v1/portfolio-submit", lambda route: gate_requests.append(route.request) or route.fulfill(status=500, body="unexpected request"))
+            gate_page = gate_context.new_page()
+            gate_page.goto(base + "/index.html#contact", wait_until="domcontentloaded")
+            fill_valid_form(gate_page)
+            gate_page.locator('button[type="submit"]').click()
+            assert len(gate_requests) == 0
+            assert "human-verification" in gate_page.locator("#form-status").inner_text().lower()
+            gate_context.close()
             browser.close()
     finally:
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
 
-    print("PASS TOKI booking browser QA: exact numeric time validation, package prefill, Supabase public-key request, reference confirmation, failed-request recovery, date validation, and six responsive widths.")
+    print("PASS TOKI booking browser QA: mandatory Turnstile client gate and token relay, exact numeric time validation, package prefill, Supabase public-key request, reference confirmation, failed-request recovery, date validation, and six responsive widths.")
 
 
 if __name__ == "__main__":
