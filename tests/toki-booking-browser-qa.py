@@ -60,9 +60,10 @@ def main() -> None:
     assert "allowedTimes = ['Morning', 'Afternoon', 'Evening', 'Flexible']" not in edge
     assert "clipboard.writeText" not in site
     assert "private Supabase booking table" in policies and "does not reserve a date" in policies.lower()
-    assert 'class="cf-turnstile"' in index
-    assert 'data-action="toki_booking"' in index
+    assert 'id="toki-turnstile"' in index
     assert 'data-sitekey="0x4AAAAAAGDDFcLp8PfycH-f"' in index
+    assert "turnstile/v0/api.js?render=explicit" in index
+    assert 'action:"toki_booking"' in site
     assert "turnstileToken" in site and "getResponse" in site
     assert "Human verification failed" in edge
     assert "'toki_booking'" in edge and "return false" in edge
@@ -82,6 +83,8 @@ def main() -> None:
             context.route("https://challenges.cloudflare.com/**", lambda route: route.abort())
             context.add_init_script("""
                 window.turnstile = {
+                    ready: (callback) => callback(),
+                    render: () => "test-widget-id",
                     getResponse: () => "test-turnstile-token",
                     reset: () => { window.__turnstileReset = true; }
                 };
@@ -167,6 +170,8 @@ def main() -> None:
             error_context.route("https://challenges.cloudflare.com/**", lambda route: route.abort())
             error_context.add_init_script("""
                 window.turnstile = {
+                    ready: (callback) => callback(),
+                    render: () => "test-widget-id",
                     getResponse: () => "test-turnstile-token",
                     reset: () => { window.__turnstileReset = true; }
                 };
@@ -219,6 +224,8 @@ def main() -> None:
             gate_context.route("https://challenges.cloudflare.com/**", lambda route: route.abort())
             gate_context.add_init_script("""
                 window.turnstile = {
+                    ready: (callback) => callback(),
+                    render: () => "test-widget-id",
                     getResponse: () => "",
                     reset: () => {}
                 };
