@@ -339,7 +339,7 @@ form?.addEventListener("submit",async event=>{
   const turnstileToken=readTurnstileToken();
   if(!turnstileToken){
     updateBookingStatus("Please complete the human-verification challenge before sending your request.","error");
-    turnstileWidget?.scrollIntoView({behavior:reducedMotion?"auto":"smooth",block:"center"});
+    turnstileContainer?.scrollIntoView({behavior:reducedMotion?"auto":"smooth",block:"center"});
     return;
   }
   const data=new FormData(form);
