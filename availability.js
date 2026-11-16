@@ -19,12 +19,16 @@
   const retryButton = $("#availability-retry");
   const selectionPanel = $("#availability-selection");
   const selectionDateText = $("#availability-selection-date");
+  const bookedSlotsList = $("#availability-booked-slot-list");
+  const bookedSlotsNote = $("#availability-booked-slot-note");
   const useDateButton = $("#availability-use-date");
   const clearDateButton = $("#availability-clear-date");
 
   const monthFormatter = new Intl.DateTimeFormat("en-PH", { month: "long", year: "numeric", timeZone: "UTC" });
   const dateFormatter = new Intl.DateTimeFormat("en-PH", { dateStyle: "full", timeZone: "UTC" });
-  const timeFormatter = new Intl.DateTimeFormat("en-PH", { hour: "numeric", minute: "2-digit", timeZone: "Asia/Manila" });
+  const timeFormatter = new Intl.DateTimeFormat("en-PH", { hour: "numeric", minute: "2-digit", timeZone: "UTC" });
+  const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+  const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/;
 
   function manilaDateKey() {
     const parts = new Intl.DateTimeFormat("en-CA", {
@@ -39,24 +43,34 @@
     return new Date(Date.UTC(parts[0], parts[1] - 1 + amount, 1)).toISOString().slice(0, 7);
   }
 
-  function formatDate(dateKey) {
-    return dateFormatter.format(new Date(dateKey + "T00:00:00Z"));
-  }
-
   function dateFromKey(dateKey) {
     const [year, month, day] = dateKey.split("-").map(Number);
     return new Date(Date.UTC(year, month - 1, day));
   }
 
+  function formatDate(dateKey) {
+    return dateFormatter.format(dateFromKey(dateKey));
+  }
+
+  function formatTime(timeValue) {
+    const normalized = timeValue.length === 5 ? timeValue + ":00" : timeValue;
+    return timeFormatter.format(new Date("1970-01-01T" + normalized + "Z"));
+  }
+
+  function bookingCount() {
+    let total = 0;
+    for (const slots of bookingsByDate.values()) total += slots.length;
+    return total;
+  }
+
   let displayedMonth = manilaDateKey().slice(0, 7);
   let monthDataKey = "";
-  let bookedDates = new Set();
+  let bookingsByDate = new Map();
   let loadedForMonth = false;
   let selectedDate = "";
   let requestController = null;
   let refreshInFlight = false;
   let lastSuccessfulRefresh = 0;
-  let refreshTimer = null;
   let selectionNotice = "";
 
   function setStatus(message, state = "live") {
@@ -66,7 +80,31 @@
 
   function syncSelection() {
     selectionPanel.hidden = !selectedDate;
-    if (selectedDate) selectionDateText.textContent = formatDate(selectedDate);
+    if (!selectedDate) return;
+
+    selectionDateText.textContent = formatDate(selectedDate);
+    const slots = bookingsByDate.get(selectedDate) || [];
+    bookedSlotsList.replaceChildren();
+
+    if (slots.length) {
+      slots.forEach((slot, index) => {
+        const item = document.createElement("li");
+        const number = document.createElement("span");
+        const time = document.createElement("strong");
+        number.className = "availability-slot-number";
+        number.textContent = String(index + 1).padStart(2, "0");
+        time.textContent = formatTime(slot.start_time) + " – " + formatTime(slot.end_time);
+        item.append(number, time);
+        bookedSlotsList.appendChild(item);
+      });
+      bookedSlotsNote.textContent = slots.length + " confirmed time " + (slots.length === 1 ? "window is" : "windows are") + " already booked. Other non-overlapping sessions may still be requested, subject to confirmation.";
+    } else {
+      const item = document.createElement("li");
+      item.className = "availability-no-slots";
+      item.textContent = "No confirmed time windows listed yet";
+      bookedSlotsList.appendChild(item);
+      bookedSlotsNote.textContent = "This date has no confirmed session times shown. Your requested schedule still needs written confirmation.";
+    }
   }
 
   function updateNavigation() {
@@ -82,7 +120,7 @@
     daysGrid.setAttribute("aria-label", "Dates in " + monthHeading.textContent);
     daysGrid.setAttribute("aria-busy", String(!loadedForMonth));
     countText.textContent = loadedForMonth
-      ? bookedDates.size + " BOOKED " + (bookedDates.size === 1 ? "DAY" : "DAYS")
+      ? bookingCount() + " BOOKED " + (bookingCount() === 1 ? "SLOT" : "SLOTS")
       : "SYNCING";
     updateNavigation();
     daysGrid.replaceChildren();
@@ -100,7 +138,8 @@
 
     for (let day = 1; day <= daysInMonth; day += 1) {
       const dateKey = displayedMonth + "-" + String(day).padStart(2, "0");
-      const isBooked = bookedDates.has(dateKey);
+      const slots = bookingsByDate.get(dateKey) || [];
+      const hasBookings = slots.length > 0;
       const isPast = dateKey < today;
       const isToday = dateKey === today;
       const isSelected = dateKey === selectedDate;
@@ -110,17 +149,24 @@
       button.textContent = String(day);
       button.dataset.date = dateKey;
       button.setAttribute("aria-pressed", String(isSelected));
-      button.disabled = !loadedForMonth || isBooked || isPast;
+      button.disabled = !loadedForMonth || isPast;
 
-      if (isBooked) {
+      if (hasBookings) {
         button.classList.add("is-booked");
-        button.setAttribute("aria-label", formatDate(dateKey) + ", confirmed booking");
-        button.title = "Confirmed booking";
+        const times = slots.map((slot) => formatTime(slot.start_time) + " to " + formatTime(slot.end_time)).join(", ");
+        button.setAttribute("aria-label", formatDate(dateKey) + ", " + slots.length + " confirmed time " + (slots.length === 1 ? "window: " : "windows: ") + times + ". Select to view schedule.");
+        button.title = slots.length + " booked time " + (slots.length === 1 ? "window" : "windows") + " — select to view";
+        const count = document.createElement("span");
+        count.className = "calendar-booking-count";
+        count.setAttribute("aria-hidden", "true");
+        count.textContent = slots.length > 9 ? "9+" : String(slots.length);
+        button.appendChild(count);
       } else {
         button.classList.add("is-requestable");
-        button.setAttribute("aria-label", formatDate(dateKey) + (isPast ? ", past date" : ", no confirmed booking shown; select to enquire"));
+        button.setAttribute("aria-label", formatDate(dateKey) + (isPast ? ", past date" : ", no confirmed time windows shown; select to enquire"));
         button.title = isPast ? "Past date" : "Select to enquire about this date";
       }
+
       if (isToday) button.classList.add("is-today");
       if (isSelected) button.classList.add("is-selected");
       if (isPast) button.classList.add("is-past");
@@ -132,10 +178,15 @@
   }
 
   function selectDate(dateKey) {
-    if (!loadedForMonth || bookedDates.has(dateKey) || dateKey < manilaDateKey()) return;
+    if (!loadedForMonth || dateKey < manilaDateKey()) return;
     selectedDate = dateKey;
     selectionNotice = "";
-    setStatus("Selected " + formatDate(dateKey) + ". Use the date below when you're ready to send an inquiry.");
+    const slots = bookingsByDate.get(dateKey) || [];
+    if (slots.length) {
+      setStatus(formatDate(dateKey) + " has " + slots.length + " confirmed time " + (slots.length === 1 ? "window" : "windows") + " already booked. Other non-overlapping session times may still be requested.");
+    } else {
+      setStatus("Selected " + formatDate(dateKey) + ". No confirmed time windows are listed yet; the requested schedule still needs confirmation.");
+    }
     renderCalendar();
   }
 
@@ -147,20 +198,27 @@
   }
 
   function useSelectedDate() {
-    if (!selectedDate || selectedDate.slice(0, 7) !== displayedMonth || !loadedForMonth || bookedDates.has(selectedDate) || selectedDate < manilaDateKey()) {
+    if (!selectedDate || selectedDate.slice(0, 7) !== displayedMonth || !loadedForMonth || selectedDate < manilaDateKey()) {
       clearSelection();
-      setStatus("That date is no longer available to request. Choose another unmarked date.", "error");
+      setStatus("That date can no longer be selected. Choose another future date.", "error");
       return;
     }
     const dateInput = document.querySelector('#inquiry-form input[name="preferred_date"]');
     if (!dateInput) return;
+
     const chosenDate = selectedDate;
+    const slots = bookingsByDate.get(chosenDate) || [];
     dateInput.value = chosenDate;
     dateInput.dispatchEvent(new Event("change", { bubbles: true }));
+
     const formStatus = document.querySelector("#form-status");
     if (formStatus) {
-      formStatus.textContent = "You selected " + formatDate(chosenDate) + ". This is an inquiry only; your session is not reserved until we confirm the details with you in writing.";
+      const slotNotice = slots.length
+        ? " This date already has " + slots.length + " confirmed time " + (slots.length === 1 ? "window" : "windows") + " shown in the calendar; you may request another non-overlapping time."
+        : "";
+      formStatus.textContent = "You selected " + formatDate(chosenDate) + "." + slotNotice + " This is an inquiry only; your session is not reserved until we confirm the details with you in writing.";
     }
+
     document.querySelector("#contact")?.scrollIntoView({
       behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
       block: "start"
@@ -175,19 +233,37 @@
       cache: "no-store",
       signal
     });
-    if (!response.ok) throw new Error(response.status === 429
-      ? "The calendar is receiving too many requests. Please retry in a moment."
-      : "The calendar service could not be reached.");
-    const payload = await response.json();
-    if (payload?.ok !== true || payload.month !== monthKey || !Array.isArray(payload.dates)) {
-      throw new Error("The calendar returned an incomplete response.");
+    if (!response.ok) {
+      throw new Error(response.status === 429
+        ? "The calendar is receiving too many requests. Please retry in a moment."
+        : "The calendar service could not be reached.");
     }
-    const dates = payload.dates.filter((value) => {
-      if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value) || value.slice(0, 7) !== monthKey) return false;
-      const parsed = dateFromKey(value);
-      return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+
+    const payload = await response.json();
+    if (payload?.ok !== true || payload.month !== monthKey || !Array.isArray(payload.bookings)) {
+      throw new Error("The calendar returned an incomplete booking schedule.");
+    }
+
+    const nextBookings = new Map();
+    payload.bookings.forEach((booking) => {
+      if (!booking || typeof booking.date !== "string" || !DATE_PATTERN.test(booking.date) || booking.date.slice(0, 7) !== monthKey) return;
+      if (typeof booking.start_time !== "string" || typeof booking.end_time !== "string") return;
+      if (!TIME_PATTERN.test(booking.start_time) || !TIME_PATTERN.test(booking.end_time)) return;
+      const start = booking.start_time.length === 5 ? booking.start_time + ":00" : booking.start_time;
+      const end = booking.end_time.length === 5 ? booking.end_time + ":00" : booking.end_time;
+      if (start >= end) return;
+
+      const day = dateFromKey(booking.date);
+      if (!Number.isFinite(day.getTime()) || day.toISOString().slice(0, 10) !== booking.date) return;
+      const slots = nextBookings.get(booking.date) || [];
+      slots.push({ start_time: start, end_time: end });
+      nextBookings.set(booking.date, slots);
     });
-    return new Set(dates);
+
+    for (const slots of nextBookings.values()) {
+      slots.sort((a, b) => a.start_time.localeCompare(b.start_time));
+    }
+    return nextBookings;
   }
 
   async function refreshCalendar({ quiet = false } = {}) {
@@ -200,32 +276,29 @@
 
     if (monthDataKey !== requestedMonth) {
       monthDataKey = requestedMonth;
-      bookedDates = new Set();
+      bookingsByDate = new Map();
       loadedForMonth = false;
     }
     renderCalendar();
-    if (!quiet) setStatus("Checking confirmed sessions for " + monthHeading.textContent + "…", "loading");
+    if (!quiet) setStatus("Checking confirmed time windows for " + monthHeading.textContent + "…", "loading");
     retryButton.hidden = true;
 
     try {
-      const nextBookedDates = await fetchMonth(requestedMonth, controller.signal);
+      const nextBookings = await fetchMonth(requestedMonth, controller.signal);
       if (requestedMonth !== displayedMonth || controller.signal.aborted) return;
 
-      bookedDates = nextBookedDates;
+      bookingsByDate = nextBookings;
       loadedForMonth = true;
       lastSuccessfulRefresh = Date.now();
-      if (selectedDate && bookedDates.has(selectedDate)) {
-        selectionNotice = "The date you selected has since been confirmed by TOKI SATSUEI. Please choose another date.";
-        selectedDate = "";
-      }
       renderCalendar();
+
       if (selectionNotice) {
         setStatus(selectionNotice, "error");
         selectionNotice = "";
-      } else if (bookedDates.size === 0) {
-        setStatus("No sessions are confirmed for this month yet. Unmarked dates are still subject to confirmation.");
+      } else if (bookingCount() === 0) {
+        setStatus("No confirmed time windows are listed for this month yet. Dates remain subject to confirmation.");
       } else {
-        setStatus("Live schedule synced. Only final dates confirmed in writing are marked as booked.");
+        setStatus("Live schedule synced. Booked time windows are shown on each date; non-overlapping sessions may share a day.");
       }
       updatedText.textContent = "UPDATED " + timeFormatter.format(new Date()) + " PHT · AUTOMATIC CHECK EVERY MINUTE";
     } catch (error) {
@@ -238,7 +311,7 @@
         setStatus(error instanceof Error ? error.message : "Live availability could not be loaded.", "error");
         const errorMessage = document.createElement("p");
         errorMessage.className = "calendar-error";
-        errorMessage.textContent = "The schedule is temporarily unavailable. No dates can be verified right now.";
+        errorMessage.textContent = "The schedule is temporarily unavailable. No booked times can be verified right now.";
         daysGrid.replaceChildren(errorMessage);
         daysGrid.setAttribute("aria-busy", "false");
         countText.textContent = "NOT SYNCED";
@@ -320,7 +393,7 @@
   renderCalendar();
   refreshCalendar();
 
-  refreshTimer = window.setInterval(() => {
+  window.setInterval(() => {
     if (!syncManilaMonth() && !refreshInFlight) refreshCalendar({ quiet: true });
   }, 60000);
 
