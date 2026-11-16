@@ -67,6 +67,8 @@ def main() -> None:
     assert 'api.js?render=explicit" async' not in index
     assert 'action:"toki_booking"' in site
     assert 'size:"flexible"' in site
+    assert '"error-callback":handleTurnstileError' in site
+    assert "return true" in site
     assert "turnstileToken" in site and "getResponse" in site
     assert "Human verification failed" in edge
     assert "'toki_booking'" in edge and "return false" in edge
