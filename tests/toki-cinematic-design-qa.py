@@ -32,7 +32,7 @@ def main() -> None:
     for selector in [
         ".hero-annotation", ".frame-intention", ".gallery-card",
         ".service-row", ".package-card", ".about-visual",
-        ".archive-group--cinematic",
+        ".archive-group",
         ".policy-hero", ".not-found-main",
     ]:
         assert selector in css, f"Cinematic system is missing {selector}"
