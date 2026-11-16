@@ -96,6 +96,17 @@ The site is delivered as four static pages with shared behavior and page-specifi
 Scripts load with `defer` in dependency order: shared motion first, shared page behavior second, and page-specific behavior last. Controllers are scoped so local declarations cannot collide. The archive manifest separates image, video, and total-media counts; the interface labels the combined count as items instead of treating videos as photographs. The asset-integration QA verifies local links, script ordering, runtime data dependencies, media-manifest totals, stylesheet/script usage, and the standalone Pages package. Empty category folders under `media-library/` are intentional upload shelves, not unused assets.
 
 
+## Booking form human verification
+
+The booking form uses Cloudflare Turnstile with the `toki_booking` action and the `legioniz.github.io` hostname. The browser sends the short-lived challenge token to the `portfolio-submit` Edge Function; Supabase verifies it with Cloudflare Siteverify before a booking is stored. Missing, invalid, expired, incorrectly scoped, or unverifiable tokens are rejected. Protected submissions fail closed when the server-side Turnstile secret is not configured.
+
+### One-time owner setup
+
+1. Create a Cloudflare Turnstile widget restricted to `legioniz.github.io`.
+2. Keep the site key in the public form markup in `index.html`; it is designed to be public.
+3. In Supabase **Edge Functions → Secrets**, set `TURNSTILE_SECRET_KEY` to the matching Cloudflare secret. Never place that secret in the repository.
+4. Deploy the updated `portfolio-submit` Edge Function only after the secret is saved.
+
 ## Private booking email notifications
 
 Supabase is the sole source of truth for TOKI booking records. New inquiries are written to the private `public.toki_booking_requests` table by the `portfolio-submit` Edge Function. Booking status, confirmation dates, and exact confirmed start/end times are managed in Supabase. There is no Google Sheets synchronization or external booking spreadsheet.
