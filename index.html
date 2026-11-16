@@ -60,6 +60,7 @@
   <link rel="stylesheet" href="./availability.css?v=20261116-calendar-major-2">
   <link rel="stylesheet" href="./motion-system.css?v=20261114-global-motion-4">
   <link rel="stylesheet" href="./cinematic.css?v=20261115-mobile-reveal-overflow-2">
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <script src="./motion-system.js?v=20261114-global-motion-6" defer></script>
   <script src="./site.js?v=20261116-exact-booking-time-1" defer></script>
   <script src="./availability.js?v=20261116-calendar-major-3" defer></script>
@@ -419,6 +420,10 @@
           <label>Tell us a little more<textarea name="notes" rows="4" minlength="10" maxlength="2000" placeholder="Character, concept, number of people, schedule, references, or anything we should know…" required></textarea></label>
           <label class="booking-consent"><input type="checkbox" name="privacy_consent" required><span>I agree that TOKI SATSUEI may use these details to review and respond to this booking request. I understand that sending this form does not confirm a reservation or require payment.</span></label>
           <label class="booking-honeypot" aria-hidden="true">Leave this field empty<input name="website" type="text" tabindex="-1" autocomplete="off"></label>
+          <div class="booking-verification">
+            <p class="booking-verification-label">HUMAN VERIFICATION</p>
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAAGDDFcLp8PfycH-f" data-action="toki_booking" data-theme="light"></div>
+          </div>
           <button class="button button-light form-submit" type="submit">Send booking request <span>↗</span></button>
           <p class="form-status" id="form-status" role="status" aria-live="polite">Your request will be stored privately for TOKI SATSUEI to review. Your session is not confirmed until the details are agreed in writing.</p>
           <p class="form-privacy-note">Please share only the details needed to plan your session. Do not include passwords, identity documents, or payment credentials. Permission to publish photographs is requested separately. <a href="./policies.html#consent">Read our privacy and photo-consent policy.</a></p>
