@@ -57,10 +57,12 @@
   </style>
   <link rel="stylesheet" href="./refinement.css?v=20261114-policy-pass-2">
   <link rel="stylesheet" href="./policies.css?v=20261114-policy-pass-3">
+  <link rel="stylesheet" href="./availability.css?v=20261116-live-calendar-1">
   <link rel="stylesheet" href="./motion-system.css?v=20261114-global-motion-4">
   <link rel="stylesheet" href="./cinematic.css?v=20261115-mobile-reveal-overflow-2">
   <script src="./motion-system.js?v=20261114-global-motion-6" defer></script>
   <script src="./site.js?v=20261115-supabase-booking-1" defer></script>
+  <script src="./availability.js?v=20261116-live-calendar-1" defer></script>
   <script src="./facebook-feed.js?v=20261114-feed-motion-3" defer></script>
 </head>
 <body>
@@ -79,6 +81,7 @@
       <a href="./library.html">The archive</a>
       <a href="#facebook-updates">Updates</a>
       <a href="#sessions">Sessions</a>
+      <a href="#availability">Availability</a>
       <a href="#about">Our story</a>
       <a href="#faq">FAQs</a>
       <a href="./policies.html">Policies</a>
@@ -224,10 +227,47 @@
       <p class="price-note">Prices and session details are subject to confirmation when booking. Please message us before making a trip or payment.</p>
     </section>
 
+    <section class="availability-section section-wrap" id="availability" aria-labelledby="availability-title">
+      <div class="section-heading" data-reveal="up">
+        <div><p class="eyebrow"><span>07</span> LIVE BOOKING SCHEDULE</p><h2 id="availability-title">Find your <em>date.</em></h2></div>
+        <p class="section-aside">See the dates already confirmed in writing with TOKI SATSUEI. The calendar follows Philippine time and moves to the current month automatically.</p>
+      </div>
+      <div class="availability-panel" data-reveal="up">
+        <div class="availability-copy">
+          <div class="availability-live-label"><span class="availability-live-dot" aria-hidden="true"></span> LIVE AVAILABILITY</div>
+          <h3>A little clarity<br>before you <em>plan.</em></h3>
+          <p>Only sessions confirmed in writing are marked as booked. Dates without a booking marker are not guaranteed available; another inquiry or schedule discussion may still be underway.</p>
+          <div class="availability-legend" aria-label="Calendar legend">
+            <span><i class="availability-legend-booked" aria-hidden="true"></i> Confirmed booking</span>
+            <span><i class="availability-legend-unmarked" aria-hidden="true"></i> No confirmed booking shown</span>
+          </div>
+          <p class="availability-status" id="availability-status" role="status" aria-live="polite">Loading confirmed bookings…</p>
+          <p class="availability-updated" id="availability-updated">CONNECTING TO TOKI SCHEDULE</p>
+          <a class="button button-light availability-cta" href="#contact">Ask about a date <span>↗</span></a>
+        </div>
+        <div class="availability-calendar">
+          <div class="calendar-card">
+            <div class="calendar-header">
+              <div><small>MONTHLY AVAILABILITY</small><h3 id="availability-month">Loading…</h3></div>
+              <div class="calendar-controls" aria-label="Change calendar month">
+                <button type="button" id="availability-previous" aria-label="Previous month" title="Previous month">←</button>
+                <button type="button" id="availability-next" aria-label="Next month" title="Next month">→</button>
+              </div>
+            </div>
+            <div class="calendar-weekdays" aria-hidden="true">
+              <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+            </div>
+            <div class="calendar-days" id="availability-days" aria-label="Calendar dates" aria-live="polite" aria-busy="true"></div>
+            <p class="calendar-footnote">Select an unmarked future date to add it to your inquiry. Your session is reserved only after TOKI SATSUEI confirms it with you in writing.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="process-section" id="process" aria-labelledby="process-title">
       <div class="section-wrap">
         <div class="process-heading" data-reveal="up">
-          <p class="eyebrow"><span>07</span> THE SESSION FLOW</p>
+          <p class="eyebrow"><span>08</span> THE SESSION FLOW</p>
           <h2 id="process-title">From first message<br><em>to final frame.</em></h2>
           <p>Clear steps, a relaxed shoot, and photographs you can return to.</p>
         </div>
@@ -261,7 +301,7 @@
           <span class="about-caption">A SMALL TEAM, LEARNING WITH EVERY FRAME.</span>
         </div>
         <div class="about-copy" data-reveal="right">
-          <p class="eyebrow"><span>08</span> A LITTLE ABOUT US</p>
+          <p class="eyebrow"><span>09</span> A LITTLE ABOUT US</p>
           <h2>We stay for<br><em>the feeling.</em></h2>
           <p>TOKI SATSUEI is a small photography team based in Quezon City. We are still learning, still building, and still finding our way of seeing. We care about the details that make a moment belong to someone: a gesture, a glance, a character becoming real for a little while.</p>
           <p>Before a shoot, we listen for what matters to you. Then we work with a patient pace, available light, and attention to the small things. The goal is not to force a feeling into a frame, but to notice it when it appears.</p>
@@ -272,7 +312,7 @@
 
     <section class="faq-section section-wrap" id="faq" aria-labelledby="faq-title">
       <div class="section-heading" data-reveal="up">
-        <div><p class="eyebrow"><span>09</span> A FEW THINGS TO KNOW</p><h2 id="faq-title">Before the first <em>frame.</em></h2></div>
+        <div><p class="eyebrow"><span>10</span> A FEW THINGS TO KNOW</p><h2 id="faq-title">Before the first <em>frame.</em></h2></div>
         <p class="section-aside">A little clarity before you message us. If something is not covered here, ask and we'll confirm it with you.</p>
       </div>
       <div class="faq-layout">
@@ -316,7 +356,7 @@
     <section class="contact-section section-wrap" id="contact">
       <div class="contact-panel">
         <div class="contact-copy" data-reveal="left">
-          <p class="eyebrow"><span>10</span> START A CONVERSATION</p>
+          <p class="eyebrow"><span>11</span> START A CONVERSATION</p>
           <h2>Have a moment<br>in <em>mind?</em></h2>
           <p>Tell us about your character, concept, preferred date, or event. We'll talk through the details with you.</p>
           <div class="hero-actions">

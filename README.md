@@ -42,6 +42,7 @@ python tests/toki-facebook-embed-qa.py
 python tests/toki-facebook-feed-data-qa.py
 python tests/toki-public-pages-qa.py
 python tests/toki-booking-browser-qa.py
+python tests/toki-availability-calendar-qa.py
 python tests/toki-cinematic-design-qa.py
 python tests/toki-asset-integration-qa.py
 ```
@@ -72,6 +73,10 @@ Official references:
 - [Meta's official Meta Embeds WordPress plugin](https://github.com/facebook/meta-embeds-for-wordpress)
 
 
+## Public monthly availability calendar
+
+The homepage includes a live monthly calendar backed by the separate `toki-calendar` Supabase Edge Function. The endpoint reads only `preferred_date` values where booking status is `confirmed` (the owner dashboard label is “Confirmed in writing”). It never returns names, contact details, locations, notes, reference codes, or other booking fields, and the private booking table keeps its existing admin-only RLS policies and grants. The confirmed preferred date is the final agreed session date; an alternate date is not marked as booked. The browser refreshes the displayed month every 60 seconds, refreshes when the visitor returns to the tab, and automatically switches to the new month at the start of each Manila-local month. Unmarked dates are not a promise of availability; all sessions still require written confirmation.
+
 ## Runtime integration map
 
 The site is delivered as four static pages with shared behavior and page-specific controllers:
@@ -83,6 +88,7 @@ The site is delivered as four static pages with shared behavior and page-specifi
 | `policies.css` | Home, policies, and 404 pages | Policy-page and shared long-form page details |
 | `motion-system.js` | Home, archive, and policies | Shared motion, menu, and dialog helpers |
 | `site.js` | Home, archive, and policies | Shared navigation, header behavior, page progress, and home-page interactions |
+| `availability.css` + `availability.js` | `index.html` | Public monthly calendar, confirmed-date feed, Manila month rollover, inquiry prefill, and minute refresh |
 | `library.js` | `library.html` | Archive filters, search, media manifest, and album viewer |
 | `facebook-feed.js` + `facebook-posts.json` | `index.html` | Curated Facebook embeds and feed controls |
 | `media-library.json` + `media-library/` | `library.html` | Generated archive index and uploaded media |
