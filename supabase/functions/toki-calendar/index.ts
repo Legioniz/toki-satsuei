@@ -58,7 +58,7 @@ async function consumeCalendarQuota(bucketHash: string): Promise<boolean> {
     body: JSON.stringify({
       p_bucket_hash: bucketHash,
       p_scope: "toki_calendar",
-      p_limit: 120,
+      p_limit: 30,
     }),
   });
   if (!result.ok) throw new Error("Calendar quota service unavailable");
