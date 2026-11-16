@@ -55,6 +55,12 @@ def main() -> None:
 
     site = (ROOT / "site.js").read_text(encoding="utf-8")
     edge = (ROOT / "supabase/functions/portfolio-submit/index.ts").read_text(encoding="utf-8")
+    terms_migration = (ROOT / "supabase/migrations/20261116104119_toki_booking_terms_acknowledgement.sql").read_text(encoding="utf-8")
+    inbox_migration = (ROOT / "supabase/migrations/20261116104834_toki_booking_inbox_terms_acceptance.sql").read_text(encoding="utf-8")
+    assert "booking_terms_accepted_at timestamptz" in terms_migration
+    assert "booking_terms_version text" in terms_migration
+    assert "WITH (security_invoker = true)" in inbox_migration
+    assert "booking_terms_version" in inbox_migration and "booking_terms_accepted_at" in inbox_migration
     assert "function updateSessionDurationNote()" in site
     assert "booking_terms_consent" in site and "booking_terms_version" in site
     assert "function manilaNow()" in site and "preferredTime.min" in site
