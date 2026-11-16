@@ -79,3 +79,87 @@
  .calendar-controls #availability-today{min-width:48px;padding-inline:5px;font-size:6px}
  .calendar-days{min-height:180px}
 }
+
+
+/* Daily slot view: a marked date is partially booked, not fully blocked. */
+.calendar-day.is-booked,.calendar-day.is-booked:disabled{
+  background:#f7e9e6!important;
+  border-color:#a94b50!important;
+  color:#67252a!important;
+  cursor:pointer!important;
+  opacity:1!important;
+}
+.calendar-day.is-booked:after{display:none!important;content:none!important}
+.calendar-day.is-booked:hover:not(:disabled){background:#f0ddda!important;border-color:#912d35!important}
+.calendar-day.is-booked.is-today{box-shadow:inset 0 0 0 1px #9a1b29,0 0 0 1px #9a1b29}
+.calendar-day.is-booked.is-selected{background:#ecd8d4!important;border-color:#8f2029!important;color:#661d25!important}
+.calendar-booking-count{
+  position:absolute;
+  right:3px;
+  bottom:3px;
+  display:grid;
+  place-items:center;
+  min-width:14px;
+  height:14px;
+  padding:0 3px;
+  border-radius:8px;
+  background:#9f2631;
+  color:#fff;
+  font:700 7px/1 var(--sans);
+  letter-spacing:0;
+}
+.availability-booked-slots{
+  margin:15px 0 17px;
+  padding:13px 14px;
+  border:1px solid #574442;
+  background:#1c1918;
+}
+.availability-booked-slots>span{
+  display:block;
+  margin-bottom:10px;
+  color:#cf9798;
+  font-size:7px;
+  font-weight:700;
+  letter-spacing:.16em;
+}
+.availability-booked-slots ul{
+  display:grid;
+  gap:7px;
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+.availability-booked-slots li{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  min-width:0;
+  padding:8px 9px;
+  border:1px solid #443735;
+  background:#25201f;
+}
+.availability-slot-number{
+  color:#a9817f;
+  font:8px var(--sans);
+  letter-spacing:.08em;
+}
+.availability-booked-slots li strong{
+  color:#f0e9e1;
+  font:600 11px var(--sans);
+  letter-spacing:.02em;
+}
+.availability-booked-slots li.availability-no-slots{
+  color:#a9a097;
+  font-size:9px;
+  border-style:dashed;
+}
+.availability-booked-slots>p{
+  margin:10px 0 0;
+  color:#aaa198;
+  font-size:8px;
+  line-height:1.7;
+}
+@media(max-width:680px){
+  .calendar-booking-count{right:2px;bottom:2px;min-width:12px;height:12px;font-size:6px}
+  .availability-booked-slots{padding:11px}
+}
