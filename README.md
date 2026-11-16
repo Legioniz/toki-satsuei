@@ -106,7 +106,7 @@ The booking form uses Cloudflare Turnstile with the `toki_booking` action and th
 2. Keep the site key in the public form markup in `index.html`; it is designed to be public.
 3. In Supabase **Edge Functions → Secrets**, add `TOKI_TURNSTILE_SECRET_KEY` with the secret that matches the TOKI sitekey. Do not overwrite the existing `TURNSTILE_SECRET_KEY`; it is reserved for the personal portfolio's inquiry/comment widget.
 4. After the new secret is saved, deploy the updated `portfolio-submit` Edge Function.
-5. In GitHub **Settings → Secrets and variables → Actions → Variables**, set `TOKI_EXPECT_TURNSTILE` to `true` to make live CI assert missing-token rejection.
+5. Live CI requires missing-token rejection by default; no additional GitHub variable is needed.
 
 ## Private booking email notifications
 
