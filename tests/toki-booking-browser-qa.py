@@ -68,6 +68,8 @@ def main() -> None:
     assert 'action:"toki_booking"' in site
     assert 'size:"flexible"' in site
     assert '"error-callback":handleTurnstileError' in site
+    assert '"expired-callback":()=>updateBookingStatus' in site
+    assert '"timeout-callback":()=>updateBookingStatus' in site
     assert "return true" in site
     assert "turnstileToken" in site and "getResponse" in site
     assert "Human verification failed" in edge
