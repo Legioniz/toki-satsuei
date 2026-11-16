@@ -1,7 +1,6 @@
-// Public TOKI SATSUEI calendar feed.
-// Returns only preferred dates from booking requests that the owner marked
-// "confirmed" after agreeing the final schedule in writing. No client details
-// or direct anonymous database permissions are exposed.
+// Public TOKI SATSUEI availability API.
+// This endpoint reveals only unique confirmed calendar dates. The actual
+// customer record remains private behind the owner-only RLS policies.
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const secretKeys = (() => {
@@ -15,8 +14,8 @@ const modernSecretKey = secretKeys.default ?? "";
 const legacyServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const SERVICE_ROLE_KEY = modernSecretKey || legacyServiceRoleKey;
 const USE_MODERN_SECRET = Boolean(modernSecretKey);
+const RATE_SECRET = Deno.env.get("PORTFOLIO_RATE_LIMIT_SECRET") ?? SERVICE_ROLE_KEY;
 const ALLOWED_ORIGIN = Deno.env.get("PORTFOLIO_ALLOWED_ORIGIN") ?? "https://legioniz.github.io";
-
 const serviceKeyHeaders = {
   apikey: SERVICE_ROLE_KEY,
   ...(USE_MODERN_SECRET ? {} : { Authorization: "Bearer " + SERVICE_ROLE_KEY }),
@@ -38,18 +37,55 @@ function validMonth(value: string): boolean {
   return year >= 2000 && year <= 2100;
 }
 
-function jsonResponse(body: unknown, status: number, origin: string | null): Response {
+async function hmacHex(secret: string, value: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(signature))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function consumeCalendarQuota(bucketHash: string): Promise<boolean> {
+  const result = await fetch(SUPABASE_URL + "/rest/v1/rpc/consume_portfolio_quota", {
+    method: "POST",
+    headers: { ...serviceKeyHeaders, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      p_bucket_hash: bucketHash,
+      p_scope: "toki_calendar",
+      p_limit: 120,
+    }),
+  });
+  if (!result.ok) throw new Error("Calendar quota service unavailable");
+  return await result.json() === true;
+}
+
+function corsHeaders(origin: string | null): Record<string, string> {
+  return {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store, private",
+    "X-Content-Type-Options": "nosniff",
+    "Access-Control-Allow-Origin": origin === ALLOWED_ORIGIN ? ALLOWED_ORIGIN : "null",
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Headers": "apikey, content-type, x-client-info",
+    "Vary": "Origin",
+  };
+}
+
+function jsonResponse(
+  body: unknown,
+  status: number,
+  origin: string | null,
+  extraHeaders: Record<string, string> = {},
+): Response {
   return new Response(status === 204 ? null : JSON.stringify(body), {
     status,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "no-store",
-      "X-Content-Type-Options": "nosniff",
-      "Access-Control-Allow-Origin": origin === ALLOWED_ORIGIN ? ALLOWED_ORIGIN : "null",
-      "Access-Control-Allow-Methods": "GET, OPTIONS",
-      "Access-Control-Allow-Headers": "authorization, apikey, x-client-info",
-      "Vary": "Origin",
-    },
+    headers: { ...corsHeaders(origin), ...extraHeaders },
   });
 }
 
@@ -57,15 +93,18 @@ Deno.serve(async (request: Request) => {
   const origin = request.headers.get("origin");
 
   if (request.method === "OPTIONS") {
+    if (origin !== ALLOWED_ORIGIN) {
+      return jsonResponse({ ok: false, message: "Origin not allowed." }, 403, origin);
+    }
     return jsonResponse({}, 204, origin);
   }
   if (request.method !== "GET") {
     return jsonResponse({ ok: false, message: "Method not allowed." }, 405, origin);
   }
-  if (origin && origin !== ALLOWED_ORIGIN) {
+  if (origin !== ALLOWED_ORIGIN) {
     return jsonResponse({ ok: false, message: "Origin not allowed." }, 403, origin);
   }
-  if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+  if (!SUPABASE_URL || !SERVICE_ROLE_KEY || !RATE_SECRET || !ALLOWED_ORIGIN) {
     return jsonResponse({ ok: false, message: "Calendar service is not configured." }, 503, origin);
   }
 
@@ -75,15 +114,32 @@ Deno.serve(async (request: Request) => {
   }
 
   try {
+    const forwarded = request.headers.get("cf-connecting-ip")
+      ?? request.headers.get("x-real-ip")
+      ?? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+      ?? "unavailable|" + (request.headers.get("user-agent") ?? "unknown").slice(0, 160);
+    const bucketHash = await hmacHex(RATE_SECRET, forwarded);
+    const allowed = await consumeCalendarQuota(bucketHash);
+    if (!allowed) {
+      return jsonResponse(
+        { ok: false, message: "The calendar is receiving too many requests. Please retry in a moment." },
+        429,
+        origin,
+        { "Retry-After": "60" },
+      );
+    }
+
     const year = Number(requestedMonth.slice(0, 4));
     const month = Number(requestedMonth.slice(5, 7));
     const startDate = requestedMonth + "-01";
     const nextMonthStart = new Date(Date.UTC(year, month, 1)).toISOString().slice(0, 10);
     const filters = new URLSearchParams({
-      select: "preferred_date",
+      select: "confirmed_date",
       status: "eq.confirmed",
-      and: "(preferred_date.gte." + startDate + ",preferred_date.lt." + nextMonthStart + ")",
-      order: "preferred_date.asc",
+      confirmed_date: "gte." + startDate,
+      and: "(confirmed_date.lt." + nextMonthStart + ")",
+      order: "confirmed_date.asc",
+      limit: "500",
     });
 
     const result = await fetch(SUPABASE_URL + "/rest/v1/toki_booking_requests?" + filters.toString(), {
@@ -91,7 +147,7 @@ Deno.serve(async (request: Request) => {
       headers: { ...serviceKeyHeaders, Accept: "application/json" },
     });
     if (!result.ok) {
-      console.error("TOKI public calendar query failed:", result.status);
+      console.error("TOKI calendar database query failed:", result.status);
       return jsonResponse({ ok: false, message: "Calendar data is temporarily unavailable." }, 502, origin);
     }
 
@@ -101,7 +157,7 @@ Deno.serve(async (request: Request) => {
     }
 
     const dates = Array.from(new Set(rows
-      .map((row: Record<string, unknown>) => row.preferred_date)
+      .map((row: Record<string, unknown>) => row.confirmed_date)
       .filter((value: unknown): value is string =>
         typeof value === "string"
         && /^\d{4}-\d{2}-\d{2}$/.test(value)
@@ -110,7 +166,7 @@ Deno.serve(async (request: Request) => {
 
     return jsonResponse({ ok: true, month: requestedMonth, dates }, 200, origin);
   } catch (error) {
-    console.error("TOKI public calendar request failed:", error instanceof Error ? error.name : "unknown");
+    console.error("TOKI calendar request failed:", error instanceof Error ? error.name : "unknown");
     return jsonResponse({ ok: false, message: "Calendar data is temporarily unavailable." }, 500, origin);
   }
 });
