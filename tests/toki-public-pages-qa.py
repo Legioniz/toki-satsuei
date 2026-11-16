@@ -50,9 +50,10 @@ def main() -> None:
     assert "TOKI_BOOKING_ENDPOINT" in site and 'kind:"toki_booking"' in site
     assert "copy inquiry message" not in index.lower()
     assert "private Supabase booking table" in policies and "optional private Make.com webhook" in policies
-    assert 'class="cf-turnstile"' in index and 'data-action="toki_booking"' in index
+    assert 'id="toki-turnstile"' in index
     assert 'data-sitekey="0x4AAAAAAGDDFcLp8PfycH-f"' in index
-    assert "challenges.cloudflare.com/turnstile/v0/api.js" in index
+    assert "turnstile/v0/api.js?render=explicit" in index
+    assert 'action:"toki_booking"' in site
     assert "does not reserve a date" in policies
     assert 'name="robots" content="noindex,follow"' in not_found
     assert "Return home" in not_found and "Browse the archive" in not_found
