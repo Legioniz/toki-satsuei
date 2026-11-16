@@ -55,3 +55,10 @@ These are implementation targets, not a claim of formal WCAG conformance or inde
 - Check booking date/time minimums and error feedback.
 - Run asset, security, calendar, booking, archive, policy, motion, and browser regression suites.
 - Treat automated checks as regression evidence, not formal accessibility certification.
+
+## Content clarity
+
+- Do not present empty public collection shelves as if they contain browsable albums.
+- Keep archive folders upload-ready in the repository, but expose only categories with published albums.
+- Prefer direct official social links over an embedded social feed when there are too few current posts to make the feed useful.
+- Keep privacy information accurate and visitor-readable; detailed backend implementation belongs in developer documentation, not customer-facing policy copy.

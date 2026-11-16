@@ -49,6 +49,9 @@ def main() -> None:
     assert 'name="website"' in index and "Send booking request" in index
     assert "TOKI_BOOKING_ENDPOINT" in site and 'kind:"toki_booking"' in site
     assert "copy inquiry message" not in index.lower()
+    assert "facebook-section" not in index and "facebook-feed.js" not in index
+    assert "honeypot" not in policies.lower() and "hmac" not in policies.lower()
+    assert "Cloudflare Turnstile" in policies and "privacy policy" in policies
     assert "private Supabase booking table" in policies and "optional private Make.com webhook" in policies
     assert 'id="toki-turnstile"' in index
     assert 'data-sitekey="0x4AAAAAAGDDFcLp8PfycH-f"' in index

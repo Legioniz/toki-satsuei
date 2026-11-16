@@ -12,13 +12,12 @@ ROOT = Path(__file__).resolve().parents[1]
 PAGES = ("index.html", "library.html", "policies.html", "404.html")
 WORKFLOW = ROOT / ".github/workflows/deploy.yml"
 EXPECTED_CONSUMERS = {
-    "index.html": ("motion-system.js", "site.js", "availability.js", "facebook-feed.js"),
+    "index.html": ("motion-system.js", "site.js", "availability.js"),
     "library.html": ("motion-system.js", "site.js", "library.js"),
     "policies.html": ("motion-system.js", "site.js"),
     "404.html": (),
 }
 EXPECTED_DATA = {
-    "facebook-posts.json": "facebook-feed.js",
     "media-library.json": "library.js",
 }
 
@@ -121,6 +120,10 @@ def main() -> None:
             failures.append(f"{page} has an incomplete or unexpected controller stack: {parser.scripts}")
         if page != "404.html" and "motion-system.css" not in parser.styles:
             failures.append(f"{page} is missing the shared motion stylesheet")
+
+    for retired in ("facebook-feed.js", "facebook-posts.json"):
+        if (ROOT / retired).exists():
+            failures.append(f"Retired public feed asset is still present: {retired}")
 
     linked_styles = {asset for refs in page_refs.values() for asset in refs.styles}
     linked_scripts = {asset for refs in page_refs.values() for asset in refs.scripts}

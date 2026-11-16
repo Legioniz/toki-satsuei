@@ -305,7 +305,7 @@ function showEmpty(message,query="",descriptionOverride=""){
 }
 function renderGroups(){
   const hasPublicAlbums=archiveCategories.some(category=>category.albums.length>0);
-  if(toolbar)toolbar.classList.toggle("is-empty",!hasPublicAlbums);
+  if(toolbar){toolbar.classList.toggle("is-empty",!hasPublicAlbums);toolbar.classList.remove("is-loading");}
   const selected=activeCategory==="all"?archiveCategories.filter(category=>category.albums.length>0):archiveCategories.filter(category=>category.id===activeCategory);
   const matching=selected.map(category=>{
     const albums=category.albums.filter(album=>{
@@ -451,7 +451,7 @@ async function loadArchive(){
     revealWithin(document);
   }catch(error){
     countLabel.textContent="ARCHIVE INDEX UNAVAILABLE";
-    if(toolbar)toolbar.classList.add("is-empty");
+    if(toolbar){toolbar.classList.add("is-empty");toolbar.classList.remove("is-loading");}
     showEmpty("The archive is temporarily unavailable.","","Please return later, or browse the selected practice frames on the homepage.");
   }
 }

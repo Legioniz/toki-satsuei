@@ -206,7 +206,6 @@ def main():
             context.route("https://fonts.googleapis.com/**", lambda route: route.abort())
             context.route("https://fonts.gstatic.com/**", lambda route: route.abort())
             context.route("https://media.base44.com/**", lambda route: route.abort())
-            context.route("https://www.facebook.com/**", lambda route: route.abort())
             home = context.new_page()
             home.goto(base + "/index.html", wait_until="domcontentloaded")
             home.wait_for_selector(".site-header")
