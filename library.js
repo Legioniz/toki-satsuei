@@ -2,6 +2,7 @@
   "use strict";
 
 const filters=document.querySelector("#library-filters");
+const toolbar=document.querySelector(".library-toolbar");
 const groups=document.querySelector("#library-groups");
 const countLabel=document.querySelector("#library-count");
 const searchInput=document.querySelector("#archive-search");
@@ -87,7 +88,10 @@ function updateFilters(){
 }
 function buildFilters(){
   filters.replaceChildren();
-  const definitions=[{id:"all",title:"All collections"}].concat(archiveCategories.map(category=>({id:category.id,title:category.title})));
+  const populatedCategories=archiveCategories.filter(category=>category.albums.length>0);
+  const definitions=populatedCategories.length
+    ?[{id:"all",title:"All albums"}].concat(populatedCategories.map(category=>({id:category.id,title:category.title})))
+    :[];
   definitions.forEach(item=>{
     const button=element("button","library-filter",item.title);
     button.type="button";
@@ -250,19 +254,20 @@ function makeCategoryGroup(category){
   requestAnimationFrame(()=>updateRailState(rail,left,right,progressFill));
   return section;
 }
-function showEmpty(message,query=""){
+function showEmpty(message,query="",descriptionOverride=""){
   const empty=element("section","archive-empty");
   const currentCategory=archiveCategories.find(category=>category.id===activeCategory);
+  const hasAnyAlbums=archiveCategories.some(category=>category.albums.length>0);
   const intro=element("div","archive-empty-intro");
   const mark=element("div","archive-empty-mark","時の記憶");
   const copy=element("div","archive-empty-copy");
   const kicker=element("p","archive-empty-kicker",query?"SEARCH THE ARCHIVE":currentCategory?"COLLECTION / "+currentCategory.code:"THE COLLECTION INDEX");
   const heading=element("h2","",message);
-  const description=element("p","",query
-    ?"Try another title or clear the search to browse every collection."
+  const description=element("p","",descriptionOverride||(query
+    ?"Try another title or clear the search to browse every album."
     :currentCategory
-      ?currentCategory.description+" This shelf is ready for its first album."
-      :"Six collections are ready for future shoots. Albums and photographs will appear here automatically when they are uploaded.");
+      ?currentCategory.description+" New albums will appear here when available."
+      :"Browse selected practice and detail studies on our homepage. New client albums appear here only with permission from the people featured."));
   copy.append(kicker,heading,description);
   intro.append(mark,copy);
   empty.append(intro);
@@ -277,35 +282,16 @@ function showEmpty(message,query=""){
       searchInput.focus();
     });
     empty.append(clear);
-  }else if(activeCategory==="all"&&archiveCategories.length){
-    const shelfGrid=element("div","archive-shelf-grid");
-    archiveCategories.forEach((category,index)=>{
-      const shelf=element("button","archive-shelf");
-      shelf.type="button";
-      shelf.dataset.category=category.id;
-      shelf.style.setProperty("--shelf-index",String(index));
-      shelf.setAttribute("aria-label","Browse the "+category.title+" collection");
-      const code=element("span","archive-shelf-code",category.code+" / COLLECTION");
-      const title=element("strong","archive-shelf-title",category.title);
-      const detail=element("span","archive-shelf-description",category.description);
-      const meta=element("span","archive-shelf-meta",countWords(category.album_count,"ALBUM","ALBUMS")+"  ·  "+countWords(category.media_count,"ITEM","ITEMS"));
-      const action=element("span","archive-shelf-action","OPEN COLLECTION  ↗");
-      shelf.append(code,title,detail,meta,action);
-      shelf.addEventListener("click",()=>{
-        activeCategory=category.id;
-        updateFilters();
-        animateChange(groups,renderGroups);
-        const activeFilter=filters.querySelector('[data-category="'+category.id+'"]');
-        activeFilter?.focus({preventScroll:true});
-      });
-      shelfGrid.append(shelf);
-    });
-    empty.append(shelfGrid);
-    const guide=element("a","archive-upload-guide","EXPLORE SELECTED FRAMES ↗");
-    guide.href="./index.html#work";
-    empty.append(guide);
+  }else if(!hasAnyAlbums){
+    const actions=element("div","archive-empty-actions");
+    const studies=element("a","archive-upload-guide","VIEW SELECTED FRAMES ↗");
+    studies.href="./index.html#work";
+    const sessions=element("a","archive-upload-guide","EXPLORE SESSIONS ↗");
+    sessions.href="./index.html#sessions";
+    actions.append(studies,sessions);
+    empty.append(actions);
   }else{
-    const back=element("button","archive-empty-action","VIEW ALL COLLECTIONS");
+    const back=element("button","archive-empty-action","VIEW ALL ALBUMS");
     back.type="button";
     back.addEventListener("click",()=>{
       activeCategory="all";
@@ -318,7 +304,9 @@ function showEmpty(message,query=""){
   groups.replaceChildren(empty);
 }
 function renderGroups(){
-  const selected=activeCategory==="all"?archiveCategories:archiveCategories.filter(category=>category.id===activeCategory);
+  const hasPublicAlbums=archiveCategories.some(category=>category.albums.length>0);
+  if(toolbar){toolbar.classList.toggle("is-empty",!hasPublicAlbums);toolbar.classList.remove("is-loading");}
+  const selected=activeCategory==="all"?archiveCategories.filter(category=>category.albums.length>0):archiveCategories.filter(category=>category.id===activeCategory);
   const matching=selected.map(category=>{
     const albums=category.albums.filter(album=>{
       if(!activeQuery)return true;
@@ -331,7 +319,11 @@ function renderGroups(){
   groups.replaceChildren();
   setCount(populated);
   if(!populated.length){
-    showEmpty(activeQuery?"No albums match “"+activeQuery+"”.":(selected[0]?"No "+selected[0].title.toLowerCase()+" albums yet.":"The archive is ready for its first frame."),activeQuery);
+    if(!hasPublicAlbums&&!activeQuery){
+      showEmpty("The public archive is being prepared.","","Browse our selected practice and detail studies on the homepage. New client albums will appear here only with permission from the people featured.");
+    }else{
+      showEmpty(activeQuery?"No albums match “"+activeQuery+"”.":(selected[0]?"No "+selected[0].title.toLowerCase()+" albums yet.":"No public albums are available yet."),activeQuery);
+    }
     return;
   }
   populated.forEach(category=>groups.append(makeCategoryGroup(category)));
@@ -418,7 +410,7 @@ document.addEventListener("keydown",event=>{
   }
   const active=document.activeElement;
   const editing=active instanceof HTMLElement&&(active.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName));
-  if(event.key==="/"&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!editing){
+  if(event.key==="/"&&!toolbar?.classList.contains("is-empty")&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!editing){
     event.preventDefault();
     searchInput.focus();
   }
@@ -459,7 +451,8 @@ async function loadArchive(){
     revealWithin(document);
   }catch(error){
     countLabel.textContent="ARCHIVE INDEX UNAVAILABLE";
-    showEmpty("The archive is being prepared.");
+    if(toolbar){toolbar.classList.add("is-empty");toolbar.classList.remove("is-loading");}
+    showEmpty("The archive is temporarily unavailable.","","Please return later, or browse the selected practice frames on the homepage.");
   }
 }
 window.addEventListener("resize",()=>{if(dialog.open)requestAnimationFrame(updateDialogProgress);},{passive:true});

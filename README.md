@@ -12,7 +12,6 @@ The complete standalone TOKI SATSUEI website, kept separate from the Legioniz pe
 - Homepage, services, session guide, FAQs, and inquiry form
 - Public booking, payment, rescheduling, privacy, and photo-consent guidelines
 - Branded 404 page, `robots.txt`, and XML sitemap for search discovery
-- Curated Facebook post rail with native Meta embeds, category filters, and search
 - Responsive photo archive with search, category rails, and album viewer
 - Cinematic sketchbook art direction: darkroom imagery, contact-sheet galleries, pencil annotations, warm paper textures, and restrained motion
 - Shared responsive design system for layout, spacing, color grading, and visual consistency
@@ -40,8 +39,6 @@ python scripts/build-toki-media-library.py
 python tests/toki-layout-browser-qa.py
 python tests/toki-adaptive-interaction-qa.py
 python tests/toki-experience-design-qa.py
-python tests/toki-facebook-embed-qa.py
-python tests/toki-facebook-feed-data-qa.py
 python tests/toki-public-pages-qa.py
 python tests/toki-booking-browser-qa.py
 python tests/toki-availability-calendar-qa.py
@@ -58,22 +55,6 @@ The site currently labels its existing gallery images as practice/detail studies
 ## Media note
 
 The official TOKI SATSUEI brushstroke logo and the current hero/sample gallery photographs are referenced directly from their original hosted media CDN assets. The logo is used unchanged: the site does not redraw, recolor, or generate a replacement. The website source and upload-ready archive structure remain independent in this repository; those original hosted image files have not been copied into Git because the available GitHub file-transfer connection cannot retrieve the binary media. New archive uploads can be stored directly in this repository under `media-library/`.
-
-## Facebook post collection
-
-The homepage contains a dedicated, horizontally scrollable collection of individual public Facebook posts. Visitors can swipe or scroll sideways through the posts on touchscreens and trackpads, use the previous/next controls, search by label or category, and filter by category. Each item is embedded directly from Facebook, preserving the original post's media, reactions, comments, and sharing controls where Facebook allows the embed to load.
-
-To add posts, send the website maintainer the individual public Facebook post links. Those links are integrated into `facebook-posts.json` and published with the next website update. There is no public Feed Manager page or on-site publishing interface.
-
-Use individual post permalinks copied from the Facebook post menu—not the Page homepage. Public posts, Reels, and supported video posts may embed. Stories are not displayed as post embeds; the website's Stories shortcut opens the Facebook Page. Private, deleted, age-restricted, or audience-limited posts may fail to display, and visitors may need to sign in or allow Facebook cookies.
-
-Only up to 12 posts are included at once to keep the collection focused and the page manageable. The order in `facebook-posts.json` is the display order on the website.
-
-Official references:
-- [Meta Embedded Posts / Social Plugins](https://developers.facebook.com/docs/plugins/embedded-posts/)
-- [Meta Graph API — oEmbed Post](https://developers.facebook.com/docs/graph-api/reference/oembed-post/)
-- [Meta's official Meta Embeds WordPress plugin](https://github.com/facebook/meta-embeds-for-wordpress)
-
 
 ## Public monthly availability calendar
 
@@ -92,7 +73,6 @@ The site is delivered as four static pages with shared behavior and page-specifi
 | `site.js` | Home, archive, and policies | Shared navigation, header behavior, page progress, and home-page interactions |
 | `availability.css` + `availability.js` | `index.html` | Public monthly calendar, confirmed-date feed, Manila month rollover, inquiry prefill, and minute refresh |
 | `library.js` | `library.html` | Archive filters, search, media manifest, and album viewer |
-| `facebook-feed.js` + `facebook-posts.json` | `index.html` | Curated Facebook embeds and feed controls |
 | `media-library.json` + `media-library/` | `library.html` | Generated archive index and uploaded media |
 
 Scripts load with `defer` in dependency order: shared motion first, shared page behavior second, and page-specific behavior last. Controllers are scoped so local declarations cannot collide. The archive manifest separates image, video, and total-media counts; the interface labels the combined count as items instead of treating videos as photographs. The asset-integration QA verifies local links, script ordering, runtime data dependencies, media-manifest totals, stylesheet/script usage, and the standalone Pages package. Empty category folders under `media-library/` are intentional upload shelves, not unused assets.

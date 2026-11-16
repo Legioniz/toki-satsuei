@@ -32,7 +32,7 @@ def main() -> None:
     for selector in [
         ".hero-annotation", ".frame-intention", ".gallery-card",
         ".service-row", ".package-card", ".about-visual",
-        ".library-page .archive-shelf", ".facebook-section",
+        ".archive-group",
         ".policy-hero", ".not-found-main",
     ]:
         assert selector in css, f"Cinematic system is missing {selector}"
@@ -53,7 +53,7 @@ def main() -> None:
     assert "only after the people featured give permission" in home.lower()
     assert "<summary>" in home and "policies.html" in home
     assert "Frames, kept<br><em>with intention.</em>" in archive
-    assert "working sketchbook" in archive.lower()
+    assert "public archive is being prepared" in archive.lower()
     assert "id=\"consent\"" in policy
     assert "FRAME NOT FOUND" in not_found
 
@@ -99,8 +99,11 @@ def main() -> None:
                     assert max(widths) - min(widths) < 2, f"Mobile contact sheet should stack to a single column: {widths}"
 
                 if filename == "library.html" and total_albums == 0:
-                    page.wait_for_selector(".archive-shelf", timeout=3500)
-                    assert page.locator(".archive-shelf").count() == 6, "Empty archive should retain all six styled collection shelves."
+                    page.wait_for_selector(".archive-empty", timeout=3500)
+                    assert page.locator(".archive-shelf").count() == 0, "Empty archive must not show placeholder shelves."
+                    assert page.locator(".library-toolbar").evaluate("(node)=>node.classList.contains('is-empty')"), "Empty archive filters should be hidden."
+                    assert "The public archive is being prepared." in page.locator(".archive-empty").inner_text()
+                    assert page.locator('.archive-empty a[href="./index.html#work"]').count() == 1, "Empty archive should link to selected practice frames."
 
                 page.close()
 

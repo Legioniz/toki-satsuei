@@ -40,7 +40,6 @@ jobs:
           node --check site.js
           node --check availability.js
           node --check library.js
-          node --check facebook-feed.js
 
       - name: Verify Python test and build syntax
         run: python -m compileall -q scripts tests
@@ -63,8 +62,6 @@ jobs:
       - name: Verify experience design and booking usability
         run: python tests/toki-experience-design-qa.py
 
-      - name: Verify curated Facebook feed data
-        run: python tests/toki-facebook-feed-data-qa.py
 
       - name: Verify public pages and search discovery
         run: python tests/toki-public-pages-qa.py
@@ -86,15 +83,13 @@ jobs:
           TOKI_EXPECT_TURNSTILE: ${{ vars.TOKI_EXPECT_TURNSTILE || '1' }}
         run: python tests/toki-live-http-security-qa.py
 
-      - name: Verify Facebook post embeds and scroll rail
-        run: python tests/toki-facebook-embed-qa.py
 
       - name: Assemble standalone Pages artifact
         run: |
           set -euo pipefail
           rm -rf dist
           mkdir -p dist
-          cp index.html library.html policies.html 404.html styles.css library.css refinement.css policies.css cinematic.css experience.css availability.css motion-system.css motion-system.js site.js availability.js library.js facebook-feed.js facebook-posts.json media-library.json robots.txt sitemap.xml dist/
+          cp index.html library.html policies.html 404.html styles.css library.css refinement.css policies.css cinematic.css experience.css availability.css motion-system.css motion-system.js site.js availability.js library.js media-library.json robots.txt sitemap.xml dist/
           cp -R media-library dist/
           touch dist/.nojekyll
           test -s dist/index.html
@@ -116,8 +111,6 @@ jobs:
           test -s dist/availability.css
           test -s dist/library.js
           test -s dist/media-library.json
-          test -s dist/facebook-posts.json
-          test -s dist/facebook-feed.js
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9

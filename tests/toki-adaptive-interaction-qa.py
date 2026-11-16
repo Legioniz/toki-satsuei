@@ -27,7 +27,6 @@ def main():
    context.route("https://fonts.googleapis.com/**",lambda route:route.abort())
    context.route("https://fonts.gstatic.com/**",lambda route:route.abort())
    context.route("https://media.base44.com/**",lambda route:route.abort())
-   context.route("https://www.facebook.com/**",lambda route:route.abort())
    home=context.new_page();errors=[]
    home.on("pageerror",lambda error:errors.append(str(error)))
    home.goto(base+"/index.html",wait_until="domcontentloaded")
@@ -66,10 +65,9 @@ def main():
    home.wait_for_function("document.querySelectorAll('.gallery-card:not([hidden])').length===4")
    passed+=1
 
-   home.wait_for_function("document.querySelector('.facebook-feed-filter')",timeout=8000)
-   feed_filter=home.locator(".facebook-feed-filter").last
-   feed_filter.scroll_into_view_if_needed();feed_filter.click()
-   assert home.locator(".facebook-post-list").evaluate("(el)=>el.getAnimations().some(animation=>animation.playState==='running')"),"Facebook feed refresh did not animate"
+   assert home.locator(".facebook-section").count()==0,"Retired social embed rail remains on the homepage"
+   assert home.locator('a[href="https://www.facebook.com/tokisatsuiephotography/"]').count()>=1,"Official Facebook link was removed"
+   assert home.locator('a[href="https://www.instagram.com/tokisatsuiephotography/"]').count()>=1,"Official Instagram link was removed"
    passed+=1
 
    name_field=home.locator('input[name="name"]')
