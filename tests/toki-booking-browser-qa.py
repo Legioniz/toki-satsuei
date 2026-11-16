@@ -238,6 +238,7 @@ def main() -> None:
             fill_valid_form(gate_page)
             gate_page.locator('button[type="submit"]').click()
             assert len(gate_requests) == 0
+            gate_page.get_by_text("Please complete the human-verification challenge before sending your request.").wait_for(state="visible", timeout=3000)
             assert "human-verification" in gate_page.locator("#form-status").inner_text().lower()
             gate_context.close()
             browser.close()
