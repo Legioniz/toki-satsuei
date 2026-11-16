@@ -43,8 +43,16 @@ def main() -> None:
     assert 'href="./policies.css?' in policies
     assert 'id="consent"' in policies and 'id="pricing"' in policies and 'id="changes"' in policies
     assert "within 7 days after the session" in policies
-    assert "deposit, payment deadline" in policies
+    assert "20% of the final agreed package price" in policies
+    assert "within 48 hours of the session" in policies.lower()
+    assert "at the scheduled start time" in policies
+    assert "no-show" in policies.lower()
+    assert "full refund of all payments made" in policies
+    assert "booking_terms_accepted_at" in policies and "booking terms version" in policies.lower()
     assert 'id="inquiry-form"' in index and 'name="privacy_consent"' in index
+    assert 'name="booking_terms_consent"' in index
+    assert "20% reservation fee" in index
+    assert "duration agreed before confirmation" in index
     assert 'name="contact_method"' in index and 'name="preferred_date"' in index
     assert 'name="website"' in index and "Send booking request" in index
     assert "TOKI_BOOKING_ENDPOINT" in site and 'kind:"toki_booking"' in site
