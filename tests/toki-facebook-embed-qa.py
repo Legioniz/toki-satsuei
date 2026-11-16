@@ -47,6 +47,7 @@ def main():
             context = browser.new_context(viewport={"width": 1440, "height": 900})
             context.route("https://fonts.googleapis.com/**", lambda route: route.abort())
             context.route("https://fonts.gstatic.com/**", lambda route: route.abort())
+            context.route("https://challenges.cloudflare.com/**", lambda route: route.abort())
             context.route(
                 "**/facebook-posts.json**",
                 lambda route: route.fulfill(status=200, content_type="application/json", body=json.dumps(SAMPLE)),
