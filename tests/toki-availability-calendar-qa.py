@@ -40,6 +40,7 @@ def main() -> None:
     assert 'return jsonResponse({ ok: true, month: requestedMonth, bookings }, 200, origin)' in edge
     assert "contact_value" not in edge and "admin_notes" not in edge and "reference_code" not in edge and "preferred_date" not in edge
     assert "Asia/Manila" in script and "60000" in script
+    assert "slotTimeFormatter" in script and "clockTimeFormatter" in script and "clockTimeFormatter.format(new Date())" in script
     assert "consume_portfolio_quota" in edge and "hmacHex" in edge
     assert "availability-retry" in index and "availability-use-date" in index
     assert "availability-today" in index and "aria-pressed" in script
