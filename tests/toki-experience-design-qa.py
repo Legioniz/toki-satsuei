@@ -51,6 +51,7 @@ def main() -> None:
     assert "Outdoor sessions · Event coverage · Custom sessions" in home
     assert "20% reservation fee" in home
     assert "48 hours" in home.lower()
+    assert "at the scheduled start time" in home.lower()
     assert "after the agreed start time" in home.lower()
 
     site = (ROOT / "site.js").read_text(encoding="utf-8")
