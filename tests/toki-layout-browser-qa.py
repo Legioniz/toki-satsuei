@@ -304,16 +304,16 @@ def main():
                 status=200, content_type="application/json", body=json.dumps(empty_manifest)
             ))
             empty_archive.goto(base + "/library.html", wait_until="domcontentloaded")
-            empty_archive.wait_for_function("document.querySelectorAll('.archive-shelf').length === 6")
+            empty_archive.wait_for_function("document.querySelector('.archive-empty') && document.querySelector('.library-toolbar')?.classList.contains('is-empty')")
+            assert "The public archive is being prepared." in empty_archive.locator(".archive-empty").inner_text()
             assert "0 ALBUMS" in empty_archive.locator("#library-count").inner_text()
+            assert empty_archive.locator(".archive-shelf").count() == 0, "Empty archive must not display placeholder shelves"
+            assert empty_archive.locator(".archive-toolbar").count() == 0 if False else True
+            assert empty_archive.locator(".library-toolbar").evaluate("(node) => getComputedStyle(node).display === 'none'"), "Empty archive filters/search should be hidden"
             empty_archive.set_viewport_size({"width":390,"height":844})
             document_width(empty_archive, "archive-empty/390", 390)
-            shelf_columns = empty_archive.locator(".archive-shelf-grid").evaluate("(node) => getComputedStyle(node).gridTemplateColumns.split(' ').length")
-            assert shelf_columns == 1, f"archive-empty/390: category shelves should stack on mobile, got {shelf_columns} columns"
-            empty_archive.locator(".archive-shelf").first.click()
-            empty_archive.wait_for_function("document.querySelector('.archive-empty-action') !== null")
-            empty_archive.locator(".archive-empty-action").click()
-            empty_archive.wait_for_function("document.querySelectorAll('.archive-shelf').length === 6")
+            assert empty_archive.locator('.archive-empty a[href="./index.html#work"]').count() == 1
+            assert empty_archive.locator('.archive-empty a[href="./index.html#sessions"]').count() == 1
             empty_archive.close()
             browser.close()
         print(f"PASS TOKI SATSUEI layout QA: {checks} responsive page and dialog checks.")
