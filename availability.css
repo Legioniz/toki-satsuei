@@ -45,3 +45,37 @@
 @media(max-width:680px){.availability-section{padding-block:68px}.availability-panel{gap:24px;padding:20px 15px}.availability-copy h3{font-size:42px;margin:19px 0 14px}.availability-copy>p:not(.availability-updated){font-size:10px}.availability-legend{grid-template-columns:1fr;gap:9px;margin:5px 0 17px}.calendar-card{padding:16px 12px}.calendar-header{margin-bottom:17px}.calendar-header h3{font-size:27px}.calendar-controls{gap:5px}.calendar-controls button{width:38px;height:38px}.calendar-weekdays,.calendar-days{gap:4px}.calendar-weekdays span{font-size:7px;letter-spacing:0}.calendar-days{grid-auto-rows:minmax(34px,auto)}.calendar-day,.calendar-day-empty{min-height:34px}.calendar-day{font-size:10px}.calendar-day.is-booked:after{right:4px;bottom:4px;width:3px;height:3px}.calendar-footnote{font-size:7px}}
 @media(max-width:360px){.calendar-card{padding-inline:9px}.calendar-weekdays,.calendar-days{gap:3px}.calendar-day{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.calendar-day,.calendar-controls button{transition:none!important}.calendar-day:hover:not(:disabled){transform:none}}
+
+/* Calendar v2 — clearer booking state, selection, and recovery controls */
+.availability-live-label{flex-wrap:wrap}
+.availability-live-count{margin-left:auto;color:#f2eee7;font-size:7px;letter-spacing:.12em;border:1px solid #625b53;padding:4px 7px}
+.availability-legend{gap:10px}
+.availability-legend-today{background:#f4f1eb;border:2px solid #a91f2c!important}
+.availability-status[data-state="loading"]{color:#c8c0b5!important}
+.availability-retry{margin:-10px 0 20px;padding:9px 11px;border:1px solid #a85a60;background:transparent;color:#f0b6ba;font:700 8px var(--sans);letter-spacing:.12em;cursor:pointer}
+.availability-retry:hover{background:#a91f2c;color:#fff;border-color:#a91f2c}
+.availability-retry:focus-visible,.availability-use-date:focus-visible,.availability-clear-date:focus-visible{outline:2px solid #dc6871;outline-offset:3px}
+.availability-selection{width:100%;max-width:390px;margin:2px 0 22px;padding:15px 16px;border:1px solid #5b4a48;background:linear-gradient(135deg,#211b1a,#171717)}
+.availability-selection[hidden]{display:none}
+.availability-selection>span{display:block;color:#c78f8f;font-size:7px;font-weight:700;letter-spacing:.17em}
+.availability-selection>strong{display:block;margin-top:7px;color:#f4efe7;font:500 24px/1.15 var(--serif)}
+.availability-selection>p{margin:8px 0 13px;color:#a9a198;font-size:9px;line-height:1.75}
+.availability-selection-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.availability-use-date{min-height:40px;padding:0 12px;border:0;background:#eeeae2;color:#171717;font:700 8px var(--sans);letter-spacing:.1em;cursor:pointer}
+.availability-use-date span{margin-left:9px;color:#a91f2c;font-size:14px}
+.availability-clear-date{min-height:40px;padding:0 8px;border:0;background:transparent;color:#b7aea4;font:700 8px var(--sans);letter-spacing:.1em;cursor:pointer}
+.calendar-controls button:disabled{opacity:.35;cursor:not-allowed}
+.calendar-controls button:disabled:hover{background:transparent;color:#24211d;border-color:#d1c9be}
+.calendar-controls #availability-today{width:auto;min-width:54px;padding:0 8px;font-size:7px;font-weight:700;letter-spacing:.1em}
+.calendar-day.is-requestable{background:#fbfaf7}
+.calendar-day.is-requestable:hover:not(:disabled){background:#eee6de;border-color:#ad8c82}
+.calendar-day.is-selected{background:#eadeda;border-color:#a91f2c;color:#7a2028;outline:2px solid #a91f2c;outline-offset:1px;font-weight:700}
+.calendar-day[aria-pressed="true"]{box-shadow:inset 0 0 0 1px #a91f2c}
+.calendar-days{min-height:210px}
+.calendar-error{border:1px dashed #d7b9b4;background:#f9efec}
+@media(max-width:680px){
+ .availability-selection{max-width:none;padding:13px}
+ .availability-selection>strong{font-size:22px}
+ .calendar-controls #availability-today{min-width:48px;padding-inline:5px;font-size:6px}
+ .calendar-days{min-height:180px}
+}
