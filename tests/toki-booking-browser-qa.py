@@ -148,7 +148,7 @@ def main() -> None:
             payload = request["payload"]
             assert payload["kind"] == "toki_booking"
             assert payload["turnstileToken"] == "test-turnstile-token"
-            assert payload["name"] == "Alex Cosplayer
+            assert payload["name"] == "Alex Cosplayer"
             assert payload["contact_method"] == "instagram"
             assert payload["contact_value"] == "@alex.cosplay"
             assert payload["session_type"] == "Duo Session"
