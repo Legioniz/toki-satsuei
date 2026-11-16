@@ -68,8 +68,22 @@ async function verifyTurnstile(
 ) {
   // Keep the personal portfolio's existing optional-secret behavior, but require
   // the TOKI booking secret. Any configured secret is always verified strictly.
-  if (!secret) return !failClosedWhenUnconfigured
-  if (!token || token.length > 2048 || !ALLOWED_HOSTNAME) return false
+  if (!secret) {
+    if (failClosedWhenUnconfigured) {
+      console.error('Turnstile verification secret is not configured', { expectedAction })
+    }
+    return !failClosedWhenUnconfigured
+  }
+  if (!token || token.length > 2048 || !ALLOWED_HOSTNAME) {
+    console.warn('Turnstile verification blocked before provider call', {
+      tokenPresent: Boolean(token),
+      tokenLength: token.length,
+      hostnameConfigured: Boolean(ALLOWED_HOSTNAME),
+      expectedAction,
+    })
+    return false
+  }
+
   const body = new URLSearchParams({ secret, response: token })
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 5000)
@@ -79,12 +93,37 @@ async function verifyTurnstile(
       body,
       signal: controller.signal,
     })
-    if (!result.ok) return false
-    const payload = await result.json() as { success?: boolean; hostname?: string; action?: string }
-    return payload.success === true
-      && payload.hostname === ALLOWED_HOSTNAME
-      && payload.action === expectedAction
-  } catch {
+    if (!result.ok) {
+      console.warn('Turnstile Siteverify returned an HTTP error', { status: result.status })
+      return false
+    }
+
+    const payload = await result.json() as {
+      success?: boolean
+      hostname?: string
+      action?: string
+      'error-codes'?: unknown
+    }
+    const errorCodes = Array.isArray(payload['error-codes'])
+      ? payload['error-codes'].filter((code): code is string => typeof code === 'string').slice(0, 8)
+      : []
+    const hostnameMatches = payload.hostname === ALLOWED_HOSTNAME
+    const actionMatches = payload.action === expectedAction
+    if (payload.success !== true || !hostnameMatches || !actionMatches) {
+      // Never log the token or secret. Cloudflare error codes and match flags
+      // are enough to diagnose configuration versus token-lifetime failures.
+      console.warn('Turnstile Siteverify rejected verification', {
+        providerSuccess: payload.success === true,
+        errorCodes,
+        hostnameMatches,
+        actionMatches,
+      })
+    }
+    return payload.success === true && hostnameMatches && actionMatches
+  } catch (error) {
+    console.warn('Turnstile Siteverify request failed', {
+      reason: error instanceof Error ? error.name : 'unknown',
+    })
     return false
   } finally {
     clearTimeout(timeout)
