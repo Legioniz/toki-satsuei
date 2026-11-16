@@ -308,7 +308,6 @@ def main():
             assert "The public archive is being prepared." in empty_archive.locator(".archive-empty").inner_text()
             assert "0 ALBUMS" in empty_archive.locator("#library-count").inner_text()
             assert empty_archive.locator(".archive-shelf").count() == 0, "Empty archive must not display placeholder shelves"
-            assert empty_archive.locator(".archive-toolbar").count() == 0 if False else True
             assert empty_archive.locator(".library-toolbar").evaluate("(node) => getComputedStyle(node).display === 'none'"), "Empty archive filters/search should be hidden"
             empty_archive.set_viewport_size({"width":390,"height":844})
             document_width(empty_archive, "archive-empty/390", 390)
