@@ -209,7 +209,22 @@ document.addEventListener("keydown",event=>{
 });
 
 const sessionSelect=form?.querySelector('select[name="session"]');
+const sessionDurationNote=form?.querySelector("#session-duration-note");
 const sessionCards=[...document.querySelectorAll(".package-card[data-session]")];
+function updateSessionDurationNote(){
+  if(!sessionSelect||!sessionDurationNote)return;
+  const selected=sessionSelect.selectedOptions?.[0];
+  if(!selected?.value){
+    sessionDurationNote.textContent="Choose a session to see its expected duration.";
+    return;
+  }
+  const duration=selected.dataset.duration||"Agreed before confirmation";
+  sessionDurationNote.textContent=duration==="Agreed before confirmation"
+    ?"Duration will be agreed with you in writing before the session is confirmed."
+    :"Typical duration: "+duration+". The exact start and end time will be agreed in writing.";
+}
+sessionSelect?.addEventListener("change",updateSessionDurationNote);
+updateSessionDurationNote();
 function selectSession(card,{moveToForm=true}={}) {
   if(!card||!sessionSelect)return;
   sessionCards.forEach(item=>{
@@ -376,7 +391,9 @@ form?.addEventListener("submit",async event=>{
     location:(data.get("location")||"").toString().trim(),
     participants,
     notes:(data.get("notes")||"").toString().trim(),
-    privacy_consent:form.querySelector('input[name="privacy_consent"]')?.checked===true
+    privacy_consent:form.querySelector('input[name="privacy_consent"]')?.checked===true,
+    booking_terms_consent:form.querySelector('input[name="booking_terms_consent"]')?.checked===true,
+    booking_terms_version:form.dataset.bookingTermsVersion||""
   };
   form.dataset.submitting="true";
   bookingButton.disabled=true;
@@ -408,7 +425,8 @@ form?.addEventListener("submit",async event=>{
     });
     updateDateLimits();
     updateContactInput();
-    updateBookingStatus("Request received. Your reference is "+reference+". We’ll review the details and contact you through your selected channel. Your date is not reserved until we confirm it with you in writing. No payment has been taken.","success");
+    updateSessionDurationNote();
+    updateBookingStatus("Request received. Your reference is "+reference+". We’ll review the details and contact you through your selected channel. Your date is not reserved until we send written confirmation. No payment has been taken; for paid sessions, payment instructions follow only after the final details and price are agreed.","success");
   }catch(error){
     const message=error instanceof Error?error.message:"The booking service could not be reached. Please try again or contact us through Facebook or Instagram.";
     updateBookingStatus(message+" Your entries are still here; you can retry or message our official page.","error");
