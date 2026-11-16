@@ -266,6 +266,14 @@ const contactValue=form?.querySelector("#contact-value");
 const preferredDate=form?.querySelector('input[name="preferred_date"]');
 const alternateDate=form?.querySelector('input[name="alternate_date"]');
 const submitLabel=bookingButton?.innerHTML||"Send booking request ↗";
+const turnstileWidget=form?.querySelector(".cf-turnstile");
+function readTurnstileToken(){
+  if(!turnstileWidget||!window.turnstile?.getResponse)return "";
+  return window.turnstile.getResponse(turnstileWidget)||"";
+}
+function resetTurnstile(){
+  if(turnstileWidget&&window.turnstile?.reset)window.turnstile.reset(turnstileWidget);
+}
 
 function manilaDate(){
   const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Manila",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
@@ -307,10 +315,17 @@ form?.addEventListener("submit",async event=>{
   event.preventDefault();
   if(!form||!bookingButton||form.dataset.submitting==="true")return;
   if(!form.reportValidity())return;
+  const turnstileToken=readTurnstileToken();
+  if(!turnstileToken){
+    updateBookingStatus("Please complete the human-verification challenge before sending your request.","error");
+    turnstileWidget?.scrollIntoView({behavior:reducedMotion?"auto":"smooth",block:"center"});
+    return;
+  }
   const data=new FormData(form);
   const participants=Number(data.get("participants"));
   const payload={
     kind:"toki_booking",
+    turnstileToken,
     website:(data.get("website")||"").toString(),
     name:(data.get("name")||"").toString().trim(),
     contact_method:(data.get("contact_method")||"").toString(),
@@ -359,6 +374,7 @@ form?.addEventListener("submit",async event=>{
     const message=error instanceof Error?error.message:"The booking service could not be reached. Please try again or contact us through Facebook or Instagram.";
     updateBookingStatus(message+" Your entries are still here; you can retry or message our official page.","error");
   }finally{
+    resetTurnstile();
     form.dataset.submitting="false";
     bookingButton.disabled=false;
     bookingButton.innerHTML=submitLabel;
