@@ -284,7 +284,9 @@ function mountTurnstile(){
     action:"toki_booking",
     theme:"light",
     size:"flexible",
-    "error-callback":handleTurnstileError
+    "error-callback":handleTurnstileError,
+    "expired-callback":()=>updateBookingStatus("Human verification expired. Please complete the challenge again before submitting.","error"),
+    "timeout-callback":()=>updateBookingStatus("Human verification timed out. Please complete the challenge again.","error")
   });
 }
 if(window.turnstile?.ready)window.turnstile.ready(mountTurnstile);
