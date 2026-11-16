@@ -96,6 +96,18 @@ The site is delivered as four static pages with shared behavior and page-specifi
 Scripts load with `defer` in dependency order: shared motion first, shared page behavior second, and page-specific behavior last. Controllers are scoped so local declarations cannot collide. The archive manifest separates image, video, and total-media counts; the interface labels the combined count as items instead of treating videos as photographs. The asset-integration QA verifies local links, script ordering, runtime data dependencies, media-manifest totals, stylesheet/script usage, and the standalone Pages package. Empty category folders under `media-library/` are intentional upload shelves, not unused assets.
 
 
+## Booking form human verification
+
+The booking form uses Cloudflare Turnstile with the `toki_booking` action and the `legioniz.github.io` hostname. The browser sends the short-lived challenge token to the `portfolio-submit` Edge Function; Supabase verifies it with Cloudflare Siteverify before a booking is stored. Missing, invalid, expired, incorrectly scoped, or unverifiable booking tokens are rejected. TOKI booking verification fails closed when its dedicated server-side secret is not configured. The shared personal portfolio keeps its existing `TURNSTILE_SECRET_KEY` for inquiry and comment challenges.
+
+### One-time owner setup
+
+1. Create a Cloudflare Turnstile widget restricted to `legioniz.github.io`.
+2. Keep the site key in the public form markup in `index.html`; it is designed to be public.
+3. In Supabase **Edge Functions → Secrets**, add `TOKI_TURNSTILE_SECRET_KEY` with the secret that matches the TOKI sitekey. Do not overwrite the existing `TURNSTILE_SECRET_KEY`; it is reserved for the personal portfolio's inquiry/comment widget.
+4. After the new secret is saved, deploy the updated `portfolio-submit` Edge Function.
+5. Live CI requires missing-token rejection by default; no additional GitHub variable is needed.
+
 ## Private booking email notifications
 
 Supabase is the sole source of truth for TOKI booking records. New inquiries are written to the private `public.toki_booking_requests` table by the `portfolio-submit` Edge Function. Booking status, confirmation dates, and exact confirmed start/end times are managed in Supabase. There is no Google Sheets synchronization or external booking spreadsheet.

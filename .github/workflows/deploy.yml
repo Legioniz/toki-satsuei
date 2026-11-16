@@ -78,6 +78,11 @@ jobs:
       - name: Verify cinematic field-journal design
         run: python tests/toki-cinematic-design-qa.py
 
+      - name: Test live TOKI HTTP security boundaries
+        env:
+          TOKI_EXPECT_TURNSTILE: ${{ vars.TOKI_EXPECT_TURNSTILE || '1' }}
+        run: python tests/toki-live-http-security-qa.py
+
       - name: Verify Facebook post embeds and scroll rail
         run: python tests/toki-facebook-embed-qa.py
 

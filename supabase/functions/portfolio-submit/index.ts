@@ -20,6 +20,8 @@ const ALLOWED_HOSTNAME = (() => {
 })()
 const RATE_SECRET = Deno.env.get('PORTFOLIO_RATE_LIMIT_SECRET') ?? SERVICE_ROLE_KEY
 const TURNSTILE_SECRET = Deno.env.get('TURNSTILE_SECRET_KEY') ?? ''
+// Separate key for the TOKI widget so the shared personal-portfolio widget keeps its own secret.
+const TOKI_TURNSTILE_SECRET = Deno.env.get('TOKI_TURNSTILE_SECRET_KEY') ?? ''
 
 const serviceKeyHeaders = {
   apikey: SERVICE_ROLE_KEY,
@@ -58,16 +60,35 @@ async function consumeQuota(hash: string, scope: string, limit: number) {
   return await result.json() === true
 }
 
-async function verifyTurnstile(token: string, expectedAction: 'portfolio_inquiry' | 'portfolio_comment') {
-  if (!TURNSTILE_SECRET) return true
-  if (!token || !ALLOWED_HOSTNAME) return false
-  const body = new URLSearchParams({ secret: TURNSTILE_SECRET, response: token })
-  const result = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body })
-  if (!result.ok) return false
-  const payload = await result.json() as { success?: boolean; hostname?: string; action?: string }
-  return payload.success === true
-    && payload.hostname === ALLOWED_HOSTNAME
-    && payload.action === expectedAction
+async function verifyTurnstile(
+  token: string,
+  expectedAction: 'portfolio_inquiry' | 'portfolio_comment' | 'toki_booking',
+  secret: string,
+  failClosedWhenUnconfigured = false,
+) {
+  // Keep the personal portfolio's existing optional-secret behavior, but require
+  // the TOKI booking secret. Any configured secret is always verified strictly.
+  if (!secret) return !failClosedWhenUnconfigured
+  if (!token || token.length > 2048 || !ALLOWED_HOSTNAME) return false
+  const body = new URLSearchParams({ secret, response: token })
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 5000)
+  try {
+    const result = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      body,
+      signal: controller.signal,
+    })
+    if (!result.ok) return false
+    const payload = await result.json() as { success?: boolean; hostname?: string; action?: string }
+    return payload.success === true
+      && payload.hostname === ALLOWED_HOSTNAME
+      && payload.action === expectedAction
+  } catch {
+    return false
+  } finally {
+    clearTimeout(timeout)
+  }
 }
 
 async function readLimitedBody(request: Request, maximumBytes: number): Promise<string | null> {
@@ -214,10 +235,16 @@ Deno.serve(async (request) => {
     return response({ ok: false, message: 'Submission protection is temporarily unavailable.' }, 503, origin)
   }
 
-  if (kind !== 'page_view' && kind !== 'toki_booking') {
+  if (kind !== 'page_view') {
     const token = typeof payload.turnstileToken === 'string' ? payload.turnstileToken : ''
-    const expectedAction = kind === 'inquiry' ? 'portfolio_inquiry' : 'portfolio_comment'
-    if (!(await verifyTurnstile(token, expectedAction))) return response({ ok: false, message: 'Human verification failed. Please retry the challenge.' }, 400, origin)
+    const expectedAction = kind === 'inquiry'
+      ? 'portfolio_inquiry'
+      : kind === 'comment'
+        ? 'portfolio_comment'
+        : 'toki_booking'
+    const isTokiBooking = kind === 'toki_booking'
+    const secret = isTokiBooking ? TOKI_TURNSTILE_SECRET : TURNSTILE_SECRET
+    if (!(await verifyTurnstile(token, expectedAction, secret, isTokiBooking))) return response({ ok: false, message: 'Human verification failed. Please retry the challenge.' }, 400, origin)
   }
 
   try {
