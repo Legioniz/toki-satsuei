@@ -33,7 +33,7 @@ def fill_valid_form(page) -> tuple[str, str]:
     page.locator('select[name="session"]').select_option("Duo Session")
     page.locator('input[name="preferred_date"]').fill(preferred_date)
     page.locator('input[name="alternate_date"]').fill(alternate_date)
-    page.locator('select[name="preferred_time"]').select_option("Afternoon")
+    page.locator('input[name="preferred_time"]').fill("14:30")
     page.locator('select[name="contact_method"]').select_option("instagram")
     page.locator('input[name="contact_value"]').fill("@alex.cosplay")
     page.locator('input[name="participants"]').fill("2")
@@ -46,13 +46,18 @@ def fill_valid_form(page) -> tuple[str, str]:
 def main() -> None:
     index = (ROOT / "index.html").read_text(encoding="utf-8")
     site = (ROOT / "site.js").read_text(encoding="utf-8")
+    edge = (ROOT / "supabase/functions/portfolio-submit/index.ts").read_text(encoding="utf-8")
     policies = (ROOT / "policies.html").read_text(encoding="utf-8")
     assert 'id="inquiry-form"' in index
     assert 'name="privacy_consent"' in index
     assert 'name="website"' in index
+    assert 'type="time" name="preferred_time"' in index
+    assert '24-hour format' in index
     assert "Copy inquiry message" not in index
     assert "TOKI_BOOKING_ENDPOINT" in site
     assert "kind:\"toki_booking\"" in site
+    assert "preferredTimePattern" in edge and "preferred_time: preferredTime" in edge
+    assert "allowedTimes = ['Morning', 'Afternoon', 'Evening', 'Flexible']" not in edge
     assert "clipboard.writeText" not in site
     assert "private database table" in policies and "does not reserve a date" in policies.lower()
     assert "not a reservation" in policies.lower() or "does not reserve" in policies.lower()
@@ -94,6 +99,9 @@ def main() -> None:
             form = page.locator("#inquiry-form")
             assert form.count() == 1
             assert form.locator('input[name="preferred_date"]').get_attribute("required") is not None
+            assert form.locator('input[name="preferred_time"]').get_attribute("type") == "time"
+            assert form.locator('input[name="preferred_time"]').get_attribute("step") == "60"
+            assert form.locator('input[name="preferred_time"]').get_attribute("required") is not None
             assert form.locator('input[name="privacy_consent"]').get_attribute("required") is not None
             assert form.locator('input[name="website"]').get_attribute("tabindex") == "-1"
 
@@ -128,7 +136,7 @@ def main() -> None:
             assert payload["session_type"] == "Duo Session"
             assert payload["preferred_date"] == preferred_date
             assert payload["alternate_date"] == alternate_date
-            assert payload["preferred_time"] == "Afternoon"
+            assert payload["preferred_time"] == "14:30"
             assert payload["participants"] == 2
             assert payload["privacy_consent"] is True
             assert page.locator('input[name="name"]').input_value() == ""
@@ -188,7 +196,7 @@ def main() -> None:
         server.server_close()
         thread.join(timeout=2)
 
-    print("PASS TOKI booking browser QA: field validation, package prefill, Supabase public-key request, reference confirmation, failed-request recovery, date validation, and six responsive widths.")
+    print("PASS TOKI booking browser QA: exact numeric time validation, package prefill, Supabase public-key request, reference confirmation, failed-request recovery, date validation, and six responsive widths.")
 
 
 if __name__ == "__main__":

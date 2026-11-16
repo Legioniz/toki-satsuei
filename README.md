@@ -98,12 +98,12 @@ Scripts load with `defer` in dependency order: shared motion first, shared page 
 
 ## Free private booking alerts and owner log via Make
 
-The website keeps its existing custom booking form. The Supabase `portfolio-submit` Edge Function saves each TOKI booking in the private `toki_booking_requests` table first, then makes a best-effort HTTPS call to a private Make.com Custom Webhook. Make can add the booking to a private Google Sheet and send an administrative email through the owner's connected Google account. A Make, Sheets, or Gmail failure never rolls back a saved booking.
+The website keeps its existing custom booking form. Clients must choose one exact requested time using a numeric 24-hour time field (HH:MM, Asia/Manila); broad Morning/Afternoon/Evening choices are no longer accepted for new requests. The Supabase `portfolio-submit` Edge Function saves each TOKI booking in the private `toki_booking_requests` table first, then makes a best-effort HTTPS call to a private Make.com Custom Webhook. Make can add the booking to a private Google Sheet and send an administrative email through the owner's connected Google account. A Make, Sheets, or Gmail failure never rolls back a saved booking.
 
 ### One-time owner setup
 
 1. In Make, create a scenario with **Webhooks → Custom webhook** and copy its generated URL.
-2. Add **Google Sheets → Add a Row** and select a spreadsheet that is private to the TOKI owner. Suggested columns: received time, reference code, name, contact method, contact detail, session, preferred date, alternate date, preferred time, location, participants, and notes.
+2. Add **Google Sheets → Add a Row** and select a spreadsheet that is private to the TOKI owner. Suggested columns: received time, reference code, name, contact method, contact detail, session, preferred date, alternate date, exact preferred time (24-hour HH:MM, Asia/Manila), location, participants, and notes.
 3. Add **Gmail → Send an Email** and connect the owner's Google account. Send the alert to the private owner inbox. Map the booking fields from the Custom Webhook module's `booking` object.
 4. Keep the scenario private and switch it on after the module mappings are complete.
 5. In Make's Custom Webhook settings, optionally enable **API Key authentication** and create a key. This is recommended; Make requires that key in the `x-make-apikey` request header.

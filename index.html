@@ -61,7 +61,7 @@
   <link rel="stylesheet" href="./motion-system.css?v=20261114-global-motion-4">
   <link rel="stylesheet" href="./cinematic.css?v=20261115-mobile-reveal-overflow-2">
   <script src="./motion-system.js?v=20261114-global-motion-6" defer></script>
-  <script src="./site.js?v=20261115-supabase-booking-1" defer></script>
+  <script src="./site.js?v=20261116-exact-booking-time-1" defer></script>
   <script src="./availability.js?v=20261116-calendar-major-3" defer></script>
   <script src="./facebook-feed.js?v=20261114-feed-motion-3" defer></script>
 </head>
@@ -401,8 +401,9 @@
           </div>
           <div class="form-split">
             <label>Alternative date (optional)<input type="date" name="alternate_date"></label>
-            <label>Preferred time
-              <select name="preferred_time" required><option value="">Choose a time</option><option>Morning</option><option>Afternoon</option><option>Evening</option><option>Flexible</option></select>
+            <label>Preferred time (Philippine Time)
+              <input type="time" name="preferred_time" step="60" required aria-describedby="preferred-time-note">
+              <small id="preferred-time-note">Choose an exact time in 24-hour format, such as 14:30 for 2:30 PM.</small>
             </label>
           </div>
           <div class="form-split">

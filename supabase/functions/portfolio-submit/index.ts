@@ -239,7 +239,7 @@ Deno.serve(async (request) => {
         'Quick Snap', 'Toki Portraits', 'Signature Session',
         'Duo Session', 'Outdoor session', 'Event coverage', 'Custom session',
       ]
-      const allowedTimes = ['Morning', 'Afternoon', 'Evening', 'Flexible']
+      const preferredTimePattern = /^(?:[01]\d|2[0-3]):[0-5]\d$/
       const today = manilaToday()
       const valid = name !== null && name.length >= 1 && name.length <= 100
         && contactMethod !== null && allowedContactMethods.includes(contactMethod)
@@ -249,13 +249,13 @@ Deno.serve(async (request) => {
         && preferredDate !== null && isValidDateOnly(preferredDate, today)
         && (!alternateDate || isValidDateOnly(alternateDate, today))
         && alternateDate !== preferredDate
-        && preferredTime !== null && allowedTimes.includes(preferredTime)
+        && preferredTime !== null && preferredTimePattern.test(preferredTime)
         && location !== null && location.length >= 2 && location.length <= 200
         && typeof participants === 'number' && Number.isInteger(participants) && participants >= 1 && participants <= 12
         && notes !== null && notes.length >= 10 && notes.length <= 2000
         && privacyConsent
       if (!valid) {
-        return response({ ok: false, message: 'Please review your contact details, session, dates, location, participant count, and privacy confirmation.' }, 400, origin)
+        return response({ ok: false, message: 'Please review your contact details, session, dates, exact requested time (24-hour HH:MM), location, participant count, and privacy confirmation.' }, 400, origin)
       }
 
       const referenceCode = `TOKI-${crypto.randomUUID().replaceAll('-', '').slice(0, 8).toUpperCase()}`
