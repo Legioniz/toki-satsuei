@@ -35,10 +35,13 @@ def main() -> None:
     assert 'id="availability"' in index
     assert 'href="#availability"' in index
     assert 'id="availability-days"' in index
-    assert "status: \"eq.confirmed\"" in edge
-    assert 'select: "preferred_date"' in edge
-    assert "contact_value" not in edge and "admin_notes" not in edge and "reference_code" not in edge
+    assert 'status: "eq.confirmed"' in edge
+    assert 'select: "confirmed_date"' in edge
+    assert "contact_value" not in edge and "admin_notes" not in edge and "reference_code" not in edge and "preferred_date" not in edge
     assert "Asia/Manila" in script and "60000" in script
+    assert "consume_portfolio_quota" in edge and "hmacHex" in edge
+    assert "availability-retry" in index and "availability-use-date" in index
+    assert "availability-today" in index and "aria-pressed" in script
     assert "toki-calendar" in script
 
     today = date.today()
@@ -79,6 +82,9 @@ def main() -> None:
                 from urllib.parse import urlparse, parse_qs
                 month = parse_qs(urlparse(request.url).query).get("month", [current_month])[0]
                 requests.append({"month": month, "headers": request.headers})
+                if len(requests) == 1:
+                    route.fulfill(status=503, content_type="application/json", headers=cors, body=json.dumps({"ok": False}))
+                    return
                 dates = [booked_date.isoformat()] if month == current_month else [month + "-15"]
                 route.fulfill(
                     status=200,
@@ -90,8 +96,11 @@ def main() -> None:
             context.route(SUPABASE_HOST + "/functions/v1/toki-calendar**", calendar_response)
             page = context.new_page()
             page.goto(base + "/index.html", wait_until="domcontentloaded")
+            page.wait_for_function("() => document.querySelector('#availability-retry')?.hidden === false")
+            assert page.locator("#availability-retry").is_visible()
+            page.locator("#availability-retry").click()
             page.wait_for_function(
-                "() => document.querySelector('#availability-updated')?.textContent?.startsWith('LAST CHECKED ')"
+                "() => document.querySelector('#availability-updated')?.textContent?.startsWith('UPDATED ')"
             )
 
             assert page.locator("#availability-month").inner_text().lower().startswith(
@@ -100,6 +109,9 @@ def main() -> None:
             assert page.locator(f'.calendar-day[data-date="{booked_date.isoformat()}"]').is_disabled()
             assert page.locator(f'.calendar-day[data-date="{free_date.isoformat()}"]').is_enabled()
             page.locator(f'.calendar-day[data-date="{free_date.isoformat()}"]').click()
+            assert page.locator(f'.calendar-day[data-date="{free_date.isoformat()}"]').get_attribute("aria-pressed") == "true"
+            assert page.locator("#availability-selection-date").inner_text()
+            page.locator("#availability-use-date").click()
             assert page.locator('#inquiry-form input[name="preferred_date"]').input_value() == free_date.isoformat()
             assert "inquiry only" in page.locator("#form-status").inner_text().lower()
 
@@ -116,6 +128,16 @@ def main() -> None:
             assert requests[0]["headers"].get("apikey") == PUBLISHABLE_KEY
 
             page.locator("#availability-previous").click()
+            page.wait_for_function(
+                "(month) => document.querySelector('#availability-month')?.textContent === month",
+                arg=previous_month,
+            )
+            page.locator("#availability-next").click()
+            page.wait_for_function(
+                "(month) => document.querySelector('#availability-month')?.textContent !== month",
+                arg=previous_month,
+            )
+            page.locator("#availability-today").click()
             page.wait_for_function(
                 "(month) => document.querySelector('#availability-month')?.textContent === month",
                 arg=previous_month,
