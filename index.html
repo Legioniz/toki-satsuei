@@ -236,9 +236,9 @@
         <div class="availability-copy">
           <div class="availability-live-label"><span class="availability-live-dot" aria-hidden="true"></span> LIVE AVAILABILITY <span class="availability-live-count" id="availability-count">CHECKING</span></div>
           <h3>A little clarity<br>before you <em>plan.</em></h3>
-          <p>See the dates already agreed with clients in writing. We publish only the final confirmed schedule—not names, contact details, locations, or private booking notes.</p>
+          <p>See the exact time windows already agreed with clients. Multiple sessions can share a date when their schedules do not overlap. We publish times only—not names, contact details, locations, or private booking notes.</p>
           <div class="availability-legend" aria-label="Calendar legend">
-            <span><i class="availability-legend-booked" aria-hidden="true"></i> Confirmed booking</span>
+            <span><i class="availability-legend-booked" aria-hidden="true"></i> Booked time window</span>
             <span><i class="availability-legend-today" aria-hidden="true"></i> Today</span>
             <span><i class="availability-legend-unmarked" aria-hidden="true"></i> No confirmed booking shown</span>
           </div>
@@ -248,6 +248,11 @@
           <div class="availability-selection" id="availability-selection" hidden>
             <span>YOUR SELECTED DATE</span>
             <strong id="availability-selection-date"></strong>
+            <div class="availability-booked-slots" id="availability-booked-slots">
+              <span>ALREADY BOOKED ON THIS DATE</span>
+              <ul id="availability-booked-slot-list"></ul>
+              <p id="availability-booked-slot-note">Other non-overlapping time windows may still be requested, subject to confirmation.</p>
+            </div>
             <p>This starts an inquiry only. Your session is not reserved until we confirm it with you in writing.</p>
             <div class="availability-selection-actions">
               <button class="availability-use-date" id="availability-use-date" type="button">USE THIS DATE <span>↗</span></button>
@@ -270,7 +275,7 @@
               <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
             </div>
             <div class="calendar-days" id="availability-days" aria-label="Calendar dates" aria-live="off" aria-busy="true"></div>
-            <p class="calendar-footnote">Choose an unmarked date to preview it, then use the date to start your inquiry. A date is reserved only after TOKI SATSUEI confirms it with you in writing.</p>
+            <p class="calendar-footnote">Select any future date to see its booked time windows. A date can hold multiple sessions when their times do not overlap. Every inquiry still needs written confirmation.</p>
           </div>
         </div>
       </div>
