@@ -26,7 +26,8 @@
 
   const monthFormatter = new Intl.DateTimeFormat("en-PH", { month: "long", year: "numeric", timeZone: "UTC" });
   const dateFormatter = new Intl.DateTimeFormat("en-PH", { dateStyle: "full", timeZone: "UTC" });
-  const timeFormatter = new Intl.DateTimeFormat("en-PH", { hour: "numeric", minute: "2-digit", timeZone: "UTC" });
+  const slotTimeFormatter = new Intl.DateTimeFormat("en-PH", { hour: "numeric", minute: "2-digit", timeZone: "UTC" });
+  const clockTimeFormatter = new Intl.DateTimeFormat("en-PH", { hour: "numeric", minute: "2-digit", timeZone: "Asia/Manila" });
   const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
   const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/;
 
@@ -54,7 +55,7 @@
 
   function formatTime(timeValue) {
     const normalized = timeValue.length === 5 ? timeValue + ":00" : timeValue;
-    return timeFormatter.format(new Date("1970-01-01T" + normalized + "Z"));
+    return slotTimeFormatter.format(new Date("1970-01-01T" + normalized + "Z"));
   }
 
   function bookingCount() {
@@ -300,7 +301,7 @@
       } else {
         setStatus("Live schedule synced. Booked time windows are shown on each date; non-overlapping sessions may share a day.");
       }
-      updatedText.textContent = "UPDATED " + timeFormatter.format(new Date()) + " PHT · AUTOMATIC CHECK EVERY MINUTE";
+      updatedText.textContent = "UPDATED " + clockTimeFormatter.format(new Date()) + " PHT · AUTOMATIC CHECK EVERY MINUTE";
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError" && requestedMonth !== displayedMonth) return;
       if (requestedMonth !== displayedMonth) return;
