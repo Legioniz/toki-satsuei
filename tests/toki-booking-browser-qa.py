@@ -68,13 +68,21 @@ def main() -> None:
     assert 'action:"toki_booking"' in site
     assert 'size:"flexible"' in site
     assert '"error-callback":handleTurnstileError' in site
+    assert '"expired-callback":()=>updateBookingStatus' in site
+    assert '"timeout-callback":()=>updateBookingStatus' in site
     assert "return true" in site
     assert "turnstileToken" in site and "getResponse" in site
     assert "Human verification failed" in edge
     assert "TOKI_TURNSTILE_SECRET_KEY" in edge
+    assert "TOKI Turnstile configuration" in edge
+    assert "secretConfigured: Boolean(TOKI_TURNSTILE_SECRET)" in edge
     assert "TURNSTILE_SECRET_KEY" in edge
     assert "const secret = isTokiBooking ? TOKI_TURNSTILE_SECRET : TURNSTILE_SECRET" in edge
     assert "failClosedWhenUnconfigured" in edge
+    assert "Turnstile verification secret is not configured" in edge
+    assert "Turnstile Siteverify rejected verification" in edge
+    assert "error-codes" in edge and "hostnameMatches" in edge and "actionMatches" in edge
+    assert "turnstileContainer?.scrollIntoView" in site
     assert "'toki_booking'" in edge and "return false" in edge
     assert "not a reservation" in policies.lower() or "does not reserve" in policies.lower()
 
