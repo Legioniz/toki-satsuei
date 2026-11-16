@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PAGES = ("index.html", "library.html", "policies.html", "404.html")
 WORKFLOW = ROOT / ".github/workflows/deploy.yml"
 EXPECTED_CONSUMERS = {
-    "index.html": ("motion-system.js", "site.js", "facebook-feed.js"),
+    "index.html": ("motion-system.js", "site.js", "availability.js", "facebook-feed.js"),
     "library.html": ("motion-system.js", "site.js", "library.js"),
     "policies.html": ("motion-system.js", "site.js"),
     "404.html": (),
