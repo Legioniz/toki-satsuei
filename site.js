@@ -275,7 +275,8 @@ function mountTurnstile(){
   turnstileWidgetId=window.turnstile.render("#toki-turnstile",{
     sitekey,
     action:"toki_booking",
-    theme:"light"
+    theme:"light",
+    size:"flexible"
   });
 }
 if(window.turnstile?.ready)window.turnstile.ready(mountTurnstile);
