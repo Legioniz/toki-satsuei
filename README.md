@@ -98,14 +98,15 @@ Scripts load with `defer` in dependency order: shared motion first, shared page 
 
 ## Booking form human verification
 
-The booking form uses Cloudflare Turnstile with the `toki_booking` action and the `legioniz.github.io` hostname. The browser sends the short-lived challenge token to the `portfolio-submit` Edge Function; Supabase verifies it with Cloudflare Siteverify before a booking is stored. Missing, invalid, expired, incorrectly scoped, or unverifiable tokens are rejected. Protected submissions fail closed when the server-side Turnstile secret is not configured.
+The booking form uses Cloudflare Turnstile with the `toki_booking` action and the `legioniz.github.io` hostname. The browser sends the short-lived challenge token to the `portfolio-submit` Edge Function; Supabase verifies it with Cloudflare Siteverify before a booking is stored. Missing, invalid, expired, incorrectly scoped, or unverifiable booking tokens are rejected. TOKI booking verification fails closed when its dedicated server-side secret is not configured. The shared personal portfolio keeps its existing `TURNSTILE_SECRET_KEY` for inquiry and comment challenges.
 
 ### One-time owner setup
 
 1. Create a Cloudflare Turnstile widget restricted to `legioniz.github.io`.
 2. Keep the site key in the public form markup in `index.html`; it is designed to be public.
-3. In Supabase **Edge Functions → Secrets**, set `TURNSTILE_SECRET_KEY` to the matching Cloudflare secret. Never place that secret in the repository.
-4. Deploy the updated `portfolio-submit` Edge Function only after the secret is saved.
+3. In Supabase **Edge Functions → Secrets**, add `TOKI_TURNSTILE_SECRET_KEY` with the secret that matches the TOKI sitekey. Do not overwrite the existing `TURNSTILE_SECRET_KEY`; it is reserved for the personal portfolio's inquiry/comment widget.
+4. After the new secret is saved, deploy the updated `portfolio-submit` Edge Function.
+5. In GitHub **Settings → Secrets and variables → Actions → Variables**, set `TOKI_EXPECT_TURNSTILE` to `true` to make live CI assert missing-token rejection.
 
 ## Private booking email notifications
 
