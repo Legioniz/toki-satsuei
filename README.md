@@ -49,7 +49,7 @@ python tests/toki-asset-integration-qa.py
 
 ## Booking, privacy, and image consent
 
-The public [booking and photo policies](https://legioniz.github.io/toki-satsuei/policies.html) describe how requests are reviewed, how prices and payment terms are agreed, how schedule changes are handled, how files are delivered, and how client photographs may be shared. The inquiry form sends the details you choose to provide to a Supabase Edge Function, which stores them in the private `public.toki_booking_requests` table. Anonymous visitors cannot read or insert directly into that table; the server-side intake is rate-limited and the owner dashboard reads requests under administrator-only Row Level Security. New requests are not reservations, do not hold a date, and do not request payment. The TOKI BOOKINGS view is available in the private Legioniz portfolio owner console. Client photographs are not added to the public portfolio without permission from the people featured.
+The public [booking and photo policies](https://legioniz.github.io/toki-satsuei/policies.html) describe how requests are reviewed, how prices and payment terms are agreed, how schedule changes are handled, how files are delivered, and how client photographs may be shared. The inquiry form sends the details you choose to provide to a Supabase Edge Function, which stores them in the private `public.toki_booking_requests` table. Anonymous visitors cannot read or insert directly into that table; the server-side intake is rate-limited and the owner dashboard reads requests under administrator-only Row Level Security. New requests are not reservations, do not hold a date, and do not request payment. Booking administration is handled directly in the Supabase Dashboard. Use the read-only `public.toki_booking_inbox` view to inspect requests and edit the underlying `public.toki_booking_requests` table. No personal-portfolio dashboard is used for TOKI bookings. Client photographs are not added to the public portfolio without permission from the people featured.
 
 The site currently labels its existing gallery images as practice/detail studies. It does not claim to have a finished public cosplay or portrait client portfolio yet.
 
@@ -96,24 +96,22 @@ The site is delivered as four static pages with shared behavior and page-specifi
 Scripts load with `defer` in dependency order: shared motion first, shared page behavior second, and page-specific behavior last. Controllers are scoped so local declarations cannot collide. The archive manifest separates image, video, and total-media counts; the interface labels the combined count as items instead of treating videos as photographs. The asset-integration QA verifies local links, script ordering, runtime data dependencies, media-manifest totals, stylesheet/script usage, and the standalone Pages package. Empty category folders under `media-library/` are intentional upload shelves, not unused assets.
 
 
-## Free private booking alerts and owner log via Make
+## Private booking email notifications
 
-The website keeps its existing custom booking form. Clients must choose one exact requested time using a numeric 24-hour time field (HH:MM, Asia/Manila); broad Morning/Afternoon/Evening choices are no longer accepted for new requests. The Supabase `portfolio-submit` Edge Function saves each TOKI booking in the private `toki_booking_requests` table first, then makes a best-effort HTTPS call to a private Make.com Custom Webhook. Make can add the booking to a private Google Sheet and send an administrative email through the owner's connected Google account. A Make, Sheets, or Gmail failure never rolls back a saved booking.
+Supabase is the sole source of truth for TOKI booking records. New inquiries are written to the private `public.toki_booking_requests` table by the `portfolio-submit` Edge Function. Booking status, confirmation dates, and exact confirmed start/end times are managed in Supabase. There is no Google Sheets synchronization or external booking spreadsheet.
+
+The existing optional Make.com integration is for administrative email notification only. After a booking has been saved, the Edge Function can send its details to a private Make Custom Webhook, which may send an alert through the owner's connected Gmail account. A Make or Gmail failure does not roll back a saved booking and does not alter the booking status.
 
 ### One-time owner setup
 
-1. In Make, create a scenario with **Webhooks → Custom webhook** and copy its generated URL.
-2. Add **Google Sheets → Add a Row** and select a spreadsheet that is private to the TOKI owner. Suggested columns: received time, reference code, name, contact method, contact detail, session, preferred date, alternate date, exact preferred time (24-hour HH:MM, Asia/Manila), location, participants, and notes.
-3. Add **Gmail → Send an Email** and connect the owner's Google account. Send the alert to the private owner inbox. Map the booking fields from the Custom Webhook module's `booking` object.
-4. Keep the scenario private and switch it on after the module mappings are complete.
-5. In Make's Custom Webhook settings, optionally enable **API Key authentication** and create a key. This is recommended; Make requires that key in the `x-make-apikey` request header.
-6. In the Supabase Dashboard for project `pjuwrngnrrvdiwqspkic`, open **Edge Functions → Secrets** and add:
-   - `TOKI_EMAIL_WEBHOOK_URL`: the Make Custom Webhook URL.
-   - `TOKI_EMAIL_WEBHOOK_API_KEY`: the Make API key, only when API Key authentication is enabled.
-7. Send a test webhook while the Make scenario is in **Run once**, confirm the incoming field structure, then map and test both the Sheets row and Gmail email. Afterward, submit one real test booking with your own test contact details and verify that it appears in Supabase, Sheets, and the owner inbox.
+1. In Make, create a scenario with **Webhooks → Custom webhook**.
+2. Add **Gmail → Send an Email**, connect the owner's Google account, and map the incoming fields from the webhook's `booking` object.
+3. Keep the scenario private. Enable API Key authentication on the webhook when available and configure the matching key in the request header.
+4. In Supabase **Edge Functions → Secrets**, configure `TOKI_EMAIL_WEBHOOK_URL` and, when API Key authentication is enabled, `TOKI_EMAIL_WEBHOOK_API_KEY`.
+5. Run a test from Make and verify that the notification arrives. Separately verify that the booking record appears in Supabase.
 
-Never put the webhook URL or API key in website JavaScript, a public repository, screenshots, or a public spreadsheet. Keep the spreadsheet and Make scenario restricted to the owner. The booking details contain personal contact information and are passed to Make and Google only for this owner-side workflow.
+Never put webhook URLs, API keys, Supabase secret/service-role keys, or Turnstile secret keys in website JavaScript, a public repository, screenshots, or public documents. Keep these values in Supabase Edge Function secrets. The browser-side Supabase publishable key is intentionally public and is protected by the database's Row Level Security policies.
 
-Make's default webhook response is HTTP 200 with plain-text `Accepted`. The backend treats that as queued for processing, not proof that the later email and spreadsheet modules succeeded. Add error notifications in Make and periodically check scenario execution history. New bookings remain saved in Supabase even if the Make workflow fails.
+Make's default webhook response is HTTP 200 with plain-text `Accepted`. That means the notification was queued, not that Gmail delivered the email. Check the Make scenario execution history when diagnosing notification failures. Supabase remains the authoritative booking store.
 
-The source of the Supabase intake function is tracked at `supabase/functions/portfolio-submit/index.ts` in this repository. This function is shared with the main Legioniz portfolio backend; the Make notification call runs only for `kind: "toki_booking"` requests.
+The source of the intake function is tracked at `supabase/functions/portfolio-submit/index.ts`. It is shared with the main portfolio backend; the TOKI email-notification call runs only for `kind: "toki_booking"` requests.

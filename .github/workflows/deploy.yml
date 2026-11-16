@@ -45,6 +45,9 @@ jobs:
       - name: Verify Python test and build syntax
         run: python -m compileall -q scripts tests
 
+      - name: Audit secrets and personal data in public source
+        run: python tests/toki-security-static-qa.py
+
       - name: Build media archive manifest
         run: python scripts/build-toki-media-library.py
 

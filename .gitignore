@@ -1,6 +1,39 @@
+# Python and browser test artifacts
 __pycache__/
 *.py[cod]
+.pytest_cache/
 .venv/
 venv/
-dist/
 .playwright/
+playwright/.cache/
+dist/
+*.log
+
+# Local environment and secrets (never commit)
+.env
+.env.*
+!.env.example
+!.env.sample
+supabase/.temp/
+.vercel/
+.netlify/
+.wrangler/
+.secrets/
+secrets/
+
+# Credentials and private keys
+credentials*.json
+client_secret*.json
+service-account*.json
+google-credentials*.json
+token.json
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
