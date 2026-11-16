@@ -63,7 +63,7 @@ def main() -> None:
             page.wait_for_selector(".booking-fieldset")
             assert page.locator(".booking-fieldset").count() == 3
             legends = [" ".join(value.split()) for value in page.locator(".booking-fieldset legend").all_inner_texts()]
-            assert legends == ["01 Session details", "02 Date & place", "03 Contact & notes"], legends
+            assert legends == ["01 SESSION DETAILS", "02 DATE & PLACE", "03 CONTACT & NOTES"], legends
             assert page.locator(".primary-nav a").count() == 7
             assert page.locator(".booking-expectation").is_visible()
 
