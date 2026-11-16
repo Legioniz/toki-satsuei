@@ -268,6 +268,13 @@ const alternateDate=form?.querySelector('input[name="alternate_date"]');
 const submitLabel=bookingButton?.innerHTML||"Send booking request ↗";
 const turnstileContainer=form?.querySelector("#toki-turnstile");
 let turnstileWidgetId=null;
+function handleTurnstileError(errorCode){
+  updateBookingStatus(
+    "Human verification is unavailable (Cloudflare code "+String(errorCode||"unknown")+"). Please reload or contact us through our official page.",
+    "error"
+  );
+  return true;
+}
 function mountTurnstile(){
   if(!turnstileContainer||!window.turnstile?.render||turnstileWidgetId)return;
   const sitekey=turnstileContainer.dataset.sitekey||"";
@@ -276,7 +283,8 @@ function mountTurnstile(){
     sitekey,
     action:"toki_booking",
     theme:"light",
-    size:"flexible"
+    size:"flexible",
+    "error-callback":handleTurnstileError
   });
 }
 if(window.turnstile?.ready)window.turnstile.ready(mountTurnstile);
