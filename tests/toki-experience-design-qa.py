@@ -31,7 +31,8 @@ def main() -> None:
     css = (ROOT / "experience.css").read_text(encoding="utf-8")
     for selector in [
         ".booking-form-intro", ".booking-fieldset", ".booking-expectation",
-        ".inquiry-form .booking-consent", ".calendar-controls button",
+        ".booking-terms-panel", ".package-duration", ".session-flexible-duration",
+        ".session-duration-note", ".inquiry-form .booking-consent", ".calendar-controls button",
         ".primary-nav a", ".hero-opening .hero-lead",
     ]:
         assert selector in css, f"Experience layer is missing {selector}"
@@ -42,10 +43,25 @@ def main() -> None:
     assert "at least one minute ahead" in home
     assert 'name="preferred_time"' in home and 'step="60"' in home
     assert 'href="#availability"' in home
+    assert 'data-booking-terms-version="2026-11-16-v1"' in home
+    assert 'name="booking_terms_consent"' in home
+    assert home.count('class="package-duration"') == 4
+    for duration in ["15 minutes", "30 minutes", "60 minutes"]:
+        assert duration in home
+    assert "Outdoor sessions · Event coverage · Custom sessions" in home
+    assert "20% reservation fee" in home
+    assert "48 hours" in home.lower()
+    assert "at the agreed start time" in home.lower()
 
     site = (ROOT / "site.js").read_text(encoding="utf-8")
     edge = (ROOT / "supabase/functions/portfolio-submit/index.ts").read_text(encoding="utf-8")
+    assert "function updateSessionDurationNote()" in site
+    assert "booking_terms_consent" in site and "booking_terms_version" in site
     assert "function manilaNow()" in site and "preferredTime.min" in site
+    assert "bookingTermsConsent" in edge
+    assert "bookingTermsVersion === expectedBookingTermsVersion" in edge
+    assert "booking_terms_accepted_at: bookingTermsAcceptedAt" in edge
+    assert "booking_terms_version: expectedBookingTermsVersion" in edge
     assert "function manilaNow()" in edge
     assert "(preferredDate !== now.date || preferredTime > now.time)" in edge
 
@@ -66,6 +82,21 @@ def main() -> None:
             assert legends == ["01 SESSION DETAILS", "02 DATE & PLACE", "03 CONTACT & NOTES"], legends
             assert page.locator(".primary-nav a").count() == 7
             assert page.locator(".booking-expectation").is_visible()
+            assert page.locator(".booking-terms-panel").is_visible()
+            assert page.locator('input[name="booking_terms_consent"]').is_required()
+            assert page.locator('input[name="privacy_consent"]').is_required()
+            assert page.locator(".package-duration").count() == 4
+            duration_cards = [" ".join(value.split()) for value in page.locator(".package-duration").all_inner_texts()]
+            assert ["15 minutes" in duration_cards[0], "30 minutes" in duration_cards[1],
+                    "60 minutes" in duration_cards[2], "30 minutes" in duration_cards[3]] == [True] * 4
+            session_select = page.locator('select[name="session"]')
+            duration_note = page.locator("#session-duration-note")
+            session_select.select_option("Quick Snap")
+            assert duration_note.inner_text() == "Typical duration: 15 minutes. The exact start and end time will be agreed in writing."
+            session_select.select_option("Signature Session")
+            assert duration_note.inner_text() == "Typical duration: 60 minutes. The exact start and end time will be agreed in writing."
+            session_select.select_option("Custom session")
+            assert duration_note.inner_text() == "Duration will be agreed with you in writing before the session is confirmed."
 
             for selector in [
                 'input[name="name"]', 'select[name="session"]',
