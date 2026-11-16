@@ -25,17 +25,18 @@ assert "/functions/v1/portfolio-submit" in site
 assert 'kind:"toki_booking"' in site
 assert "TOKI_EMAIL_WEBHOOK_URL" not in site
 assert "TOKI_EMAIL_WEBHOOK_API_KEY" not in site
-email_pattern = re.compile(r"\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\b", re.IGNORECASE)
+email_pattern = re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.IGNORECASE)
 assert email_pattern.search(edge) is None
 assert email_pattern.search(site) is None
 
 # Current public documentation must accurately describe the Make.com workflow.
-assert "private owner inbox" in readme
-assert "Make.com Custom Webhook" in readme
-assert "No Google Sheets synchronization" in readme
-assert "Never put the webhook URL or API key" in readme
+assert "Booking administration is handled directly in the Supabase Dashboard" in readme
+assert "private Make Custom Webhook" in readme
+assert "There is no Google Sheets synchronization" in readme
+assert "Never put webhook URLs, API keys" in readme
 assert "Supabase is the sole system of record" in policy
 assert "No Google Sheets" in policy
+assert "Cloudflare Turnstile" in policy
 assert "webhook credentials are not published on the website" not in policy
 assert "not a booking confirmation" in policy
 
