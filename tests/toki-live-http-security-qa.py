@@ -1,0 +1,123 @@
+#!/usr/bin/env python3
+"""Live HTTP security checks for the public TOKI Supabase endpoints."""
+from __future__ import annotations
+
+import json
+import os
+from datetime import datetime
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
+from zoneinfo import ZoneInfo
+
+SUPABASE = "https://pjuwrngnrrvdiwqspkic.supabase.co"
+INTAKE = SUPABASE + "/functions/v1/portfolio-submit"
+CALENDAR = SUPABASE + "/functions/v1/toki-calendar"
+REST = SUPABASE + "/rest/v1"
+PUBLISHABLE_KEY = "sb_publishable_PRGb0-smtTzCm9VHuM9NOQ_ZFh1wKRS"
+ALLOWED_ORIGIN = "https://legioniz.github.io"
+UNTRUSTED_ORIGIN = "https://untrusted.example"
+EXPECT_TURNSTILE = os.getenv("TOKI_EXPECT_TURNSTILE", "0").strip().lower() in {"1", "true", "yes"}
+
+
+def request(url: str, method: str = "GET", origin: str | None = ALLOWED_ORIGIN,
+            payload: object | None = None, raw: bytes | None = None,
+            extra_headers: dict[str, str] | None = None) -> tuple[int, dict[str, str], bytes]:
+    headers = {"apikey": PUBLISHABLE_KEY, "Cache-Control": "no-store"}
+    if origin is not None:
+        headers["Origin"] = origin
+    if payload is not None:
+        headers["Content-Type"] = "application/json"
+        raw = json.dumps(payload).encode("utf-8")
+    if extra_headers:
+        headers.update(extra_headers)
+    req = Request(url, data=raw, headers=headers, method=method)
+    try:
+        with urlopen(req, timeout=20) as response:
+            return response.status, dict(response.headers.items()), response.read()
+    except HTTPError as error:
+        return error.code, dict(error.headers.items()), error.read()
+    except URLError as error:
+        raise AssertionError(f"Live endpoint unavailable: {error.reason}") from error
+
+
+def decode(body: bytes) -> dict:
+    try:
+        value = json.loads(body.decode("utf-8") or "{}")
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise AssertionError("Endpoint did not return valid JSON") from error
+    assert isinstance(value, dict), "Expected JSON object response"
+    return value
+
+
+def main() -> None:
+    # Public readiness exposes no credential material.
+    status, _, body = request(INTAKE, "GET")
+    assert status == 200, f"Intake health probe returned {status}: {body[:300]!r}"
+    health = decode(body)
+    assert health.get("ok") is True and health.get("service") == "portfolio-submit"
+    assert "secret" not in body.decode("utf-8").lower()
+
+    # CORS allows the published site, but never reflects an arbitrary origin.
+    status, headers, _ = request(INTAKE, "OPTIONS", ALLOWED_ORIGIN,
+                                 extra_headers={"Access-Control-Request-Method": "POST",
+                                                "Access-Control-Request-Headers": "apikey,content-type"})
+    assert status == 204, f"Allowed CORS preflight returned {status}"
+    assert headers.get("Access-Control-Allow-Origin") == ALLOWED_ORIGIN
+    status, headers, _ = request(INTAKE, "OPTIONS", UNTRUSTED_ORIGIN,
+                                 extra_headers={"Access-Control-Request-Method": "POST"})
+    assert status == 204
+    assert headers.get("Access-Control-Allow-Origin") != UNTRUSTED_ORIGIN
+    status, _, body = request(INTAKE, "POST", UNTRUSTED_ORIGIN, {"kind": "toki_booking"})
+    assert status == 403, f"Untrusted Origin POST was not rejected: {status} {body[:200]!r}"
+
+    # Method, origin, malformed JSON, unsupported kinds, and body-size limits.
+    status, _, _ = request(INTAKE, "PUT", ALLOWED_ORIGIN, {"kind": "toki_booking"})
+    assert status == 405, f"Unsupported HTTP method returned {status}"
+    status, _, _ = request(INTAKE, "POST", None, {"kind": "toki_booking"})
+    assert status == 403, f"Origin-less POST returned {status}"
+    status, _, _ = request(INTAKE, "POST", ALLOWED_ORIGIN, raw=b"{")
+    assert status == 400, f"Malformed JSON returned {status}"
+    status, _, _ = request(INTAKE, "POST", ALLOWED_ORIGIN, {"kind": "not-supported"})
+    assert status == 400, f"Unsupported submission type returned {status}"
+    status, _, _ = request(INTAKE, "POST", ALLOWED_ORIGIN, raw=b" " * 12001,
+                           extra_headers={"Content-Type": "application/json"})
+    assert status == 413, f"Oversized request returned {status}"
+
+    # Anonymous callers must not read the private booking table or inbox.
+    for resource in ("toki_booking_requests", "toki_booking_inbox"):
+        status, _, body = request(REST + "/" + resource + "?select=reference_code", "GET", ALLOWED_ORIGIN)
+        assert status != 200, f"Anonymous access unexpectedly read {resource}: {body[:200]!r}"
+
+    # The public calendar is intentionally public, but returns only its three approved fields.
+    month = datetime.now(ZoneInfo("Asia/Manila")).strftime("%Y-%m")
+    status, _, body = request(CALENDAR + "?month=" + month, "GET", ALLOWED_ORIGIN)
+    assert status == 200, f"Public calendar returned {status}: {body[:300]!r}"
+    calendar = decode(body)
+    assert calendar.get("ok") is True and isinstance(calendar.get("bookings"), list)
+    for booking in calendar["bookings"]:
+        assert set(booking) == {"date", "start_time", "end_time"}, "Calendar exposed unexpected booking fields"
+
+    # Four deliberately incomplete booking probes must never insert a row; the fifth is throttled.
+    booking_responses = []
+    for _ in range(5):
+        code, _, response_body = request(INTAKE, "POST", ALLOWED_ORIGIN,
+                                         {"kind": "toki_booking", "website": ""})
+        booking_responses.append((code, decode(response_body)))
+    assert all(code == 400 for code, _ in booking_responses[:4]), (
+        "Incomplete probes should stop before storage: " + repr([code for code, _ in booking_responses])
+    )
+    if EXPECT_TURNSTILE:
+        assert all("human verification failed" in payload.get("message", "").lower()
+                   for _, payload in booking_responses[:4]), (
+            "Missing tokens are not being rejected by live Turnstile verification: "
+            + repr([payload for _, payload in booking_responses[:4]])
+        )
+    assert booking_responses[4][0] == 429, (
+        "Booking rate limit did not trigger: " + repr([code for code, _ in booking_responses])
+    )
+
+    print("PASS live TOKI HTTP security QA: CORS, origin and method restrictions, invalid/oversized payloads, private REST authorization, calendar field minimization, Turnstile rejection (when enabled), and booking rate limits.")
+
+
+if __name__ == "__main__":
+    main()
