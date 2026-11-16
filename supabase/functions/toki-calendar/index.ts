@@ -134,12 +134,12 @@ Deno.serve(async (request: Request) => {
     const startDate = requestedMonth + "-01";
     const nextMonthStart = new Date(Date.UTC(year, month, 1)).toISOString().slice(0, 10);
     const filters = new URLSearchParams({
-      select: "confirmed_date",
+      select: "confirmed_date,confirmed_start_time,confirmed_end_time",
       status: "eq.confirmed",
       confirmed_date: "gte." + startDate,
       and: "(confirmed_date.lt." + nextMonthStart + ")",
-      order: "confirmed_date.asc",
-      limit: "500",
+      order: "confirmed_date.asc,confirmed_start_time.asc",
+      limit: "1000",
     });
 
     const result = await fetch(SUPABASE_URL + "/rest/v1/toki_booking_requests?" + filters.toString(), {
@@ -156,15 +156,26 @@ Deno.serve(async (request: Request) => {
       return jsonResponse({ ok: false, message: "Calendar data is temporarily unavailable." }, 502, origin);
     }
 
-    const dates = Array.from(new Set(rows
-      .map((row: Record<string, unknown>) => row.confirmed_date)
-      .filter((value: unknown): value is string =>
-        typeof value === "string"
-        && /^\d{4}-\d{2}-\d{2}$/.test(value)
-        && value.slice(0, 7) === requestedMonth
-      ))).sort();
+    const bookings = rows
+      .map((row: Record<string, unknown>) => ({
+        date: row.confirmed_date,
+        start_time: typeof row.confirmed_start_time === "string" ? row.confirmed_start_time.slice(0, 8) : "",
+        end_time: typeof row.confirmed_end_time === "string" ? row.confirmed_end_time.slice(0, 8) : "",
+      }))
+      .filter((booking: { date: unknown; start_time: string; end_time: string }) =>
+        typeof booking.date === "string"
+        && /^\d{4}-\d{2}-\d{2}$/.test(booking.date)
+        && booking.date.slice(0, 7) === requestedMonth
+        && /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(booking.start_time)
+        && /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(booking.end_time)
+        && booking.start_time < booking.end_time
+      )
+      .sort((a: { date: string; start_time: string }, b: { date: string; start_time: string }) =>
+        a.date.localeCompare(b.date) || a.start_time.localeCompare(b.start_time)
+      );
 
-    return jsonResponse({ ok: true, month: requestedMonth, dates }, 200, origin);
+    // Keep this projection intentionally narrow: date and time window only.
+    return jsonResponse({ ok: true, month: requestedMonth, bookings }, 200, origin);
   } catch (error) {
     console.error("TOKI calendar request failed:", error instanceof Error ? error.name : "unknown");
     return jsonResponse({ ok: false, message: "Calendar data is temporarily unavailable." }, 500, origin);
