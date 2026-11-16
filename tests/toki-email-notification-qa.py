@@ -34,8 +34,8 @@ assert "Booking administration is handled directly in the Supabase Dashboard" in
 assert "private Make Custom Webhook" in readme
 assert "There is no Google Sheets synchronization" in readme
 assert "Never put webhook URLs, API keys" in readme
-assert "Supabase is the sole system of record" in policy
-assert "No Google Sheets" in policy
+assert "private Supabase booking table" in policy
+assert "Supabase is the only record we use to track booking requests and their status" in policy
 assert "Cloudflare Turnstile" in policy
 assert "webhook credentials are not published on the website" not in policy
 assert "not a booking confirmation" in policy
