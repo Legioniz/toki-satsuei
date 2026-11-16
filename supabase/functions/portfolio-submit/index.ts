@@ -22,6 +22,11 @@ const RATE_SECRET = Deno.env.get('PORTFOLIO_RATE_LIMIT_SECRET') ?? SERVICE_ROLE_
 const TURNSTILE_SECRET = Deno.env.get('TURNSTILE_SECRET_KEY') ?? ''
 // Separate key for the TOKI widget so the shared personal-portfolio widget keeps its own secret.
 const TOKI_TURNSTILE_SECRET = Deno.env.get('TOKI_TURNSTILE_SECRET_KEY') ?? ''
+// Emit configuration presence only; never include secret material in logs.
+console.info('TOKI Turnstile configuration', {
+  secretConfigured: Boolean(TOKI_TURNSTILE_SECRET),
+  hostnameConfigured: Boolean(ALLOWED_HOSTNAME),
+})
 
 const serviceKeyHeaders = {
   apikey: SERVICE_ROLE_KEY,
