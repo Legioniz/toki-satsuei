@@ -57,6 +57,9 @@ def main() -> None:
     assert "TOKI_BOOKING_ENDPOINT" in site
     assert "kind:\"toki_booking\"" in site
     assert "preferredTimePattern" in edge and "preferred_time: preferredTime" in edge
+    assert "function manilaNow()" in edge
+    assert "(preferredDate !== now.date || preferredTime > now.time)" in edge
+    assert "function manilaNow()" in site and "preferredTime.min" in site
     assert "allowedTimes = ['Morning', 'Afternoon', 'Evening', 'Flexible']" not in edge
     assert "clipboard.writeText" not in site
     assert "private Supabase booking table" in policies and "does not reserve a date" in policies.lower()
@@ -107,6 +110,16 @@ def main() -> None:
                 };
             """)
             submissions = []
+
+            # Same-day requests must use a time beyond the current Manila minute.
+            today_key = datetime.now(ZoneInfo("Asia/Manila")).date().isoformat()
+            page.locator('input[name="preferred_date"]').fill(today_key)
+            page.locator('input[name="preferred_date"]').dispatch_event("change")
+            time_field = page.locator('input[name="preferred_time"]')
+            assert time_field.get_attribute("min"), "Same-day time minimum was not applied"
+            time_field.fill("00:00")
+            assert time_field.evaluate("(node) => node.validity.rangeUnderflow || node.validity.customError"), \
+                "Past same-day time was not rejected in the browser"
 
             def successful_submission(route):
                 request = route.request

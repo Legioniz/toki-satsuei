@@ -3,6 +3,7 @@
 The complete standalone TOKI SATSUEI website, kept separate from the Legioniz personal portfolio. A shared editorial design system keeps the homepage and archive visually consistent across screen sizes and orientations.
 
 - **Live site:** https://legioniz.github.io/toki-satsuei/
+- **Design principles:** [DESIGN-PRINCIPLES.md](DESIGN-PRINCIPLES.md) documents the usability, accessibility, and booking-integrity rules behind the site.
 - **Facebook:** https://www.facebook.com/tokisatsuiephotography/
 - **Instagram:** https://www.instagram.com/tokisatsuiephotography/
 
@@ -38,6 +39,7 @@ python -m playwright install --with-deps chromium
 python scripts/build-toki-media-library.py
 python tests/toki-layout-browser-qa.py
 python tests/toki-adaptive-interaction-qa.py
+python tests/toki-experience-design-qa.py
 python tests/toki-facebook-embed-qa.py
 python tests/toki-facebook-feed-data-qa.py
 python tests/toki-public-pages-qa.py
