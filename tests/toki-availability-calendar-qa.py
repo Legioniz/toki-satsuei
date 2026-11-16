@@ -36,12 +36,15 @@ def main() -> None:
     assert 'href="#availability"' in index
     assert 'id="availability-days"' in index
     assert 'status: "eq.confirmed"' in edge
-    assert 'select: "confirmed_date"' in edge
+    assert 'select: "confirmed_date,confirmed_start_time,confirmed_end_time"' in edge
+    assert 'return jsonResponse({ ok: true, month: requestedMonth, bookings }, 200, origin)' in edge
     assert "contact_value" not in edge and "admin_notes" not in edge and "reference_code" not in edge and "preferred_date" not in edge
     assert "Asia/Manila" in script and "60000" in script
     assert "consume_portfolio_quota" in edge and "hmacHex" in edge
     assert "availability-retry" in index and "availability-use-date" in index
     assert "availability-today" in index and "aria-pressed" in script
+    assert "availability-booked-slot-list" in index and "calendar-booking-count" in script
+    assert "Other non-overlapping sessions" in script
     assert "toki-calendar" in script
 
     today = date.today()
@@ -85,12 +88,20 @@ def main() -> None:
                 if len(requests) == 1:
                     route.fulfill(status=503, content_type="application/json", headers=cors, body=json.dumps({"ok": False}))
                     return
-                dates = [booked_date.isoformat()] if month == current_month else [month + "-15"]
+                if month == current_month:
+                    bookings = [
+                        {"date": booked_date.isoformat(), "start_time": "10:00:00", "end_time": "11:30:00"},
+                        {"date": booked_date.isoformat(), "start_time": "14:00:00", "end_time": "15:00:00"},
+                    ]
+                else:
+                    bookings = [
+                        {"date": month + "-15", "start_time": "09:00:00", "end_time": "10:00:00"}
+                    ]
                 route.fulfill(
                     status=200,
                     content_type="application/json",
                     headers=cors,
-                    body=json.dumps({"ok": True, "month": month, "dates": dates}),
+                    body=json.dumps({"ok": True, "month": month, "bookings": bookings}),
                 )
 
             context.route(SUPABASE_HOST + "/functions/v1/toki-calendar**", calendar_response)
@@ -106,11 +117,22 @@ def main() -> None:
             assert page.locator("#availability-month").inner_text().lower().startswith(
                 __import__("datetime").datetime.now(ZoneInfo("Asia/Manila")).strftime("%B").lower()
             )
-            assert page.locator(f'.calendar-day[data-date="{booked_date.isoformat()}"]').is_disabled()
-            assert page.locator(f'.calendar-day[data-date="{free_date.isoformat()}"]').is_enabled()
+            booked_button = page.locator(f'.calendar-day[data-date="{booked_date.isoformat()}"]')
+            assert booked_button.is_enabled(), "Partially booked dates must remain selectable"
+            assert booked_button.locator(".calendar-booking-count").inner_text() == "2"
+            booked_button.click()
+            slots = page.locator("#availability-booked-slot-list li")
+            assert slots.count() == 2, "Both confirmed time windows must be shown"
+            slot_text = page.locator("#availability-booked-slot-list").inner_text()
+            assert "10:00" in slot_text and "11:30" in slot_text and "2:00" in slot_text and "3:00" in slot_text
+            assert "non-overlapping" in page.locator("#availability-booked-slot-note").inner_text().lower()
+            page.locator("#availability-use-date").click()
+            assert page.locator('#inquiry-form input[name="preferred_date"]').input_value() == booked_date.isoformat()
+            assert "2 confirmed time windows" in page.locator("#form-status").inner_text().lower()
+
             page.locator(f'.calendar-day[data-date="{free_date.isoformat()}"]').click()
             assert page.locator(f'.calendar-day[data-date="{free_date.isoformat()}"]').get_attribute("aria-pressed") == "true"
-            assert page.locator("#availability-selection-date").inner_text()
+            assert "no confirmed time windows" in page.locator("#availability-booked-slot-list").inner_text().lower()
             page.locator("#availability-use-date").click()
             assert page.locator('#inquiry-form input[name="preferred_date"]').input_value() == free_date.isoformat()
             assert "inquiry only" in page.locator("#form-status").inner_text().lower()
@@ -124,7 +146,9 @@ def main() -> None:
             page.wait_for_function("() => document.querySelector('#availability-days')?.getAttribute('aria-busy') === 'false'")
             next_month = requests[-1]["month"]
             assert next_month != current_month
-            assert page.locator(f'.calendar-day[data-date="{next_month}-15"]').is_disabled()
+            next_booked_button = page.locator(f'.calendar-day[data-date="{next_month}-15"]')
+            assert next_booked_button.is_enabled()
+            assert next_booked_button.locator(".calendar-booking-count").inner_text() == "1"
             assert requests[0]["headers"].get("apikey") == PUBLISHABLE_KEY
 
             page.locator("#availability-previous").click()
@@ -155,7 +179,7 @@ def main() -> None:
         server.server_close()
         thread.join(timeout=2)
 
-    print("PASS TOKI availability calendar QA: confirmed-date feed, private-field exclusion, month navigation, inquiry prefill, automatic refresh configuration, and seven responsive widths.")
+    print("PASS TOKI availability calendar QA: private time-window feed, multiple same-day bookings, visible booked times, partially booked date selection, month navigation, inquiry prefill, retry recovery, automatic refresh, and seven responsive widths.")
 
 
 if __name__ == "__main__":
