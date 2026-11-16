@@ -304,6 +304,9 @@ Deno.serve(async (request) => {
       const notes = readText(payload.notes)
       const participants = payload.participants
       const privacyConsent = payload.privacy_consent === true
+      const bookingTermsConsent = payload.booking_terms_consent === true
+      const bookingTermsVersion = readText(payload.booking_terms_version)
+      const expectedBookingTermsVersion = '2026-11-16-v1'
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
       const allowedContactMethods = ['instagram', 'facebook', 'email']
       const allowedSessions = [
@@ -326,11 +329,14 @@ Deno.serve(async (request) => {
         && typeof participants === 'number' && Number.isInteger(participants) && participants >= 1 && participants <= 12
         && notes !== null && notes.length >= 10 && notes.length <= 2000
         && privacyConsent
+        && bookingTermsConsent
+        && bookingTermsVersion === expectedBookingTermsVersion
       if (!valid) {
-        return response({ ok: false, message: 'Please review your contact details, session, dates, exact requested time (24-hour HH:MM), location, participant count, and privacy confirmation. Same-day requests must be for a future time in Philippine Time.' }, 400, origin)
+        return response({ ok: false, message: 'Please review your contact details, session, dates, exact requested time (24-hour HH:MM), location, participant count, privacy acknowledgement, and booking/payment/cancellation terms acknowledgement. Same-day requests must be for a future time in Philippine Time.' }, 400, origin)
       }
 
       const referenceCode = `TOKI-${crypto.randomUUID().replaceAll('-', '').slice(0, 8).toUpperCase()}`
+      const bookingTermsAcceptedAt = new Date().toISOString()
       const rows = await insertRecord('toki_booking_requests', {
         reference_code: referenceCode,
         name,
@@ -344,6 +350,8 @@ Deno.serve(async (request) => {
         participants,
         notes,
         privacy_consent: true,
+        booking_terms_accepted_at: bookingTermsAcceptedAt,
+        booking_terms_version: expectedBookingTermsVersion,
         status: 'new',
       }, 'reference_code')
       const savedReference = Array.isArray(rows) ? readText(rows[0]?.reference_code) : null
@@ -360,6 +368,8 @@ Deno.serve(async (request) => {
         location,
         participants,
         notes,
+        booking_terms_accepted_at: bookingTermsAcceptedAt,
+        booking_terms_version: expectedBookingTermsVersion,
       })
       // Email is best-effort: a mail outage must never make a saved booking look unsaved.
       return response({ ok: true, reference_code: savedReference, notification_status: notificationStatus }, 200, origin)

@@ -40,6 +40,7 @@ def fill_valid_form(page) -> tuple[str, str]:
     page.locator('input[name="location"]').fill("Quezon City")
     page.locator('textarea[name="notes"]').fill("Duo cosplay session for two characters. We can meet near the venue entrance.")
     page.locator('input[name="privacy_consent"]').check()
+    page.locator('input[name="booking_terms_consent"]').check()
     return preferred_date, alternate_date
 
 
@@ -50,6 +51,8 @@ def main() -> None:
     policies = (ROOT / "policies.html").read_text(encoding="utf-8")
     assert 'id="inquiry-form"' in index
     assert 'name="privacy_consent"' in index
+    assert 'name="booking_terms_consent"' in index
+    assert 'data-booking-terms-version="2026-11-16-v1"' in index
     assert 'name="website"' in index
     assert 'type="time" name="preferred_time"' in index
     assert '24-hour format' in index
@@ -57,6 +60,11 @@ def main() -> None:
     assert "TOKI_BOOKING_ENDPOINT" in site
     assert "kind:\"toki_booking\"" in site
     assert "preferredTimePattern" in edge and "preferred_time: preferredTime" in edge
+    assert "bookingTermsConsent" in edge
+    assert "bookingTermsVersion === expectedBookingTermsVersion" in edge
+    assert "booking_terms_accepted_at: bookingTermsAcceptedAt" in edge
+    assert "booking_terms_version: expectedBookingTermsVersion" in edge
+    assert "booking_terms_consent" in site and "booking_terms_version" in site
     assert "function manilaNow()" in edge
     assert "(preferredDate !== now.date || preferredTime > now.time)" in edge
     assert "function manilaNow()" in site and "preferredTime.min" in site
@@ -150,6 +158,7 @@ def main() -> None:
             assert form.locator('input[name="preferred_time"]').get_attribute("step") == "60"
             assert form.locator('input[name="preferred_time"]').get_attribute("required") is not None
             assert form.locator('input[name="privacy_consent"]').get_attribute("required") is not None
+            assert form.locator('input[name="booking_terms_consent"]').get_attribute("required") is not None
             assert form.locator('input[name="website"]').get_attribute("tabindex") == "-1"
 
             # Package cards and the structured package selector must stay in sync.
@@ -187,6 +196,8 @@ def main() -> None:
             assert payload["preferred_time"] == "14:30"
             assert payload["participants"] == 2
             assert payload["privacy_consent"] is True
+            assert payload["booking_terms_consent"] is True
+            assert payload["booking_terms_version"] == "2026-11-16-v1"
             assert page.locator('input[name="name"]').input_value() == ""
             assert "not reserved" in page.locator("#form-status").inner_text().lower()
             assert page.locator('button[type="submit"]').is_enabled()
@@ -277,7 +288,7 @@ def main() -> None:
         server.server_close()
         thread.join(timeout=2)
 
-    print("PASS TOKI booking browser QA: mandatory Turnstile client gate and token relay, exact numeric time validation, package prefill, Supabase public-key request, reference confirmation, failed-request recovery, date validation, and six responsive widths.")
+    print("PASS TOKI booking browser QA: required privacy and booking-terms acknowledgements, terms-version relay, Turnstile gate, exact numeric time validation, package prefill, Supabase public-key request, reference confirmation, failed-request recovery, date validation, and six responsive widths.")
 
 
 if __name__ == "__main__":

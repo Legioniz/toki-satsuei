@@ -15,6 +15,10 @@ assert "TOKI_EMAIL_WEBHOOK_API_KEY" in edge
 assert "await sendTokiBookingNotification" in edge
 assert "notification_status" in edge
 assert "kind: 'toki_booking_notification'" in edge
+assert "booking_terms_accepted_at" in edge
+assert "booking_terms_version" in edge
+assert "bookingTermsConsent" in edge
+assert "booking_terms_consent" in site
 assert "x-make-apikey" in edge
 assert "The request was saved but its reference could not be confirmed." in edge
 assert "Make's default Custom Webhook response" in edge

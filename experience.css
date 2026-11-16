@@ -9,3 +9,40 @@
 }
 @media (prefers-reduced-motion: reduce) {html{ scroll-behavior: auto; }*, *::before, *::after{ scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* Booking terms and visible session durations */
+.package-duration{
+  display:flex;align-items:baseline;justify-content:space-between;gap:14px;
+  margin:15px 0 17px;padding:10px 0;border-top:1px solid rgba(0,0,0,.14);
+  border-bottom:1px solid rgba(0,0,0,.14);
+}
+.package-duration span{
+  color:#655b53;font-size:8px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+}
+.session-flexible-kicker{
+  color:#c5aaa0;font-size:8px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+}
+.package-duration strong{color:#292420;font-size:15px;font-weight:600;letter-spacing:.01em}
+.session-flexible-duration{
+  display:grid;grid-template-columns:minmax(120px,.36fr) minmax(0,1fr);gap:18px;
+  align-items:start;margin:24px 0 8px;padding:18px 20px;
+  border:1px solid var(--dark-line,#49423c);background:#111;color:#e8e0d6;
+}
+.session-flexible-duration>div{min-width:0}
+.session-flexible-duration strong{display:block;color:#f4eee6;font-size:13px;line-height:1.6}
+.session-flexible-duration p{margin:5px 0 0;color:#c2b8ad;font-size:12px;line-height:1.8}
+.session-duration-note{display:block;min-height:20px;margin-top:7px;color:#d2c4b8;font-size:11px;line-height:1.65;font-weight:400;text-transform:none;letter-spacing:0}
+.booking-terms-panel{
+  display:grid;gap:10px;padding:17px 18px;border:1px solid #66524b;
+  border-left:2px solid #bd3945;background:#181514;color:#d8cec4;
+}
+.booking-terms-panel h4{margin:0;color:#f2e9df;font:600 20px/1.2 var(--serif,Georgia,serif)}
+.booking-terms-panel p{margin:0;color:#d1c7bd;font-size:11px;line-height:1.8}
+.booking-terms-panel p strong{color:#f1e8df}
+.booking-terms-panel>a{width:fit-content;color:#f0d5d0;font-size:10px;line-height:1.7;text-decoration:underline;text-decoration-color:#a94b53;text-underline-offset:4px}
+.inquiry-form .booking-consent{align-items:start}
+@media(max-width:680px){
+  .session-flexible-duration{grid-template-columns:minmax(0,1fr);gap:8px;padding:15px}
+  .package-duration{margin:12px 0 14px}
+  .booking-terms-panel{padding:15px}
+}
