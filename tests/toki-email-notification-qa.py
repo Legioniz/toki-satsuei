@@ -1,35 +1,38 @@
 #!/usr/bin/env python3
-"""Static security and integration checks for the free TOKI email relay."""
+"""Static security and integration checks for the TOKI Make.com notification webhook."""
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-gas = (ROOT / "google-apps-script" / "Code.gs").read_text(encoding="utf-8")
 edge = (ROOT / "supabase" / "functions" / "portfolio-submit" / "index.ts").read_text(encoding="utf-8")
 site = (ROOT / "site.js").read_text(encoding="utf-8")
 readme = (ROOT / "README.md").read_text(encoding="utf-8")
+policy = (ROOT / "policies.html").read_text(encoding="utf-8")
 
-assert "PropertiesService.getScriptProperties()" in gas
-assert "TOKI_WEBHOOK_SECRET" in gas
-assert "TOKI_NOTIFICATION_EMAIL" in gas
-assert "MailApp.sendEmail(message)" in gas
-assert "TOKI_SENT_REFS" in gas
-assert "LockService.getScriptLock()" in gas
-assert "input.secret" in gas
-assert r"^\d{4}-\d{2}-\d{2}$" in gas
-assert r"\n\n" in gas
-assert r"[^\s@]+" in gas
-assert "TOKI_EMAIL_WEBHOOK_SECRET" in edge
+# The private server-side integration sends booking details only after Supabase saves them.
 assert "TOKI_EMAIL_WEBHOOK_URL" in edge
+assert "TOKI_EMAIL_WEBHOOK_API_KEY" in edge
 assert "await sendTokiBookingNotification" in edge
 assert "notification_status" in edge
+assert "kind: 'toki_booking_notification'" in edge
+assert "x-make-apikey" in edge
+assert "The request was saved but its reference could not be confirmed." in edge
+assert "Make's default Custom Webhook response" in edge
+assert "queued" in edge and "not_configured" in edge and "failed" in edge
+
+# The browser posts to the protected intake function and never receives webhook secrets.
 assert "/functions/v1/portfolio-submit" in site
-assert "private owner inbox" in readme
-assert "Google Apps Script relay" in policy
-assert "recipient address is not published" in policy
-assert "The shared token must not be committed to GitHub" in readme
-assert "tokisatsuiephotography@gmail.com" not in gas
+assert 'kind:"toki_booking"' in site
+assert "TOKI_EMAIL_WEBHOOK_URL" not in site
+assert "TOKI_EMAIL_WEBHOOK_API_KEY" not in site
 assert "tokisatsuiephotography@gmail.com" not in edge
 assert "tokisatsuiephotography@gmail.com" not in site
-assert "TOKI_WEBHOOK_SECRET" not in site
 
-print("PASS TOKI email relay QA: private settings, shared-secret validation, deduplication, save-before-alert flow, and no public recipient/token exposure.")
+# Current public documentation must accurately describe the Make.com workflow.
+assert "private owner inbox" in readme
+assert "Make.com Custom Webhook" in readme
+assert "Never put the webhook URL or API key" in readme
+assert "Make.com automation webhook" in policy
+assert "webhook credentials are not published on the website" in policy
+assert "not a booking confirmation" in policy
+
+print("PASS TOKI notification QA: private Make.com webhook settings, server-only API key, save-before-alert flow, queue semantics, and no public secret exposure.")
