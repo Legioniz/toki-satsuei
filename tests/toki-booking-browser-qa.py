@@ -111,15 +111,6 @@ def main() -> None:
             """)
             submissions = []
 
-            # Same-day requests must use a time beyond the current Manila minute.
-            today_key = datetime.now(ZoneInfo("Asia/Manila")).date().isoformat()
-            page.locator('input[name="preferred_date"]').fill(today_key)
-            page.locator('input[name="preferred_date"]').dispatch_event("change")
-            time_field = page.locator('input[name="preferred_time"]')
-            assert time_field.get_attribute("min"), "Same-day time minimum was not applied"
-            time_field.fill("00:00")
-            assert time_field.evaluate("(node) => node.validity.rangeUnderflow || node.validity.customError"), \
-                "Past same-day time was not rejected in the browser"
 
             def successful_submission(route):
                 request = route.request
@@ -143,6 +134,16 @@ def main() -> None:
             page = context.new_page()
             page.goto(base + "/index.html#contact", wait_until="domcontentloaded")
             form = page.locator("#inquiry-form")
+
+            # Same-day requests must use a time beyond the current Manila minute.
+            today_key = datetime.now(ZoneInfo("Asia/Manila")).date().isoformat()
+            page.locator('input[name="preferred_date"]').fill(today_key)
+            page.locator('input[name="preferred_date"]').dispatch_event("change")
+            time_field = page.locator('input[name="preferred_time"]')
+            assert time_field.get_attribute("min"), "Same-day time minimum was not applied"
+            time_field.fill("00:00")
+            assert time_field.evaluate("(node) => node.validity.rangeUnderflow || node.validity.customError"), \
+                "Past same-day time was not rejected in the browser"
             assert form.count() == 1
             assert form.locator('input[name="preferred_date"]').get_attribute("required") is not None
             assert form.locator('input[name="preferred_time"]').get_attribute("type") == "time"
