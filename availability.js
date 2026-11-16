@@ -147,7 +147,7 @@
   }
 
   function useSelectedDate() {
-    if (!selectedDate || bookedDates.has(selectedDate) || selectedDate < manilaDateKey()) {
+    if (!selectedDate || selectedDate.slice(0, 7) !== displayedMonth || !loadedForMonth || bookedDates.has(selectedDate) || selectedDate < manilaDateKey()) {
       clearSelection();
       setStatus("That date is no longer available to request. Choose another unmarked date.", "error");
       return;
@@ -292,12 +292,14 @@
   previousButton.addEventListener("click", () => {
     if (previousButton.disabled) return;
     displayedMonth = shiftMonth(displayedMonth, -1);
+    if (selectedDate && selectedDate.slice(0, 7) !== displayedMonth) selectedDate = "";
     monthDataKey = "";
     refreshCalendar();
   });
   nextButton.addEventListener("click", () => {
     if (nextButton.disabled) return;
     displayedMonth = shiftMonth(displayedMonth, 1);
+    if (selectedDate && selectedDate.slice(0, 7) !== displayedMonth) selectedDate = "";
     monthDataKey = "";
     refreshCalendar();
   });
