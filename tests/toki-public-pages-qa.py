@@ -48,7 +48,7 @@ def main() -> None:
     assert "at the scheduled start time" in policies
     assert "no-show" in policies.lower()
     assert "full refund of all payments made" in policies
-    assert "booking_terms_accepted_at" in policies and "booking terms version" in policies.lower()
+    assert "the version of the booking terms you accepted" in policies.lower() and "the time you accepted them" in policies.lower()
     assert 'id="inquiry-form"' in index and 'name="privacy_consent"' in index
     assert 'name="booking_terms_consent"' in index
     assert "20% reservation fee" in index
