@@ -222,6 +222,8 @@
       if (selectionNotice) {
         setStatus(selectionNotice, "error");
         selectionNotice = "";
+      } else if (bookedDates.size === 0) {
+        setStatus("No sessions are confirmed for this month yet. Unmarked dates are still subject to confirmation.");
       } else {
         setStatus("Live schedule synced. Only final dates confirmed in writing are marked as booked.");
       }
