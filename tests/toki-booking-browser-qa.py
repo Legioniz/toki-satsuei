@@ -64,6 +64,7 @@ def main() -> None:
     assert 'data-sitekey="0x4AAAAAAGDDFcLp8PfycH-f"' in index
     assert "turnstile/v0/api.js?render=explicit" in index
     assert 'action:"toki_booking"' in site
+    assert 'size:"flexible"' in site
     assert "turnstileToken" in site and "getResponse" in site
     assert "Human verification failed" in edge
     assert "'toki_booking'" in edge and "return false" in edge
