@@ -264,6 +264,7 @@ const bookingButton=form?.querySelector(".form-submit");
 const contactMethod=form?.querySelector("#contact-method");
 const contactValue=form?.querySelector("#contact-value");
 const preferredDate=form?.querySelector('input[name="preferred_date"]');
+const preferredTime=form?.querySelector('input[name="preferred_time"]');
 const alternateDate=form?.querySelector('input[name="alternate_date"]');
 const submitLabel=bookingButton?.innerHTML||"Send booking request ↗";
 const turnstileContainer=form?.querySelector("#toki-turnstile");
@@ -298,15 +299,29 @@ function resetTurnstile(){
   if(turnstileWidgetId&&window.turnstile?.reset)window.turnstile.reset(turnstileWidgetId);
 }
 
-function manilaDate(){
-  const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Manila",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
+function manilaNow(){
+  const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Manila",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date());
   const value=type=>parts.find(item=>item.type===type)?.value||"";
-  return value("year")+"-"+value("month")+"-"+value("day");
+  return {date:value("year")+"-"+value("month")+"-"+value("day"),time:value("hour")+":"+value("minute")};
+}
+function nextMinute(time){
+  const [hour,minute]=time.split(":").map(Number);
+  const total=hour*60+minute+1;
+  if(total>=1440)return "00:00";
+  return String(Math.floor(total/60)).padStart(2,"0")+":"+String(total%60).padStart(2,"0");
 }
 function updateDateLimits(){
-  const minimum=manilaDate();
-  if(preferredDate)preferredDate.min=minimum;
-  if(alternateDate)alternateDate.min=minimum;
+  const now=manilaNow();
+  if(preferredDate)preferredDate.min=now.date;
+  if(alternateDate)alternateDate.min=now.date;
+  if(preferredTime){
+    const sameDay=preferredDate?.value===now.date;
+    const minimum=sameDay?nextMinute(now.time):"00:00";
+    preferredTime.min=minimum;
+    const noTimeLeft=sameDay&&minimum==="00:00";
+    const tooEarly=sameDay&&preferredTime.value&&preferredTime.value<minimum;
+    preferredTime.setCustomValidity(noTimeLeft?"No later time remains on this date. Choose a future date.":tooEarly?"Choose a time at least one minute in the future, using Philippine time.":"");
+  }
   if(alternateDate)alternateDate.setCustomValidity(alternateDate.value&&preferredDate?.value===alternateDate.value?"Choose a different alternative date.":"");
 }
 function updateContactInput(){
@@ -328,15 +343,16 @@ function updateBookingStatus(message,state=""){
 }
 updateDateLimits();
 updateContactInput();
-preferredDate?.addEventListener("change",()=>{
-  if(alternateDate)alternateDate.setCustomValidity(alternateDate.value&&preferredDate.value===alternateDate.value?"Choose a different alternative date.":"");
-});
+preferredDate?.addEventListener("change",updateDateLimits);
+preferredDate?.addEventListener("input",updateDateLimits);
+preferredTime?.addEventListener("input",updateDateLimits);
 alternateDate?.addEventListener("change",updateDateLimits);
 contactMethod?.addEventListener("change",updateContactInput);
 
 form?.addEventListener("submit",async event=>{
   event.preventDefault();
   if(!form||!bookingButton||form.dataset.submitting==="true")return;
+  updateDateLimits();
   if(!form.reportValidity())return;
   const turnstileToken=readTurnstileToken();
   if(!turnstileToken){

@@ -60,9 +60,10 @@
   <link rel="stylesheet" href="./availability.css?v=20261116-calendar-major-2">
   <link rel="stylesheet" href="./motion-system.css?v=20261114-global-motion-4">
   <link rel="stylesheet" href="./cinematic.css?v=20261115-mobile-reveal-overflow-2">
+  <link rel="stylesheet" href="./experience.css?v=20261116-experience-upgrade-1">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"></script>
   <script src="./motion-system.js?v=20261114-global-motion-6" defer></script>
-  <script src="./site.js?v=20261116-turnstile-diagnostics-1" defer></script>
+  <script src="./site.js?v=20261116-experience-upgrade-1" defer></script>
   <script src="./availability.js?v=20261116-calendar-major-3" defer></script>
   <script src="./facebook-feed.js?v=20261114-feed-motion-3" defer></script>
 </head>
@@ -78,15 +79,13 @@
     </a>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation"><span></span><span></span></button>
     <nav id="primary-nav" class="primary-nav" aria-label="Main navigation">
-      <a href="#work">Selected frames</a>
-      <a href="./library.html">The archive</a>
-      <a href="#facebook-updates">Updates</a>
+      <a href="#work">Work</a>
+      <a href="./library.html">Archive</a>
       <a href="#sessions">Sessions</a>
       <a href="#availability">Availability</a>
-      <a href="#about">Our story</a>
+      <a href="#about">About</a>
       <a href="#faq">FAQs</a>
-      <a href="./policies.html">Policies</a>
-      <a class="nav-contact" href="#contact">Let's talk <span>↗</span></a>
+      <a class="nav-contact" href="#contact">Book a session <span>↗</span></a>
     </nav>
   </header>
 
@@ -105,8 +104,8 @@
         <h1>Stay with<br>the <em>feeling.</em></h1>
         <p class="hero-lead">We look beyond the pose: at the breath before it, the glance between friends, the light that makes a place feel like yours.</p>
         <div class="hero-actions">
-          <a class="button button-light" href="#work">See early studies <span>↘</span></a>
-          <a class="text-link" href="#sessions">Plan a session <span>→</span></a>
+          <a class="button button-light" href="#sessions">Explore sessions <span>↘</span></a>
+          <a class="text-link" href="#availability">Check available dates <span>→</span></a>
         </div>
         <div class="hero-footnote"><span class="line"></span> A QUIET EYE FOR WHAT MATTERS.</div>
       </div>
@@ -383,51 +382,68 @@
           </div>
           <p class="contact-small">Find updates, recent frames, and booking announcements at @tokisatsuiephotography.</p>
         </div>
-        <form class="inquiry-form" id="inquiry-form" data-reveal="right">
-          <label>Your name<input name="name" autocomplete="name" maxlength="100" placeholder="How should we call you?" required></label>
-          <div class="form-split">
-            <label>What are you planning?
-              <select name="session" required>
-                <option value="">Choose a session</option>
-                <option value="Quick Snap">Quick Snap</option>
-                <option value="Toki Portraits">Toki Portraits</option>
-                <option value="Signature Session">Signature Session</option>
-                <option value="Duo Session">Duo Session</option>
-                <option value="Outdoor session">Outdoor session</option>
-                <option value="Event coverage">Event coverage</option>
-                <option value="Custom session">Something else / custom session</option>
-              </select>
-            </label>
-            <label>Preferred date<input type="date" name="preferred_date" required></label>
-          </div>
-          <div class="form-split">
-            <label>Alternative date (optional)<input type="date" name="alternate_date"></label>
-            <label>Preferred time (Philippine Time)
-              <input type="time" name="preferred_time" step="60" required aria-describedby="preferred-time-note">
-              <small id="preferred-time-note">Choose an exact time in 24-hour format, such as 14:30 for 2:30 PM.</small>
-            </label>
-          </div>
-          <div class="form-split">
-            <label>How can we contact you?
-              <select name="contact_method" id="contact-method" required><option value="">Choose a channel</option><option value="instagram">Instagram</option><option value="facebook">Facebook Messenger</option><option value="email">Email</option></select>
-            </label>
-            <label>Your contact detail<input name="contact_value" id="contact-value" type="text" maxlength="254" autocomplete="off" placeholder="Choose a contact channel first" required></label>
-          </div>
-          <div class="form-split">
-            <label>Number of participants<input name="participants" type="number" min="1" max="12" step="1" value="1" required></label>
-            <label>Location or event<input name="location" maxlength="200" placeholder="e.g. Quezon City / convention venue" required></label>
-          </div>
-          <label>Tell us a little more<textarea name="notes" rows="4" minlength="10" maxlength="2000" placeholder="Character, concept, number of people, schedule, references, or anything we should know…" required></textarea></label>
-          <label class="booking-consent"><input type="checkbox" name="privacy_consent" required><span>I agree that TOKI SATSUEI may use these details to review and respond to this booking request. I understand that sending this form does not confirm a reservation or require payment.</span></label>
-          <label class="booking-honeypot" aria-hidden="true">Leave this field empty<input name="website" type="text" tabindex="-1" autocomplete="off"></label>
-          <div class="booking-verification">
-            <p class="booking-verification-label">HUMAN VERIFICATION</p>
-            <div class="booking-turnstile" id="toki-turnstile" data-sitekey="0x4AAAAAAGDDFcLp8PfycH-f"></div>
-          </div>
-          <button class="button button-light form-submit" type="submit">Send booking request <span>↗</span></button>
-          <p class="form-status" id="form-status" role="status" aria-live="polite">Your request will be stored privately for TOKI SATSUEI to review. Your session is not confirmed until the details are agreed in writing.</p>
-          <p class="form-privacy-note">Please share only the details needed to plan your session. Do not include passwords, identity documents, or payment credentials. Permission to publish photographs is requested separately. <a href="./policies.html#consent">Read our privacy and photo-consent policy.</a></p>
-        </form>
+        <form class="inquiry-form" id="inquiry-form" data-reveal="right" aria-labelledby="booking-form-title">
+  <div class="booking-form-intro">
+    <p class="booking-form-kicker">BOOKING REQUEST / QUEZON CITY</p>
+    <h3 id="booking-form-title">Let’s plan your frame.</h3>
+    <p>Share a few details so we can review your preferred session, date, and location. All requested times use Philippine Time.</p>
+    <div class="booking-expectation" role="note"><strong>Before you send</strong><span>A request is not a reservation. We will check the details and confirm availability in writing. This form does not take payment.</span></div>
+  </div>
+  <fieldset class="booking-fieldset">
+    <legend><span>01</span> Session details</legend>
+    <label>Your name<input name="name" autocomplete="name" maxlength="100" placeholder="How should we call you?" required></label>
+    <div class="form-split">
+      <label>What are you planning?
+        <select name="session" required>
+          <option value="">Choose a session</option>
+          <option value="Quick Snap">Quick Snap</option>
+          <option value="Toki Portraits">Toki Portraits</option>
+          <option value="Signature Session">Signature Session</option>
+          <option value="Duo Session">Duo Session</option>
+          <option value="Outdoor session">Outdoor session</option>
+          <option value="Event coverage">Event coverage</option>
+          <option value="Custom session">Something else / custom session</option>
+        </select>
+      </label>
+      <label>Number of participants<input name="participants" type="number" min="1" max="12" step="1" value="1" required></label>
+    </div>
+  </fieldset>
+  <fieldset class="booking-fieldset">
+    <legend><span>02</span> Date & place</legend>
+    <div class="form-split">
+      <label>Preferred date<input type="date" name="preferred_date" required></label>
+      <label>Preferred time (Philippine Time)
+        <input type="time" name="preferred_time" step="60" required aria-describedby="preferred-time-note">
+        <small id="preferred-time-note">Use exact 24-hour format (HH:MM). For same-day requests, choose a time at least one minute ahead.</small>
+      </label>
+    </div>
+    <div class="form-split">
+      <label>Alternative date (optional)<input type="date" name="alternate_date"></label>
+      <label>Location or event<input name="location" maxlength="200" placeholder="e.g. Quezon City / convention venue" required></label>
+    </div>
+  </fieldset>
+  <fieldset class="booking-fieldset">
+    <legend><span>03</span> Contact & notes</legend>
+    <div class="form-split">
+      <label>How can we contact you?
+        <select name="contact_method" id="contact-method" required>
+          <option value="">Choose a channel</option>
+          <option value="instagram">Instagram</option>
+          <option value="facebook">Facebook Messenger</option>
+          <option value="email">Email</option>
+        </select>
+      </label>
+      <label>Your contact detail<input name="contact_value" id="contact-value" type="text" maxlength="254" autocomplete="off" placeholder="Choose a contact channel first" required></label>
+    </div>
+    <label>Tell us a little more<textarea name="notes" rows="4" minlength="10" maxlength="2000" placeholder="Character, concept, number of people, schedule, references, or anything we should know…" required></textarea></label>
+    <label class="booking-consent"><input type="checkbox" name="privacy_consent" required><span>I agree that TOKI SATSUEI may use these details to review and respond to this booking request. I understand that sending this form does not confirm a reservation or require payment.</span></label>
+  </fieldset>
+  <label class="booking-honeypot" aria-hidden="true">Leave this field empty<input name="website" type="text" tabindex="-1" autocomplete="off"></label>
+  <div class="booking-verification"><p class="booking-verification-label">HUMAN VERIFICATION</p><div class="booking-turnstile" id="toki-turnstile" data-sitekey="0x4AAAAAAGDDFcLp8PfycH-f"></div></div>
+  <button class="button button-light form-submit" type="submit">Send booking request <span>↗</span></button>
+  <p class="form-status" id="form-status" role="status" aria-live="polite">Your request will be stored privately for TOKI SATSUEI to review. Your session is not confirmed until the details are agreed in writing.</p>
+  <p class="form-privacy-note">Please share only the details needed to plan your session. Do not include passwords, identity documents, or payment credentials. Permission to publish photographs is requested separately. <a href="./policies.html#consent">Read our privacy and photo-consent policy.</a></p>
+</form>
       </div>
     </section>
   </main>

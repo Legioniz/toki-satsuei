@@ -160,17 +160,17 @@ function readText(value: unknown): string | null {
   return typeof value === 'string' ? value.trim() : null
 }
 
-function manilaToday(): string {
+function manilaNow(): { date: string; time: string } {
   const parts = new Intl.DateTimeFormat('en', {
-    timeZone: 'Asia/Manila',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
+    timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
   }).formatToParts(new Date())
   const part = (type: string) => parts.find((item) => item.type === type)?.value ?? ''
-  return `${part('year')}-${part('month')}-${part('day')}`
+  return {
+    date: part('year') + '-' + part('month') + '-' + part('day'),
+    time: part('hour') + ':' + part('minute'),
+  }
 }
-
 function isValidDateOnly(value: string, notBefore: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
   const parsed = new Date(`${value}T00:00:00.000Z`)
@@ -311,22 +311,23 @@ Deno.serve(async (request) => {
         'Duo Session', 'Outdoor session', 'Event coverage', 'Custom session',
       ]
       const preferredTimePattern = /^(?:[01]\d|2[0-3]):[0-5]\d$/
-      const today = manilaToday()
+      const now = manilaNow()
       const valid = name !== null && name.length >= 1 && name.length <= 100
         && contactMethod !== null && allowedContactMethods.includes(contactMethod)
         && contactValue !== null && contactValue.length >= 2 && contactValue.length <= 254
         && (contactMethod !== 'email' || emailPattern.test(contactValue))
         && sessionType !== null && allowedSessions.includes(sessionType)
-        && preferredDate !== null && isValidDateOnly(preferredDate, today)
-        && (!alternateDate || isValidDateOnly(alternateDate, today))
+        && preferredDate !== null && isValidDateOnly(preferredDate, now.date)
+        && (!alternateDate || isValidDateOnly(alternateDate, now.date))
         && alternateDate !== preferredDate
         && preferredTime !== null && preferredTimePattern.test(preferredTime)
+        && (preferredDate !== now.date || preferredTime > now.time)
         && location !== null && location.length >= 2 && location.length <= 200
         && typeof participants === 'number' && Number.isInteger(participants) && participants >= 1 && participants <= 12
         && notes !== null && notes.length >= 10 && notes.length <= 2000
         && privacyConsent
       if (!valid) {
-        return response({ ok: false, message: 'Please review your contact details, session, dates, exact requested time (24-hour HH:MM), location, participant count, and privacy confirmation.' }, 400, origin)
+        return response({ ok: false, message: 'Please review your contact details, session, dates, exact requested time (24-hour HH:MM), location, participant count, and privacy confirmation. Same-day requests must be for a future time in Philippine Time.' }, 400, origin)
       }
 
       const referenceCode = `TOKI-${crypto.randomUUID().replaceAll('-', '').slice(0, 8).toUpperCase()}`
