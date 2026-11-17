@@ -21,6 +21,10 @@ const serviceKeyHeaders = {
   ...(USE_MODERN_SECRET ? {} : { Authorization: "Bearer " + SERVICE_ROLE_KEY }),
 };
 
+type Booking = { date: string; start_time: string; end_time: string };
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/;
+
 function manilaMonth(): string {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Manila",
@@ -156,23 +160,17 @@ Deno.serve(async (request: Request) => {
       return jsonResponse({ ok: false, message: "Calendar data is temporarily unavailable." }, 502, origin);
     }
 
-    const bookings = rows
-      .map((row: Record<string, unknown>) => ({
-        date: row.confirmed_date,
-        start_time: typeof row.confirmed_start_time === "string" ? row.confirmed_start_time.slice(0, 8) : "",
-        end_time: typeof row.confirmed_end_time === "string" ? row.confirmed_end_time.slice(0, 8) : "",
-      }))
-      .filter((booking: { date: unknown; start_time: string; end_time: string }) =>
-        typeof booking.date === "string"
-        && /^\d{4}-\d{2}-\d{2}$/.test(booking.date)
-        && booking.date.slice(0, 7) === requestedMonth
-        && /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(booking.start_time)
-        && /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(booking.end_time)
-        && booking.start_time < booking.end_time
-      )
-      .sort((a: { date: string; start_time: string }, b: { date: string; start_time: string }) =>
-        a.date.localeCompare(b.date) || a.start_time.localeCompare(b.start_time)
-      );
+    // Validate every row at the boundary; only well-formed time windows leave this function.
+    const bookings: Booking[] = rows
+      .flatMap((row: Record<string, unknown>): Booking[] => {
+        const date = row.confirmed_date;
+        const start = typeof row.confirmed_start_time === "string" ? row.confirmed_start_time.slice(0, 8) : "";
+        const end = typeof row.confirmed_end_time === "string" ? row.confirmed_end_time.slice(0, 8) : "";
+        if (typeof date !== "string" || !DATE_PATTERN.test(date) || date.slice(0, 7) !== requestedMonth) return [];
+        if (!TIME_PATTERN.test(start) || !TIME_PATTERN.test(end) || start >= end) return [];
+        return [{ date, start_time: start, end_time: end }];
+      })
+      .sort((a, b) => a.date.localeCompare(b.date) || a.start_time.localeCompare(b.start_time));
 
     // Keep this projection intentionally narrow: date and time window only.
     return jsonResponse({ ok: true, month: requestedMonth, bookings }, 200, origin);
