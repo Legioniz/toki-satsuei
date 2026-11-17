@@ -78,15 +78,15 @@ def main():
 
    duo_card=home.locator('.package-card[data-session="Duo Session"]')
    duo_card.click()
-   assert duo_card.get_attribute("aria-pressed")=="true"
+   assert duo_card.locator(".package-link").get_attribute("aria-pressed")=="true"
    assert home.locator('select[name="session"]').input_value()=="Duo Session"
    home.wait_for_function("document.querySelector('#form-status').textContent.includes('Duo Session')")
    assert "Duo Session" in home.locator("#form-status").inner_text()
-   assert home.locator('.package-card[aria-pressed="true"]').count()==1
+   assert home.locator('.package-card .package-link[aria-pressed="true"]').count()==1
    portrait_card=home.locator('.package-card[data-session="Toki Portraits"]')
-   portrait_card.focus()
+   portrait_card.locator(".package-link").focus()
    home.keyboard.press("Enter")
-   assert portrait_card.get_attribute("aria-pressed")=="true"
+   assert portrait_card.locator(".package-link").get_attribute("aria-pressed")=="true"
    assert home.locator('select[name="session"]').input_value()=="Toki Portraits"
    passed+=1
 

@@ -164,7 +164,7 @@ def main() -> None:
             # Package cards and the structured package selector must stay in sync.
             page.locator('.package-card[data-session="Quick Snap"]').click()
             assert page.locator('select[name="session"]').input_value() == "Quick Snap"
-            assert page.locator('.package-card[data-session="Quick Snap"]').get_attribute("aria-pressed") == "true"
+            assert page.locator('.package-card[data-session="Quick Snap"] .package-link').get_attribute("aria-pressed") == "true"
 
             # Missing required fields must be blocked before a network request.
             page.locator('button[type="submit"]').click()

@@ -89,7 +89,7 @@ jobs:
           set -euo pipefail
           rm -rf dist
           mkdir -p dist
-          cp index.html library.html policies.html 404.html styles.css library.css refinement.css policies.css cinematic.css experience.css availability.css motion-system.css motion-system.js site.js availability.js library.js media-library.json robots.txt sitemap.xml dist/
+          cp index.html library.html policies.html 404.html styles.css library.css refinement.css policies.css cinematic.css experience.css fixes.css availability.css motion-system.css motion-system.js site.js availability.js library.js media-library.json robots.txt sitemap.xml dist/
           cp -R media-library dist/
           touch dist/.nojekyll
           test -s dist/index.html
@@ -100,6 +100,7 @@ jobs:
           test -s dist/library.css
           test -s dist/cinematic.css
           test -s dist/experience.css
+          test -s dist/fixes.css
           test -s dist/robots.txt
           test -s dist/sitemap.xml
           test -s dist/styles.css

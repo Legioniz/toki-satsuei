@@ -227,22 +227,41 @@
     window.setTimeout(() => dateInput.focus({ preventScroll: true }), 350);
   }
 
+  // Errors whose message is safe to show visitors. Anything else (raw browser
+  // messages such as "Failed to fetch") is replaced with a plain fallback.
+  function friendlyError(message) {
+    const error = new Error(message);
+    error.friendly = true;
+    return error;
+  }
+
   async function fetchMonth(monthKey, signal) {
-    const response = await fetch(API_URL + "?month=" + encodeURIComponent(monthKey), {
-      method: "GET",
-      headers: { "apikey": PUBLISHABLE_KEY },
-      cache: "no-store",
-      signal
-    });
+    let response;
+    try {
+      response = await fetch(API_URL + "?month=" + encodeURIComponent(monthKey), {
+        method: "GET",
+        headers: { "apikey": PUBLISHABLE_KEY },
+        cache: "no-store",
+        signal
+      });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") throw error;
+      throw friendlyError("The calendar service could not be reached.");
+    }
     if (!response.ok) {
-      throw new Error(response.status === 429
+      throw friendlyError(response.status === 429
         ? "The calendar is receiving too many requests. Please retry in a moment."
         : "The calendar service could not be reached.");
     }
 
-    const payload = await response.json();
+    let payload;
+    try {
+      payload = await response.json();
+    } catch (error) {
+      throw friendlyError("The calendar returned an incomplete booking schedule.");
+    }
     if (payload?.ok !== true || payload.month !== monthKey || !Array.isArray(payload.bookings)) {
-      throw new Error("The calendar returned an incomplete booking schedule.");
+      throw friendlyError("The calendar returned an incomplete booking schedule.");
     }
 
     const nextBookings = new Map();
@@ -309,7 +328,8 @@
       if (loadedForMonth) {
         setStatus("Could not refresh. Showing the last successful schedule; retry to check for changes.", "error");
       } else {
-        setStatus(error instanceof Error ? error.message : "Live availability could not be loaded.", "error");
+        setStatus((error && error.friendly ? error.message : "The live schedule could not be loaded.") + " Message us to check a date.", "error");
+        updatedText.textContent = "Schedule unavailable. Message us to check a date.";
         const errorMessage = document.createElement("p");
         errorMessage.className = "calendar-error";
         errorMessage.textContent = "The schedule is temporarily unavailable. No booked times can be verified right now.";

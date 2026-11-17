@@ -230,7 +230,7 @@ function selectSession(card,{moveToForm=true}={}) {
   sessionCards.forEach(item=>{
     const selected=item===card;
     item.classList.toggle("is-selected",selected);
-    item.setAttribute("aria-pressed",String(selected));
+    item.querySelector(".package-link")?.setAttribute("aria-pressed",String(selected));
   });
   sessionSelect.value=card.dataset.session;
   sessionSelect.dispatchEvent(new Event("change",{bubbles:true}));
@@ -259,16 +259,11 @@ sessionCards.forEach(card=>{
       card.style.setProperty("--card-pointer-y","10%");
     },{passive:true});
   }
+  // Keyboard and screen-reader users operate the real button; pointer users can click anywhere on the card.
+  card.querySelector(".package-link")?.addEventListener("click",()=>selectSession(card));
   card.addEventListener("click",event=>{
     if(event.target.closest("a,button,input,select,textarea"))return;
     selectSession(card);
-  });
-  card.addEventListener("keydown",event=>{
-    if(event.target!==card)return;
-    if(event.key==="Enter"||event.key===" "){
-      event.preventDefault();
-      selectSession(card);
-    }
   });
 });
 
@@ -421,7 +416,7 @@ form?.addEventListener("submit",async event=>{
     form.classList.remove("is-prefilled");
     sessionCards.forEach(card=>{
       card.classList.remove("is-selected");
-      card.setAttribute("aria-pressed","false");
+      card.querySelector(".package-link")?.setAttribute("aria-pressed","false");
     });
     updateDateLimits();
     updateContactInput();
