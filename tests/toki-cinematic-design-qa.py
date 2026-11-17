@@ -53,7 +53,6 @@ def main() -> None:
     assert "only after the people featured give permission" in home.lower()
     assert "<summary>" in home and "policies.html" in home
     assert "Frames, kept<br><em>with intention.</em>" in archive
-    assert "public archive is being prepared" in archive.lower()
     assert "id=\"consent\"" in policy
     assert "frame not found" in not_found.lower()
 

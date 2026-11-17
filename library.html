@@ -23,7 +23,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="icon" href="https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/30515ce50_Toki_Satsuei_Brushstroke_Emblem.png" type="image/png">
   <link rel="stylesheet" href="./styles.css?v=20261117-polish-2">
-  <link rel="stylesheet" href="./library.css?v=20261117-polish-2">
+  <link rel="stylesheet" href="./library.css?v=20261117-archive-1">
   <link rel="stylesheet" href="./refinement.css?v=20261117-polish-2">
   <link rel="stylesheet" href="./motion-system.css?v=20261117-polish-2">
   <link rel="stylesheet" href="./cinematic.css?v=20261117-polish-2">
@@ -31,9 +31,9 @@
   <link rel="stylesheet" href="./pages.css?v=20261117-polish-3">
   <script src="./motion-system.js?v=20261114-global-motion-7" defer></script>
   <script src="./site.js?v=20261116-experience-upgrade-1-2" defer></script>
-  <script src="./library.js?v=20261116-content-cleanup-1" defer></script>
+  <script src="./library.js?v=20261117-archive-1" defer></script>
 </head>
-<body class="library-page">
+<body class="archive-page">
   <a class="skip-link" href="#main-content">Skip to main content</a>
   <div class="announcement"><span class="red-dot"></span> QUEZON CITY, PHILIPPINES <span class="announce-divider">/</span> THE TOKI SATSUEI ARCHIVE</div>
   <div class="page-progress" aria-hidden="true"><span id="page-progress-bar"></span></div>
@@ -53,34 +53,29 @@
       <a class="nav-contact" href="./index.html#contact">Book a session <span>↗</span></a>
     </nav>
   </header>
-  <main class="library-main" id="main-content">
-    <section class="library-hero section-wrap">
-      <p class="eyebrow">The TOKI SATSUEI archive</p>
+  <main class="archive-main" id="main-content">
+    <header class="archive-head section-wrap">
       <h1>Frames, kept<br><em>with intention.</em></h1>
-      <div class="library-hero-bottom">
-        <p>The public archive is being prepared. New client albums will appear here only with permission from the people featured.</p>
-        <span class="archive-signature"><span>時</span><span>の</span><span>記</span><span>憶</span></span>
-      </div>
-      <div class="library-rule"><span>COLLECTED WITH CARE</span><span>PHOTOGRAPHS · STORIES · SMALL MOMENTS</span></div>
-    </section>
-    <section class="library-content section-wrap" aria-label="Media archive">
-      <div class="library-toolbar reveal-on-scroll is-loading">
+      <p class="archive-lede" id="archive-lede">A growing archive of people, characters, and moments worth keeping.</p>
+      <span class="archive-signature" aria-hidden="true">時の記憶</span>
+    </header>
+    <div class="archive-body section-wrap" aria-label="Media archive">
+      <aside class="library-toolbar is-loading">
         <div class="library-toolbar-main">
-          <p class="eyebrow">Browse collections</p>
           <div class="library-filters" id="library-filters" role="group" aria-label="Filter archive by category"></div>
         </div>
         <div class="library-tools">
           <label class="archive-search" for="archive-search">
-            <span class="archive-search-icon" aria-hidden="true">⌕</span>
-            <input id="archive-search" type="search" placeholder="Find an album" autocomplete="off" spellcheck="false">
-            <kbd>/</kbd>
+            <svg class="archive-search-icon" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12.8 12.8 17 17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <input id="archive-search" type="search" placeholder="Find an album" aria-label="Find an album" autocomplete="off" spellcheck="false">
+            <kbd aria-hidden="true">/</kbd>
           </label>
           <p class="library-count" id="library-count" aria-live="polite">Preparing the archive…</p>
         </div>
-      </div>
+      </aside>
       <div class="library-groups" id="library-groups" aria-live="polite"></div>
-      <noscript><p class="library-empty">Please enable JavaScript to browse the interactive archive.</p></noscript>
-    </section>
+      <noscript><p class="library-empty">Please enable JavaScript to browse the archive.</p></noscript>
+    </div>
   </main>
   <footer class="site-footer">
     <div class="section-wrap footer-main">
@@ -98,26 +93,26 @@
   <dialog class="album-dialog" id="album-dialog" aria-labelledby="album-dialog-title">
     <div class="album-dialog-panel">
       <div class="album-dialog-head">
-        <div>
-          <p class="eyebrow"><span id="album-dialog-category">THE ARCHIVE</span></p>
+        <div class="album-dialog-heading">
+          <p class="album-dialog-category" id="album-dialog-category">The archive</p>
           <h2 id="album-dialog-title">Album title</h2>
           <p class="album-dialog-description" id="album-dialog-description"></p>
         </div>
-        <button class="album-dialog-close" type="button" aria-label="Close album">×</button>
+        <button class="album-dialog-close" type="button" aria-label="Close album"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false"><path d="M4 4l12 12M16 4 4 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
       </div>
+      <div class="album-media-rail" id="album-media-rail" tabindex="0" role="region" aria-label="Album photographs"></div>
+      <div class="album-dialog-progress" aria-hidden="true"><span id="album-progress-bar"></span></div>
       <div class="album-dialog-tools">
         <div class="album-dialog-status">
-          <span class="album-dialog-count" id="album-dialog-count"></span>
           <span class="album-dialog-position" id="album-dialog-position">01 / 01</span>
+          <span class="album-dialog-count" id="album-dialog-count"></span>
         </div>
         <div class="rail-controls">
-          <button class="rail-button" type="button" data-dialog-scroll="-1" aria-label="Scroll album left">←</button>
-          <button class="rail-button" type="button" data-dialog-scroll="1" aria-label="Scroll album right">→</button>
+          <button class="rail-button" type="button" data-dialog-scroll="-1" aria-label="Previous frame"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false"><path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button class="rail-button" type="button" data-dialog-scroll="1" aria-label="Next frame"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false"><path d="M7.5 4l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         </div>
       </div>
-      <div class="album-dialog-progress" aria-hidden="true"><span id="album-progress-bar"></span></div>
-      <div class="album-media-rail" id="album-media-rail" tabindex="0" role="region" aria-label="Album photographs"></div>
-      <p class="album-dialog-note">Swipe, scroll, or use the arrows to move between frames. Images stay at a comfortable viewing size.</p>
+      <p class="album-dialog-note">Swipe, scroll, or use the arrow keys to move between frames.</p>
     </div>
   </dialog>
 </body>

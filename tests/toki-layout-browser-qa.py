@@ -233,7 +233,7 @@ def main():
             )
             assert archive_route_hits, f"Archive fixture was not requested; page errors: {archive_errors}"
             loaded_count = archive.locator("#library-count").inner_text()
-            assert "1 ALBUM" in loaded_count and "2 MEDIA ITEMS" in loaded_count, \
+            assert "1 ALBUM" in loaded_count.upper() and "2 MEDIA ITEMS" in loaded_count.upper(), \
                 f"Archive fixture did not populate the expected album cards: {loaded_count!r}; page errors: {archive_errors}"
             archive.wait_for_selector(".album-card", state="attached", timeout=5000)
             for width, height in VIEWPORTS:
@@ -306,7 +306,7 @@ def main():
             empty_archive.goto(base + "/library.html", wait_until="domcontentloaded")
             empty_archive.wait_for_function("document.querySelector('.archive-empty') && document.querySelector('.library-toolbar')?.classList.contains('is-empty')")
             assert "The public archive is being prepared." in empty_archive.locator(".archive-empty").inner_text()
-            assert "0 ALBUMS" in empty_archive.locator("#library-count").inner_text()
+            assert "0 ALBUMS" in empty_archive.locator("#library-count").inner_text().upper()
             assert empty_archive.locator(".archive-shelf").count() == 0, "Empty archive must not display placeholder shelves"
             assert empty_archive.locator(".library-toolbar").evaluate("(node) => getComputedStyle(node).display === 'none'"), "Empty archive filters/search should be hidden"
             empty_archive.set_viewport_size({"width":390,"height":844})
