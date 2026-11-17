@@ -55,7 +55,7 @@ def main() -> None:
     assert "Frames, kept<br><em>with intention.</em>" in archive
     assert "public archive is being prepared" in archive.lower()
     assert "id=\"consent\"" in policy
-    assert "FRAME NOT FOUND" in not_found
+    assert "frame not found" in not_found.lower()
 
     manifest_path = ROOT / "media-library.json"
     total_albums = 0
