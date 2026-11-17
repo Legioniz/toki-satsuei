@@ -29,3 +29,47 @@
 @media (max-width: 760px){
   .contact-panel::before{ position: static; margin: 0; white-space: normal; letter-spacing: .14em; line-height: 1.7; }
 }
+
+/* ==========================================================================
+   Design system layer (homepage). Rules applied:
+   - Type scale: major third (1.25) from a 16px base  -> 13 / 16 / 20 / 25 / 31 / 39 / 49 / 61
+   - Spacing: 8px grid; section rhythm in multiples of 8
+   - Colour: 60 paper / 30 ink / 10 crimson. Crimson is reserved for actions and one accent per section
+   - Readability: 62ch measure, 1.7 leading, nothing below 13px
+   - Fitts's law: 48px minimum targets. Hick's law: fewer, quieter labels
+   ========================================================================== */
+:root{
+  --step--1: .8125rem; --step-0: 1rem; --step-1: 1.25rem; --step-2: 1.5625rem;
+  --step-3: 1.953rem; --step-4: 2.441rem; --step-5: 3.052rem; --step-6: 3.815rem;
+  --space-1: 8px; --space-2: 16px; --space-3: 24px; --space-4: 32px; --space-5: 48px; --space-6: 64px; --space-7: 96px;
+  --paper: #ede7dc; --ink: #1c1814; --accent: #b23845; --muted: #5f574e;
+}
+
+/* Hierarchy: headings carry the page, labels step back. */
+h2{ font-size: clamp(var(--step-4), 5vw, var(--step-6)); line-height: 1.05; text-wrap: balance; }
+h3{ font-size: var(--step-1); line-height: 1.2; }
+.eyebrow{ font-size: var(--step--1); letter-spacing: .04em; text-transform: none; font-weight: 600; color: var(--muted); }
+.services-section .eyebrow, .process-heading .eyebrow, .contact-copy .eyebrow{ color: #c9bdb0; }
+
+/* Readability: comfortable measure and size for supporting copy. */
+.section-aside, .intro-note, .price-note, .about-copy > p:not(.eyebrow), .faq-answer, .contact-copy > p:not(.eyebrow),
+.session-notes p, .calendar-footnote, .form-privacy-note{ font-size: var(--step--1); line-height: 1.7; max-width: 62ch; }
+.section-aside, .intro-note, .about-copy > p:not(.eyebrow), .faq-answer{ font-size: var(--step-0); line-height: 1.7; }
+.package-card li{ font-size: .875rem; line-height: 1.7; }
+.package-top, .package-duration span{ font-size: var(--step--1); letter-spacing: .02em; text-transform: none; }
+.package-link{ font-size: var(--step--1); letter-spacing: .04em; text-transform: none; font-weight: 600; min-height: 48px; }
+
+/* Proximity and rhythm: sections breathe on an 8px grid. */
+.section-wrap{ padding-block: clamp(var(--space-6), 9vw, 128px); }
+.section-heading{ margin-bottom: var(--space-5); }
+.package-card h3{ margin-top: var(--space-3); }
+
+/* Fitts's law: every control is easy to hit. */
+.form-submit, .hero-actions a, .hero-actions button, .nav-contact, .availability-cta{ min-height: 48px; }
+
+/* Colour discipline: crimson means "act" or "notice", never decoration. */
+h2 em{ font-style: italic; color: var(--accent); }
+
+/* Visible focus everywhere; calmer motion for those who ask. */
+:where(a, button, input, select, textarea, summary):focus-visible{ outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce){ *, *::before, *::after{ animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
