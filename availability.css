@@ -2,25 +2,25 @@
 .availability-section{padding-top:92px;padding-bottom:96px}
 .availability-panel{display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);gap:clamp(22px,4vw,54px);align-items:stretch;background:#111;color:#f2eee7;padding:clamp(22px,4.2vw,54px)}
 .availability-copy{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-width:0;padding:10px 0}
-.availability-live-label{display:flex;align-items:center;gap:10px;color:#d7d0c6;font-size:8px;font-weight:700;letter-spacing:.18em}
+.availability-live-label{display:flex;align-items:center;gap:10px;color:#d7d0c6;font-size:11px;font-weight:700;letter-spacing:.18em}
 .availability-live-dot{width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:#c32a39;box-shadow:0 0 0 4px #c32a3925}
 .availability-copy h3{margin:26px 0 17px;color:#f4f0e8;font:500 clamp(35px,4vw,53px)/.98 var(--serif);letter-spacing:-.035em}
 .availability-copy h3 em{color:#dc6871;font-weight:500}
 .availability-copy>p:not(.availability-updated){max-width:360px;color:#aaa39a;font-size:11px;line-height:1.9;margin:0 0 20px}
-.availability-legend{display:grid;gap:11px;margin:8px 0 22px;color:#c9c1b7;font-size:9px}
+.availability-legend{display:grid;gap:11px;margin:8px 0 22px;color:#c9c1b7;font-size:12px}
 .availability-legend span{display:flex;align-items:center;gap:9px}
 .availability-legend i{display:inline-block;width:10px;height:10px;flex:0 0 10px;border:1px solid #968d81}
 .availability-legend-booked{background:#b32634;border-color:#b32634!important}
 .availability-legend-unmarked{background:transparent}
-.availability-status{max-width:360px!important;margin:0 0 7px!important;color:#e0d9cf!important;font-size:9px!important}
+.availability-status{max-width:360px!important;margin:0 0 7px!important;color:#e0d9cf!important;font-size:12px!important}
 .availability-status[data-state="error"]{color:#f1a1a6!important}
-.availability-updated{margin:0 0 22px;color:#817a72;font-size:7px;letter-spacing:.15em;line-height:1.6}
+.availability-updated{margin:0 0 22px;color:#817a72;font-size:11px;letter-spacing:.15em;line-height:1.6}
 .availability-cta{min-height:44px;margin-top:4px;background:#f2eee7;color:#111}
 .availability-cta:hover{background:#fff}
 .availability-calendar{min-width:0;display:flex;align-items:stretch}
 .calendar-card{width:100%;min-width:0;background:#f4f1eb;color:#161616;padding:clamp(18px,2.7vw,30px);border:1px solid #d4cdc2;box-shadow:0 18px 42px #0002}
 .calendar-header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:23px}
-.calendar-header small{display:block;color:#82796f;font-size:7px;font-weight:700;letter-spacing:.17em}
+.calendar-header small{display:block;color:#82796f;font-size:11px;font-weight:700;letter-spacing:.17em}
 .calendar-header h3{margin:5px 0 0;color:#151515;font:500 clamp(24px,3vw,35px)/1 var(--serif);letter-spacing:-.025em}
 .calendar-controls{display:flex;gap:7px;flex:0 0 auto}
 .calendar-controls button{display:grid;place-items:center;width:40px;height:40px;border:1px solid #d1c9be;background:transparent;color:#24211d;font-size:18px;cursor:pointer;transition:background .2s,border-color .2s,color .2s}
@@ -28,7 +28,7 @@
 .calendar-controls button:focus-visible,.calendar-day:focus-visible{outline:2px solid #a91f2c;outline-offset:3px}
 .calendar-weekdays,.calendar-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}
 .calendar-weekdays{margin-bottom:8px}
-.calendar-weekdays span{display:grid;place-items:center;min-height:24px;color:#8b8379;font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.calendar-weekdays span{display:grid;place-items:center;min-height:24px;color:#8b8379;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
 .calendar-days{grid-auto-rows:minmax(42px,auto)}
 .calendar-day,.calendar-day-empty{min-width:0;min-height:42px}
 .calendar-day{position:relative;display:grid;place-items:center;width:100%;aspect-ratio:1/1;border:1px solid #ddd6cc;background:#faf9f6;color:#28241f;font-size:11px;cursor:pointer;transition:background .18s,border-color .18s,color .18s,transform .18s}
@@ -39,34 +39,34 @@
 .calendar-day.is-booked:after{content:"";position:absolute;right:6px;bottom:6px;width:4px;height:4px;border-radius:50%;background:#fff9}
 .calendar-day.is-past,.calendar-day:disabled:not(.is-booked){background:#ebe7e0;color:#aaa196;border-color:#e1dbd2;cursor:default}
 .calendar-day.is-past:hover,.calendar-day:disabled:hover{transform:none}
-.calendar-footnote{margin:17px 0 0;padding-top:14px;border-top:1px solid #ddd6cc;color:#777067;font-size:8px;line-height:1.8}
-.calendar-error{grid-column:1/-1;margin:0;padding:22px 8px;color:#8a302f;font-size:10px;line-height:1.8;text-align:center}
+.calendar-footnote{margin:17px 0 0;padding-top:14px;border-top:1px solid #ddd6cc;color:#777067;font-size:11px;line-height:1.8}
+.calendar-error{grid-column:1/-1;margin:0;padding:22px 8px;color:#8a302f;font-size:12px;line-height:1.8;text-align:center}
 @media(max-width:860px){.availability-panel{grid-template-columns:1fr;gap:28px}.availability-copy{padding:0}.availability-copy>p:not(.availability-updated){max-width:620px}.availability-legend{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}}
-@media(max-width:680px){.availability-section{padding-block:68px}.availability-panel{gap:24px;padding:20px 15px}.availability-copy h3{font-size:42px;margin:19px 0 14px}.availability-copy>p:not(.availability-updated){font-size:10px}.availability-legend{grid-template-columns:1fr;gap:9px;margin:5px 0 17px}.calendar-card{padding:16px 12px}.calendar-header{margin-bottom:17px}.calendar-header h3{font-size:27px}.calendar-controls{gap:5px}.calendar-controls button{width:38px;height:38px}.calendar-weekdays,.calendar-days{gap:4px}.calendar-weekdays span{font-size:7px;letter-spacing:0}.calendar-days{grid-auto-rows:minmax(34px,auto)}.calendar-day,.calendar-day-empty{min-height:34px}.calendar-day{font-size:10px}.calendar-day.is-booked:after{right:4px;bottom:4px;width:3px;height:3px}.calendar-footnote{font-size:7px}}
-@media(max-width:360px){.calendar-card{padding-inline:9px}.calendar-weekdays,.calendar-days{gap:3px}.calendar-day{font-size:9px}}
+@media(max-width:680px){.availability-section{padding-block:68px}.availability-panel{gap:24px;padding:20px 15px}.availability-copy h3{font-size:42px;margin:19px 0 14px}.availability-copy>p:not(.availability-updated){font-size:12px}.availability-legend{grid-template-columns:1fr;gap:9px;margin:5px 0 17px}.calendar-card{padding:16px 12px}.calendar-header{margin-bottom:17px}.calendar-header h3{font-size:27px}.calendar-controls{gap:5px}.calendar-controls button{width:38px;height:38px}.calendar-weekdays,.calendar-days{gap:4px}.calendar-weekdays span{font-size:11px;letter-spacing:0}.calendar-days{grid-auto-rows:minmax(34px,auto)}.calendar-day,.calendar-day-empty{min-height:34px}.calendar-day{font-size:12px}.calendar-day.is-booked:after{right:4px;bottom:4px;width:3px;height:3px}.calendar-footnote{font-size:11px}}
+@media(max-width:360px){.calendar-card{padding-inline:9px}.calendar-weekdays,.calendar-days{gap:3px}.calendar-day{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.calendar-day,.calendar-controls button{transition:none!important}.calendar-day:hover:not(:disabled){transform:none}}
 
 /* Calendar v2 — clearer booking state, selection, and recovery controls */
 .availability-live-label{flex-wrap:wrap}
-.availability-live-count{margin-left:auto;color:#f2eee7;font-size:7px;letter-spacing:.12em;border:1px solid #625b53;padding:4px 7px}
+.availability-live-count{margin-left:auto;color:#f2eee7;font-size:11px;letter-spacing:.12em;border:1px solid #625b53;padding:4px 7px}
 .availability-legend{gap:10px}
 .availability-legend-today{background:#f4f1eb;border:2px solid #a91f2c!important}
 .availability-status[data-state="loading"]{color:#c8c0b5!important}
-.availability-retry{margin:-10px 0 20px;padding:9px 11px;border:1px solid #a85a60;background:transparent;color:#f0b6ba;font:700 8px var(--sans);letter-spacing:.12em;cursor:pointer}
+.availability-retry{margin:-10px 0 20px;padding:9px 11px;border:1px solid #a85a60;background:transparent;color:#f0b6ba;font:700 11px var(--sans);letter-spacing:.12em;cursor:pointer}
 .availability-retry:hover{background:#a91f2c;color:#fff;border-color:#a91f2c}
 .availability-retry:focus-visible,.availability-use-date:focus-visible,.availability-clear-date:focus-visible{outline:2px solid #dc6871;outline-offset:3px}
 .availability-selection{width:100%;max-width:390px;margin:2px 0 22px;padding:15px 16px;border:1px solid #5b4a48;background:linear-gradient(135deg,#211b1a,#171717)}
 .availability-selection[hidden]{display:none}
-.availability-selection>span{display:block;color:#c78f8f;font-size:7px;font-weight:700;letter-spacing:.17em}
+.availability-selection>span{display:block;color:#c78f8f;font-size:11px;font-weight:700;letter-spacing:.17em}
 .availability-selection>strong{display:block;margin-top:7px;color:#f4efe7;font:500 24px/1.15 var(--serif)}
-.availability-selection>p{margin:8px 0 13px;color:#a9a198;font-size:9px;line-height:1.75}
+.availability-selection>p{margin:8px 0 13px;color:#a9a198;font-size:12px;line-height:1.75}
 .availability-selection-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.availability-use-date{min-height:40px;padding:0 12px;border:0;background:#eeeae2;color:#171717;font:700 8px var(--sans);letter-spacing:.1em;cursor:pointer}
+.availability-use-date{min-height:40px;padding:0 12px;border:0;background:#eeeae2;color:#171717;font:700 11px var(--sans);letter-spacing:.1em;cursor:pointer}
 .availability-use-date span{margin-left:9px;color:#a91f2c;font-size:14px}
-.availability-clear-date{min-height:40px;padding:0 8px;border:0;background:transparent;color:#b7aea4;font:700 8px var(--sans);letter-spacing:.1em;cursor:pointer}
+.availability-clear-date{min-height:40px;padding:0 8px;border:0;background:transparent;color:#b7aea4;font:700 11px var(--sans);letter-spacing:.1em;cursor:pointer}
 .calendar-controls button:disabled{opacity:.35;cursor:not-allowed}
 .calendar-controls button:disabled:hover{background:transparent;color:#24211d;border-color:#d1c9be}
-.calendar-controls #availability-today{width:auto;min-width:54px;padding:0 8px;font-size:7px;font-weight:700;letter-spacing:.1em}
+.calendar-controls #availability-today{width:auto;min-width:54px;padding:0 8px;font-size:11px;font-weight:700;letter-spacing:.1em}
 .calendar-day.is-requestable{background:#fbfaf7}
 .calendar-day.is-requestable:hover:not(:disabled){background:#eee6de;border-color:#ad8c82}
 .calendar-day.is-selected{background:#eadeda;border-color:#a91f2c;color:#7a2028;outline:2px solid #a91f2c;outline-offset:1px;font-weight:700}
@@ -76,7 +76,7 @@
 @media(max-width:680px){
  .availability-selection{max-width:none;padding:13px}
  .availability-selection>strong{font-size:22px}
- .calendar-controls #availability-today{min-width:48px;padding-inline:5px;font-size:6px}
+ .calendar-controls #availability-today{min-width:48px;padding-inline:5px;font-size:11px}
  .calendar-days{min-height:180px}
 }
 
@@ -105,7 +105,7 @@
   border-radius:8px;
   background:#9f2631;
   color:#fff;
-  font:700 7px/1 var(--sans);
+  font:700 11px/1 var(--sans);
   letter-spacing:0;
 }
 .availability-booked-slots{
@@ -118,7 +118,7 @@
   display:block;
   margin-bottom:10px;
   color:#cf9798;
-  font-size:7px;
+  font-size:11px;
   font-weight:700;
   letter-spacing:.16em;
 }
@@ -140,7 +140,7 @@
 }
 .availability-slot-number{
   color:#a9817f;
-  font:8px var(--sans);
+  font:11px var(--sans);
   letter-spacing:.08em;
 }
 .availability-booked-slots li strong{
@@ -150,16 +150,16 @@
 }
 .availability-booked-slots li.availability-no-slots{
   color:#a9a097;
-  font-size:9px;
+  font-size:12px;
   border-style:dashed;
 }
 .availability-booked-slots>p{
   margin:10px 0 0;
   color:#aaa198;
-  font-size:8px;
+  font-size:11px;
   line-height:1.7;
 }
 @media(max-width:680px){
-  .calendar-booking-count{right:2px;bottom:2px;min-width:12px;height:12px;font-size:6px}
+  .calendar-booking-count{right:2px;bottom:2px;min-width:12px;height:12px;font-size:11px}
   .availability-booked-slots{padding:11px}
 }

@@ -35,7 +35,11 @@ const serviceKeyHeaders = {
 
 const jsonHeaders = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }
 
-function response(body: unknown, status: number, origin: string | null) {
+// Errors whose message is written for visitors and is safe to show them.
+// Anything else is logged server-side and replaced by a generic message.
+class PublicError extends Error {}
+
+function response(body: unknown, status: number, origin: string | null, extraHeaders: Record<string, string> = {}) {
   const corsOrigin = ALLOWED_ORIGIN && origin === ALLOWED_ORIGIN ? ALLOWED_ORIGIN : 'null'
   return new Response(status === 204 ? null : JSON.stringify(body), {
     status,
@@ -45,6 +49,7 @@ function response(body: unknown, status: number, origin: string | null) {
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-client-info',
       'Vary': 'Origin',
+      ...extraHeaders,
     },
   })
 }
@@ -156,8 +161,12 @@ async function readLimitedBody(request: Request, maximumBytes: number): Promise<
   return new TextDecoder().decode(body)
 }
 
+// Trim and drop control characters (keeps tabs/newlines) so stored text and
+// the notification email cannot be polluted by hidden characters.
 function readText(value: unknown): string | null {
-  return typeof value === 'string' ? value.trim() : null
+  return typeof value === 'string'
+    ? value.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').trim()
+    : null
 }
 
 function manilaNow(): { date: string; time: string } {
@@ -193,7 +202,7 @@ async function insertRecord(table: string, record: Record<string, unknown>, retu
   if (!result.ok) {
     const detail = await result.text()
     console.error(`Insert failed for ${table}:`, detail.slice(0, 500))
-    throw new Error('The request could not be saved. Please retry or use the official contact channel listed on the website.')
+    throw new PublicError('The request could not be saved. Please retry or use the official contact channel listed on the website.')
   }
   return returning ? await result.json() as Array<Record<string, unknown>> : null
 }
@@ -267,13 +276,13 @@ Deno.serve(async (request) => {
   // Honeypot: respond successfully without storing anything so simple bots do not learn the trap.
   if (typeof payload.website === 'string' && payload.website.trim()) return response({ ok: true }, 200, origin)
 
-  const forwarded = request.headers.get('cf-connecting-ip') ?? request.headers.get('x-real-ip') ?? request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unavailable'
+  const forwarded = request.headers.get('cf-connecting-ip') ?? request.headers.get('x-real-ip') ?? request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? `unavailable|${(request.headers.get('user-agent') ?? 'unknown').slice(0, 160)}`
   // Only an HMAC digest reaches Postgres; the raw address is neither stored nor logged.
   const bucket = await hmacHex(RATE_SECRET, forwarded)
   const limits: Record<string, number> = { inquiry: 4, comment: 6, page_view: 60, toki_booking: 4 }
   try {
     const allowed = await consumeQuota(bucket, kind, limits[kind] ?? 4)
-    if (!allowed) return response({ ok: false, message: 'Too many submissions from this network. Please try again later.' }, 429, origin)
+    if (!allowed) return response({ ok: false, message: 'Too many submissions from this network. Please try again later.' }, 429, origin, { 'Retry-After': '600' })
   } catch (error) {
     console.error('Quota check failed:', error)
     return response({ ok: false, message: 'Submission protection is temporarily unavailable.' }, 503, origin)
@@ -355,7 +364,7 @@ Deno.serve(async (request) => {
         status: 'new',
       }, 'reference_code')
       const savedReference = Array.isArray(rows) ? readText(rows[0]?.reference_code) : null
-      if (!savedReference) throw new Error('The request was saved but its reference could not be confirmed.')
+      if (!savedReference) throw new PublicError('The request was saved but its reference could not be confirmed.')
       const notificationStatus = await sendTokiBookingNotification({
         reference_code: savedReference,
         name,
@@ -410,7 +419,9 @@ Deno.serve(async (request) => {
     await insertRecord('page_views', { session_id, path })
     return response({ ok: true }, 200, origin)
   } catch (error) {
-    console.error('Portfolio submission failed:', error)
-    return response({ ok: false, message: error instanceof Error ? error.message : 'Submission failed.' }, 500, origin)
+    const requestId = crypto.randomUUID().slice(0, 8)
+    console.error('Portfolio submission failed:', { requestId, error })
+    const message = error instanceof PublicError ? error.message : 'Submission failed. Please try again in a moment.'
+    return response({ ok: false, message, request_id: requestId }, 500, origin)
   }
 })

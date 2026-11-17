@@ -33,6 +33,7 @@ WCAG 2.2 is the reference for contrast, reflow, keyboard access, and target size
 - Reflow target: no loss of information or functionality at 320 CSS pixels.
 - Keyboard focus should be visible and controls should expose clear names and states.
 - WCAG 2.2 AA defines a 24 by 24 CSS-pixel minimum target size, subject to exceptions. Major touch controls in this design aim for approximately 44 CSS pixels where layout allows.
+- Type floor: no text renders below 11 CSS pixels. Decorative micro-labels use 11px; interactive and status text (navigation, buttons, filters, form legends, calendar status) uses 12px or larger.
 - Reduced motion is respected; information and core actions remain available without animation.
 
 Reference: [W3C Web Content Accessibility Guidelines (WCAG) 2.2](https://www.w3.org/TR/wcag/).
