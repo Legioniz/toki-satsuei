@@ -63,3 +63,13 @@ These are implementation targets, not a claim of formal WCAG conformance or inde
 - Keep archive folders upload-ready in the repository, but expose only categories with published albums.
 - Prefer direct official social links over an embedded social feed when there are too few current posts to make the feed useful.
 - Keep privacy information accurate and visitor-readable; detailed backend implementation belongs in developer documentation, not customer-facing policy copy.
+
+## Design system (design-system.css)
+
+One stylesheet, loaded last, owns the visual language. Change a token and the whole site follows.
+
+- **Tokens:** colour roles (paper 60 / ink 30 / accent 10), a fluid 1.25 type scale (`--step--1` to `--step-4`), an 8pt spacing scale (`--s-1` to `--s-8`), motion durations and easings (`--dur-*`, `--ease-*`) and sizing (`--tap`, `--header-h`).
+- **UX rules applied:** Fitts (48px targets, booking button in the thumb zone on phones), Hick (one primary action per view; the floating button hides over the hero and the form), Gestalt proximity (consistent section rhythm), Doherty (feedback under 400ms), Miller (session cards 4 > 2 > 1 columns, never an orphan).
+- **Adaptive:** fluid type and gutters; `orientation` and `max-height` rules for phones in landscape; safe-area insets for notches; `dvh/svh` units; `hover:none` and `pointer:coarse` handling; `prefers-reduced-motion` and `prefers-contrast`.
+- **Motion:** cross-document view transitions (header stays fixed), staggered hero entrance, press and hover feedback, all disabled for reduced motion.
+- **New components should use tokens, not raw values.**
