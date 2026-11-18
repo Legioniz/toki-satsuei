@@ -89,20 +89,29 @@ jobs:
           set -euo pipefail
           rm -rf dist
           mkdir -p dist
-          python3 scripts/build-css.py --check
-          cp index.html library.html policies.html 404.html motion-system.js site.js availability.js library.js media-library.json robots.txt sitemap.xml toki.css dist/
+          cp index.html library.html policies.html 404.html styles.css library.css refinement.css policies.css cinematic.css experience.css fixes.css pages.css design-system.css availability.css motion-system.css motion-system.js site.js availability.js library.js media-library.json robots.txt sitemap.xml dist/
           cp -R media-library dist/
           touch dist/.nojekyll
           test -s dist/index.html
           test -s dist/library.html
           test -s dist/policies.html
           test -s dist/404.html
-          test -s dist/toki.css
+          test -s dist/policies.css
+          test -s dist/library.css
+          test -s dist/cinematic.css
+          test -s dist/experience.css
+          test -s dist/fixes.css
+          test -s dist/pages.css
+          test -s dist/design-system.css
           test -s dist/robots.txt
           test -s dist/sitemap.xml
+          test -s dist/styles.css
+          test -s dist/refinement.css
+          test -s dist/motion-system.css
           test -s dist/motion-system.js
           test -s dist/site.js
           test -s dist/availability.js
+          test -s dist/availability.css
           test -s dist/library.js
           test -s dist/media-library.json
 

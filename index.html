@@ -23,14 +23,53 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="icon" href="https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/30515ce50_Toki_Satsuei_Brushstroke_Emblem.png" type="image/png">
-  <link rel="stylesheet" href="./toki.css?v=20261118-bundle-1">
+  <link rel="stylesheet" href="./styles.css?v=20261117-polish-2">
   <link rel="preload" as="image" href="https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/3db8c3355_242599.jpg">
+  <style id="homepage-hero-critical-styles">
+    .hero-opening{width:100%;max-width:none;margin:0;min-height:clamp(630px,calc(100svh - 114px),820px);padding:76px max(32px,calc((100% - 1220px)/2)) 82px;display:flex;align-items:center;position:relative;isolation:isolate;overflow:hidden;background:#090909;color:#f4f0e9}
+    .hero-opening .hero-art{position:absolute;inset:0;z-index:-1;min-height:0;background:#111;overflow:hidden}
+    .hero-opening .hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:69% 42%;filter:saturate(.9) contrast(1.06);opacity:1;transform:scale(1.035);animation:heroPhotoIn 1.45s cubic-bezier(.2,.7,.2,1) both}
+    .hero-opening .hero-art:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,5,5,.97) 0%,rgba(5,5,5,.88) 29%,rgba(5,5,5,.47) 55%,rgba(5,5,5,.08) 100%),linear-gradient(0deg,rgba(5,5,5,.66) 0%,transparent 43%)}
+    .hero-opening .hero-copy{width:min(620px,55%);padding:0;position:relative;z-index:4;animation:heroCopyIn .85s .12s cubic-bezier(.2,.7,.2,1) both}
+    .hero-opening .eyebrow{color:#d2cbc2;margin-bottom:28px}
+    .hero-opening h1{color:#f5f1e9;font-size:clamp(68px,8.1vw,112px);line-height:.86;letter-spacing:-.055em}
+    .hero-opening h1 em{color:#df6871}
+    .hero-opening .hero-lead{max-width:410px;color:#d3ccc3;font-size:14px;line-height:1.9;margin:28px 0}
+    .hero-opening .button-light{background:#f1eee7;color:#111;border-color:#f1eee7}
+    .hero-opening .button-light:hover{background:#fff}
+    .hero-opening .text-link{color:#f0ebe3;border-color:#aaa097}
+    .hero-opening .hero-footnote{position:static;margin-top:47px;color:#c7bfb6;font-size:11px;letter-spacing:.2em}
+    .hero-opening .hero-footnote .line{display:inline-block;width:32px;height:1px;background:#c32a39}
+    .hero-opening .hero-frame{position:absolute;z-index:3;pointer-events:none;inset:auto;width:142px;height:184px;border:7px solid #f0ede6;box-shadow:0 18px 54px rgba(0,0,0,.42);background-size:cover;background-position:center;animation:heroPrintIn .8s .55s cubic-bezier(.2,.7,.2,1) both}
+    .hero-opening .frame-one{right:7%;bottom:15%;background-image:url("https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/52f603569_242601.jpg");transform:rotate(4deg)}
+    .hero-opening .frame-two{right:19%;bottom:26%;width:124px;height:158px;background-image:url("https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/e03bfd350_242598.jpg");border-color:#e5e0d7;transform:rotate(-5deg);animation-delay:.72s}
+    .hero-opening .hero-stamp{top:36px;right:38px;font-size:20px;opacity:.92}
+    .hero-opening .hero-index{top:34px;left:max(32px,calc((100% - 1220px)/2));right:auto;bottom:auto;color:#e8e1d7;font-size:11px;letter-spacing:.2em}
+    .hero-opening .hero-bottom-rule{position:absolute;z-index:4;left:max(32px,calc((100% - 1220px)/2));right:max(32px,calc((100% - 1220px)/2));bottom:0;grid-column:auto;border-top:1px solid rgba(255,255,255,.24);padding:14px 0;display:flex;justify-content:space-between;gap:16px;color:#d2cbc2;font-size:11px;letter-spacing:.17em}
+    @keyframes heroPhotoIn{from{opacity:.45;transform:scale(1.09)}to{opacity:1;transform:scale(1.035)}}
+    @keyframes heroCopyIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes heroPrintIn{from{opacity:0;translate:0 22px}to{opacity:1;translate:0 0}}
+    @media(max-width:960px){.hero-opening{min-height:690px;padding-inline:24px}.hero-opening .hero-copy{width:62%}.hero-opening h1{font-size:clamp(64px,8.5vw,88px)}.hero-opening .frame-one{right:5%;width:126px;height:166px}.hero-opening .frame-two{right:18%;width:110px;height:142px}.hero-opening .hero-index{left:24px}}
+    @media(max-width:680px){.hero-opening{min-height:740px;padding:76px 18px 86px;align-items:flex-start}.hero-opening .hero-art:after{background:linear-gradient(90deg,rgba(5,5,5,.9),rgba(5,5,5,.54) 70%,rgba(5,5,5,.3)),linear-gradient(0deg,rgba(5,5,5,.75),transparent 72%)}.hero-opening .hero-photo{object-position:62% center}.hero-opening .hero-copy{width:100%;padding-top:24px}.hero-opening .eyebrow{font-size:11px;margin-bottom:23px}.hero-opening h1{font-size:clamp(54px,13vw,72px);line-height:.9}.hero-opening .hero-lead{max-width:330px;font-size:12px;margin:22px 0}.hero-opening .hero-actions{gap:17px}.hero-opening .hero-footnote{margin-top:34px;font-size:11px}.hero-opening .hero-stamp{right:18px;top:20px;font-size:16px}.hero-opening .hero-index{top:22px;left:18px;font-size:11px}.hero-opening .hero-frame{display:none}.hero-opening .hero-bottom-rule{left:18px;right:18px;gap:12px;font-size:11px;letter-spacing:.12em;padding:12px 0}.hero-opening .hero-bottom-rule span:first-child{white-space:nowrap}}
+    @media(prefers-reduced-motion:reduce){.hero-opening .hero-photo,.hero-opening .hero-copy,.hero-opening .hero-frame{animation:none!important;transform:none!important;translate:none!important}}
+
+    @media(max-width:680px){.hero-opening{min-height:max(640px,calc(100svh - 100px));min-height:max(640px,calc(100dvh - 100px))}.hero-opening .hero-bottom-rule{align-items:flex-start;flex-wrap:wrap}.hero-opening .hero-bottom-rule span:first-child{white-space:nowrap}.hero-opening .hero-bottom-rule span:last-child{max-width:100%;text-align:left}}
+    @media(max-height:560px) and (orientation:landscape){.hero-opening{min-height:540px;padding-top:64px;padding-bottom:64px}.hero-opening h1{font-size:clamp(48px,7.5vw,74px)}.hero-opening .hero-footnote{margin-top:18px}.hero-opening .hero-bottom-rule{padding-block:9px}.hero-opening .hero-frame{display:none}}
+  </style>
+  <link rel="stylesheet" href="./refinement.css?v=20261117-polish-2">
+  <link rel="stylesheet" href="./policies.css?v=20261117-polish-2">
+  <link rel="stylesheet" href="./availability.css?v=20261117-polish-3">
+  <link rel="stylesheet" href="./motion-system.css?v=20261117-polish-2">
+  <link rel="stylesheet" href="./cinematic.css?v=20261117-polish-2">
+  <link rel="stylesheet" href="./experience.css?v=20261117-polish-2">
+  <link rel="stylesheet" href="./fixes.css?v=20261117-polish-3">
+  <link rel="stylesheet" href="./design-system.css?v=20261118-ds-1">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"></script>
   <script src="./motion-system.js?v=20261114-global-motion-6" defer></script>
   <script src="./site.js?v=20261116-booking-terms-1-2" defer></script>
   <script src="./availability.js?v=20261116-calendar-major-3-2" defer></script>
 </head>
-<body class="home-page">
+<body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
 <div id="fb-root"></div>
   <div class="announcement" role="region" aria-label="Studio note"><span class="red-dot"></span> QUEZON CITY, PHILIPPINES <span class="announce-divider">/</span> SMALL TEAM, BIG APPRECIATION FOR EVERY FRAME</div>

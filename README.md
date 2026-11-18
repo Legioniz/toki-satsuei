@@ -66,7 +66,12 @@ The site is delivered as four static pages with shared behavior and page-specifi
 
 | File | Used by | Responsibility |
 | --- | --- | --- |
-| `css/*.css` → `toki.css` | All public pages | Source stylesheets live in `css/` and `css/manifest.txt` sets the cascade order. `python3 scripts/build-css.py` bundles and minifies them into the single `toki.css` that every page loads. Edit `css/`, never `toki.css`; CI fails if the bundle is stale. Page-specific sources are scoped with `:where(...)` so they cannot leak onto other pages |
+| `styles.css`, `refinement.css`, `cinematic.css`, `motion-system.css` | All public pages | Foundation, refinements, cinematic art direction, and shared motion |
+| `library.css` | `library.html` | Archive layout and album presentation |
+| `policies.css` | Home, policies, and 404 pages | Policy-page and shared long-form page details |
+| `motion-system.js` | Home, archive, and policies | Shared motion, menu, and dialog helpers |
+| `site.js` | Home, archive, and policies | Shared navigation, header behavior, page progress, and home-page interactions |
+| `availability.css` + `availability.js` | `index.html` | Public monthly calendar, confirmed-date feed, Manila month rollover, inquiry prefill, and minute refresh |
 | `library.js` | `library.html` | Archive filters, search, media manifest, and album viewer |
 | `media-library.json` + `media-library/` | `library.html` | Generated archive index and uploaded media |
 
