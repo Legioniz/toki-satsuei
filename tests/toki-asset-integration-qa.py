@@ -118,8 +118,8 @@ def main() -> None:
         actual = tuple(script for script in parser.scripts if script in expected)
         if actual != expected or len(parser.scripts) != len(expected):
             failures.append(f"{page} has an incomplete or unexpected controller stack: {parser.scripts}")
-        if page != "404.html" and "motion-system.css" not in parser.styles:
-            failures.append(f"{page} is missing the shared motion stylesheet")
+        if "toki.css" not in parser.styles or len(parser.styles) != 1:
+            failures.append(f"{page} must load exactly one stylesheet, the bundled toki.css: {parser.styles}")
 
     for retired in ("facebook-feed.js", "facebook-posts.json"):
         if (ROOT / retired).exists():
@@ -172,7 +172,7 @@ def main() -> None:
             failures.append("Pages artifact omits required runtime files: " + ", ".join(missing))
     if "cp -R media-library dist/" not in workflow:
         failures.append("Pages artifact does not include the uploadable media-library shelves")
-    for asset in ("site.js", "library.js", "library.css", "cinematic.css", "motion-system.css"):
+    for asset in ("site.js", "library.js", "toki.css", "motion-system.js"):
         if f"test -s dist/{asset}" not in workflow:
             failures.append(f"Pages artifact does not assert that {asset} was packaged")
 

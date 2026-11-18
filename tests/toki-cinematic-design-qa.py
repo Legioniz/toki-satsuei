@@ -24,11 +24,11 @@ class QuietHandler(SimpleHTTPRequestHandler):
 
 
 def main() -> None:
-    for filename in [*PAGES, "cinematic.css"]:
+    for filename in [*PAGES, "css/cinematic.css"]:
         path = ROOT / filename
         assert path.is_file() and path.stat().st_size > 0, f"Missing cinematic asset: {filename}"
 
-    css = (ROOT / "cinematic.css").read_text(encoding="utf-8")
+    css = (ROOT / "css" / "cinematic.css").read_text(encoding="utf-8")
     for selector in [
         ".hero-annotation", ".frame-intention", ".gallery-card",
         ".service-row", ".package-card", ".about-visual",
@@ -42,7 +42,7 @@ def main() -> None:
     policy = (ROOT / "policies.html").read_text(encoding="utf-8")
     not_found = (ROOT / "404.html").read_text(encoding="utf-8")
     for label, source in [("home", home), ("archive", archive), ("policies", policy), ("404", not_found)]:
-        assert "cinematic.css?v=" in source, f"{label}: cinematic stylesheet is not loaded"
+        assert "toki.css?v=" in source, f"{label}: cinematic stylesheet is not loaded"
         assert "family=Caveat" in source, f"{label}: handwritten annotation font is not loaded"
         assert 'href="#main-content"' in source, f"{label}: keyboard skip link is missing"
 
@@ -76,7 +76,7 @@ def main() -> None:
                 page = context.new_page()
                 page.goto(base + "/" + filename, wait_until="domcontentloaded")
                 page.wait_for_selector("main#main-content")
-                assert page.locator("link[href*='cinematic.css']").count() == 1, f"{filename}: visual system stylesheet missing"
+                assert page.locator("link[href*='toki.css']").count() == 1, f"{filename}: visual system stylesheet missing"
 
                 for width in VIEWPORTS:
                     page.set_viewport_size({"width": width, "height": 850})

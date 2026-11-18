@@ -26,9 +26,9 @@ def main() -> None:
     pages = ["index.html", "library.html", "policies.html", "404.html"]
     for filename in pages:
         source = (ROOT / filename).read_text(encoding="utf-8")
-        assert "experience.css?v=" in source, f"{filename}: experience layer is not loaded"
+        assert "toki.css?v=" in source, f"{filename}: experience layer is not loaded"
 
-    css = (ROOT / "experience.css").read_text(encoding="utf-8")
+    css = (ROOT / "css" / "experience.css").read_text(encoding="utf-8")
     for selector in [
         ".booking-form-intro", ".booking-fieldset", ".booking-expectation",
         ".booking-terms-panel", ".package-duration", ".session-flexible-duration",

@@ -1,0 +1,75 @@
+/* Homepage-only (every selector is scoped with :where(.home-page), which adds no specificity). Loaded last on the homepage. Resolves conflicting layers from earlier stylesheets. */
+
+/* Session cards: one padding value drives both the card and the full-bleed art,
+   so the dark header always reaches the card's right edge. */
+:where(.home-page) .package-card{ --card-pad: 16px; padding: 0 var(--card-pad) 18px; cursor: pointer; }
+:where(.home-page) .package-card > .package-art{ margin-inline: calc(var(--card-pad) * -1); max-width: none; } /* styles.css caps every card child at 100%, which left the cream strip */
+:where(.home-page) .package-art-caption{ grid-row: 3; align-self: end; letter-spacing: 0; line-height: 1.2; text-wrap: balance; } /* tagline sits at the bottom now that the repeated title and index are gone */
+
+/* Featured tag sits on the art, so it no longer pushes this card's rows down. */
+:where(.home-page) .package-ribbon{ position: absolute; top: 12px; right: 12px; z-index: 2; margin: 0; padding: 4px 9px; line-height: 1.4; }
+
+/* The select control is a real button; its overlay makes the whole card clickable. */
+:where(.home-page) .package-link{
+  appearance: none; -webkit-appearance: none;
+  display: flex; align-items: center; gap: 6px;
+  position: static; width: 100%;
+  background: transparent; border: 0; padding: 0;
+  font-family: inherit; font-weight: inherit; text-align: left; cursor: pointer;
+}
+:where(.home-page) .package-link::after{ content: ""; position: absolute; inset: 0; }
+:where(.home-page) .package-link:focus-visible{ outline: none; }
+:where(.home-page) .package-link:focus-visible::after{ outline: 2px solid #b23845; outline-offset: -5px; }
+
+/* Dark sections keep their own light eyebrow colour. */
+:where(.home-page) .services-section .eyebrow, :where(.home-page) .process-heading .eyebrow{ color: #b9ada0; }
+
+/* Contact label: one line on wide screens, in normal flow on small ones. */
+:where(.home-page) .contact-panel::before{ white-space: nowrap; }
+@media (max-width: 760px){
+  :where(.home-page) .contact-panel::before{ position: static; margin: 0; white-space: normal; letter-spacing: .14em; line-height: 1.7; }
+}
+
+/* ==========================================================================
+   Design system layer (homepage). Rules applied:
+   - Type scale: major third (1.25) from a 16px base  -> 13 / 16 / 20 / 25 / 31 / 39 / 49 / 61
+   - Spacing: 8px grid; section rhythm in multiples of 8
+   - Colour: 60 paper / 30 ink / 10 crimson. Crimson is reserved for actions and one accent per section
+   - Readability: 62ch measure, 1.7 leading, nothing below 13px
+   - Fitts's law: 48px minimum targets. Hick's law: fewer, quieter labels
+   ========================================================================== */
+:root:where(:has(.home-page)){
+  --step--1: .8125rem; --step-0: 1rem; --step-1: 1.25rem; --step-2: 1.5625rem;
+  --step-3: 1.953rem; --step-4: 2.441rem; --step-5: 3.052rem; --step-6: 3.815rem;
+  --space-1: 8px; --space-2: 16px; --space-3: 24px; --space-4: 32px; --space-5: 48px; --space-6: 64px; --space-7: 96px;
+  --paper: #ede7dc; --ink: #1c1814; --accent: #b23845; --muted: #5f574e;
+}
+
+/* Hierarchy: headings carry the page, labels step back. */
+:where(.home-page) h2{ font-size: clamp(var(--step-4), 5vw, var(--step-6)); line-height: 1.05; text-wrap: balance; }
+:where(.home-page) h3{ font-size: var(--step-1); line-height: 1.2; }
+:where(.home-page) .eyebrow{ font-size: var(--step--1); letter-spacing: .04em; text-transform: none; font-weight: 600; color: var(--muted); }
+:where(.home-page) .services-section .eyebrow, :where(.home-page) .process-heading .eyebrow, :where(.home-page) .contact-copy .eyebrow{ color: #c9bdb0; }
+
+/* Readability: comfortable measure and size for supporting copy. */
+:where(.home-page) .section-aside, :where(.home-page) .intro-note, :where(.home-page) .price-note, :where(.home-page) .about-copy > p:not(.eyebrow), :where(.home-page) .faq-answer, :where(.home-page) .contact-copy > p:not(.eyebrow), :where(.home-page) .session-notes p, :where(.home-page) .calendar-footnote, :where(.home-page) .form-privacy-note{ font-size: var(--step--1); line-height: 1.7; max-width: 62ch; }
+:where(.home-page) .section-aside, :where(.home-page) .intro-note, :where(.home-page) .about-copy > p:not(.eyebrow), :where(.home-page) .faq-answer{ font-size: var(--step-0); line-height: 1.7; }
+:where(.home-page) .package-card li{ font-size: .875rem; line-height: 1.7; }
+:where(.home-page) .package-top, :where(.home-page) .package-duration span{ font-size: var(--step--1); letter-spacing: .02em; text-transform: none; }
+:where(.home-page) .package-link{ font-size: var(--step--1); letter-spacing: .04em; text-transform: none; font-weight: 600; min-height: 48px; }
+
+/* Proximity and rhythm: sections breathe on an 8px grid. */
+:where(.home-page) .section-wrap{ padding-block: clamp(var(--space-6), 9vw, 128px); }
+:where(.home-page) .section-heading{ margin-bottom: var(--space-5); }
+:where(.home-page) .package-card h3{ margin-top: var(--space-3); }
+
+/* Fitts's law: every control is easy to hit. */
+:where(.home-page) .form-submit, :where(.home-page) .hero-actions a, :where(.home-page) .hero-actions button, :where(.home-page) .nav-contact, :where(.home-page) .availability-cta{ min-height: 48px; }
+
+/* Colour discipline: crimson means "act" or "notice", never decoration. */
+:where(.home-page) h2 em{ font-style: italic; color: var(--accent); }
+
+/* Visible focus everywhere; calmer motion for those who ask. */
+:where(.home-page) :where(a, button, input, select, textarea, summary):focus-visible{ outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce){ :where(.home-page) *, :where(.home-page) *::before, :where(.home-page) *::after{ animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+

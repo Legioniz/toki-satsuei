@@ -25,7 +25,7 @@ class QuietHandler(SimpleHTTPRequestHandler):
 
 
 def main() -> None:
-    for filename in [*PUBLIC_PAGES, "404.html", "policies.css", "robots.txt", "sitemap.xml"]:
+    for filename in [*PUBLIC_PAGES, "404.html", "css/policies.css", "robots.txt", "sitemap.xml"]:
         path = ROOT / filename
         assert path.is_file() and path.stat().st_size > 0, f"Missing public page asset: {filename}"
 
@@ -40,7 +40,7 @@ def main() -> None:
     assert "honest practice and detail studies, not a finished cosplay or portrait client portfolio" in index
     assert "only after the people featured give permission" in index.lower()
     assert 'href="./policies.html"' in index and 'href="./policies.html"' in archive
-    assert 'href="./policies.css?' in policies
+    assert 'href="./toki.css?' in policies
     assert 'id="consent"' in policies and 'id="pricing"' in policies and 'id="changes"' in policies
     assert "within 7 days after the session" in policies
     assert "20% of the final agreed package price" in policies
