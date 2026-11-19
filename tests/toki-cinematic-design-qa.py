@@ -41,8 +41,17 @@ def main() -> None:
     archive = (ROOT / "library.html").read_text(encoding="utf-8")
     policy = (ROOT / "policies.html").read_text(encoding="utf-8")
     not_found = (ROOT / "404.html").read_text(encoding="utf-8")
+    bundles = {
+        "home": ("index.html", "toki-home.css"),
+        "archive": ("library.html", "toki-archive.css"),
+        "policies": ("policies.html", "toki-policies.css"),
+        "404": ("404.html", "toki-404.css"),
+    }
     for label, source in [("home", home), ("archive", archive), ("policies", policy), ("404", not_found)]:
-        assert "cinematic.css?v=" in source, f"{label}: cinematic stylesheet is not loaded"
+        page, bundle = bundles[label]
+        bundle_header = (ROOT / bundle).read_text(encoding="utf-8").splitlines()[0]
+        assert "cinematic.css" in bundle_header, f"{label}: cinematic stylesheet is not included in {bundle}"
+        assert f'./{bundle}?v=' in source, f"{label}: generated stylesheet bundle is not loaded"
         assert "family=Caveat" in source, f"{label}: handwritten annotation font is not loaded"
         assert 'href="#main-content"' in source, f"{label}: keyboard skip link is missing"
 
@@ -76,7 +85,13 @@ def main() -> None:
                 page = context.new_page()
                 page.goto(base + "/" + filename, wait_until="domcontentloaded")
                 page.wait_for_selector("main#main-content")
-                assert page.locator("link[href*='cinematic.css']").count() == 1, f"{filename}: visual system stylesheet missing"
+                expected_bundle = {
+                    "index.html": "toki-home.css",
+                    "library.html": "toki-archive.css",
+                    "policies.html": "toki-policies.css",
+                    "404.html": "toki-404.css",
+                }[filename]
+                assert page.locator(f"link[rel='stylesheet'][href*='{expected_bundle}']").count() == 1, f"{filename}: visual system bundle missing"
 
                 for width in VIEWPORTS:
                     page.set_viewport_size({"width": width, "height": 850})
