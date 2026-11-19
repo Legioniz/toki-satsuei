@@ -118,8 +118,11 @@ def main() -> None:
         actual = tuple(script for script in parser.scripts if script in expected)
         if actual != expected or len(parser.scripts) != len(expected):
             failures.append(f"{page} has an incomplete or unexpected controller stack: {parser.scripts}")
-        if page != "404.html" and "motion-system.css" not in parser.styles:
-            failures.append(f"{page} is missing the shared motion stylesheet")
+        bundle_header = (ROOT / parser.styles[0]).read_text(encoding="utf-8").splitlines()[0] if len(parser.styles) == 1 else ""
+        if len(parser.styles) != 1:
+            failures.append(f"{page} should link exactly one bundled stylesheet, found {parser.styles}")
+        if page != "404.html" and "motion-system.css" not in bundle_header:
+            failures.append(f"{page} bundle is missing the shared motion stylesheet")
 
     for retired in ("facebook-feed.js", "facebook-posts.json"):
         if (ROOT / retired).exists():
@@ -127,8 +130,12 @@ def main() -> None:
 
     linked_styles = {asset for refs in page_refs.values() for asset in refs.styles}
     linked_scripts = {asset for refs in page_refs.values() for asset in refs.scripts}
+    bundled_sources = set()
+    for bundle in linked_styles:
+        header = (ROOT / bundle).read_text(encoding="utf-8").splitlines()[0]
+        bundled_sources.update(re.findall(r"([a-z0-9-]+\.css)", header.split("from", 1)[-1]))
     for asset in sorted(path.name for path in ROOT.glob("*.css")):
-        if asset not in linked_styles:
+        if asset not in linked_styles and asset not in bundled_sources:
             failures.append(f"Unreferenced production stylesheet: {asset}")
     for asset in sorted(path.name for path in ROOT.glob("*.js")):
         if asset not in linked_scripts:
@@ -172,7 +179,7 @@ def main() -> None:
             failures.append("Pages artifact omits required runtime files: " + ", ".join(missing))
     if "cp -R media-library dist/" not in workflow:
         failures.append("Pages artifact does not include the uploadable media-library shelves")
-    for asset in ("site.js", "library.js", "library.css", "cinematic.css", "motion-system.css"):
+    for asset in ("site.js", "library.js", "toki-home.css", "toki-archive.css", "toki-policies.css", "toki-404.css"):
         if f"test -s dist/{asset}" not in workflow:
             failures.append(f"Pages artifact does not assert that {asset} was packaged")
 

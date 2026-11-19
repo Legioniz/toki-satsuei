@@ -435,3 +435,16 @@ form?.addEventListener("submit",async event=>{
 });
 const year=document.querySelector("#year");if(year)year.textContent=String(new Date().getFullYear());
 })();
+
+// Adaptive orientation: expose the current orientation to CSS/tests and reset the open menu when the layout changes.
+(function(){
+  const portrait=window.matchMedia("(orientation: portrait)");
+  const apply=()=>{document.documentElement.dataset.orientation=portrait.matches?"portrait":"landscape";};
+  apply();
+  const onChange=()=>{
+    apply();
+    const openNav=document.querySelector(".primary-nav.is-open");
+    if(openNav)document.querySelector(".menu-toggle")?.click();
+  };
+  portrait.addEventListener?.("change",onChange);
+})();

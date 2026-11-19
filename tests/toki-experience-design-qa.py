@@ -26,7 +26,8 @@ def main() -> None:
     pages = ["index.html", "library.html", "policies.html", "404.html"]
     for filename in pages:
         source = (ROOT / filename).read_text(encoding="utf-8")
-        assert "experience.css?v=" in source, f"{filename}: experience layer is not loaded"
+        bundle_name = {"index.html": "toki-home.css", "library.html": "toki-archive.css", "policies.html": "toki-policies.css", "404.html": "toki-404.css"}[filename]
+        assert "experience.css" in (ROOT / bundle_name).read_text(encoding="utf-8").splitlines()[0], f"{filename}: experience layer is not bundled"
 
     css = (ROOT / "experience.css").read_text(encoding="utf-8")
     for selector in [

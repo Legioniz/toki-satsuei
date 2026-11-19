@@ -55,6 +55,11 @@ jobs:
 
       - name: Verify responsive layouts
         run: python tests/toki-layout-browser-qa.py
+      - name: Run orientation QA
+        run: python tests/toki-orientation-qa.py
+
+      - name: Verify CSS bundles are current
+        run: python tests/toki-css-bundle-qa.py
 
       - name: Verify adaptive interactions
         run: python tests/toki-adaptive-interaction-qa.py
@@ -89,29 +94,22 @@ jobs:
           set -euo pipefail
           rm -rf dist
           mkdir -p dist
-          cp index.html library.html policies.html 404.html styles.css library.css refinement.css policies.css cinematic.css experience.css fixes.css pages.css design-system.css availability.css motion-system.css motion-system.js site.js availability.js library.js media-library.json robots.txt sitemap.xml dist/
+          cp index.html library.html policies.html 404.html toki-home.css toki-archive.css toki-policies.css toki-404.css motion-system.js site.js availability.js library.js media-library.json robots.txt sitemap.xml dist/
           cp -R media-library dist/
           touch dist/.nojekyll
           test -s dist/index.html
           test -s dist/library.html
           test -s dist/policies.html
           test -s dist/404.html
-          test -s dist/policies.css
-          test -s dist/library.css
-          test -s dist/cinematic.css
-          test -s dist/experience.css
-          test -s dist/fixes.css
-          test -s dist/pages.css
-          test -s dist/design-system.css
+          test -s dist/toki-home.css
+          test -s dist/toki-archive.css
+          test -s dist/toki-policies.css
+          test -s dist/toki-404.css
           test -s dist/robots.txt
           test -s dist/sitemap.xml
-          test -s dist/styles.css
-          test -s dist/refinement.css
-          test -s dist/motion-system.css
           test -s dist/motion-system.js
           test -s dist/site.js
           test -s dist/availability.js
-          test -s dist/availability.css
           test -s dist/library.js
           test -s dist/media-library.json
 
