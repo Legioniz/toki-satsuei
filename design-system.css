@@ -150,3 +150,26 @@ body{font-size:var(--step-0);-webkit-font-smoothing:antialiased;text-rendering:o
   *,::before,::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
   .hero-copy>*{animation:none}
 }
+
+/* 7. FINAL TOKI POLISH -----------------------------------------------------
+   A quiet Nothing-inspired layer: type and spacing carry the hierarchy, while
+   the existing warm paper / charcoal / crimson identity and official assets stay.
+*/
+:root{--c-mono:"Space Mono","DM Mono",monospace;--c-display:"Space Grotesk","DM Sans",Arial,sans-serif}
+.hero-proof{display:flex;flex-wrap:wrap;gap:8px 18px;margin:20px 0 0;color:#d0c7bc;font:11px/1.4 var(--c-mono);letter-spacing:.09em}
+.hero-proof span{display:inline-flex;align-items:center;gap:8px}
+.hero-proof span+span::before{content:"/";color:var(--c-accent-hi)}
+.hero-proof span:first-child{color:#fff}
+.hero-proof span:first-child::before{content:"";width:5px;height:5px;background:var(--c-accent-hi);border-radius:50%}
+.site-header,.announcement{background:#000}
+.site-header.is-scrolled{box-shadow:none}
+.button:hover,.form-submit:not(:disabled):hover,.gallery-card:hover,.package-card:hover{box-shadow:none}
+.gallery-card,.package-card{border-radius:0}
+.gallery-card{contain:layout paint}
+.work-section,.services-section,.availability-section,.process-section,.about-section,.faq-section{content-visibility:auto;contain-intrinsic-size:700px}
+.inquiry-form .form-submit{font-family:var(--c-mono);letter-spacing:.09em}
+@media (max-width:680px){
+  .hero-proof{max-width:34ch;gap:7px 12px;margin-top:17px;font-size:10px;line-height:1.55}
+  .hero-proof span+span::before{display:none}
+  .hero-proof span{border-bottom:1px solid rgba(255,255,255,.22);padding-bottom:3px}
+}
