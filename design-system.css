@@ -173,3 +173,17 @@ body{font-size:var(--step-0);-webkit-font-smoothing:antialiased;text-rendering:o
   .hero-proof span+span::before{display:none}
   .hero-proof span{border-bottom:1px solid rgba(255,255,255,.22);padding-bottom:3px}
 }
+
+
+/* Second-pass preserve mode: keep the editorial identity, remove competing motion. */
+@media (hover:hover) and (pointer:fine) {
+  .button:hover, .service-row:hover, .package-card:hover { transform: none; }
+}
+html.motion-ready [data-reveal] { transition-duration: 240ms; transition-timing-function: cubic-bezier(.2,.7,.2,1); }
+.site-header { transition: transform .22s ease-out, background-color .22s ease-out, height .22s ease-out; }
+.hero-opening .hero-photo { transition: none; }
+*:focus-visible { outline: 2px solid var(--red-bright); outline-offset: 3px; }
+.calendar-days[aria-busy="true"] { cursor: progress; }
+.archive-static-note { margin: 0 0 24px; color: #625d57; font-size: 12px; line-height: 1.8; }
+.archive-static-note a { color: var(--red); text-decoration: underline; text-underline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { html.motion-ready [data-reveal] { transition: none !important; } }

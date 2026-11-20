@@ -120,6 +120,7 @@
     monthHeading.textContent = monthFormatter.format(new Date(displayedMonth + "-01T00:00:00Z"));
     daysGrid.setAttribute("aria-label", "Dates in " + monthHeading.textContent);
     daysGrid.setAttribute("aria-busy", String(!loadedForMonth));
+    daysGrid.setAttribute("role", "grid");
     countText.textContent = loadedForMonth
       ? bookingCount() + " BOOKED " + (bookingCount() === 1 ? "SLOT" : "SLOTS")
       : "SYNCING";
@@ -133,6 +134,7 @@
     for (let blank = 0; blank < firstWeekday; blank += 1) {
       const spacer = document.createElement("span");
       spacer.className = "calendar-day-empty";
+      spacer.setAttribute("role", "gridcell");
       spacer.setAttribute("aria-hidden", "true");
       fragment.appendChild(spacer);
     }
@@ -147,6 +149,7 @@
       const button = document.createElement("button");
       button.type = "button";
       button.className = "calendar-day";
+      button.setAttribute("role", "gridcell");
       button.textContent = String(day);
       button.dataset.date = dateKey;
       button.setAttribute("aria-pressed", String(isSelected));

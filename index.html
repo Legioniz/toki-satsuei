@@ -56,7 +56,7 @@
     @media(max-width:680px){.hero-opening{min-height:max(640px,calc(100svh - 100px));min-height:max(640px,calc(100dvh - 100px))}.hero-opening .hero-bottom-rule{align-items:flex-start;flex-wrap:wrap}.hero-opening .hero-bottom-rule span:first-child{white-space:nowrap}.hero-opening .hero-bottom-rule span:last-child{max-width:100%;text-align:left}}
     @media(max-height:560px) and (orientation:landscape){.hero-opening{min-height:540px;padding-top:64px;padding-bottom:64px}.hero-opening h1{font-size:clamp(48px,7.5vw,74px)}.hero-opening .hero-footnote{margin-top:18px}.hero-opening .hero-bottom-rule{padding-block:9px}.hero-opening .hero-frame{display:none}}
   </style>
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
   <script src="./motion-system.js?v=20261114-global-motion-6" defer></script>
   <script src="./site.js?v=20261116-booking-terms-1-2" defer></script>
   <script src="./availability.js?v=20261116-calendar-major-3-2" defer></script>
@@ -171,7 +171,7 @@
     <section class="sessions-section section-wrap" id="sessions">
       <div class="section-heading" data-reveal="up">
         <div><p class="eyebrow">Session guide</p><h2>Choose your <em>pace.</em></h2></div>
-        <p class="section-aside">A starting point for planning your shoot. We'll confirm availability, location, and the final details through chat.</p>
+        <p class="section-aside">A starting point for planning your shoot. We'll confirm availability, location, and the final details through your selected contact channel.</p>
       </div>
       <div class="package-grid" data-reveal="up" role="group" aria-label="Choose a photography session">
         <article class="package-card" data-reveal="up" data-session="Quick Snap" data-session-title="Quick Snap">
@@ -217,7 +217,7 @@
         <div><small>DELIVERY</small><p>Edited photos and selected unedited JPEGs through Google Drive, within 7 days.</p></div>
         <div><small>LOCATION</small><p>Free transportation within Quezon City. Travel outside QC is discussed before confirmation.</p></div>
       </div>
-      <p class="price-note">Prices and session details are subject to confirmation when booking. Please message us before making a trip or payment.</p>
+      <p class="price-note">Prices and session details are subject to confirmation when booking. Please message us before making a trip or payment. Outdoor, event, and custom coverage is scoped with you before confirmation.</p>
     </section>
 
     <section class="availability-section section-wrap" id="availability" aria-labelledby="availability-title">
@@ -267,7 +267,7 @@
             <div class="calendar-weekdays" aria-hidden="true">
               <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
             </div>
-            <div class="calendar-days" id="availability-days" aria-label="Calendar dates" aria-live="off" aria-busy="true"></div>
+            <div class="calendar-days" id="availability-days" role="grid" aria-label="Calendar dates" aria-live="off" aria-busy="true"></div>
             <p class="calendar-footnote">Select a date to see its confirmed time windows. Unmarked dates are not a reservation.</p>
           </div>
         </div>
@@ -371,7 +371,7 @@
           <p>Have a question before sending a request? Message us and we’ll help you plan the details.</p>
           <div class="hero-actions">
             <a class="button button-red" href="https://www.facebook.com/tokisatsuiephotography/" target="_blank" rel="noopener noreferrer">Message us on Facebook <span>↗</span></a>
-            <a class="text-link" href="https://www.instagram.com/tokisatsuiephotography/" target="_blank" rel="noopener noreferrer">Follow us on Instagram <span>↗</span></a>
+            <a class="text-link" href="https://www.instagram.com/tokisatsuiephotography/" target="_blank" rel="noopener noreferrer">Ask a question first on Instagram <span>↗</span></a>
           </div>
         </div>
         <form class="inquiry-form" id="inquiry-form" data-booking-terms-version="2026-11-16-v1" data-reveal="right" aria-labelledby="booking-form-title">

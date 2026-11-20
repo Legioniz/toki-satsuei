@@ -73,9 +73,9 @@ def main() -> None:
     assert "private Supabase booking table" in policies and "does not reserve a date" in policies.lower()
     assert 'id="toki-turnstile"' in index
     assert 'data-sitekey="0x4AAAAAAGDDFcLp8PfycH-f"' in index
-    assert 'src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"></script>' in index
-    assert 'api.js?render=explicit" defer' not in index
-    assert 'api.js?render=explicit" async' not in index
+    assert 'src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>' in index
+    assert 'window.addEventListener("load",mountTurnstile' in site
+    assert 'window.addEventListener("toki-turnstile-ready",mountTurnstile)' in site
     assert 'action:"toki_booking"' in site
     assert 'size:"flexible"' in site
     assert '"error-callback":handleTurnstileError' in site

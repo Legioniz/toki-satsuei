@@ -13,19 +13,21 @@ const hoverPointer=window.matchMedia("(hover: hover) and (pointer: fine)").match
 let reducedMotion=reduceMotionQuery.matches;
 
 function setMenuOpen(open,returnFocus=false){
-  if(!menuButton||!nav)return;
-  if(window.TokiMotion?.setMenuOpen)window.TokiMotion.setMenuOpen(menuButton,nav,open);
+  if(!menuButton||!nav)return Promise.resolve();
+  let transition=Promise.resolve();
+  if(window.TokiMotion?.setMenuOpen)transition=window.TokiMotion.setMenuOpen(menuButton,nav,open);
   else{
     nav.classList.toggle("is-open",open);
     menuButton.setAttribute("aria-expanded",String(open));
     menuButton.setAttribute("aria-label",open?"Close navigation":"Open navigation");
   }
   if(open)setHeaderHidden(false);
-  if(!open&&returnFocus)menuButton.focus();
+  if(!open&&returnFocus)transition.then(()=>menuButton.focus({preventScroll:true}));
+  return transition;
 }
 if(menuButton&&nav){
   menuButton.addEventListener("click",()=>setMenuOpen(menuButton.getAttribute("aria-expanded")!=="true"));
-  nav.querySelectorAll("a").forEach(link=>link.addEventListener("click",()=>setMenuOpen(false)));
+  nav.querySelectorAll("a").forEach(link=>link.addEventListener("click",()=>setMenuOpen(false,true)));
   document.addEventListener("click",event=>{
     if(nav.classList.contains("is-open")&&!siteHeader?.contains(event.target))setMenuOpen(false);
   });
@@ -154,7 +156,7 @@ const lightboxPosition=document.querySelector(".lightbox-position");
 const lightboxPrevious=document.querySelector(".lightbox-prev");
 const lightboxNext=document.querySelector(".lightbox-next");
 const visibleGalleryCards=()=>galleryCards.filter(card=>!card.hidden);
-let lightboxCards=[],lightboxIndex=0,touchStartX=0,touchStartY=0;
+let lightboxCards=[],lightboxIndex=0,touchStartX=0,touchStartY=0,lightboxReturnFocus=null;
 function renderLightboxFrame(){
   const card=lightboxCards[lightboxIndex];if(!card)return;
   const updateImage=()=>{
@@ -171,6 +173,7 @@ function renderLightboxFrame(){
   lightboxPrevious.disabled=!multiple;lightboxNext.disabled=!multiple;
 }
 function openLightbox(card){
+  lightboxReturnFocus=document.activeElement;
   lightboxCards=visibleGalleryCards();
   lightboxIndex=Math.max(0,lightboxCards.indexOf(card));
   renderLightboxFrame();
@@ -201,7 +204,7 @@ lightbox?.addEventListener("touchend",event=>{
   const dx=touch.clientX-touchStartX,dy=touch.clientY-touchStartY;
   if(Math.abs(dx)>44&&Math.abs(dx)>Math.abs(dy)*1.2)stepLightbox(dx<0?1:-1);
 },{passive:true});
-lightbox?.addEventListener("close",()=>{lightboxImage?.removeAttribute("src");lightboxCards=[];lightboxIndex=0;});
+lightbox?.addEventListener("close",()=>{lightboxImage?.removeAttribute("src");lightboxCards=[];lightboxIndex=0;const returnTarget=lightboxReturnFocus;lightboxReturnFocus=null;if(returnTarget&&typeof returnTarget.focus==="function")window.setTimeout(()=>returnTarget.focus({preventScroll:true}),0);});
 document.addEventListener("keydown",event=>{
   if(!lightbox?.open)return;
   if(event.key==="ArrowRight"){event.preventDefault();stepLightbox(1);}
@@ -301,6 +304,8 @@ function mountTurnstile(){
   });
 }
 if(window.turnstile?.ready)window.turnstile.ready(mountTurnstile);
+window.addEventListener("toki-turnstile-ready",mountTurnstile);
+window.addEventListener("load",mountTurnstile,{once:true});
 function readTurnstileToken(){
   if(!turnstileWidgetId||!window.turnstile?.getResponse)return "";
   return window.turnstile.getResponse(turnstileWidgetId)||"";
