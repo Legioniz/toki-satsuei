@@ -303,7 +303,8 @@ function mountTurnstile(){
     "timeout-callback":()=>updateBookingStatus("Human verification timed out. Please complete the challenge again.","error")
   });
 }
-if(window.turnstile?.ready)window.turnstile.ready(mountTurnstile);
+// The Turnstile script is loaded with async/defer. Use the load event rather than
+// turnstile.ready(), which Cloudflare rejects when those script attributes are present.
 window.addEventListener("toki-turnstile-ready",mountTurnstile);
 window.addEventListener("load",mountTurnstile,{once:true});
 function readTurnstileToken(){
