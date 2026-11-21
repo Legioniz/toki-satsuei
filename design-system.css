@@ -184,6 +184,13 @@ html.motion-ready [data-reveal] { transition-duration: 240ms; transition-timing-
 .hero-opening .hero-photo { transition: none; }
 *:focus-visible { outline: 2px solid var(--red-bright); outline-offset: 3px; }
 .calendar-days[aria-busy="true"] { cursor: progress; }
-.archive-static-note { margin: 0 0 24px; color: #625d57; font-size: 12px; line-height: 1.8; }
-.archive-static-note a { color: var(--red); text-decoration: underline; text-underline-offset: 3px; }
+.archive-static-note { margin: 0 0 24px; color: #a8a197; font-size: 12px; line-height: 1.8; }
+.archive-static-note a { color: #e8828d; text-decoration: underline; text-underline-offset: 3px; }
 @media (prefers-reduced-motion: reduce) { html.motion-ready [data-reveal] { transition: none !important; } }
+
+/* Touch targets: 48px for primary controls, 44px for standalone links and the skip link, 24px checkboxes (WCAG 2.2 SC 2.5.8) */
+.package-card .package-link { min-height: 48px; align-items: center; }
+.skip-link { min-height: 44px; display: inline-flex; align-items: center; }
+.faq-aside a, .booking-terms-panel a { display: inline-flex; align-items: center; min-height: 44px; }
+.inquiry-form .booking-consent { grid-template-columns: 24px minmax(0, 1fr); }
+.inquiry-form .booking-consent input[type="checkbox"] { width: 24px; min-width: 24px; height: 24px; min-height: 24px; margin: 0; }

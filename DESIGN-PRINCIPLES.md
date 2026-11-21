@@ -73,3 +73,9 @@ One stylesheet, loaded last, owns the visual language. Change a token and the wh
 - **Adaptive:** fluid type and gutters; `orientation` and `max-height` rules for phones in landscape; safe-area insets for notches; `dvh/svh` units; `hover:none` and `pointer:coarse` handling; `prefers-reduced-motion` and `prefers-contrast`.
 - **Motion:** cross-document view transitions (header stays fixed), staggered hero entrance, press and hover feedback, all disabled for reduced motion.
 - **New components should use tokens, not raw values.**
+
+## Touch targets and semantics
+
+- Primary controls are at least 48px tall; standalone links and the skip link at least 44px; checkboxes 24px (WCAG 2.2 SC 2.5.8 requires 24px).
+- The availability calendar is a labelled `group` of date buttons. Do not use `role="grid"` unless rows, column headers and arrow-key navigation are implemented.
+- Run the accessibility scan after design changes: every public page should report zero axe violations.
