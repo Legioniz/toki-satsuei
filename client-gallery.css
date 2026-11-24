@@ -59,10 +59,10 @@ body[hidden]{
   margin:0 0 var(--s-2);
 }
 .client-auth-card p{
-  font-size:13px;
-  color:#9a9187;
+  font-size:15px;
+  color:#d4ccc2;
   margin:0 0 var(--s-4);
-  line-height:1.7;
+  line-height:1.75;
 }
 
 .client-session-banner{
@@ -83,8 +83,9 @@ body[hidden]{
 }
 .client-banner-copy p{
   margin:0;
-  color:#a39b90;
-  font-size:13px;
+  color:#d4ccc2;
+  font-size:15px;
+  line-height:1.65;
 }
 .client-selection-summary{
   background:#1d1a18;

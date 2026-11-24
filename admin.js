@@ -175,6 +175,15 @@
     metricDelivered.textContent = String(allBookings.filter(b => b.status === "delivered").length);
   }
 
+  function formatSessionAddons(b) {
+    const parts = [];
+    const photos = Number(b.additional_photos || 0);
+    const mins = Number(b.additional_time || 0);
+    if (photos > 0) parts.push(`+${photos} photo${photos === 1 ? "" : "s"}`);
+    if (mins > 0) parts.push(`+${mins} mins`);
+    return parts.length ? ` (${parts.join(", ")})` : "";
+  }
+
   function renderTable() {
     const filtered = allBookings.filter(b => {
       const matchesFilter = currentFilter === "all" || b.status === currentFilter;
@@ -211,8 +220,8 @@
             <div style="font-size:11px;color:var(--admin-subtext);font-family:var(--c-mono, monospace);">${escapeHtml(b.contact_method || "")}: ${escapeHtml(b.contact_value || "")}</div>
           </td>
           <td>
-            <div style="color:#ede6dd;">${escapeHtml(b.session_type || "Session")}</div>
-            <div style="font-size:11px;color:var(--admin-subtext);">${escapeHtml(b.confirmed_date || b.preferred_date || "—")} (${escapeHtml(b.preferred_time || "—")})</div>
+            <div style="color:#ede6dd;">${escapeHtml((b.session_type || "Session") + formatSessionAddons(b))}</div>
+            <div style="font-size:12px;color:var(--admin-subtext);">${escapeHtml(b.confirmed_date || b.preferred_date || "—")} (${escapeHtml(b.preferred_time || "—")})</div>
           </td>
           <td><span class="status-tag ${statusClass}">${escapeHtml((b.status || "new").replaceAll("_", " "))}</span></td>
           <td>
@@ -256,7 +265,7 @@
     modalBookingRef.textContent = b.reference_code || "TOKI-";
     modalClientName.textContent = b.name || "Client";
     modalContactInfo.textContent = `${b.contact_method || "Contact"}: ${b.contact_value || "—"}`;
-    modalSessionType.textContent = b.session_type || "—";
+    modalSessionType.textContent = (b.session_type || "—") + formatSessionAddons(b);
     modalRequestedDateTime.textContent = `${b.preferred_date || "—"} at ${b.preferred_time || "—"}${b.alternate_date ? ` (Alt: ${b.alternate_date})` : ""}`;
     modalParticipantsLocation.textContent = `${b.participants || 1} participant(s) at ${b.location || "Quezon City"}`;
     modalClientNotes.textContent = b.notes || "No additional notes provided.";

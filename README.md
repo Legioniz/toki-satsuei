@@ -36,6 +36,7 @@ The build scans those folders and generates `media-library.json` automatically. 
 python -m pip install -r requirements-test.txt
 python -m playwright install --with-deps chromium
 python scripts/build-toki-media-library.py
+python scripts/build-css.py --check
 python tests/toki-layout-browser-qa.py
 python tests/toki-adaptive-interaction-qa.py
 python tests/toki-experience-design-qa.py
@@ -44,6 +45,14 @@ python tests/toki-booking-browser-qa.py
 python tests/toki-availability-calendar-qa.py
 python tests/toki-cinematic-design-qa.py
 python tests/toki-asset-integration-qa.py
+python tests/toki-css-bundle-qa.py
+python tests/toki-orientation-qa.py
+python tests/toki-pricing-calculator-qa.py
+python tests/toki-admin-dashboard-qa.py
+python tests/toki-client-gallery-qa.py
+python tests/toki-email-notification-qa.py
+python tests/toki-security-static-qa.py
+python tests/toki-live-http-security-qa.py
 ```
 
 ## Booking, privacy, and image consent
@@ -62,20 +71,20 @@ The homepage includes a live monthly calendar backed by the separate `toki-calen
 
 ## Runtime integration map
 
-The site is delivered as four static pages with shared behavior and page-specific controllers:
+The site is delivered as six static pages backed by unified bundled CSS (`scripts/build-css.py`), shared progressive motion/effects, and modular JavaScript controllers:
 
 | File | Used by | Responsibility |
 | --- | --- | --- |
-| `styles.css`, `refinement.css`, `cinematic.css`, `motion-system.css` | All public pages | Foundation, refinements, cinematic art direction, and shared motion |
-| `library.css` | `library.html` | Archive layout and album presentation |
-| `policies.css` | Home, policies, and 404 pages | Policy-page and shared long-form page details |
-| `motion-system.js` | Home, archive, and policies | Shared motion, menu, and dialog helpers |
-| `site.js` | Home, archive, and policies | Shared navigation, header behavior, page progress, and home-page interactions |
+| `toki-home.css`, `toki-archive.css`, `toki-policies.css`, `toki-404.css`, `toki-admin.css`, `toki-client.css` | All pages | Validated page bundles compiled by `scripts/build-css.py` from `styles.css`, `refinement.css`, `policies.css`, `availability.css`, `motion-system.css`, `cinematic.css`, `experience.css`, `fixes.css`, `pricing-calculator.css`, `library.css`, `pages.css`, `admin.css`, `client-gallery.css`, `design-system.css`, and `orientation.css` |
+| `motion-system.js` | Home, archive, policies, admin, client gallery | Shared darkroom optical HUD, shutter flash transitions, 3D hover tilt, scroll parallax, menu, and dialog helpers |
+| `site.js` | Home, archive, and policies | Navigation, page progress, interactive pricing calculator + booking sheet synchronization, Web Audio feedback, and Supabase intake relay |
 | `availability.css` + `availability.js` | `index.html` | Public monthly calendar, confirmed-date feed, Manila month rollover, inquiry prefill, and minute refresh |
 | `library.js` | `library.html` | Archive filters, search, media manifest, and album viewer |
+| `admin.js` + `admin.html` | Studio operations console | Authenticated booking inbox management, pricing/add-ons inspection, confirmation windows, and token generation |
+| `client-gallery.js` + `client-gallery.html` | Private client gallery | Token-gated photo delivery and client favorite selection |
 | `media-library.json` + `media-library/` | `library.html` | Generated archive index and uploaded media |
 
-Scripts load with `defer` in dependency order: shared motion first, shared page behavior second, and page-specific behavior last. Controllers are scoped so local declarations cannot collide. The archive manifest separates image, video, and total-media counts; the interface labels the combined count as items instead of treating videos as photographs. The asset-integration QA verifies local links, script ordering, runtime data dependencies, media-manifest totals, stylesheet/script usage, and the standalone Pages package. Empty category folders under `media-library/` are intentional upload shelves, not unused assets.
+Scripts load with `defer` in dependency order: shared motion first, shared page behavior second, and page-specific behavior last. Controllers are scoped so local declarations cannot collide. The archive manifest separates image, video, and total-media counts; the interface labels the combined count as items instead of treating videos as photographs. Every HTML asset reference, bundle checksum, test runner entry in `.github/workflows/deploy.yml`, and backend migration stays synchronized and is verified by `tests/toki-asset-integration-qa.py` and `tests/toki-css-bundle-qa.py`. Empty category folders under `media-library/` are intentional upload shelves, not unused assets.
 
 
 ## Booking form human verification

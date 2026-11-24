@@ -229,7 +229,7 @@ async function sendTokiBookingNotification(booking: Record<string, unknown>) {
       signal: controller.signal,
     })
     // Make's default Custom Webhook response is HTTP 200 with plain-text "Accepted".
-    // That confirms queue acceptance, not successful completion of later Gmail/Sheets modules.
+    // That confirms queue acceptance, not successful completion of downstream Gmail notification delivery.
     if (!result.ok) {
       console.warn('TOKI Make webhook rejected the booking notification:', result.status)
       return 'failed'

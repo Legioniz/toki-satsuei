@@ -11,13 +11,12 @@
 
 ## Visual system
 
-- Mode: Redesign · Preserve.
-- Palette: OLED black, warm ivory paper, charcoal surfaces, restrained crimson accent `#A31F2D` / `#C32A39`.
-- Display type: existing Cormorant Garamond remains for the editorial voice.
-- UI and metadata: Space Mono is loaded for instrument-panel labels and the new hero proof line; Space Grotesk is available for future UI expansion.
-- Spacing: existing 8pt token system.
-- Shape: square editorial blocks, thin rules, no decorative rounded cards.
-- Motion: restrained ease-out, reduced-motion safe, no new interaction depends on animation.
+- Mode: Unified Darkroom Studio Design System (`design-system.css` + bundled `toki-*.css`).
+- Palette: OLED black (`#09090b`), warm archival paper (`#ede7dc`), charcoal surfaces, crimson accent `#A31F2D` / `#C32A39`, and warm brass/gold `#d8a448` / `#ecc77e`.
+- Display type: Cormorant Garamond (`0.94–1.02` line-height) for editorial headlines; DM Sans (`>=15px` body floor) for effortless prose reading.
+- UI and metadata: Space Mono (`>=12.5px`) for labels, telemetry controls, pricing math, and calendar indicators.
+- Spacing & layout: 8pt spacing tokens, spacious full-width booking sheet, clean matte backgrounds free of distracting ruled lines behind prose.
+- Motion: Optical darkroom viewfinder HUD, shutter flash curtain, 3D tilt cards, film sprocket parallax, and reduced-motion parity (`prefers-reduced-motion: reduce` keeps static vector geometry visible without vestibular movement).
 
 ## Protected contracts
 

@@ -4,9 +4,9 @@
   --admin-card:#161514;
   --admin-card-border:#2e2823;
   --admin-text:#ece6dc;
-  --admin-subtext:#9e9488;
+  --admin-subtext:#c4bab0;
   --admin-accent:#c32a39;
-  --admin-accent-soft:#e27b84;
+  --admin-accent-soft:#e88c94;
 }
 
 body.admin-body{
@@ -71,7 +71,8 @@ body.admin-body{
   color:#f4f1ea;
 }
 .admin-auth-gate p{
-  font-size:13px;
+  font-size:15px;
+  line-height:1.72;
   color:var(--admin-subtext);
   margin:0 0 var(--s-4);
 }
