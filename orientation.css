@@ -1,0 +1,39 @@
+/* Adaptive screen orientation. Portrait and landscape are treated as different layouts, not one layout stretched.
+   Rules: use dynamic viewport units (dvh), respect notch safe areas, keep controls reachable when height is scarce. */
+:root{ --safe-l: env(safe-area-inset-left, 0px); --safe-r: env(safe-area-inset-right, 0px); --safe-b: env(safe-area-inset-bottom, 0px); }
+
+/* Open mobile menu never runs off a short screen: it scrolls inside itself.
+   The extra 40px covers the announcement bar that sits above the header at the top of the page. */
+@media (max-width: 1024px){
+  .primary-nav.is-open{ max-height: calc(100vh - 110px); max-height: calc(100dvh - 110px - var(--safe-b)); overflow-y: auto; overscroll-behavior: contain; }
+}
+
+/* Touch devices turned sideways: keep content clear of the notch and rounded corners. */
+@media (orientation: landscape) and (hover: none){
+  .site-header{ padding-left: max(24px, var(--safe-l)); padding-right: max(24px, var(--safe-r)); }
+  .section-wrap{ width: min(var(--wrap), calc(100vw - var(--safe-l) - var(--safe-r) - 32px)); }
+  .announcement, .site-footer .footer-bottom{ padding-left: max(16px, var(--safe-l)); padding-right: max(16px, var(--safe-r)); }
+}
+
+/* Phones in landscape: height is the scarce resource, so spend it carefully. */
+@media (orientation: landscape) and (max-height: 500px){
+  html .site-header, html .site-header.is-scrolled{ height: 56px; min-height: 56px; }
+  html .primary-nav{ top: 56px; }
+  .primary-nav.is-open{ max-height: calc(100vh - 96px); max-height: calc(100dvh - 96px - var(--safe-b)); }
+  .section-wrap{ padding-block: clamp(32px, 9vh, 56px); }
+  .hero{ min-height: 0; padding-top: 32px; padding-bottom: 24px; grid-template-columns: 1fr 1fr; gap: 4%; }
+  .hero-copy h1{ font-size: clamp(2rem, 12vh, 3.4rem); }
+  .hero-art{ max-height: 70vh; max-height: 70dvh; }
+  .album-dialog{ width: calc(100vw - 16px - var(--safe-l) - var(--safe-r)); max-height: calc(100vh - 16px); max-height: calc(100dvh - 16px); }
+  .album-dialog-panel{ max-height: calc(100vh - 16px); max-height: calc(100dvh - 16px); }
+}
+
+/* Tablets held upright: the page has height to spare, so give sections more room. */
+@media (orientation: portrait) and (min-width: 700px){
+  .hero{ min-height: 0; }
+  .section-wrap{ padding-block: clamp(72px, 8vh, 112px); }
+}
+
+/* Dialogs follow the visible viewport, not the largest possible one. */
+.album-dialog{ max-height: min(86vh, calc(100dvh - 24px)); }
+.album-dialog-panel{ max-height: min(86vh, calc(100dvh - 24px)); }

@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="robots" content="noindex,nofollow">
+  <title>TOKI SATSUEI — Studio Operations Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./toki-admin.css?v=20261124-hidden-scroll-1">
+  <link rel="icon" href="https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/30515ce50_Toki_Satsuei_Brushstroke_Emblem.png" type="image/png">
+  <script src="./motion-system.js?v=20261124-cinematic-motion-1" defer></script>
+  <script src="./admin.js?v=20261123-admin-1" defer></script>
+</head>
+<body class="admin-body">
+  <a class="skip-link" href="#main-content">Skip to operations content</a>
+
+  <header class="admin-header" id="top">
+    <div class="admin-brand">
+      <a href="./index.html" aria-label="TOKI SATSUEI Home">
+        <img src="https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/30515ce50_Toki_Satsuei_Brushstroke_Emblem.png" alt="TOKI SATSUEI logo" width="32" height="32">
+      </a>
+      <span class="admin-badge">ADMINISTRATION CONSOLE</span>
+    </div>
+    <div class="admin-header-actions" id="admin-user-nav" hidden>
+      <span id="admin-user-email" style="font-family:var(--c-mono, monospace);font-size:12px;color:var(--admin-subtext);margin-right:12px;"></span>
+      <button type="button" class="admin-btn admin-btn-secondary" id="admin-logout-btn" style="width:auto;min-height:36px;padding:0 12px;">Sign Out</button>
+    </div>
+  </header>
+
+  <main id="main-content" class="admin-main">
+    <!-- Auth Gate Container -->
+    <section class="admin-auth-gate" id="admin-auth-section" aria-labelledby="auth-title">
+      <h2 id="auth-title">Studio Sign In</h2>
+      <p>Authorized access only. Sign in with your Supabase administrator account to manage bookings, payments, and client deliveries.</p>
+      <form id="admin-login-form">
+        <label for="admin-email" class="admin-field-label">Administrator Email</label>
+        <input type="email" id="admin-email" name="email" class="admin-input" required autocomplete="username" placeholder="owner@tokisatsuei.com">
+
+        <label for="admin-password" class="admin-field-label">Password</label>
+        <input type="password" id="admin-password" name="password" class="admin-input" required autocomplete="current-password" placeholder="••••••••••••">
+
+        <div id="admin-auth-error" role="alert" style="color:#f1a1a6;font-size:12px;margin-bottom:12px;display:none;"></div>
+
+        <button type="submit" class="admin-btn" id="admin-login-btn">Sign In to Console ↗</button>
+      </form>
+    </section>
+
+    <!-- Operational Dashboard Container -->
+    <section class="admin-dashboard-view" id="admin-dashboard-section" hidden aria-label="Booking Operations">
+      <!-- Metrics Row -->
+      <div class="admin-metrics" id="admin-metrics-row">
+        <div class="admin-metric-card">
+          <span>Inquiries</span>
+          <strong id="metric-total">0</strong>
+        </div>
+        <div class="admin-metric-card">
+          <span>Under Review</span>
+          <strong id="metric-review">0</strong>
+        </div>
+        <div class="admin-metric-card">
+          <span>Confirmed</span>
+          <strong id="metric-confirmed" style="color:#76d69e;">0</strong>
+        </div>
+        <div class="admin-metric-card">
+          <span>Editing</span>
+          <strong id="metric-editing">0</strong>
+        </div>
+        <div class="admin-metric-card">
+          <span>Delivered</span>
+          <strong id="metric-delivered" style="color:#85e39b;">0</strong>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="admin-toolbar">
+        <div class="admin-search-box">
+          <input type="search" id="admin-search-input" class="admin-input" placeholder="Search by client or reference (TOKI-)..." style="margin-bottom:0;" aria-label="Search bookings">
+        </div>
+        <div class="admin-filter-pills" role="group" aria-label="Filter bookings by status">
+          <button type="button" class="admin-pill is-active" data-status="all">All</button>
+          <button type="button" class="admin-pill" data-status="new">New</button>
+          <button type="button" class="admin-pill" data-status="under_review">Review</button>
+          <button type="button" class="admin-pill" data-status="awaiting_reservation_fee">Fee Pending</button>
+          <button type="button" class="admin-pill" data-status="confirmed">Confirmed</button>
+          <button type="button" class="admin-pill" data-status="completed">Completed</button>
+          <button type="button" class="admin-pill" data-status="delivered">Delivered</button>
+        </div>
+      </div>
+
+      <!-- Bookings Table -->
+      <div class="admin-table-container">
+        <table class="admin-table" aria-label="Inquiry and Booking Records">
+          <thead>
+            <tr>
+              <th scope="col">Reference</th>
+              <th scope="col">Client Name</th>
+              <th scope="col">Session & Date</th>
+              <th scope="col">Status</th>
+              <th scope="col">Payment</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admin-booking-tbody">
+            <tr>
+              <td colspan="6" style="text-align:center;padding:28px;color:var(--admin-subtext);">
+                Loading inquiries from database...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Booking Details Modal -->
+    <div class="admin-modal" id="admin-detail-modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-booking-ref">
+      <div class="admin-modal-card">
+        <div class="admin-modal-header">
+          <div>
+            <span class="admin-badge" id="modal-booking-ref">TOKI-000000</span>
+            <h3 id="modal-client-name" style="margin-top:6px;">Client Name</h3>
+          </div>
+          <button type="button" class="admin-close-btn" id="modal-close-btn" aria-label="Close modal">×</button>
+        </div>
+
+        <form id="admin-booking-form">
+          <input type="hidden" id="modal-booking-id">
+
+          <div class="admin-detail-grid">
+            <div>
+              <div class="admin-field-label">Contact Method & Handle</div>
+              <div class="admin-field-val" id="modal-contact-info"></div>
+            </div>
+            <div>
+              <div class="admin-field-label">Session Package</div>
+              <div class="admin-field-val" id="modal-session-type"></div>
+            </div>
+            <div>
+              <div class="admin-field-label">Requested Date & Time</div>
+              <div class="admin-field-val" id="modal-requested-datetime"></div>
+            </div>
+            <div>
+              <div class="admin-field-label">Participants & Location</div>
+              <div class="admin-field-val" id="modal-participants-location"></div>
+            </div>
+          </div>
+
+          <div style="margin-bottom:var(--s-4);">
+            <div class="admin-field-label">Client Notes</div>
+            <div class="admin-field-val" id="modal-client-notes" style="background:#131110;padding:10px 14px;border:1px solid #2e2823;font-size:13px;line-height:1.6;"></div>
+          </div>
+
+          <hr style="border:0;border-top:1px solid var(--admin-card-border);margin:var(--s-4) 0;">
+
+          <!-- Status & Schedule Management -->
+          <h4 style="font:500 20px var(--serif, 'Cormorant Garamond', serif);color:#f4f1ea;margin:0 0 12px;">Booking Status & Schedule</h4>
+          <div class="admin-detail-grid">
+            <div>
+              <label for="modal-status-select" class="admin-field-label">Status Progression</label>
+              <select id="modal-status-select" class="admin-input">
+                <option value="new">New Inquiry</option>
+                <option value="under_review">Under Review</option>
+                <option value="awaiting_reservation_fee">Awaiting Reservation Fee</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="editing">Editing</option>
+                <option value="ready_for_delivery">Ready for Delivery</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+            <div>
+              <label for="modal-confirmed-date" class="admin-field-label">Confirmed Shoot Date</label>
+              <input type="date" id="modal-confirmed-date" class="admin-input">
+            </div>
+            <div>
+              <label for="modal-start-time" class="admin-field-label">Confirmed Start Time (HH:MM:SS)</label>
+              <input type="time" step="1" id="modal-start-time" class="admin-input">
+            </div>
+            <div>
+              <label for="modal-end-time" class="admin-field-label">Confirmed End Time (HH:MM:SS)</label>
+              <input type="time" step="1" id="modal-end-time" class="admin-input">
+            </div>
+          </div>
+
+          <!-- Payment Management -->
+          <h4 style="font:500 20px var(--serif, 'Cormorant Garamond', serif);color:#f4f1ea;margin:var(--s-4) 0 12px;">Payment Tracking (PHP ₱)</h4>
+          <div class="admin-detail-grid">
+            <div>
+              <label for="modal-total-price" class="admin-field-label">Agreed Total Price (₱)</label>
+              <input type="number" step="0.01" id="modal-total-price" class="admin-input" placeholder="500.00">
+            </div>
+            <div>
+              <label for="modal-reservation-fee" class="admin-field-label">20% Reservation Fee (₱)</label>
+              <input type="number" step="0.01" id="modal-reservation-fee" class="admin-input" placeholder="100.00">
+            </div>
+            <div>
+              <label class="admin-field-label" style="display:flex;align-items:center;gap:8px;margin-top:28px;">
+                <input type="checkbox" id="modal-reservation-paid"> Reservation Fee Paid
+              </label>
+            </div>
+            <div>
+              <label class="admin-field-label" style="display:flex;align-items:center;gap:8px;margin-top:28px;">
+                <input type="checkbox" id="modal-balance-paid"> Balance Paid in Full
+              </label>
+            </div>
+          </div>
+
+          <!-- Delivery Management -->
+          <h4 style="font:500 20px var(--serif, 'Cormorant Garamond', serif);color:#f4f1ea;margin:var(--s-4) 0 12px;">Client Photo Delivery</h4>
+          <div class="admin-detail-grid">
+            <div>
+              <label for="modal-delivery-folder" class="admin-field-label">Google Drive / Storage Folder URL</label>
+              <input type="url" id="modal-delivery-folder" class="admin-input" placeholder="https://drive.google.com/...">
+            </div>
+            <div>
+              <label for="modal-delivery-token" class="admin-field-label">Client Gallery Access Token</label>
+              <div style="display:flex;gap:8px;">
+                <input type="text" id="modal-delivery-token" class="admin-input" placeholder="toki-gallery-key" style="margin-bottom:0;">
+                <button type="button" id="modal-gen-token-btn" class="admin-btn" style="width:auto;padding:0 12px;font-size:11px;">Generate</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Private Notes -->
+          <div style="margin:var(--s-4) 0;">
+            <label for="modal-admin-notes" class="admin-field-label">Private Administrative Remarks</label>
+            <textarea id="modal-admin-notes" class="admin-input" rows="3" style="min-height:80px;padding:10px 14px;" placeholder="Internal session notes, gear requirements, communication history..."></textarea>
+          </div>
+
+          <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:var(--s-4);">
+            <button type="button" class="admin-btn admin-btn-secondary" id="modal-cancel-btn" style="width:auto;padding:0 20px;">Cancel</button>
+            <button type="submit" class="admin-btn" id="modal-save-btn" style="width:auto;padding:0 28px;">Save Changes ↗</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

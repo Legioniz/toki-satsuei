@@ -1,0 +1,916 @@
+/* TOKI SATSUEI — shared motion system
+   Editorial entrances, tactile controls, and restrained interaction feedback. */
+:root {
+  --motion-ease: cubic-bezier(.2,.7,.2,1);
+  --motion-fast: 220ms;
+  --motion-medium: 420ms;
+}
+
+/* Motion is applied to meaningful content blocks, never to every text node. */
+html.motion-system-ready :where(a,button,input,select,textarea,summary,[role="button"]) {
+  -webkit-tap-highlight-color: transparent;
+  transition-property: color,background-color,border-color,box-shadow,opacity,transform,filter;
+  transition-duration: var(--motion-fast);
+  transition-timing-function: var(--motion-ease);
+}
+html.motion-system-ready :where(img,video) {
+  transition-property: opacity,filter,transform;
+  transition-duration: .55s,.4s,.7s;
+  transition-timing-function: var(--motion-ease);
+}
+html.motion-system-ready :where(h1,h2,h3,h4,p,small,strong,em,label,figcaption) {
+  transition: color .28s var(--motion-ease),text-shadow .32s var(--motion-ease);
+}
+
+.motion-item {
+  opacity: 0;
+  translate: 0 18px;
+  filter: blur(2px);
+  transition:
+    opacity .72s var(--motion-ease),
+    translate .72s var(--motion-ease),
+    filter .72s var(--motion-ease);
+  transition-delay: var(--motion-delay,0ms);
+  will-change: opacity,translate;
+}
+.motion-item.is-motion-visible {
+  opacity: 1;
+  translate: 0 0;
+  filter: none;
+  will-change: auto;
+}
+
+/* Header, navigation, and page chrome. */
+.announcement .red-dot {
+  box-shadow: 0 0 0 0 rgba(194,58,69,.28);
+  animation: motion-beacon 4.8s ease-out infinite;
+}
+.brand,
+.footer-brand {
+  transform-origin: center;
+  transition: transform .42s var(--motion-ease),filter .42s var(--motion-ease);
+}
+.brand:hover,
+.footer-brand:hover { transform: translateY(-2px); filter: brightness(1.1); }
+.primary-nav a {
+  transition: color .25s var(--motion-ease),background-color .25s var(--motion-ease),border-color .25s var(--motion-ease);
+}
+.primary-nav a:not(.nav-contact):hover,
+.primary-nav a[aria-current="location"] { color: #fff; }
+.primary-nav .nav-contact span,
+.nav-contact span,
+.hero-actions a span,
+.text-link span,
+.package-link span,
+.service-arrow,
+.gallery-meta i,
+.album-card-arrow,
+.footer-socials a {
+  transition: transform .3s var(--motion-ease),color .25s var(--motion-ease),opacity .25s var(--motion-ease);
+}
+.primary-nav .nav-contact:hover span,
+.nav-contact:hover span { transform: translate(3px,-2px); }
+.menu-toggle {
+  transition: background-color .25s var(--motion-ease),border-color .25s var(--motion-ease),transform .25s var(--motion-ease);
+}
+.menu-toggle:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.65); }
+.menu-toggle:active { transform: scale(.96); }
+
+/* Buttons and links share one tactile response without changing their layout. */
+html.motion-system-ready :where(.button,.nav-contact,.filter-button,.library-filter,.rail-button,.back-to-top,.back-top,.archive-clear-search) {
+  transition:
+    color .24s var(--motion-ease),
+    background-color .24s var(--motion-ease),
+    border-color .24s var(--motion-ease),
+    box-shadow .3s var(--motion-ease),
+    transform .28s var(--motion-ease),
+    opacity .24s var(--motion-ease);
+}
+html.motion-system-ready :where(.button,.library-filter,.rail-button,.album-dialog-close,.lightbox-close,.lightbox-nav,.back-to-top,.archive-clear-search):hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 9px 22px rgba(24,19,16,.12);
+}
+html.motion-system-ready :where(.button,.library-filter,.rail-button,.album-dialog-close,.lightbox-close,.lightbox-nav,.back-to-top,.archive-clear-search):active:not(:disabled) {
+  transform: translateY(0) scale(.97);
+  box-shadow: none;
+}
+.text-link:hover { color: var(--red-bright); }
+.text-link:hover span,
+.hero-actions a:hover span { transform: translate(3px,-2px); }
+
+/* Work gallery, services, and session details. */
+.gallery-card {
+  transition:
+    transform .46s var(--motion-ease),
+    box-shadow .46s var(--motion-ease),
+    border-color .32s var(--motion-ease),
+    opacity .32s var(--motion-ease);
+}
+.gallery-card:active { transform: translateY(-1px) scale(.992); }
+.gallery-card:hover .gallery-meta i { transform: translate(3px,-3px); color: var(--red); }
+.gallery-card:focus-visible { outline-offset: 4px; }
+.filter-button { position: relative; }
+.filter-button span { transition: color .25s var(--motion-ease),transform .25s var(--motion-ease); }
+.filter-button:hover span { transform: translateY(-2px); color: var(--red); }
+.service-row {
+  transition: padding .34s var(--motion-ease),background-color .34s var(--motion-ease),border-color .34s var(--motion-ease);
+}
+.service-row h3 { transition: color .28s var(--motion-ease); }
+.service-row:hover h3 { color: #fff; }
+.service-row:hover .service-number { transform: translateX(3px); }
+.service-number { transition: transform .3s var(--motion-ease),color .3s var(--motion-ease); }
+.session-notes > div {
+  transition: background-color .3s var(--motion-ease),transform .3s var(--motion-ease),padding .3s var(--motion-ease);
+}
+.session-notes > div:hover { background: rgba(255,255,255,.22); transform: translateY(-2px); }
+.package-art { transition: filter .4s var(--motion-ease),background-position .65s var(--motion-ease); }
+.package-card:hover .package-art { filter: saturate(1.12) brightness(1.06); }
+.package-card:active { filter: brightness(.98); }
+
+/* About, inquiry form, footer, and return-to-top control. */
+.about-visual {
+  transition: box-shadow .45s var(--motion-ease),transform .45s var(--motion-ease);
+}
+.about-visual:hover { transform: translateY(-3px); box-shadow: 0 30px 72px rgba(28,22,18,.2); }
+.about-copy .about-signature { transition: border-color .3s var(--motion-ease),transform .3s var(--motion-ease); }
+.about-copy:hover .about-signature { border-color: rgba(150,42,52,.45); transform: translateX(3px); }
+.contact-panel { transition: box-shadow .45s var(--motion-ease),border-color .35s var(--motion-ease); }
+.contact-panel:focus-within { border-color: rgba(192,74,85,.7); }
+.inquiry-form label {
+  transition: color .25s var(--motion-ease),transform .25s var(--motion-ease);
+}
+.inquiry-form label:focus-within { color: #f0c3c4; transform: translateX(2px); }
+.inquiry-form input,
+.inquiry-form select,
+.inquiry-form textarea,
+.archive-search {
+  transition:
+    border-color .26s var(--motion-ease),
+    background-color .26s var(--motion-ease),
+    box-shadow .3s var(--motion-ease),
+    transform .26s var(--motion-ease);
+}
+.inquiry-form input:focus,
+.inquiry-form select:focus,
+.inquiry-form textarea:focus,
+.archive-search:focus-within {
+  box-shadow: 0 0 0 3px rgba(192,74,85,.13);
+}
+.form-submit span { display: inline-block; transition: transform .3s var(--motion-ease); }
+.form-submit:hover span { transform: translate(4px,-3px); }
+.footer-socials a:hover { color: #f0a1a6; transform: translateY(-3px); }
+.footer-main .back-top:hover { transform: translateY(-2px); }
+.back-to-top {
+  transition: opacity .35s var(--motion-ease),transform .35s var(--motion-ease),background-color .25s,box-shadow .3s;
+}
+.back-to-top.is-visible { animation: motion-button-arrive .42s var(--motion-ease) both; }
+
+/* Archive controls, album cards, and modal transitions. */
+.library-page .library-filter,
+.library-page .rail-button,
+.library-page .album-card,
+.library-page .album-dialog-close {
+  transition-timing-function: var(--motion-ease);
+}
+.library-page .library-filter:hover:not([aria-pressed="true"]),
+.library-page .rail-button:hover:not(:disabled) { transform: translateY(-2px); }
+.library-page .album-card {
+  transition: transform .42s var(--motion-ease),opacity .35s var(--motion-ease),filter .35s var(--motion-ease);
+}
+.library-page .album-card:hover { filter: saturate(1.08); }
+.library-page .album-card:active { transform: translateY(-1px) scale(.99); }
+.library-page .album-card:hover .album-card-arrow { transform: translate(4px,-3px); }
+.library-page .album-cover img,
+.library-page .album-cover video {
+  transition: transform .75s var(--motion-ease),filter .42s var(--motion-ease),opacity .4s;
+}
+.library-page .album-dialog[open],
+.lightbox[open] {
+  animation: motion-dialog-arrive .38s var(--motion-ease) both;
+}
+.library-page .album-dialog::backdrop,
+.lightbox::backdrop {
+  animation: motion-backdrop-arrive .36s ease both;
+}
+.album-dialog-close:hover,
+.lightbox-close:hover { transform: rotate(90deg) scale(1.04); }
+.lightbox-nav:hover:not(:disabled) { transform: translateY(-50%) scale(1.06); }
+.library-page .album-dialog-tools .rail-button:hover { transform: translateY(-2px); }
+
+/* Subtle section and page transitions. */
+@keyframes motion-beacon {
+  0%,72%,100% { box-shadow: 0 0 0 0 rgba(194,58,69,0); }
+  82% { box-shadow: 0 0 0 5px rgba(194,58,69,.13); }
+}
+@keyframes motion-button-arrive {
+  from { opacity: 0; translate: 0 7px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes motion-dialog-arrive {
+  from { opacity: 0; transform: translateY(12px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes motion-backdrop-arrive {
+  from { background: rgba(0,0,0,0); }
+  to { background: rgba(0,0,0,.72); }
+}
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: motion-page-leave .2s ease both; }
+::view-transition-new(root) { animation: motion-page-arrive .32s var(--motion-ease) both; }
+@keyframes motion-page-leave {
+  to { opacity: 0; filter: blur(2px); }
+}
+@keyframes motion-page-arrive {
+  from { opacity: 0; filter: blur(2px); }
+  to { opacity: 1; filter: blur(0); }
+}
+
+@media (hover: none) {
+  .session-notes > div:hover,
+  .about-visual:hover,
+  .brand:hover { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.motion-system-ready *,
+  html.motion-system-ready *::before,
+  html.motion-system-ready *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+  .motion-item,
+  .motion-item.is-motion-visible {
+    opacity: 1 !important;
+    translate: none !important;
+    filter: none !important;
+    transition: none !important;
+    will-change: auto !important;
+  }
+  .announcement .red-dot { animation: none !important; }
+}
+
+
+/* Focused finishing pass: mobile navigation, exit states, and fine-grained choreography. */
+.menu-toggle span {
+  transform-origin: center;
+  transition: transform .28s var(--motion-ease),opacity .2s var(--motion-ease),width .28s var(--motion-ease);
+}
+.menu-toggle[aria-expanded="true"] span:first-child { transform: translateY(3.5px) rotate(45deg); }
+.menu-toggle[aria-expanded="true"] span:last-child { transform: translateY(-3.5px) rotate(-45deg); }
+@media (max-width: 820px) {
+  .primary-nav.is-open { transform-origin: top center; }
+  .primary-nav a:not(.nav-contact) {
+    transition: color .22s var(--motion-ease),background-color .22s var(--motion-ease),padding-left .22s var(--motion-ease);
+  }
+  .primary-nav a:not(.nav-contact):hover,
+  .primary-nav a:not(.nav-contact):focus-visible {
+    padding-left: 10px;
+    background: rgba(255,255,255,.045);
+  }
+}
+
+/* Inputs reveal validation feedback only after a visitor has interacted. */
+.inquiry-form input:user-invalid,
+.inquiry-form select:user-invalid,
+.inquiry-form textarea:user-invalid {
+  border-color: #d66a73;
+  box-shadow: 0 0 0 3px rgba(214,106,115,.12);
+}
+.inquiry-form input:user-valid,
+.inquiry-form select:user-valid,
+.inquiry-form textarea:user-valid {
+  border-color: rgba(135,174,146,.72);
+}
+.inquiry-form.is-success .form-submit {
+  border-color: #829d86;
+  background: #536e58;
+  color: #fff;
+}
+.inquiry-form.is-warning .form-submit {
+  border-color: #d66a73;
+  box-shadow: 0 0 0 3px rgba(214,106,115,.12);
+}
+.form-status {
+  min-height: 1.8em;
+  transition: color .25s var(--motion-ease),opacity .2s var(--motion-ease);
+}
+.archive-group-head .archive-group-kicker,
+.archive-group-head .archive-group-title,
+.archive-group-head .archive-group-description,
+.archive-group-meta {
+  transition: color .28s var(--motion-ease),opacity .28s var(--motion-ease);
+}
+.album-dialog-head .album-dialog-description { transition: opacity .25s var(--motion-ease); }
+.album-frame figcaption { transition: color .24s var(--motion-ease); }
+.album-frame:hover figcaption { color: #f0c4c5; }
+.footer-bottom a { transition: color .25s var(--motion-ease),transform .25s var(--motion-ease); }
+.footer-bottom a:hover { color: #e6a0a5; transform: translateY(-2px); }
+
+/* Respect native dialog dimensions while animating the panel and backdrop. */
+.lightbox[open],
+.library-page .album-dialog[open] {
+  will-change: opacity,transform;
+}
+.lightbox[open]::backdrop,
+.library-page .album-dialog[open]::backdrop {
+  animation: motion-backdrop-arrive .28s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-toggle span { transform: none !important; }
+  .primary-nav a,
+  .form-status,
+  .footer-bottom a { transition: none !important; }
+}
+
+
+/* Preserve the slower, image-led hover rhythm on primary photography cards. */
+html.motion-system-ready .gallery-card {
+  transition:
+    transform .46s var(--motion-ease),
+    box-shadow .46s var(--motion-ease),
+    border-color .32s var(--motion-ease),
+    opacity .32s var(--motion-ease);
+}
+html.motion-system-ready .package-card {
+  transition:
+    transform .48s var(--motion-ease),
+    background-color .35s var(--motion-ease),
+    border-color .35s var(--motion-ease),
+    box-shadow .48s var(--motion-ease),
+    filter .35s var(--motion-ease);
+}
+
+
+/* ==========================================================================
+   TOKI SATSUEI — EXAGGERATED DARKROOM OPTICS, 3D TILT, SHUTTER FLASH & KINETICS
+   ========================================================================== */
+.motion-item {
+  opacity: 0;
+  transform: translate3d(0, 46px, 0);
+  filter: none;
+  transition:
+    opacity var(--duration-slow, 780ms) var(--ease-cinema, cubic-bezier(.16,1,.3,1)),
+    transform var(--duration-slow, 780ms) var(--ease-cinema, cubic-bezier(.16,1,.3,1));
+  transition-delay: var(--motion-delay, 0ms);
+  will-change: opacity, transform;
+}
+.motion-item.is-motion-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  filter: none;
+  will-change: auto;
+}
+.gallery-card.motion-item .gallery-image img {
+  transform: scale(1.16) rotate(-0.8deg);
+  filter: saturate(0.25) contrast(1.4) brightness(1.28) blur(6px);
+  transition:
+    transform 1.1s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 1.05s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--motion-delay, 0ms);
+}
+.gallery-card.motion-item.is-motion-visible .gallery-image img {
+  transform: scale(1.015) rotate(0deg);
+  filter: saturate(.72) contrast(1.12) brightness(.9);
+}
+
+/* Exaggerated darkroom shutter-blade reveals (text stays razor-sharp) */
+html.motion-ready [data-reveal] {
+  opacity: 0;
+  filter: none;
+  transition:
+    opacity 780ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 780ms cubic-bezier(0.16, 1, 0.3, 1),
+    clip-path 780ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--reveal-delay, 0) * 90ms);
+}
+html.motion-ready [data-reveal="up"] { transform: translate3d(0, 48px, 0); clip-path: inset(0 0 28% 0); }
+html.motion-ready [data-reveal="left"] { transform: translate3d(0, 36px, 0); clip-path: inset(0 82% 0 0); }
+html.motion-ready [data-reveal="right"] { transform: translate3d(0, 36px, 0); clip-path: inset(0 0 0 82%); }
+html.motion-ready [data-reveal].is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  clip-path: inset(-32px -32px -32px -32px);
+  filter: none;
+}
+@media (max-width: 680px) {
+  html.motion-ready [data-reveal="left"],
+  html.motion-ready [data-reveal="right"] {
+    transform: translate3d(0, 32px, 0);
+    clip-path: inset(0 0 20% 0);
+  }
+}
+
+/* Hero Aperture Settle & Dynamic Polaroid Levitation */
+.hero-opening .hero-photo.hero-frame-media {
+  transform-origin: center center;
+  transform: translate3d(var(--hero-pan-x, 0px), calc(var(--hero-pan-y, 0px) + (var(--scroll-y, 0) * 0.14px)), 0) scale(1.055);
+  animation: tokiApertureSettle 1.9s var(--ease-aperture) forwards !important;
+  will-change: transform, filter;
+}
+@keyframes tokiApertureSettle {
+  0% {
+    opacity: 0.45;
+    filter: saturate(0.25) contrast(1.45) brightness(1.45) blur(8px);
+    transform: scale(1.18) rotate(-0.8deg);
+  }
+  55% {
+    opacity: 0.96;
+    filter: saturate(0.8) contrast(1.15) brightness(0.84) blur(1px);
+  }
+  100% {
+    opacity: 1;
+    filter: saturate(0.74) contrast(1.13) brightness(0.74) blur(0);
+    transform: translate3d(var(--hero-pan-x, 0px), var(--hero-pan-y, 0px), 0) scale(1.055) rotate(0deg);
+  }
+}
+.hero-opening .frame-one {
+  animation: heroPrintIn .9s .45s cubic-bezier(.16,1,.3,1) both, tokiPolaroidFloatA 7.5s 1.4s ease-in-out infinite !important;
+  transition: transform .5s cubic-bezier(.16,1,.3,1), box-shadow .5s ease;
+}
+.hero-opening .frame-two {
+  animation: heroPrintIn .9s .65s cubic-bezier(.16,1,.3,1) both, tokiPolaroidFloatB 8.5s 1.6s ease-in-out infinite !important;
+  transition: transform .5s cubic-bezier(.16,1,.3,1), box-shadow .5s ease;
+}
+@keyframes tokiPolaroidFloatA {
+  0%, 100% { transform: translate3d(0, calc(var(--scroll-y, 0) * -0.05px), 0) rotate(3.2deg); }
+  50% { transform: translate3d(4px, calc(-14px + var(--scroll-y, 0) * -0.05px), 0) rotate(5deg); }
+}
+@keyframes tokiPolaroidFloatB {
+  0%, 100% { transform: translate3d(0, calc(var(--scroll-y, 0) * -0.08px), 0) rotate(-4.6deg); }
+  50% { transform: translate3d(-5px, calc(-18px + var(--scroll-y, 0) * -0.08px), 0) rotate(-6.8deg); }
+}
+.hero-opening .hero-stamp {
+  animation: tokiStampPulse 5.5s ease-in-out infinite;
+}
+@keyframes tokiStampPulse {
+  0%, 100% { opacity: 0.78; transform: translateY(0); text-shadow: 0 0 10px rgba(236, 199, 126, 0.15); }
+  50% { opacity: 1; transform: translateY(-4px); text-shadow: 0 0 24px rgba(236, 199, 126, 0.55); }
+}
+
+/* Precision Optical Viewfinder HUD & Light Leaks in Hero */
+.toki-viewfinder-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+.toki-vf-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.toki-vf-ring-outer {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: tokiOrbitSpin 48s linear infinite;
+}
+.toki-vf-ring-mid {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: tokiOrbitSpinReverse 28s linear infinite;
+}
+.toki-vf-ring-inner {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: tokiApertureBreathe 4.2s ease-in-out infinite;
+}
+.toki-vf-corners {
+  animation: tokiCornerPulse 3.8s ease-in-out infinite;
+}
+@keyframes tokiOrbitSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes tokiOrbitSpinReverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+@keyframes tokiApertureBreathe {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.16); opacity: 1; }
+}
+@keyframes tokiCornerPulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.85; }
+}
+.toki-hero-lightleak {
+  position: absolute;
+  inset: -20%;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 45% 55% at 85% 22%,
+    rgba(195, 42, 57, 0.28),
+    rgba(236, 199, 126, 0.14) 42%,
+    transparent 74%
+  );
+  mix-blend-mode: screen;
+  animation: tokiHeroLightLeak 9.5s ease-in-out infinite alternate;
+}
+@keyframes tokiHeroLightLeak {
+  0% { transform: translate3d(-4%, 4%, 0) scale(0.95); opacity: 0.55; }
+  50% { transform: translate3d(2%, -3%, 0) scale(1.08); opacity: 0.9; }
+  100% { transform: translate3d(-2%, 2%, 0) scale(1.02); opacity: 0.7; }
+}
+.toki-hero-scanbeam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 5%, rgba(236, 199, 126, 0.35) 35%, rgba(195, 42, 57, 0.55) 70%, transparent 95%);
+  box-shadow: 0 0 18px rgba(236, 199, 126, 0.45);
+  opacity: 0;
+  animation: tokiScanBeam 7s cubic-bezier(0.35, 0, 0.25, 1) infinite;
+}
+@keyframes tokiScanBeam {
+  0% { top: 0%; opacity: 0; }
+  8% { opacity: 0.65; }
+  85% { opacity: 0.55; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* Fixed Shutter Flash Curtain & Safelight Cursor Aura */
+.toki-shutter-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  overflow: hidden;
+}
+.toki-shutter-iris {
+  position: absolute;
+  left: var(--flash-x, 50%);
+  top: var(--flash-y, 50%);
+  width: 68vmax;
+  height: 68vmax;
+  border-radius: 50%;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.2);
+  background: radial-gradient(circle, rgba(255, 245, 224, 0.42) 0%, rgba(236, 199, 126, 0.24) 36%, transparent 72%);
+  border: 2px solid rgba(236, 199, 126, 0.48);
+  box-shadow: 0 0 42px rgba(216, 164, 72, 0.35);
+}
+.toki-shutter-curtain[data-variant="crimson"] .toki-shutter-iris {
+  background: radial-gradient(circle, rgba(255, 220, 224, 0.4) 0%, rgba(195, 42, 57, 0.26) 40%, transparent 72%);
+  border-color: rgba(195, 42, 57, 0.65);
+  box-shadow: 0 0 48px rgba(195, 42, 57, 0.45);
+}
+.toki-shutter-streak {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: linear-gradient(108deg, transparent 30%, rgba(255, 244, 214, 0.16) 48%, rgba(236, 199, 126, 0.22) 52%, transparent 70%);
+}
+.toki-safelight-aura {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(
+    540px circle at var(--aura-x, 50vw) var(--aura-y, 40vh),
+    rgba(195, 42, 57, 0.065),
+    rgba(236, 199, 126, 0.03) 42%,
+    transparent 74%
+  );
+  mix-blend-mode: screen;
+}
+
+/* 35mm Film Sprocket Tracks along Editorial Bands */
+.intro-band::before,
+.process-section::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 6px;
+  height: 9px;
+  pointer-events: none;
+  opacity: 0.42;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0 14px,
+    rgba(163, 31, 45, 0.38) 14px 26px,
+    transparent 26px 40px
+  );
+  background-position-x: calc(var(--scroll-y, 0) * -0.45px);
+}
+.process-section {
+  position: relative;
+  overflow: hidden;
+}
+.process-section::after {
+  top: auto;
+  bottom: 8px;
+  opacity: 0.52;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0 14px,
+    rgba(236, 199, 126, 0.42) 14px 26px,
+    transparent 26px 40px
+  );
+  background-position-x: calc(var(--scroll-y, 0) * 0.45px);
+}
+
+/* Exaggerated Scroll Progress Rail */
+.page-progress {
+  height: 3px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  z-index: 9999 !important;
+}
+.page-progress > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #a31f2d, #e6be74, #fff0c8);
+  box-shadow: 0 0 18px rgba(230, 190, 116, 0.85), 0 0 8px rgba(195, 42, 57, 0.75);
+  transform-origin: 0 50%;
+}
+
+/* Kinetic Typography Ink Shimmer & Dividing Slashes */
+.hero-opening h1 em,
+.section-heading h2 em,
+.process-heading h2 em,
+.contact-copy h2 em,
+.about-copy h2 em {
+  display: inline-block;
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), text-shadow 0.55s ease;
+}
+.section-heading:hover h2 em,
+.hero-opening:hover h1 em {
+  transform: skewX(-4deg) scale(1.03);
+  text-shadow: 0 6px 30px rgba(195, 42, 57, 0.35);
+}
+.work-section .section-heading > div:first-child::after,
+.sessions-section .section-heading > div:first-child::after {
+  transform-origin: left center;
+  animation: tokiRuleSlash 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes tokiRuleSlash {
+  from { transform: scaleX(0) rotate(-3deg); opacity: 0; }
+  to { transform: scaleX(1) rotate(-2deg); opacity: 1; }
+}
+
+/* Magnetic 3D Parallax Cards & Viewfinder Crop Reticles */
+.toki-card,
+.package-card,
+.gallery-card,
+.process-step,
+.album-card {
+  position: relative;
+  transform-style: preserve-3d;
+  transition:
+    transform var(--duration-base, 420ms) var(--ease-cinema, cubic-bezier(.16,1,.3,1)),
+    border-color var(--duration-base, 420ms) var(--ease-cinema, cubic-bezier(.16,1,.3,1)),
+    box-shadow var(--duration-base, 420ms) var(--ease-cinema, cubic-bezier(.16,1,.3,1));
+}
+.toki-card::after,
+.package-card::after,
+.gallery-card::after,
+.process-step::after,
+.album-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  background: radial-gradient(
+    460px circle at var(--pointer-x, 50%) var(--pointer-y, 50%),
+    rgba(236, 199, 126, 0.2),
+    rgba(195, 42, 57, 0.1) 38%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity var(--duration-fast, 220ms) var(--ease-cinema);
+  pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .toki-card:hover,
+  .package-card:hover,
+  .gallery-card:hover,
+  .process-step:hover,
+  .album-card:hover {
+    transform: perspective(950px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateY(-9px) scale(1.022) !important;
+    border-color: var(--accent-gold-bright, #ecc77e) !important;
+    box-shadow: 0 28px 56px -18px rgba(0, 0, 0, 0.45), 0 0 28px rgba(216, 164, 72, 0.18) !important;
+  }
+  .toki-card:hover::after,
+  .package-card:hover::after,
+  .gallery-card:hover::after,
+  .process-step:hover::after,
+  .album-card:hover::after {
+    opacity: 1;
+  }
+}
+.gallery-card::before {
+  transition: opacity 0.38s cubic-bezier(0.16, 1, 0.3, 1), transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: scale(1.06);
+  border-color: rgba(236, 199, 126, 0.65);
+}
+.gallery-card:hover::before,
+.gallery-card:focus-visible::before {
+  opacity: 1;
+  transform: scale(1);
+}
+.gallery-card:hover .gallery-image img,
+.album-card:hover .album-cover img {
+  transform: scale(1.11) rotate(0.4deg) !important;
+  filter: saturate(1.14) contrast(1.08) brightness(1.03) !important;
+}
+.gallery-card:hover .gallery-meta i {
+  transform: translate(6px, -5px) scale(1.22);
+  color: #ecc77e;
+}
+
+/* Service Rows Darkroom Highlight Beam & Aperture Spin */
+.service-row {
+  position: relative;
+  overflow: hidden;
+  transition: padding 0.42s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.42s ease, border-color 0.42s ease !important;
+}
+.service-row::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(163, 31, 45, 0.22), rgba(236, 199, 126, 0.08) 45%, transparent 80%);
+  transform: translateX(-100%);
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+.service-row:hover::before {
+  transform: translateX(0);
+}
+.service-row:hover {
+  padding-left: 20px !important;
+  border-bottom-color: rgba(236, 199, 126, 0.48) !important;
+}
+.service-row:hover .service-number {
+  transform: rotate(360deg) scale(1.18) !important;
+  background: #a31f2d !important;
+  border-color: #ecc77e !important;
+  color: #fff !important;
+  box-shadow: 0 0 20px rgba(195, 42, 57, 0.55);
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s, box-shadow 0.3s !important;
+}
+.service-row:hover .service-arrow {
+  transform: translate(7px, -5px) scale(1.25);
+  color: #ecc77e !important;
+}
+
+/* Process Steps Orbiting Halo */
+.process-step-number {
+  position: relative;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), color 0.35s ease;
+}
+.process-step:hover .process-step-number {
+  transform: rotate(0deg) scale(1.22) !important;
+  color: #ecc77e !important;
+  text-shadow: 0 0 24px rgba(236, 199, 126, 0.65);
+}
+
+/* Selected Package Explosion Pulse & Guarantee Sonar Beacons */
+.package-card.is-selected {
+  animation: tokiPackageLock 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes tokiPackageLock {
+  0% { box-shadow: 0 0 0 0 rgba(163, 31, 45, 0.7); }
+  55% { box-shadow: 0 0 0 14px rgba(236, 199, 126, 0.25), 0 28px 60px rgba(45, 33, 24, 0.24); }
+  100% { box-shadow: 0 22px 45px rgba(45, 33, 24, 0.15); }
+}
+
+.booking-trust-item .trust-dot {
+  animation: tokiEmeraldSonar 2.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+@keyframes tokiEmeraldSonar {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.85), 0 0 12px rgba(16, 185, 129, 0.85); }
+  70% { box-shadow: 0 0 0 9px rgba(16, 185, 129, 0), 0 0 18px rgba(16, 185, 129, 0.9); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0), 0 0 12px rgba(16, 185, 129, 0.85); }
+}
+
+.availability-live-dot {
+  animation: tokiLiveRadar 2.1s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+@keyframes tokiLiveRadar {
+  0% { box-shadow: 0 0 0 0 rgba(195, 42, 57, 0.85); transform: scale(1); }
+  65% { box-shadow: 0 0 0 11px rgba(195, 42, 57, 0); transform: scale(1.22); }
+  100% { box-shadow: 0 0 0 0 rgba(195, 42, 57, 0); transform: scale(1); }
+}
+
+/* Pricing Calculator Stepper Spring & Prefill Flash */
+.calc-btn-step:active:not(:disabled) {
+  transform: scale(0.84) !important;
+}
+.calc-total-val {
+  display: inline-block;
+  transform-origin: right center;
+}
+.inquiry-form.is-prefilled {
+  animation: tokiFormPrefillFlash 1.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+@keyframes tokiFormPrefillFlash {
+  0% { box-shadow: 0 0 0 0 rgba(236, 199, 126, 0.85), 0 32px 80px -28px rgba(0, 0, 0, 0.95); }
+  35% { box-shadow: 0 0 0 12px rgba(236, 199, 126, 0.25), 0 0 54px rgba(195, 42, 57, 0.45); border-color: #ecc77e; }
+  100% { box-shadow: 0 32px 80px -28px rgba(0, 0, 0, 0.95); }
+}
+
+/* Lightbox 35mm Projector Open & Checkbox Pop */
+.lightbox[open],
+.library-page .album-dialog[open] {
+  animation: tokiProjectorSnap 0.48s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+}
+@keyframes tokiProjectorSnap {
+  from {
+    opacity: 0;
+    transform: perspective(1000px) translateY(32px) scale(0.88) rotateX(6deg);
+    filter: brightness(1.35) blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(1000px) translateY(0) scale(1) rotateX(0deg);
+    filter: brightness(1) blur(0);
+  }
+}
+.toki-booking-sheet .booking-consent input:checked {
+  animation: tokiCheckPop 0.36s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes tokiCheckPop {
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.24); }
+  100% { transform: scale(1); }
+}
+
+/* Ambient Continuous Shimmer on Primary CTAs */
+.hero-opening .button-primary::before,
+.calc-apply-btn::before,
+.toki-booking-sheet .form-submit::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 25%, rgba(255, 255, 255, 0.16) 50%, transparent 75%);
+  transform: translateX(-140%);
+  animation: tokiAmbientSheen 5.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes tokiAmbientSheen {
+  0%, 72% { transform: translateX(-140%); }
+  100% { transform: translateX(140%); }
+}
+
+/* Exaggerated Cross-Document Page Iris Transition */
+@view-transition { navigation: auto; }
+::view-transition-old(root) {
+  animation: tokiPageShutterClose 0.28s cubic-bezier(0.4, 0, 1, 1) both !important;
+}
+::view-transition-new(root) {
+  animation: tokiPageShutterOpen 0.48s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+}
+@keyframes tokiPageShutterClose {
+  to { opacity: 0; transform: scale(0.97); filter: blur(4px) brightness(0.6); }
+}
+@keyframes tokiPageShutterOpen {
+  from { opacity: 0; transform: scale(1.03); filter: blur(4px) brightness(1.25); }
+  to { opacity: 1; transform: scale(1); filter: blur(0) brightness(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toki-shutter-curtain,
+  .toki-safelight-aura,
+  .toki-hero-lightleak,
+  .toki-hero-scanbeam,
+  .intro-band::before,
+  .process-section::after {
+    display: none !important;
+  }
+  .toki-vf-ring-outer,
+  .toki-vf-ring-mid,
+  .toki-vf-ring-inner,
+  .toki-vf-corners {
+    animation: none !important;
+  }
+  .motion-item,
+  .motion-item.is-motion-visible,
+  html.motion-ready [data-reveal],
+  html.motion-ready [data-reveal].is-visible,
+  .hero-opening .hero-photo.hero-frame-media,
+  .hero-opening .frame-one,
+  .hero-opening .frame-two,
+  .hero-opening .hero-stamp,
+  .toki-card,
+  .package-card,
+  .gallery-card,
+  .process-step,
+  .album-card,
+  .service-row,
+  .service-number,
+  .booking-trust-item .trust-dot,
+  .availability-live-dot,
+  .inquiry-form.is-prefilled {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    clip-path: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+    will-change: auto !important;
+  }
+}

@@ -1,0 +1,166 @@
+name: Build and deploy TOKI SATSUEI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: toki-satsuei-pages-queue-v2-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-and-package:
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: '3.11'
+
+      - name: Install browser test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-test.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Verify JavaScript syntax
+        run: |
+          node --check motion-system.js
+          node --check site.js
+          node --check availability.js
+          node --check library.js
+          node --check admin.js
+          node --check client-gallery.js
+
+      - name: Verify Python test and build syntax
+        run: python -m compileall -q scripts tests
+
+      - name: Audit secrets and personal data in public source
+        run: python tests/toki-security-static-qa.py
+
+      - name: Build media archive manifest
+        run: python scripts/build-toki-media-library.py
+
+      - name: Verify page and asset integration
+        run: python tests/toki-asset-integration-qa.py
+
+      - name: Verify responsive layouts
+        run: python tests/toki-layout-browser-qa.py
+      - name: Run orientation QA
+        run: python tests/toki-orientation-qa.py
+
+      - name: Verify CSS bundles are current
+        run: python tests/toki-css-bundle-qa.py
+
+      - name: Verify adaptive interactions
+        run: python tests/toki-adaptive-interaction-qa.py
+
+      - name: Verify experience design and booking usability
+        run: python tests/toki-experience-design-qa.py
+
+
+      - name: Verify public pages and search discovery
+        run: python tests/toki-public-pages-qa.py
+
+      - name: Verify Supabase-backed booking form and request flow
+        run: python tests/toki-booking-browser-qa.py
+
+      - name: Verify pricing calculator logic and package add-ons
+        run: python tests/toki-pricing-calculator-qa.py
+
+      - name: Verify owner administration dashboard
+        run: python tests/toki-admin-dashboard-qa.py
+
+      - name: Verify client gallery delivery and photo selection
+        run: python tests/toki-client-gallery-qa.py
+
+      - name: Verify public monthly booking availability calendar
+        run: python tests/toki-availability-calendar-qa.py
+
+      - name: Verify private Gmail notification relay source
+        run: python tests/toki-email-notification-qa.py
+
+      - name: Verify cinematic field-journal design
+        run: python tests/toki-cinematic-design-qa.py
+
+      - name: Test live TOKI HTTP security boundaries
+        env:
+          TOKI_EXPECT_TURNSTILE: ${{ vars.TOKI_EXPECT_TURNSTILE || '1' }}
+        run: python tests/toki-live-http-security-qa.py
+
+
+      - name: Assemble standalone Pages artifact
+        run: |
+          set -euo pipefail
+          rm -rf dist
+          mkdir -p dist
+          cp index.html library.html policies.html 404.html admin.html client-gallery.html toki-home.css toki-archive.css toki-policies.css toki-404.css toki-admin.css toki-client.css motion-system.js site.js availability.js library.js admin.js client-gallery.js media-library.json robots.txt sitemap.xml _headers dist/
+          cp -R media-library dist/
+          touch dist/.nojekyll
+          test -s dist/index.html
+          test -s dist/library.html
+          test -s dist/policies.html
+          test -s dist/404.html
+          test -s dist/admin.html
+          test -s dist/client-gallery.html
+          test -s dist/toki-home.css
+          test -s dist/toki-archive.css
+          test -s dist/toki-policies.css
+          test -s dist/toki-404.css
+          test -s dist/toki-admin.css
+          test -s dist/toki-client.css
+          test -s dist/robots.txt
+          test -s dist/sitemap.xml
+          test -s dist/_headers
+          test -s dist/motion-system.js
+          test -s dist/site.js
+          test -s dist/availability.js
+          test -s dist/library.js
+          test -s dist/admin.js
+          test -s dist/client-gallery.js
+          test -s dist/media-library.json
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
+        with:
+          path: ./dist
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    runs-on: ubuntu-24.04
+    needs: verify-and-package
+    steps:
+      - name: Check that this commit is still the main branch head
+        id: freshness
+        shell: bash
+        run: |
+          set -euo pipefail
+          current_sha="$(git ls-remote "https://github.com/${GITHUB_REPOSITORY}.git" refs/heads/main | awk '{print $1}')"
+          if [[ "$current_sha" == "$GITHUB_SHA" ]]; then
+            echo "is_current=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_current=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping stale deployment for $GITHUB_SHA; main is $current_sha."
+          fi
+
+      - name: Deploy verified Pages artifact
+        if: steps.freshness.outputs.is_current == 'true'
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346

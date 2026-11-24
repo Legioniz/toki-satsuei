@@ -1,0 +1,286 @@
+/* admin.css: private owner administration console */
+:root{
+  --admin-bg:#0d0d0c;
+  --admin-card:#161514;
+  --admin-card-border:#2e2823;
+  --admin-text:#ece6dc;
+  --admin-subtext:#9e9488;
+  --admin-accent:#c32a39;
+  --admin-accent-soft:#e27b84;
+}
+
+body.admin-body{
+  background:var(--admin-bg);
+  color:var(--admin-text);
+  font-family:var(--sans, "DM Sans", -apple-system, sans-serif);
+  min-height:100vh;
+  margin:0;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+}
+
+.admin-header{
+  background:#11100f;
+  border-bottom:1px solid var(--admin-card-border);
+  padding:var(--s-3) var(--gutter);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.admin-brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.admin-brand img{
+  height:32px;
+  width:32px;
+  border-radius:50%;
+  object-fit:cover;
+  border:1px solid rgba(255,255,255,.2);
+}
+.admin-badge{
+  font:700 11px var(--c-mono, monospace);
+  padding:3px 8px;
+  background:#261f1c;
+  color:var(--admin-accent-soft);
+  border:1px solid #4a3430;
+  letter-spacing:.12em;
+}
+
+.admin-main{
+  flex:1;
+  max-width:1240px;
+  width:100%;
+  margin:0 auto;
+  padding:var(--s-5) var(--gutter);
+}
+
+/* Auth Gate */
+.admin-auth-gate{
+  max-width:420px;
+  margin:var(--s-7) auto;
+  background:var(--admin-card);
+  border:1px solid var(--admin-card-border);
+  padding:var(--s-6);
+}
+.admin-auth-gate h2{
+  font:500 28px var(--serif, "Cormorant Garamond", serif);
+  margin:0 0 var(--s-2);
+  color:#f4f1ea;
+}
+.admin-auth-gate p{
+  font-size:13px;
+  color:var(--admin-subtext);
+  margin:0 0 var(--s-4);
+}
+.admin-input{
+  width:100%;
+  min-height:46px;
+  background:#1e1c1a;
+  border:1px solid #3d352e;
+  color:#fff;
+  padding:0 14px;
+  font-family:inherit;
+  font-size:14px;
+  margin-bottom:var(--s-3);
+  box-sizing:border-box;
+}
+.admin-input:focus{
+  outline:2px solid var(--admin-accent);
+  border-color:transparent;
+}
+.admin-btn{
+  width:100%;
+  min-height:46px;
+  background:#f4f1ea;
+  color:#111;
+  border:0;
+  font:700 11px var(--c-mono, monospace);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:background var(--dur-2, .2s);
+}
+.admin-btn:hover{
+  background:#fff;
+}
+.admin-btn-secondary{
+  background:transparent;
+  border:1px solid var(--admin-card-border);
+  color:var(--admin-text);
+  margin-top:var(--s-2);
+}
+.admin-btn-secondary:hover{
+  background:#26221f;
+}
+
+/* Metrics Overview */
+.admin-metrics{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+  gap:var(--s-3);
+  margin-bottom:var(--s-5);
+}
+.admin-metric-card{
+  background:var(--admin-card);
+  border:1px solid var(--admin-card-border);
+  padding:var(--s-4);
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.admin-metric-card span{
+  font:700 11px var(--c-mono, monospace);
+  color:var(--admin-subtext);
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.admin-metric-card strong{
+  font:500 32px/1 var(--serif, "Cormorant Garamond", serif);
+  color:#f4f1ea;
+}
+
+/* Filter bar & table */
+.admin-toolbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:var(--s-3);
+  margin-bottom:var(--s-4);
+}
+.admin-search-box{
+  flex:1;
+  min-width:240px;
+  max-width:380px;
+}
+.admin-filter-pills{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding-bottom:2px;
+}
+.admin-pill{
+  background:transparent;
+  border:1px solid var(--admin-card-border);
+  color:var(--admin-subtext);
+  font:700 11px var(--c-mono, monospace);
+  letter-spacing:.08em;
+  padding:6px 12px;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.admin-pill.is-active{
+  background:#241b1a;
+  border-color:var(--admin-accent);
+  color:#f4f1ea;
+}
+
+.admin-table-container{
+  overflow-x:auto;
+  background:var(--admin-card);
+  border:1px solid var(--admin-card-border);
+}
+.admin-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+  text-align:left;
+}
+.admin-table th{
+  background:#131110;
+  padding:12px 16px;
+  font:700 11px var(--c-mono, monospace);
+  letter-spacing:.1em;
+  color:var(--admin-subtext);
+  text-transform:uppercase;
+  border-bottom:1px solid var(--admin-card-border);
+}
+.admin-table td{
+  padding:14px 16px;
+  border-bottom:1px solid #24201c;
+  vertical-align:top;
+}
+.admin-table tr:hover td{
+  background:#1c1a18;
+}
+
+.status-tag{
+  display:inline-block;
+  padding:3px 7px;
+  font:700 10px var(--c-mono, monospace);
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  border-radius:2px;
+}
+.status-tag--new{ background:#2e241c; color:#e5a963; border:1px solid #5a422d; }
+.status-tag--review{ background:#1c272e; color:#7abce0; border:1px solid #2e4758; }
+.status-tag--fee{ background:#2b1d28; color:#e08ad5; border:1px solid #573350; }
+.status-tag--confirmed{ background:#1a2b22; color:#76d69e; border:1px solid #2d543e; }
+.status-tag--completed{ background:#212328; color:#95a4c7; border:1px solid #3b4252; }
+.status-tag--delivered{ background:#1b2d1f; color:#85e39b; border:1px solid #2f5436; }
+.status-tag--cancelled{ background:#291c1b; color:#d97068; border:1px solid #542d2a; }
+
+/* Detail Drawer / Modal */
+[hidden],
+.admin-modal[hidden]{
+  display:none !important;
+}
+.admin-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.78);
+  backdrop-filter:blur(4px);
+  z-index:100;
+  display:grid;
+  place-items:center;
+  padding:var(--s-4);
+  box-sizing:border-box;
+}
+.admin-modal-card{
+  background:#181615;
+  border:1px solid #443a33;
+  width:100%;
+  max-width:760px;
+  max-height:90vh;
+  overflow-y:auto;
+  padding:var(--s-5);
+  box-sizing:border-box;
+}
+.admin-modal-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid var(--admin-card-border);
+  padding-bottom:var(--s-3);
+  margin-bottom:var(--s-4);
+}
+.admin-modal-header h3{
+  font:500 24px var(--serif, "Cormorant Garamond", serif);
+  margin:0;
+}
+.admin-close-btn{
+  background:transparent;
+  border:0;
+  color:#9a9187;
+  font-size:24px;
+  cursor:pointer;
+}
+.admin-detail-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+  gap:var(--s-4);
+  margin-bottom:var(--s-4);
+}
+.admin-field-label{
+  font:700 11px var(--c-mono, monospace);
+  color:var(--admin-subtext);
+  letter-spacing:.1em;
+  margin-bottom:4px;
+}
+.admin-field-val{
+  font-size:14px;
+  color:#f4f1ea;
+}
