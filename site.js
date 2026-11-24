@@ -240,28 +240,16 @@ if(hero&&heroPhoto&&hoverPointer&&!reducedMotion){
   });
 }
 
-const revealTargets=document.querySelectorAll("[data-reveal]");
-let revealObserver=null;
-function showAllReveals(){revealTargets.forEach(target=>target.classList.add("is-visible"));}
-if(revealTargets.length){
+if (!window.TokiMotion) {
   document.documentElement.classList.add("motion-ready");
-  if(reducedMotion||!("IntersectionObserver" in window))showAllReveals();
-  else{
-    revealObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{
-      if(entry.isIntersecting){
-        entry.target.classList.add("is-visible");
-      }else{
-        if(!entry.target.contains(document.activeElement)){
-          entry.target.classList.remove("is-visible");
-        }
-      }
-    }),{threshold:.06,rootMargin:"0px 0px -4% 0px"});
-    revealTargets.forEach(target=>revealObserver.observe(target));
-  }
+  document.querySelectorAll("[data-reveal]").forEach(target => target.classList.add("is-visible"));
 }
-reduceMotionQuery.addEventListener?.("change",event=>{
-  reducedMotion=event.matches;
-  if(reducedMotion){showAllReveals();heroPhoto?.style.removeProperty("--hero-pan-x");heroPhoto?.style.removeProperty("--hero-pan-y");}
+reduceMotionQuery.addEventListener?.("change", event => {
+  reducedMotion = event.matches;
+  if (reducedMotion) {
+    heroPhoto?.style.removeProperty("--hero-pan-x");
+    heroPhoto?.style.removeProperty("--hero-pan-y");
+  }
 });
 
 const navLinks=[...document.querySelectorAll('.primary-nav a[href^="#"]')];
@@ -436,6 +424,11 @@ function selectSession(card,{moveToForm=true}={}) {
   });
   sessionSelect.value=card.dataset.session;
   sessionSelect.dispatchEvent(new Event("change",{bubbles:true}));
+  const calcSelect=document.querySelector("#calc-package-select");
+  if(calcSelect&&[...calcSelect.options].some(opt=>opt.value===card.dataset.session)){
+    calcSelect.value=card.dataset.session;
+    calcSelect.dispatchEvent(new Event("change",{bubbles:true}));
+  }
   if(status){
     const message="Selected "+(card.dataset.sessionTitle||"session")+". Add your preferred date and shoot details below.";
     if(window.TokiMotion?.updateText)window.TokiMotion.updateText(status,message);

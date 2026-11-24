@@ -843,29 +843,11 @@ html {
   }
 }
 
-/* 10. BIDIRECTIONAL ELEMENT TRANSITIONS & REFINED REDUCED MOTION --------------
-   Smooth scroll-driven entrance and exit transitions for all page elements.
+/* 10. REDUCED MOTION OVERRIDE FALLBACKS -------------------------------------
+   Authoritative scroll reveal keyframes live in motion-system.css.
    When reduced motion is preferred: disorienting movement is replaced with
    minimal gentle opacity/color feedback.
 ------------------------------------------------------------------------------ */
-
-/* Bidirectional Entrance & Exit Transitions — Sharp Optical Reveal */
-.motion-item {
-  opacity: 0;
-  transform: translate3d(0, 44px, 0);
-  filter: none;
-  transition: opacity 0.78s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.78s cubic-bezier(0.16, 1, 0.3, 1);
-  transition-delay: var(--motion-delay, 0ms);
-  will-change: opacity, transform;
-}
-
-.motion-item.is-motion-visible {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-  filter: none;
-  will-change: auto;
-}
 
 /* Reduced Motion Mode: Minimal Effects */
 @media (prefers-reduced-motion: reduce) {
