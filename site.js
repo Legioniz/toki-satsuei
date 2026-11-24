@@ -295,6 +295,14 @@ document.querySelectorAll(".gallery-card").forEach(card=>{
 
 let galleryFilterRevision=0;
 const galleryCards=[...document.querySelectorAll(".gallery-card")];
+const filterButtons=[...document.querySelectorAll(".filter-button")];
+filterButtons.forEach((button,idx)=>button.addEventListener("keydown",event=>{
+  if(event.key!=="ArrowRight"&&event.key!=="ArrowLeft")return;
+  event.preventDefault();
+  const nextIdx=(idx+(event.key==="ArrowRight"?1:-1)+filterButtons.length)%filterButtons.length;
+  filterButtons[nextIdx].focus();
+  filterButtons[nextIdx].click();
+}));
 document.querySelectorAll(".filter-button").forEach(button=>button.addEventListener("click",()=>{
   const filter=button.dataset.filter,revision=++galleryFilterRevision;
   document.querySelectorAll(".filter-button").forEach(item=>{
@@ -413,7 +421,20 @@ function updateSessionDurationNote(){
     ?"Duration will be agreed with you in writing before the session is confirmed."
     :"Typical duration: "+duration+". The exact start and end time will be agreed in writing.";
 }
-sessionSelect?.addEventListener("change",updateSessionDurationNote);
+sessionSelect?.addEventListener("change",()=>{
+  updateSessionDurationNote();
+  const value=sessionSelect.value;
+  sessionCards.forEach(item=>{
+    const active=item.dataset.session===value;
+    item.classList.toggle("is-selected",active);
+    item.querySelector(".package-link")?.setAttribute("aria-pressed",String(active));
+  });
+  const calcSelect=document.querySelector("#calc-package-select");
+  if(calcSelect&&value&&calcSelect.value!==value&&[...calcSelect.options].some(opt=>opt.value===value)){
+    calcSelect.value=value;
+    calcSelect.dispatchEvent(new Event("change",{bubbles:true}));
+  }
+});
 updateSessionDurationNote();
 function selectSession(card,{moveToForm=true}={}) {
   if(!card||!sessionSelect)return;

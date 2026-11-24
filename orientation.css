@@ -68,6 +68,25 @@
   }
 }
 
+/* Adaptive runtime capabilities populated by motion-system.js */
+html[data-pointer-mode="coarse"] :where(.button, .package-link, .filter-button, .calendar-day, .calendar-controls button, .nav-contact, .menu-toggle){
+  min-height: 46px;
+}
+html[data-pointer-mode="coarse"] :where(.toki-card, .package-card, .gallery-card, .process-step, .album-card):hover{
+  transform: none !important;
+}
+html[data-viewport-class="tv"] :where(section, article, details, .package-card, .gallery-card, .process-step, .calendar-day){
+  scroll-margin-block: 112px 84px;
+}
+html[data-motion-tier="lite"] .toki-film-grain,
+html[data-motion-tier="lite"] .toki-safelight-aura,
+html[data-motion-tier="lite"] .toki-hero-scanbeam{
+  display: none !important;
+}
+html[data-motion-tier="lite"] *{
+  backdrop-filter: none !important;
+}
+
 @media (min-width: 2400px){
   :root{
     --wrap: min(1760px, calc(100% - clamp(140px, 10vw, 260px)));

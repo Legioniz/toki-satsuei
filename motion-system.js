@@ -540,12 +540,36 @@
     decayFrame = requestAnimationFrame(decayVelocity);
   }
 
+  const coarsePointer = window.matchMedia("(pointer: coarse)");
+
+  function computeMotionTier() {
+    if (reduced) return "reduced";
+    const conn = navigator.connection;
+    const saveData = Boolean(conn?.saveData);
+    const slowNet = conn?.effectiveType === "2g" || conn?.effectiveType === "slow-2g";
+    const lowCores = typeof navigator.hardwareConcurrency === "number" && navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 2;
+    return saveData || slowNet || lowCores ? "lite" : "full";
+  }
+
+  function syncAdaptiveEnvironment() {
+    const w = Math.max(1, window.innerWidth || root.clientWidth || 1024);
+    const viewportClass = w <= 680 ? "phone" : w <= 1180 ? "tablet" : w >= 1800 ? "tv" : "desktop";
+    root.dataset.viewportClass = viewportClass;
+    root.dataset.pointerMode = coarsePointer.matches ? "coarse" : "fine";
+    root.dataset.motionTier = computeMotionTier();
+  }
+  syncAdaptiveEnvironment();
+  coarsePointer.addEventListener?.("change", syncAdaptiveEnvironment);
+  navigator.connection?.addEventListener?.("change", syncAdaptiveEnvironment);
+
   window.addEventListener("scroll", () => {
     if (!scrollFrame && !reduced) scrollFrame = requestAnimationFrame(stepScrollMetrics);
   }, { passive: true });
   window.addEventListener("resize", () => {
+    syncAdaptiveEnvironment();
     if (!scrollFrame && !reduced) scrollFrame = requestAnimationFrame(stepScrollMetrics);
   }, { passive: true });
+  window.addEventListener("orientationchange", syncAdaptiveEnvironment, { passive: true });
   stepScrollMetrics();
 
   scan(document);
@@ -563,6 +587,7 @@
 
   preference.addEventListener?.("change", event => {
     reduced = event.matches;
+    syncAdaptiveEnvironment();
     if (reduced) {
       observer?.disconnect();
       observer = null;
