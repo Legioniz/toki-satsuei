@@ -130,6 +130,7 @@ def main() -> None:
             page.locator("#availability-use-date").click()
             assert page.locator('#inquiry-form input[name="preferred_date"]').input_value() == booked_date.isoformat()
             assert "2 confirmed time windows" in page.locator("#form-status").inner_text().lower()
+            page.wait_for_function("() => document.activeElement?.name === 'preferred_date'")
 
             page.locator(f'.calendar-day[data-date="{free_date.isoformat()}"]').click()
             assert page.locator(f'.calendar-day[data-date="{free_date.isoformat()}"]').get_attribute("aria-pressed") == "true"

@@ -28,6 +28,122 @@
   }
 }
 
+/* ==========================================================================
+   PAGE LOAD INTRO MOTION GRAPHIC (NON-BLOCKING DARKROOM APERTURE VEIL)
+   ========================================================================== */
+.toki-intro-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 50% 48%, rgba(163, 31, 45, 0.22), rgba(9, 9, 11, 0.98) 62%, #050506 100%);
+  animation: tokiIntroCurtainOut 0.62s var(--ease-quart-in-out) 0.92s forwards;
+}
+.toki-intro-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(280px, 68vw);
+  aspect-ratio: 1;
+}
+.toki-intro-aperture {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.toki-intro-ring-outer {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: tokiIntroOrbitSpin 1.35s var(--ease-expo-out) both;
+}
+.toki-intro-ring-crimson {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: tokiIntroRingSnap 0.95s var(--ease-spring-overshoot) 0.08s both;
+}
+.toki-intro-ring-gold {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: tokiIntroIrisScale 0.85s var(--ease-quart-in-out) 0.05s both;
+}
+.toki-intro-blades {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: tokiIntroBladesOpen 0.9s var(--ease-expo-out) both;
+}
+.toki-intro-seal {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  text-align: center;
+}
+.toki-intro-kanji {
+  color: #ecc77e;
+  font: 500 clamp(26px, 5vw, 34px)/1.1 var(--font-display, "Cormorant Garamond", serif);
+  letter-spacing: 0.26em;
+  text-indent: 0.26em;
+  animation: tokiIntroSealPop 0.72s var(--ease-spring-overshoot) 0.06s both;
+}
+.toki-intro-brand {
+  color: #f5f2eb;
+  font: 700 11px/1 var(--font-mono, "Space Mono", monospace);
+  letter-spacing: 0.34em;
+  text-indent: 0.34em;
+  animation: tokiIntroBrandFade 0.65s var(--ease-shutter-snap) 0.22s both;
+}
+.toki-intro-sweep {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(108deg, transparent 36%, rgba(236, 199, 126, 0.24) 49%, rgba(195, 42, 57, 0.26) 52%, transparent 64%);
+  animation: tokiIntroSweep 0.72s var(--ease-quart-in-out) 0.36s both;
+}
+
+@keyframes tokiIntroOrbitSpin {
+  0% { opacity: 0; transform: scale(0.76) rotate(-90deg); }
+  55% { opacity: 1; }
+  100% { opacity: 0.9; transform: scale(1.04) rotate(24deg); }
+}
+@keyframes tokiIntroRingSnap {
+  0% { opacity: 0; transform: scale(1.32) rotate(120deg); }
+  68% { opacity: 1; transform: scale(0.97) rotate(-8deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@keyframes tokiIntroIrisScale {
+  0% { opacity: 0; transform: scale(0.45); }
+  65% { opacity: 1; transform: scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes tokiIntroBladesOpen {
+  0% { opacity: 0; transform: scale(0.6) rotate(-30deg); }
+  60% { opacity: 0.9; transform: scale(1.05) rotate(6deg); }
+  100% { opacity: 0.7; transform: scale(1) rotate(0deg); }
+}
+@keyframes tokiIntroSealPop {
+  0% { opacity: 0; transform: translate3d(0, 14px, 0) scale(0.88); filter: blur(4px); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: blur(0); }
+}
+@keyframes tokiIntroBrandFade {
+  0% { opacity: 0; letter-spacing: 0.56em; transform: translate3d(0, 8px, 0); }
+  100% { opacity: 0.94; letter-spacing: 0.34em; transform: translate3d(0, 0, 0); }
+}
+@keyframes tokiIntroSweep {
+  0% { opacity: 0; transform: translateX(-115%); }
+  45% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(115%); }
+}
+@keyframes tokiIntroCurtainOut {
+  0% { opacity: 1; clip-path: circle(100% at 50% 50%); transform: scale(1); }
+  45% { opacity: 0.94; }
+  100% { opacity: 0; clip-path: circle(0% at 50% 42%); transform: scale(1.04); visibility: hidden; }
+}
+
 /* Base interactive transitions */
 html.motion-system-ready :where(a, button, input, select, textarea, summary, [role="button"]) {
   -webkit-tap-highlight-color: transparent;
@@ -1039,6 +1155,7 @@ html.motion-system-ready .gallery-card,
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .toki-intro-curtain,
   .toki-shutter-curtain,
   .toki-safelight-aura,
   .toki-hero-lightleak,

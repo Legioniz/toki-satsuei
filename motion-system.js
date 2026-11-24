@@ -70,7 +70,50 @@
   }
 
   /* Inject non-layout optical chrome overlays once. */
+  function playPageIntroGraphic() {
+    if (reduced || !document.body || document.querySelector(".toki-intro-curtain")) return;
+    const curtain = document.createElement("div");
+    curtain.className = "toki-intro-curtain";
+    curtain.setAttribute("aria-hidden", "true");
+    curtain.innerHTML = `
+      <div class="toki-intro-stage">
+        <svg class="toki-intro-aperture" viewBox="0 0 220 220" focusable="false">
+          <circle class="toki-intro-ring-outer" cx="110" cy="110" r="98" fill="none" stroke="rgba(236,199,126,0.34)" stroke-width="1" stroke-dasharray="5 9"/>
+          <circle class="toki-intro-ring-crimson" cx="110" cy="110" r="78" fill="none" stroke="rgba(195,42,57,0.72)" stroke-width="1.6" stroke-dasharray="48 16 14 16"/>
+          <circle class="toki-intro-ring-gold" cx="110" cy="110" r="56" fill="none" stroke="rgba(236,199,126,0.82)" stroke-width="1.2"/>
+          <g class="toki-intro-blades" stroke="rgba(245,242,235,0.28)" stroke-width="1">
+            <line x1="110" y1="8" x2="110" y2="30"/>
+            <line x1="110" y1="190" x2="110" y2="212"/>
+            <line x1="8" y1="110" x2="30" y2="110"/>
+            <line x1="190" y1="110" x2="212" y2="110"/>
+            <line x1="38" y1="38" x2="54" y2="54"/>
+            <line x1="166" y1="166" x2="182" y2="182"/>
+            <line x1="182" y1="38" x2="166" y2="54"/>
+            <line x1="54" y1="166" x2="38" y2="182"/>
+          </g>
+        </svg>
+        <div class="toki-intro-seal">
+          <span class="toki-intro-kanji">時の記憶</span>
+          <span class="toki-intro-brand">TOKI SATSUEI</span>
+        </div>
+        <span class="toki-intro-sweep"></span>
+      </div>
+    `;
+    document.body.prepend(curtain);
+    let cleaned = false;
+    const cleanup = () => {
+      if (cleaned) return;
+      cleaned = true;
+      curtain.remove();
+    };
+    curtain.addEventListener("animationend", event => {
+      if (event.target === curtain) cleanup();
+    });
+    window.setTimeout(cleanup, 1650);
+  }
+
   function ensureDarkroomOverlays() {
+    playPageIntroGraphic();
     if (!document.querySelector(".toki-film-grain")) {
       const grain = document.createElement("div");
       grain.className = "toki-film-grain";

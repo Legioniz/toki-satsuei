@@ -911,13 +911,105 @@
   text-underline-offset: 3px;
 }
 .toki-booking-sheet .booking-reference-card {
-  border-color: var(--border-accent);
-  background: var(--bg-surface-elevated);
-  color: #ffffff !important;
-  padding: 2rem;
+  margin-top: 1.5rem;
+  border: 1px solid rgba(236, 199, 126, 0.48);
+  background: #141315;
+  color: #f5f2eb !important;
+  padding: clamp(1.4rem, 3vw, 2rem);
   border-radius: 12px;
+  box-shadow: 0 20px 52px rgba(0, 0, 0, 0.55);
+  animation: tokiReferenceCardIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
-.toki-booking-sheet .booking-reference-card p { color: #e5ded4 !important; }
+.toki-booking-sheet .booking-reference-card.is-hidden {
+  display: none !important;
+}
+.toki-booking-sheet .booking-reference-card .eyebrow {
+  color: #ecc77e !important;
+  margin-bottom: 0.45rem;
+}
+.toki-booking-sheet .booking-reference-card h3 {
+  margin: 0 0 0.75rem;
+  color: #ffffff !important;
+  font: 600 clamp(24px, 3vw, 32px)/1.12 var(--font-display);
+}
+.toki-booking-sheet .booking-reference-card p {
+  color: #e5ded4 !important;
+  font-size: 0.94rem;
+  line-height: 1.75;
+}
+.toki-booking-sheet .reference-code-box {
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin: 1.25rem 0;
+  padding: 0.75rem;
+  border: 1px solid rgba(236, 199, 126, 0.42);
+  border-radius: 10px;
+  background: #0b0a0c;
+}
+.toki-booking-sheet .reference-code-input {
+  flex: 1 1 190px;
+  min-width: 0;
+  min-height: 48px;
+  padding: 0.65rem 1rem;
+  border: 1px solid rgba(245, 242, 235, 0.2);
+  border-radius: 7px;
+  background: #171519;
+  color: #ecc77e !important;
+  font: 700 18px/1 var(--font-mono);
+  letter-spacing: 0.12em;
+}
+.toki-booking-sheet .btn-copy-ref {
+  min-height: 48px;
+  padding: 0 1.45rem;
+  border: 1px solid rgba(236, 199, 126, 0.55);
+  border-radius: 7px;
+  background: #a31f2d !important;
+  color: #ffffff !important;
+  font: 700 12px/1 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.22s ease, border-color 0.22s ease, transform 0.22s cubic-bezier(0.34, 1.48, 0.64, 1), box-shadow 0.22s ease;
+}
+.toki-booking-sheet .btn-copy-ref:hover {
+  background: #c32a39 !important;
+  border-color: #ecc77e !important;
+  color: #ffffff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(163, 31, 45, 0.45);
+}
+.toki-booking-sheet .btn-copy-ref:active {
+  transform: translateY(0) scale(0.97);
+}
+.toki-booking-sheet .btn-copy-ref:focus-visible {
+  outline: 2px solid #ecc77e;
+  outline-offset: 2px;
+}
+.toki-booking-sheet .ref-card-expectation {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 1.25rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(245, 242, 235, 0.16);
+  border-left: 3px solid #d8a448;
+  border-radius: 8px;
+  background: rgba(216, 164, 72, 0.08);
+  color: #efe8dd !important;
+  font-size: 0.88rem;
+  line-height: 1.75;
+}
+.toki-booking-sheet .ref-card-expectation strong {
+  color: #ecc77e !important;
+  font: 700 0.78rem var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+@keyframes tokiReferenceCardIn {
+  from { opacity: 0; transform: translate3d(0, 18px, 0) scale(0.985); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
 
 .toki-film-grain {
   position: fixed;

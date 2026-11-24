@@ -184,6 +184,8 @@ def main() -> None:
             page.locator('button[type="submit"]').click()
             page.get_by_text("TOKI-A1B2C3D4").wait_for(state="visible", timeout=7000)
             assert page.locator("#booking-reference-code").input_value() == "TOKI-A1B2C3D4"
+            copy_style = page.locator("#btn-copy-reference").evaluate("(el) => { const cs = getComputedStyle(el); return {bg: cs.backgroundColor, color: cs.color}; }")
+            assert copy_style["bg"] != "rgb(255, 255, 255)" and copy_style["bg"] != copy_style["color"], f"Copy Code button must remain high-contrast: {copy_style}"
             assert len(submissions) == 1
             request = submissions[0]
             assert request["headers"].get("apikey") == PUBLISHABLE_KEY
