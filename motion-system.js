@@ -78,10 +78,10 @@
     curtain.innerHTML = `
       <div class="toki-intro-stage">
         <svg class="toki-intro-aperture" viewBox="0 0 220 220" focusable="false">
-          <circle class="toki-intro-ring-outer" cx="110" cy="110" r="98" fill="none" stroke="rgba(236,199,126,0.34)" stroke-width="1" stroke-dasharray="5 9"/>
-          <circle class="toki-intro-ring-crimson" cx="110" cy="110" r="78" fill="none" stroke="rgba(195,42,57,0.72)" stroke-width="1.6" stroke-dasharray="48 16 14 16"/>
-          <circle class="toki-intro-ring-gold" cx="110" cy="110" r="56" fill="none" stroke="rgba(236,199,126,0.82)" stroke-width="1.2"/>
-          <g class="toki-intro-blades" stroke="rgba(245,242,235,0.28)" stroke-width="1">
+          <circle class="toki-intro-ring-outer" cx="110" cy="110" r="98" fill="none" stroke="rgba(245,242,235,0.28)" stroke-width="1" stroke-dasharray="5 9"/>
+          <circle class="toki-intro-ring-crimson" cx="110" cy="110" r="78" fill="none" stroke="rgba(195,42,57,0.82)" stroke-width="1.8" stroke-dasharray="48 16 14 16"/>
+          <circle class="toki-intro-ring-gold" cx="110" cy="110" r="56" fill="none" stroke="rgba(245,242,235,0.72)" stroke-width="1.2"/>
+          <g class="toki-intro-blades" stroke="rgba(245,242,235,0.34)" stroke-width="1">
             <line x1="110" y1="8" x2="110" y2="30"/>
             <line x1="110" y1="190" x2="110" y2="212"/>
             <line x1="8" y1="110" x2="30" y2="110"/>
@@ -143,7 +143,7 @@
       hud.setAttribute("aria-hidden", "true");
       hud.innerHTML = `
         <svg class="toki-vf-svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" focusable="false">
-          <g class="toki-vf-corners" fill="none" stroke="rgba(236,199,126,0.44)" stroke-width="1.5">
+          <g class="toki-vf-corners" fill="none" stroke="rgba(245,242,235,0.38)" stroke-width="1.5">
             <path d="M44 108 V44 H108"/>
             <path d="M1092 44 H1156 V108"/>
             <path d="M44 692 V756 H108"/>
@@ -151,9 +151,9 @@
           </g>
           <g class="toki-vf-dial" transform="translate(840 370)">
             <circle class="toki-vf-ring-outer" r="195" fill="none" stroke="rgba(245,242,235,0.17)" stroke-width="1" stroke-dasharray="4 10"/>
-            <circle class="toki-vf-ring-mid" r="138" fill="none" stroke="rgba(195,42,57,0.46)" stroke-width="1.25" stroke-dasharray="36 18 8 18"/>
-            <circle class="toki-vf-ring-inner" r="46" fill="none" stroke="rgba(236,199,126,0.58)" stroke-width="1.2"/>
-            <path d="M-22 0 H-7 M7 0 H22 M0 -22 V-7 M0 7 V22" stroke="rgba(236,199,126,0.75)" stroke-width="1.2"/>
+            <circle class="toki-vf-ring-mid" r="138" fill="none" stroke="rgba(195,42,57,0.52)" stroke-width="1.25" stroke-dasharray="36 18 8 18"/>
+            <circle class="toki-vf-ring-inner" r="46" fill="none" stroke="rgba(245,242,235,0.52)" stroke-width="1.2"/>
+            <path d="M-22 0 H-7 M7 0 H22 M0 -22 V-7 M0 7 V22" stroke="rgba(195,42,57,0.85)" stroke-width="1.4"/>
             <path d="M-158 0 H-132 M132 0 H158 M0 -158 V-132 M0 132 V158" stroke="rgba(245,242,235,0.34)" stroke-width="1"/>
           </g>
           <g class="toki-vf-rule-ticks" stroke="rgba(245,242,235,0.24)" stroke-width="1">
@@ -360,9 +360,9 @@
     if (!element || reduced || typeof element.animate !== "function") return;
     element.animate([
       { transform: "scale(1)", filter: "brightness(1)", textShadow: "none" },
-      { transform: "scale(1.18) translateY(-3px)", filter: "brightness(1.3)", textShadow: "0 0 26px rgba(236, 199, 126, 0.85)" },
+      { transform: "scale(1.18) translateY(-3px)", filter: "brightness(1.25)", textShadow: "0 0 24px rgba(195, 42, 57, 0.85)" },
       { transform: "scale(0.97)", filter: "brightness(1.06)" },
-      { transform: "scale(1)", filter: "brightness(1)", textShadow: "0 0 18px rgba(216, 164, 72, 0.25)" }
+      { transform: "scale(1)", filter: "brightness(1)", textShadow: "0 0 14px rgba(195, 42, 57, 0.25)" }
     ], { duration: 460, easing: "cubic-bezier(0.34, 1.48, 0.64, 1)" });
   }
 

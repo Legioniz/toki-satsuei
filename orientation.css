@@ -1,37 +1,81 @@
-/* Adaptive screen orientation. Portrait and landscape are treated as different layouts, not one layout stretched.
-   Rules: use dynamic viewport units (dvh), respect notch safe areas, keep controls reachable when height is scarce. */
-:root{ --safe-l: env(safe-area-inset-left, 0px); --safe-r: env(safe-area-inset-right, 0px); --safe-b: env(safe-area-inset-bottom, 0px); }
-
-/* Open mobile menu never runs off a short screen: it scrolls inside itself.
-   The extra 40px covers the announcement bar that sits above the header at the top of the page. */
-@media (max-width: 1024px){
-  .primary-nav.is-open{ max-height: calc(100vh - 110px); max-height: calc(100dvh - 110px - var(--safe-b)); overflow-y: auto; overscroll-behavior: contain; }
+/* Adaptive screen orientation & multi-device viewport system (mobile, tablet, desktop, Smart TV).
+   Portrait and landscape are treated as distinct layouts using dvh/svh, safe-area insets, and overscan padding. */
+:root{
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
 }
 
-/* Touch devices turned sideways: keep content clear of the notch and rounded corners. */
+/* Open mobile & tablet menu never runs off a short screen: scrolls safely inside itself. */
+@media (max-width: 1024px){
+  .primary-nav.is-open{
+    max-height: calc(100vh - 110px);
+    max-height: calc(100dvh - 110px - var(--safe-b));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
+/* Touch devices turned sideways: clear notch, home indicator, and rounded screen corners. */
 @media (orientation: landscape) and (hover: none){
   .site-header{ padding-left: max(24px, var(--safe-l)); padding-right: max(24px, var(--safe-r)); }
   .section-wrap{ width: min(var(--wrap), calc(100vw - var(--safe-l) - var(--safe-r) - 32px)); }
+  .availability-section{ padding-inline: max(24px, var(--safe-l), calc((100% - 1240px)/2)); }
   .announcement, .site-footer .footer-bottom{ padding-left: max(16px, var(--safe-l)); padding-right: max(16px, var(--safe-r)); }
 }
 
-/* Phones in landscape: height is the scarce resource, so spend it carefully. */
-@media (orientation: landscape) and (max-height: 500px){
+/* Phones in landscape: scarce vertical height, compact chrome and side-by-side layout. */
+@media (orientation: landscape) and (max-height: 540px){
   html .site-header, html .site-header.is-scrolled{ height: 56px; min-height: 56px; }
   html .primary-nav{ top: 56px; }
   .primary-nav.is-open{ max-height: calc(100vh - 96px); max-height: calc(100dvh - 96px - var(--safe-b)); }
-  .section-wrap{ padding-block: clamp(32px, 9vh, 56px); }
+  .section-wrap{ padding-block: clamp(32px, 8vh, 56px); }
   .hero{ min-height: 0; padding-top: 32px; padding-bottom: 24px; grid-template-columns: 1fr 1fr; gap: 4%; }
   .hero-copy h1{ font-size: clamp(2rem, 12vh, 3.4rem); }
   .hero-art{ max-height: 70vh; max-height: 70dvh; }
+  .availability-panel{ grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); }
   .album-dialog{ width: calc(100vw - 16px - var(--safe-l) - var(--safe-r)); max-height: calc(100vh - 16px); max-height: calc(100dvh - 16px); }
   .album-dialog-panel{ max-height: calc(100vh - 16px); max-height: calc(100dvh - 16px); }
 }
 
-/* Tablets held upright: the page has height to spare, so give sections more room. */
-@media (orientation: portrait) and (min-width: 700px){
+/* Tablets held upright: balanced vertical spacing and stacked two-column panels where appropriate. */
+@media (orientation: portrait) and (min-width: 681px) and (max-width: 1180px){
   .hero{ min-height: 0; }
-  .section-wrap{ padding-block: clamp(72px, 8vh, 112px); }
+  .section-wrap{ padding-block: clamp(68px, 7.5vh, 108px); }
+  .process-grid{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Tablets in landscape: spacious reading layout with clean column alignment. */
+@media (orientation: landscape) and (min-width: 821px) and (max-width: 1200px){
+  .section-wrap{ width: min(var(--wrap), calc(100vw - 64px)); }
+  .toki-assurance__grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Large monitors & Smart TVs (1080p–4K, 10-foot viewing & remote D-pad navigation). */
+@media (min-width: 1800px){
+  :root{
+    --wrap: min(1520px, calc(100% - clamp(96px, 8vw, 180px)));
+  }
+  body{ font-size: 17.5px; }
+  .availability-section{ padding-inline: max(64px, calc((100% - 1520px)/2)); }
+  .availability-section .section-heading,
+  .availability-panel{ max-width: 1520px; }
+  :where(a, button, input, select, textarea, summary):focus-visible{
+    outline: 3px solid #c32a39;
+    outline-offset: 4px;
+    box-shadow: 0 0 0 6px rgba(195, 42, 57, 0.3);
+  }
+}
+
+@media (min-width: 2400px){
+  :root{
+    --wrap: min(1760px, calc(100% - clamp(140px, 10vw, 260px)));
+  }
+  body{ font-size: 19px; }
+  .availability-section{ padding-inline: max(96px, calc((100% - 1760px)/2)); }
+  .availability-section .section-heading,
+  .availability-panel{ max-width: 1760px; }
 }
 
 /* Dialogs follow the visible viewport, not the largest possible one. */
