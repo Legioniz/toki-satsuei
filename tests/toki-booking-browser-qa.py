@@ -175,8 +175,8 @@ def main() -> None:
             assert form.locator('input[name="booking_terms_consent"]').get_attribute("required") is not None
             assert form.locator('input[name="website"]').get_attribute("tabindex") == "-1"
 
-            # The homepage package choice is carried into the dedicated booking page.
-            assert page.locator('select[name="session"]').input_value() == "Quick Snap"
+            # This is a fresh direct visit with no session query; it must not inherit the prior tab selection.
+            assert page.locator('select[name="session"]').input_value() == ""
 
             # Missing required fields must be blocked before a network request.
             page.locator('button[type="submit"]').click()
