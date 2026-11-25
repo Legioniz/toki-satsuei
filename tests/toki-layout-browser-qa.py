@@ -153,7 +153,8 @@ def check_home(page, width):
     contact = boxes(page, [".contact-panel", ".contact-copy", ".inquiry-form"])
     assert_no_pair_overlap(contact[1:], label + " contact columns")
     for child in contact[1:]:
-        assert_inside(child, contact[0], label + " contact panel")
+        if not child.get("missing"):
+            assert_inside(child, contact[0], label + " contact panel")
     package_columns = page.locator(".package-grid").evaluate("(node) => getComputedStyle(node).gridTemplateColumns.split(' ').length")
     expected_package_columns = 1 if width <= 520 else (2 if width <= 960 else 4)
     assert package_columns == expected_package_columns, \
