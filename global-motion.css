@@ -14,6 +14,117 @@
 }
 .toki-intro-ring-crimson { stroke: rgba(195, 42, 57, 0.92); }
 .toki-intro-ring-gold { stroke: rgba(245, 242, 235, 0.72); }
+ 
+/* Profile 5: editorial focus pull — typography resolves like a lens finding focus. */
+.motion-item[data-motion="focus-pull"],
+[data-reveal][data-motion="focus-pull"] {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0) scale(0.985);
+  filter: blur(3px);
+}
+.motion-item[data-motion="focus-pull"].is-motion-visible,
+[data-reveal][data-motion="focus-pull"].is-visible {
+  animation: tokiFocusPull 0.82s var(--ease-expo-out) var(--motion-delay, 0ms) both;
+}
+@keyframes tokiFocusPull {
+  0% { opacity: 0; transform: translate3d(0, 24px, 0) scale(0.985); filter: blur(3px); }
+  68% { opacity: 1; transform: translate3d(0, -2px, 0) scale(1.004); filter: blur(0.3px); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: blur(0); }
+}
+
+/* Profile 6: film gate — content enters behind a measured vertical shutter. */
+.motion-item[data-motion="film-gate"],
+[data-reveal][data-motion="film-gate"] {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0) scale(0.99);
+  clip-path: inset(0 0 12% 0);
+}
+.motion-item[data-motion="film-gate"].is-motion-visible,
+[data-reveal][data-motion="film-gate"].is-visible {
+  animation: tokiFilmGate 0.76s var(--ease-shutter-snap) var(--motion-delay, 0ms) both;
+}
+@keyframes tokiFilmGate {
+  0% { opacity: 0; transform: translate3d(0, 28px, 0) scale(0.99); clip-path: inset(0 0 12% 0); }
+  62% { opacity: 1; transform: translate3d(0, -2px, 0) scale(1.002); clip-path: inset(0 0 0 0); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); clip-path: inset(0 0 0 0); }
+}
+
+/* Scroll chapter rail: a fine focus marker follows each major page section. */
+.toki-scroll-scene {
+  --toki-scene-progress: 0;
+  --toki-scene-position: 0%;
+  --toki-scene-opacity: 0.42;
+  --toki-scene-rail: rgba(16, 16, 16, 0.16);
+  --toki-scene-accent: #a31f2d;
+  position: relative;
+  isolation: isolate;
+}
+.toki-scroll-scene--dark {
+  --toki-scene-rail: rgba(245, 242, 235, 0.2);
+  --toki-scene-accent: #c32a39;
+}
+.toki-scroll-scene > .toki-scene-track {
+  position: absolute;
+  z-index: 8;
+  top: 0;
+  left: 50%;
+  display: block;
+  width: min(1220px, calc(100% - 48px));
+  height: 1px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.toki-scroll-scene > .toki-scene-track::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    var(--toki-scene-accent) 0,
+    var(--toki-scene-accent) var(--toki-scene-position, 0%),
+    var(--toki-scene-rail) var(--toki-scene-position, 0%),
+    var(--toki-scene-rail) 100%
+  );
+  opacity: 0.88;
+}
+.toki-scroll-scene > .toki-scene-track::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: var(--toki-scene-position, 0%);
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--toki-scene-accent);
+  border-radius: 50%;
+  background: var(--c-paper, #f4f1ea);
+  box-shadow: 0 0 0 3px rgba(195, 42, 57, 0.12), 0 0 12px rgba(195, 42, 57, 0.18);
+  opacity: var(--toki-scene-opacity, 0.42);
+  transform: translateX(-50%);
+  transition: opacity 160ms var(--ease-shutter-snap, ease-out);
+}
+.toki-scroll-scene--dark > .toki-scene-track::after {
+  background: #09090b;
+}
+.toki-scroll-parallax {
+  will-change: translate;
+}
+@supports (translate: 0 1px) {
+  .toki-scroll-parallax {
+    translate: 0 var(--toki-parallax-y, 0px);
+  }
+}
+
+/* Keep scroll graphics lighter on touch and constrained hardware. */
+@media (max-width: 680px) {
+  .toki-scroll-scene > .toki-scene-track { width: calc(100% - 36px); }
+}
+@media (hover: none) {
+  .toki-scroll-parallax { will-change: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .toki-scroll-scene > .toki-scene-track { display: none !important; }
+  .toki-scroll-parallax { translate: none !important; will-change: auto !important; }
+}
 
 /* Profile 5: editorial focus pull — typography resolves like a lens finding focus. */
 .motion-item[data-motion="focus-pull"],
