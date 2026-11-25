@@ -1,0 +1,81 @@
+/* TOKI SATSUEI — homepage booking sheet: full-width, one-field-per-row layout. */
+.toki-booking-sheet .toki-booking-sheet__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(2rem, 3.6vw, 3.25rem);
+  width: 100%;
+  max-width: 880px;
+  margin-inline: auto;
+  padding-top: clamp(1.75rem, 3vw, 2.5rem);
+}
+.toki-booking-sheet .toki-booking-sheet__group {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.75rem, 3vw, 2.4rem);
+  min-width: 0;
+  width: 100%;
+}
+.toki-booking-sheet .booking-fieldset {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: clamp(1rem, 1.7vw, 1.3rem);
+  width: 100%;
+  min-width: 0;
+}
+.toki-booking-sheet .booking-fieldset legend {
+  width: 100%;
+  margin-bottom: 0.25rem;
+}
+.toki-booking-sheet .form-split,
+.toki-booking-sheet .toki-field-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 1.15rem;
+  width: 100%;
+  min-width: 0;
+}
+.toki-booking-sheet .booking-fieldset label,
+.toki-booking-sheet .form-split > label,
+.toki-booking-sheet .toki-field-row > label {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.6rem;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+}
+.toki-booking-sheet .booking-fieldset input:not([type="checkbox"]),
+.toki-booking-sheet .booking-fieldset select,
+.toki-booking-sheet .booking-fieldset textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  min-height: 56px;
+  font-size: 16px;
+}
+.toki-booking-sheet .booking-fieldset textarea { min-height: 148px; }
+.toki-booking-sheet .booking-fieldset:focus-within {
+  border-top-color: rgba(195, 42, 57, 0.72);
+}
+.toki-booking-sheet .booking-fieldset label small { max-width: 72ch; }
+@media (max-width: 680px) {
+  .toki-booking-sheet .toki-booking-sheet__layout { gap: 2rem; }
+  .toki-booking-sheet .booking-fieldset { gap: 1rem; }
+  .toki-booking-sheet .booking-fieldset legend { letter-spacing: 0.12em; }
+  .toki-booking-sheet .booking-consent { width: 100%; margin-inline: 0; }
+  .toki-booking-sheet .booking-expectation,
+  .toki-booking-sheet .booking-terms-summary,
+  .toki-booking-sheet .booking-verification { padding-inline: 1rem; }
+}
+@media (hover: hover) and (pointer: fine) {
+  .toki-booking-sheet .booking-fieldset input:not([type="checkbox"]):hover,
+  .toki-booking-sheet .booking-fieldset select:hover,
+  .toki-booking-sheet .booking-fieldset textarea:hover {
+    border-color: rgba(195, 42, 57, 0.58);
+  }
+}

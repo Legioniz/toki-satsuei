@@ -42,6 +42,9 @@
         ".about-copy > *", ".faq-list details", ".faq-aside",
         ".inquiry-form > label", ".inquiry-form > .form-split",
         ".toki-booking-sheet .booking-fieldset",
+        ".toki-booking-sheet .booking-fieldset > label",
+        ".toki-booking-sheet .booking-fieldset .form-split > label",
+        ".toki-booking-sheet .booking-consent",
         ".toki-booking-sheet .booking-verification",
         ".toki-booking-sheet .form-submit",
         ".policy-hero > *", ".policy-article", ".policy-index",
@@ -93,8 +96,7 @@
           </g>
         </svg>
         <div class="toki-intro-seal">
-          <span class="toki-intro-kanji">時の記憶</span>
-          <span class="toki-intro-brand">TOKI SATSUEI</span>
+          <img class="toki-intro-logo" src="https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/30515ce50_Toki_Satsuei_Brushstroke_Emblem.png" alt="" decoding="async" fetchpriority="high">
         </div>
         <span class="toki-intro-sweep"></span>
       </div>

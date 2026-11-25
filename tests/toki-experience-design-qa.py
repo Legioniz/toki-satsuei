@@ -30,6 +30,10 @@ def main() -> None:
         assert "experience.css" in (ROOT / bundle_name).read_text(encoding="utf-8").splitlines()[0], f"{filename}: experience layer is not bundled"
 
     css = (ROOT / "experience.css").read_text(encoding="utf-8")
+    enhancements = (ROOT / "site-enhancements.css").read_text(encoding="utf-8")
+    global_motion = (ROOT / "global-motion.css").read_text(encoding="utf-8")
+    motion_js = (ROOT / "motion-system.js").read_text(encoding="utf-8")
+    home_bundle = (ROOT / "toki-home.css").read_text(encoding="utf-8")
     for selector in [
         ".booking-form-intro", ".booking-fieldset", ".booking-expectation",
         ".booking-terms-summary", ".toki-assurance", ".toki-booking-sheet__layout", ".package-duration", ".session-flexible-duration",
@@ -37,6 +41,14 @@ def main() -> None:
         ".primary-nav a", ".hero-opening .hero-lead",
     ]:
         assert selector in css, f"Experience layer is missing {selector}"
+
+    assert "grid-template-columns: minmax(0, 1fr)" in enhancements
+    assert ".toki-booking-sheet .form-split" in enhancements
+    assert "site-enhancements.css" in home_bundle.splitlines()[0]
+    assert "global-motion.css" in home_bundle.splitlines()[0]
+    assert ".toki-intro-logo" in global_motion
+    assert "30515ce50_Toki_Satsuei_Brushstroke_Emblem.png" in motion_js
+    assert ".toki-booking-sheet .booking-fieldset .form-split > label" in motion_js
 
     home = (ROOT / "index.html").read_text(encoding="utf-8")
     policy = (ROOT / "policies.html").read_text(encoding="utf-8")
@@ -88,6 +100,9 @@ def main() -> None:
             context.route("https://**", lambda route: route.abort())
             page = context.new_page()
             page.goto(base + "/index.html", wait_until="domcontentloaded")
+            intro = page.locator(".toki-intro-curtain")
+            assert intro.count() == 1, "The logo intro should appear on a normal-motion page load."
+            assert intro.locator(".toki-intro-logo").get_attribute("src") == "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/30515ce50_Toki_Satsuei_Brushstroke_Emblem.png"
             page.wait_for_selector(".booking-fieldset")
             assert page.locator(".booking-fieldset").count() == 3
             legends = [" ".join(value.split()) for value in page.locator(".booking-fieldset legend").all_inner_texts()]
@@ -158,6 +173,15 @@ def main() -> None:
             assert contrast["label"] >= 4.5, f"Form labels miss 4.5:1 contrast: {contrast}"
             assert contrast["input"] >= 4.5, f"Form input text misses 4.5:1 contrast: {contrast}"
 
+            for width in [320, 390, 680, 768, 1024, 1440]:
+                page.set_viewport_size({"width": width, "height": 850})
+                layout_columns = page.locator(".toki-booking-sheet__layout").evaluate("(node) => getComputedStyle(node).gridTemplateColumns.trim().split(/\\s+/).length")
+                split_columns = page.locator(".toki-booking-sheet .form-split").first.evaluate("(node) => getComputedStyle(node).gridTemplateColumns.trim().split(/\\s+/).length")
+                geometry = page.locator('select[name="session"]').evaluate("(node) => ({control: node.getBoundingClientRect().width, label: node.parentElement.getBoundingClientRect().width})")
+                assert layout_columns == 1, f"Booking groups should remain vertical at {width}px"
+                assert split_columns == 1, f"Booking fields should remain one per row at {width}px"
+                assert geometry["control"] >= geometry["label"] - 1, f"Booking control should fill its row at {width}px: {geometry}"
+
             page.set_viewport_size({"width": 320, "height": 700})
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), "Horizontal overflow at 320px"
             page.locator(".site-header").evaluate("(node) => { node.classList.remove('is-auto-hidden','is-initial-hidden'); node.classList.add('is-revealed'); node.style.transform = 'translateY(0)'; }")
@@ -167,13 +191,20 @@ def main() -> None:
             assert page.locator(".primary-nav").is_visible()
             page.keyboard.press("Escape")
             assert page.locator(".menu-toggle").get_attribute("aria-expanded") == "false"
+
+            reduced_context = browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="reduce")
+            reduced_context.route("https://**", lambda route: route.abort())
+            reduced_page = reduced_context.new_page()
+            reduced_page.goto(base + "/index.html", wait_until="domcontentloaded")
+            assert reduced_page.locator(".toki-intro-curtain").count() == 0, "The intro must respect reduced-motion preferences."
+            reduced_context.close()
             browser.close()
     finally:
         server.shutdown()
         thread.join(timeout=2)
         server.server_close()
 
-    print("PASS TOKI experience design: grouped booking, same-day limits, readable controls, contrast, and responsive navigation.")
+    print("PASS TOKI experience design: one-column booking fields across six widths, logo intro, reduced-motion parity, same-day limits, readable controls, contrast, and responsive navigation.")
 
 
 if __name__ == "__main__":
