@@ -5,6 +5,7 @@ from __future__ import annotations
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+import re
 from threading import Thread
 
 from playwright.sync_api import sync_playwright
@@ -16,6 +17,7 @@ PAGES = {
     "policies.html": [".policy-hero", ".policy-article"],
     "admin.html": [".admin-main"],
     "client-gallery.html": [".client-main"],
+    "404.html": [".not-found-main"],
 }
 
 
@@ -30,20 +32,39 @@ class QuietHandler(SimpleHTTPRequestHandler):
 def main() -> None:
     motion = (ROOT / "motion-system.js").read_text(encoding="utf-8")
     global_css = (ROOT / "global-motion.css").read_text(encoding="utf-8")
+    shared_motion_css = (ROOT / "motion-refinements.css").read_text(encoding="utf-8")
+    intro_css = (ROOT / "motion-system.css").read_text(encoding="utf-8")
     workflow = (ROOT / ".github/workflows/deploy.yml").read_text(encoding="utf-8")
+
+    intro_timing = re.search(
+        r"animation:\s*tokiIntroCurtainOut\s+([0-9.]+)s\s+var\(--ease-quart-in-out\)\s+([0-9.]+)s\s+forwards",
+        intro_css,
+    )
+    assert intro_timing, "Page intro curtain is missing its explicit timing."
+    intro_total = sum(float(value) for value in intro_timing.groups())
+    assert intro_total <= 0.6, (
+        f"Page intro curtain should clear in 600ms or less, found {intro_total:.3f}s."
+    )
+    intro_fallback = re.search(r"window\.setTimeout\(cleanup,\s*(\d+)\)", motion)
+    assert intro_fallback and int(intro_fallback.group(1)) <= 900, (
+        "Page intro fallback cleanup must not hold the overlay longer than 900ms."
+    )
 
     for token in [
         "SCROLL_SCENE_SELECTOR", "SCROLL_PARALLAX_SELECTOR",
         "--toki-scene-progress", "--toki-scene-position",
-        "--toki-parallax-y", "refreshScrollScenes",
+        "--toki-parallax-y", "--toki-scene-focus", "is-scene-active",
+        "data-scroll-direction", "refreshScrollScenes",
     ]:
         assert token in motion, f"Motion engine is missing {token}"
     for token in ["focus-pull", "film-gate", "@keyframes tokiFocusPull", "@keyframes tokiFilmGate"]:
         assert token in global_css, f"Reveal profile is missing {token}"
     for token in [".toki-scene-track", ".toki-scroll-parallax", "prefers-reduced-motion: reduce"]:
         assert token in global_css, f"Global motion layer is missing {token}"
+    for token in [".is-scene-active", "::view-transition-new(root)", "tokiPageEnter", "data-motion-tier"]:
+        assert token in shared_motion_css, f"Shared motion refinements are missing {token}"
     assert "toki-scroll-motion-qa.py" in workflow, "Scroll motion browser QA is not part of CI."
-    expected_asset_version = "20261125-v9-scroll-choreography"
+    expected_asset_version = "20261125-v11-quick-intro"
     for page_name in ["index.html", "library.html", "policies.html", "404.html", "admin.html", "client-gallery.html"]:
         page_source = (ROOT / page_name).read_text(encoding="utf-8")
         bundle = {
@@ -57,8 +78,7 @@ def main() -> None:
         assert f"./{bundle}?v={expected_asset_version}" in page_source, (
             f"{page_name}: generated stylesheet cache key is stale"
         )
-        if page_name != "404.html":
-            assert f"./motion-system.js?v={expected_asset_version}" in page_source, (
+        assert f"./motion-system.js?v={expected_asset_version}" in page_source, (
                 f"{page_name}: shared motion controller cache key is stale"
             )
 
@@ -174,7 +194,7 @@ def main() -> None:
         server.server_close()
         thread.join(timeout=2)
 
-    print("PASS TOKI scroll motion: chapter progress, parallax bounds, five page integrations, six responsive widths, and reduced-motion parity.")
+    print("PASS TOKI scroll motion: chapter focus, progress, parallax bounds, six page integrations, six responsive widths, reduced-motion parity, and cross-page transitions.")
 
 
 if __name__ == "__main__":

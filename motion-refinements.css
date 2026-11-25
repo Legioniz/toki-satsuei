@@ -1,0 +1,115 @@
+/* TOKI SATSUEI — motion refinements, shared by every page bundle. */
+
+/* One focal section at a time: the chapter rail brightens as its scene enters focus. */
+.toki-scroll-scene > .toki-scene-track::after {
+  transition:
+    opacity 180ms var(--ease-shutter-snap),
+    box-shadow 220ms var(--ease-expo-out),
+    background-color 180ms var(--ease-shutter-snap);
+}
+.toki-scroll-scene.is-scene-active > .toki-scene-track::before {
+  opacity: 1;
+}
+.toki-scroll-scene.is-scene-active > .toki-scene-track::after {
+  opacity: 1;
+  box-shadow:
+    0 0 0 4px rgba(195, 42, 57, 0.16),
+    0 0 18px rgba(195, 42, 57, 0.32);
+}
+.toki-scroll-scene.is-scene-active .section-heading > div:first-child::after {
+  box-shadow: 0 0 14px rgba(195, 42, 57, 0.28);
+  transition: box-shadow 260ms var(--ease-expo-out);
+}
+
+/* Keep the darkroom overlays inexpensive on constrained devices. */
+html[data-motion-tier="lite"] .toki-film-grain,
+html[data-motion-tier="lite"] .toki-safelight-aura {
+  display: none !important;
+}
+html[data-motion-tier="lite"] .toki-vf-ring-outer,
+html[data-motion-tier="lite"] .toki-vf-ring-mid,
+html[data-motion-tier="lite"] .toki-vf-ring-inner,
+html[data-motion-tier="lite"] .toki-vf-corners {
+  animation: none !important;
+}
+
+/* Preserve the masthead across supported cross-document view transitions. */
+:where(.site-header, .admin-header, .client-header) {
+  view-transition-name: toki-header;
+}
+::view-transition-old(root) {
+  animation: tokiPageExit 180ms var(--ease-in-out-sine) both;
+}
+::view-transition-new(root) {
+  animation: tokiPageEnter 420ms var(--ease-expo-out) both;
+}
+::view-transition-group(toki-header) {
+  animation-duration: 360ms;
+  animation-timing-function: var(--ease-shutter-snap);
+}
+::view-transition-old(toki-header),
+::view-transition-new(toki-header) {
+  animation-duration: 360ms;
+  animation-timing-function: var(--ease-shutter-snap);
+}
+@keyframes tokiPageExit {
+  to {
+    opacity: 0;
+    filter: blur(2px);
+    transform: scale(0.997);
+  }
+}
+@keyframes tokiPageEnter {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+    transform: translate3d(0, 9px, 0) scale(1.003);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+/* Tactile control feedback; visual response only, no layout movement. */
+html.motion-system-ready :where(
+  .button, .nav-contact, .package-link, .filter-button,
+  .admin-btn, .lightbox-nav, .lightbox-close, .menu-toggle
+) {
+  transform-origin: center;
+  transition:
+    transform 180ms var(--ease-spring-detent),
+    color 180ms var(--ease-shutter-snap),
+    border-color 180ms var(--ease-shutter-snap),
+    background-color 180ms var(--ease-shutter-snap),
+    box-shadow 220ms var(--ease-expo-out);
+}
+html.motion-system-ready :where(
+  .button, .nav-contact, .package-link, .filter-button,
+  .admin-btn, .lightbox-nav, .lightbox-close, .menu-toggle
+):active:not(:disabled) {
+  transform: translateY(1px) scale(0.975);
+}
+html.motion-system-ready :where(
+  .button, .nav-contact, .package-link, .filter-button,
+  .admin-btn, .lightbox-nav, .lightbox-close, .menu-toggle
+):focus-visible {
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.site-header, .admin-header, .client-header) {
+    view-transition-name: none;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-group(toki-header),
+  ::view-transition-old(toki-header),
+  ::view-transition-new(toki-header) {
+    animation: none !important;
+  }
+  .toki-scroll-scene.is-scene-active > .toki-scene-track::after {
+    box-shadow: none;
+  }
+}

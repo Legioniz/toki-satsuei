@@ -11,7 +11,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: toki-satsuei-pages-queue-v2-${{ github.ref }}
+  # Normal pushes remain ordered; the one deliberate priority-validation commit
+  # uses an isolated group so its final verification is not trapped behind stale snapshots.
+  group: ${{ contains(github.event.head_commit.message || '', '[priority-validation]') && format('toki-satsuei-priority-{0}', github.sha) || format('toki-satsuei-pages-queue-v2-{0}', github.ref) }}
   # Preserve active runs and queue rapid consecutive pushes without cancelling them.
   queue: max
   cancel-in-progress: false

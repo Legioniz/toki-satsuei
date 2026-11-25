@@ -79,3 +79,12 @@ One stylesheet, loaded last, owns the visual language. Change a token and the wh
 - Primary controls are at least 48px tall; standalone links and the skip link at least 44px; checkboxes 24px (WCAG 2.2 SC 2.5.8 requires 24px).
 - The availability calendar is a labelled `group` of date buttons. Do not use `role="grid"` unless rows, column headers and arrow-key navigation are implemented.
 - Run the accessibility scan after design changes: every public page should report zero axe violations.
+
+
+## Motion refinement — 25 November 2026
+
+- A single active scroll scene marks the section nearest the viewport's focal band. This reinforces location without creating competing progress indicators.
+- Scroll parallax stays bounded and uses the existing adaptive motion tier. On constrained devices, continuous grain and ambient light overlays are disabled.
+- Supported cross-document view transitions preserve the site masthead and use a short, low-amplitude page handoff. Standard navigation remains the fallback.
+- Micro-interactions use short tactile feedback on controls; motion remains decorative and never communicates booking status or replaces readable state.
+- The 404 page loads the same shared motion controller as the other pages so runtime behavior is consistent across all six site surfaces.

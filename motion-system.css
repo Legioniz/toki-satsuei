@@ -40,7 +40,7 @@
   place-items: center;
   background:
     radial-gradient(circle at 50% 48%, rgba(163, 31, 45, 0.22), rgba(9, 9, 11, 0.98) 62%, #050506 100%);
-  animation: tokiIntroCurtainOut 0.62s var(--ease-quart-in-out) 0.92s forwards;
+  animation: tokiIntroCurtainOut 0.48s var(--ease-quart-in-out) 0.04s forwards;
 }
 .toki-intro-stage {
   position: relative;
@@ -59,22 +59,22 @@
 .toki-intro-ring-outer {
   transform-box: fill-box;
   transform-origin: center;
-  animation: tokiIntroOrbitSpin 1.35s var(--ease-expo-out) both;
+  animation: tokiIntroOrbitSpin 0.5s var(--ease-expo-out) both;
 }
 .toki-intro-ring-crimson {
   transform-box: fill-box;
   transform-origin: center;
-  animation: tokiIntroRingSnap 0.95s var(--ease-spring-overshoot) 0.08s both;
+  animation: tokiIntroRingSnap 0.46s var(--ease-spring-overshoot) 0.02s both;
 }
 .toki-intro-ring-gold {
   transform-box: fill-box;
   transform-origin: center;
-  animation: tokiIntroIrisScale 0.85s var(--ease-quart-in-out) 0.05s both;
+  animation: tokiIntroIrisScale 0.44s var(--ease-quart-in-out) 0.02s both;
 }
 .toki-intro-blades {
   transform-box: fill-box;
   transform-origin: center;
-  animation: tokiIntroBladesOpen 0.9s var(--ease-expo-out) both;
+  animation: tokiIntroBladesOpen 0.46s var(--ease-expo-out) both;
 }
 .toki-intro-seal {
   position: relative;
@@ -90,20 +90,20 @@
   letter-spacing: 0.26em;
   text-indent: 0.26em;
   text-shadow: 0 0 24px rgba(195, 42, 57, 0.55);
-  animation: tokiIntroSealPop 0.72s var(--ease-spring-overshoot) 0.06s both;
+  animation: tokiIntroSealPop 0.42s var(--ease-spring-overshoot) 0.02s both;
 }
 .toki-intro-brand {
   color: #e8828d;
   font: 700 11px/1 var(--font-mono, "Space Mono", monospace);
   letter-spacing: 0.34em;
   text-indent: 0.34em;
-  animation: tokiIntroBrandFade 0.65s var(--ease-shutter-snap) 0.22s both;
+  animation: tokiIntroBrandFade 0.38s var(--ease-shutter-snap) 0.06s both;
 }
 .toki-intro-sweep {
   position: fixed;
   inset: 0;
   background: linear-gradient(108deg, transparent 36%, rgba(245, 242, 235, 0.16) 49%, rgba(195, 42, 57, 0.28) 52%, transparent 64%);
-  animation: tokiIntroSweep 0.72s var(--ease-quart-in-out) 0.36s both;
+  animation: tokiIntroSweep 0.36s var(--ease-quart-in-out) 0.08s both;
 }
 
 @keyframes tokiIntroOrbitSpin {

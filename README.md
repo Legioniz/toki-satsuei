@@ -119,3 +119,12 @@ Never put webhook URLs, API keys, Supabase secret/service-role keys, or Turnstil
 Make's default webhook response is HTTP 200 with plain-text `Accepted`. That means the notification was queued, not that Gmail delivered the email. Check the Make scenario execution history when diagnosing notification failures. Supabase remains the authoritative booking store.
 
 The source of the intake function is tracked at `supabase/functions/portfolio-submit/index.ts`. It is shared with the main portfolio backend; the TOKI email-notification call runs only for `kind: "toki_booking"` requests.
+
+
+## Motion and transition system
+
+The motion implementation has one runtime source of truth: `motion-system.js`, its core stylesheet `motion-system.css`, and shared refinements in `motion-refinements.css`. Scroll scenes receive a single active focal state, section progress, and bounded image parallax through the shared runtime. The active chapter marker is decorative and does not carry essential information.
+
+Cross-document view transitions progressively enhance supported browsers and preserve the masthead as a shared visual element. They do not replace normal navigation. Reduced-motion preferences disable the page transition and scroll-linked effects; constrained devices also skip continuous grain and ambient overlay work.
+
+Edit the source stylesheets, then run `python scripts/build-css.py` to regenerate all six `toki-*.css` page bundles. Do not hand-edit generated bundles. The scroll-motion browser QA checks each page—including the 404 page—for runtime integration, scene behavior, responsive overflow, reduced-motion parity, and current asset references.

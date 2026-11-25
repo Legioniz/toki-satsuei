@@ -15,7 +15,7 @@ EXPECTED_CONSUMERS = {
     "index.html": ("motion-system.js", "site.js", "availability.js"),
     "library.html": ("motion-system.js", "site.js", "library.js"),
     "policies.html": ("motion-system.js", "site.js"),
-    "404.html": (),
+    "404.html": ("motion-system.js",),
     "admin.html": ("motion-system.js", "admin.js"),
     "client-gallery.html": ("motion-system.js", "client-gallery.js"),
 }
@@ -123,7 +123,7 @@ def main() -> None:
         bundle_header = (ROOT / parser.styles[0]).read_text(encoding="utf-8").splitlines()[0] if len(parser.styles) == 1 else ""
         if len(parser.styles) != 1:
             failures.append(f"{page} should link exactly one bundled stylesheet, found {parser.styles}")
-        if page != "404.html" and "motion-system.css" not in bundle_header:
+        if "motion-system.css" not in bundle_header:
             failures.append(f"{page} bundle is missing the shared motion stylesheet")
 
     for retired in ("facebook-feed.js", "facebook-posts.json"):

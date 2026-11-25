@@ -138,7 +138,7 @@
     curtain.addEventListener("animationend", event => {
       if (event.target === curtain) cleanup();
     });
-    window.setTimeout(cleanup, 1650);
+    window.setTimeout(cleanup, 850);
   }
 
   function ensureDarkroomOverlays() {
@@ -551,7 +551,11 @@
   let smoothedVel = 0;
 
   function updateSectionDepth(vh) {
-    document.querySelectorAll(SCROLL_SCENE_SELECTOR).forEach(scene => {
+    const scenes = Array.from(document.querySelectorAll(SCROLL_SCENE_SELECTOR));
+    let focusedScene = null;
+    let focusedScore = -1;
+
+    scenes.forEach(scene => {
       const rect = scene.getBoundingClientRect();
       const centerOffset = ((rect.top + rect.height * 0.5) - vh * 0.5) / Math.max(1, vh);
       const clamped = Math.max(-1, Math.min(1, centerOffset));
@@ -561,6 +565,18 @@
       scene.style.setProperty("--toki-scene-progress", progress.toFixed(4));
       scene.style.setProperty("--toki-scene-position", (progress * 100).toFixed(2) + "%");
       scene.style.setProperty("--toki-scene-opacity", (0.42 + focus * 0.58).toFixed(3));
+      scene.style.setProperty("--toki-scene-focus", focus.toFixed(3));
+
+      const intersectsFocusBand = rect.bottom > vh * 0.18 && rect.top < vh * 0.82;
+      if (intersectsFocusBand && focus > focusedScore) {
+        focusedScene = scene;
+        focusedScore = focus;
+      }
+    });
+
+    /* Keep one clear focal chapter at a time, even when sections overlap. */
+    scenes.forEach(scene => {
+      scene.classList.toggle("is-scene-active", scene === focusedScene);
     });
 
     document.querySelectorAll(SCROLL_TRACKED_SELECTOR).forEach(el => {
@@ -582,7 +598,6 @@
       media.style.setProperty("--toki-parallax-y", (-clamped * parallaxStrength).toFixed(1) + "px");
     });
   }
-
   function stepScrollMetrics() {
     scrollFrame = 0;
     if (reduced) return;
@@ -592,6 +607,7 @@
     const pct = Math.min(1, Math.max(0, sy / maxScroll));
     const deg = (pct * 360).toFixed(1) + "deg";
     const delta = sy - prevScrollY;
+    if (delta !== 0) root.dataset.scrollDirection = delta > 0 ? "down" : "up";
     prevScrollY = sy;
 
     const instantVel = Math.max(-1, Math.min(1, delta / 48));
@@ -680,10 +696,13 @@
       root.style.removeProperty("--scroll-pct");
       root.style.removeProperty("--scroll-deg");
       root.style.removeProperty("--scroll-vel");
+      root.removeAttribute("data-scroll-direction");
       document.querySelectorAll(".toki-scroll-scene").forEach(scene => {
+        scene.classList.remove("is-scene-active");
         scene.style.removeProperty("--toki-scene-progress");
         scene.style.removeProperty("--toki-scene-position");
         scene.style.removeProperty("--toki-scene-opacity");
+        scene.style.removeProperty("--toki-scene-focus");
       });
       document.querySelectorAll(".toki-scroll-parallax").forEach(media => {
         media.style.removeProperty("--toki-parallax-y");
