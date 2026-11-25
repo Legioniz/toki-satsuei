@@ -70,7 +70,10 @@ def main() -> None:
     try:
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch(headless=True, args=["--no-sandbox", "--disable-dev-shm-usage"])
-            context = browser.new_context(viewport={"width": 1440, "height": 900})
+            context = browser.new_context(
+                viewport={"width": 1440, "height": 900},
+                reduced_motion="no-preference",
+            )
             context.route("https://**", lambda route: route.abort())
 
             for filename, selectors in PAGES.items():
@@ -94,6 +97,9 @@ def main() -> None:
             page = context.new_page()
             page.goto(base + "/index.html", wait_until="domcontentloaded")
             page.wait_for_selector(".toki-scroll-scene > .toki-scene-track")
+            assert page.evaluate("window.TokiMotion.reduced") is False, (
+                "Normal-motion scroll regression context unexpectedly has reduced motion enabled."
+            )
             assert page.locator(".toki-scroll-scene").count() >= 10
 
             # Chapter progress is updated after a real document scroll.
