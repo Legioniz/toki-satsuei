@@ -33,6 +33,21 @@
       ]
     },
     {
+      profile: "focus-pull",
+      selectors: [
+        ".section-heading h2", ".policy-hero h1",
+        ".archive-head h1", ".contact-copy h2"
+      ]
+    },
+    {
+      profile: "film-gate",
+      selectors: [
+        ".archive-group", ".policy-article",
+        ".admin-metric-card", ".client-session-banner",
+        ".booking-reference-card"
+      ]
+    },
+    {
       profile: "editorial-unfold",
       selectors: [
         ".intro-inner > *", ".section-heading > div > .eyebrow",
@@ -59,6 +74,18 @@
     ".hero-opening", ".about-visual", ".frame-intention",
     ".calculator-wrap", ".availability-panel", ".booking-trust-bar",
     ".toki-assurance", ".policy-hero", ".archive-head"
+  ].join(",");
+  const SCROLL_SCENE_SELECTOR = [
+    ".hero-opening", ".intro-band", ".work-section", ".services-section",
+    ".sessions-section", ".availability-section", ".process-section",
+    ".about-section", ".faq-section", ".contact-section",
+    ".archive-head", ".archive-group", ".policy-hero", ".policy-article",
+    ".not-found-main", ".admin-main", ".client-main"
+  ].join(",");
+  const SCROLL_PARALLAX_SELECTOR = [
+    ".hero-opening .hero-photo",
+    ".about-visual img",
+    ".gallery-card .gallery-image img"
   ].join(",");
 
   root.classList.add("motion-system-ready", "motion-ready");
@@ -383,6 +410,35 @@
     if (element.classList.contains("motion-item")) element.classList.remove("is-motion-visible");
   }
 
+  function matchingElements(node, selector) {
+    const matches = [];
+    if (node instanceof Element && node.matches(selector)) matches.push(node);
+    if (typeof node.querySelectorAll === "function") {
+      matches.push(...node.querySelectorAll(selector));
+    }
+    return matches;
+  }
+
+  function prepareScrollScenes(node = document) {
+    matchingElements(node, SCROLL_SCENE_SELECTOR).forEach(scene => {
+      scene.classList.add("toki-scroll-scene");
+      if (scene.matches(".hero-opening, .services-section, .policy-hero, .admin-main, .client-main")) {
+        scene.classList.add("toki-scroll-scene--dark");
+      }
+      const hasTrack = Array.from(scene.children).some(child => child.classList.contains("toki-scene-track"));
+      if (!hasTrack) {
+        const track = document.createElement("span");
+        track.className = "toki-scene-track";
+        track.setAttribute("aria-hidden", "true");
+        scene.prepend(track);
+      }
+    });
+
+    matchingElements(node, SCROLL_PARALLAX_SELECTOR).forEach(media => {
+      media.classList.add("toki-scroll-parallax");
+    });
+  }
+
   function prepare(element) {
     if (!(element instanceof HTMLElement)) return;
     if (element.matches(".hero-opening")) return;
@@ -410,6 +466,7 @@
 
   function scan(node = document) {
     if (!node) return;
+    prepareScrollScenes(node);
     if (node instanceof HTMLElement) {
       if (node.matches(ALL_SELECTOR) || node.hasAttribute("data-reveal")) prepare(node);
     }
@@ -494,12 +551,35 @@
   let smoothedVel = 0;
 
   function updateSectionDepth(vh) {
+    document.querySelectorAll(SCROLL_SCENE_SELECTOR).forEach(scene => {
+      const rect = scene.getBoundingClientRect();
+      const centerOffset = ((rect.top + rect.height * 0.5) - vh * 0.5) / Math.max(1, vh);
+      const clamped = Math.max(-1, Math.min(1, centerOffset));
+      const progress = Math.min(1, Math.max(0, (vh - rect.top) / Math.max(1, vh + rect.height)));
+      const focus = Math.max(0, Math.min(1, 1 - Math.abs(clamped)));
+
+      scene.style.setProperty("--toki-scene-progress", progress.toFixed(4));
+      scene.style.setProperty("--toki-scene-position", (progress * 100).toFixed(2) + "%");
+      scene.style.setProperty("--toki-scene-opacity", (0.42 + focus * 0.58).toFixed(3));
+    });
+
     document.querySelectorAll(SCROLL_TRACKED_SELECTOR).forEach(el => {
       const rect = el.getBoundingClientRect();
       if (rect.bottom < -120 || rect.top > vh + 120) return;
       const centerOffset = ((rect.top + rect.height * 0.5) - vh * 0.5) / Math.max(1, vh);
       const clamped = Math.max(-1, Math.min(1, centerOffset));
       el.style.setProperty("--el-center", clamped.toFixed(3));
+    });
+
+    const parallaxStrength = root.dataset.motionTier === "lite"
+      ? 6
+      : root.dataset.viewportClass === "phone" ? 9 : 16;
+    document.querySelectorAll(SCROLL_PARALLAX_SELECTOR).forEach(media => {
+      const rect = media.getBoundingClientRect();
+      if (rect.bottom < -120 || rect.top > vh + 120) return;
+      const centerOffset = ((rect.top + rect.height * 0.5) - vh * 0.5) / Math.max(1, vh);
+      const clamped = Math.max(-1, Math.min(1, centerOffset));
+      media.style.setProperty("--toki-parallax-y", (-clamped * parallaxStrength).toFixed(1) + "px");
     });
   }
 
@@ -572,9 +652,8 @@
     if (!scrollFrame && !reduced) scrollFrame = requestAnimationFrame(stepScrollMetrics);
   }, { passive: true });
   window.addEventListener("orientationchange", syncAdaptiveEnvironment, { passive: true });
-  stepScrollMetrics();
-
   scan(document);
+  stepScrollMetrics();
 
   if ("MutationObserver" in window) {
     mutationObserver = new MutationObserver(records => {
@@ -601,6 +680,14 @@
       root.style.removeProperty("--scroll-pct");
       root.style.removeProperty("--scroll-deg");
       root.style.removeProperty("--scroll-vel");
+      document.querySelectorAll(".toki-scroll-scene").forEach(scene => {
+        scene.style.removeProperty("--toki-scene-progress");
+        scene.style.removeProperty("--toki-scene-position");
+        scene.style.removeProperty("--toki-scene-opacity");
+      });
+      document.querySelectorAll(".toki-scroll-parallax").forEach(media => {
+        media.style.removeProperty("--toki-parallax-y");
+      });
     } else {
       observer = createObserver();
       if (observer) {
@@ -608,6 +695,7 @@
           observer.observe(element);
         });
       }
+      scan(document);
       stepScrollMetrics();
     }
   });
@@ -630,6 +718,10 @@
     triggerShutterFlash,
     pulseMetric,
     rescan: scan,
+    refreshScrollScenes(node = document) {
+      scan(node);
+      if (!reduced) stepScrollMetrics();
+    },
     get reduced() { return reduced; }
   });
 })();

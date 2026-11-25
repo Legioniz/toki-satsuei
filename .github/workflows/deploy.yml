@@ -66,6 +66,9 @@ jobs:
       - name: Verify adaptive interactions
         run: python tests/toki-adaptive-interaction-qa.py
 
+      - name: Verify scroll-linked motion and parallax
+        run: python tests/toki-scroll-motion-qa.py
+
       - name: Verify experience design and booking usability
         run: python tests/toki-experience-design-qa.py
 

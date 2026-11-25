@@ -39,6 +39,7 @@ python scripts/build-toki-media-library.py
 python scripts/build-css.py --check
 python tests/toki-layout-browser-qa.py
 python tests/toki-adaptive-interaction-qa.py
+python tests/toki-scroll-motion-qa.py
 python tests/toki-experience-design-qa.py
 python tests/toki-public-pages-qa.py
 python tests/toki-booking-browser-qa.py
@@ -76,7 +77,7 @@ The site is delivered as six static pages backed by unified bundled CSS (`script
 | File | Used by | Responsibility |
 | --- | --- | --- |
 | `toki-home.css`, `toki-archive.css`, `toki-policies.css`, `toki-404.css`, `toki-admin.css`, `toki-client.css` | All pages | Validated page bundles compiled by `scripts/build-css.py` from `styles.css`, `refinement.css`, `policies.css`, `availability.css`, `motion-system.css`, `cinematic.css`, `experience.css`, `fixes.css`, `pricing-calculator.css`, `library.css`, `pages.css`, `admin.css`, `client-gallery.css`, `design-system.css`, `orientation.css`, the shared `global-motion.css`, and the homepage-only `site-enhancements.css` |
-| `motion-system.js` | Home, archive, policies, admin, client gallery | Official-logo aperture intro, shared darkroom optical HUD, shutter flash transitions, 3D hover tilt, scroll parallax, menu, and dialog helpers |
+| `motion-system.js` | Home, archive, policies, admin, client gallery | Official-logo aperture intro, six reveal profiles, scroll-linked chapter rails and bounded image parallax, pointer tilt, shutter feedback, menu, and dialog helpers |
 | `site.js` | Home, archive, and policies | Navigation, page progress, interactive pricing calculator + booking sheet synchronization, Web Audio feedback, and Supabase intake relay |
 | `availability.css` + `availability.js` | `index.html` | Public monthly calendar, confirmed-date feed, Manila month rollover, inquiry prefill, and minute refresh |
 | `library.js` | `library.html` | Archive filters, search, media manifest, and album viewer |
