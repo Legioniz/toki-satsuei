@@ -171,6 +171,7 @@ html[data-motion-tier="lite"] [data-reveal][data-motion="spring-card"].is-visibl
     text-shadow: none !important;
   }
 }
+.hero-opening .hero-art,
 .hero-opening .hero-photo,
 .hero-opening .hero-stamp,
 .hero-opening .hero-annotation {
