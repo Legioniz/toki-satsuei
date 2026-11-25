@@ -129,3 +129,8 @@ The motion implementation has one runtime source of truth: `motion-system.js`, i
 Cross-document view transitions progressively enhance supported browsers and preserve the masthead as a shared visual element. They do not replace normal navigation. Reduced-motion preferences disable the page transition and scroll-linked effects; constrained devices also skip continuous grain and ambient overlay work.
 
 Edit the source stylesheets, then run `python scripts/build-css.py` to regenerate all six `toki-*.css` page bundles. Do not hand-edit generated bundles. The scroll-motion browser QA checks each page—including the 404 page—for runtime integration, scene behavior, responsive overflow, reduced-motion parity, and current asset references.
+
+
+### Client delivery portal
+
+The client portal validates delivery keys and links clients to the private Google Drive folder. It does not display practice images as client photographs. An in-page proofing grid remains hidden until a real, server-provided photo manifest is connected to the delivery record. Access keys are entered into the password field and are not accepted in query strings.

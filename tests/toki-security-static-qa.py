@@ -24,8 +24,8 @@ SECRET_PATTERNS = [
 
 # Contact details must not be embedded in the browser-facing website or public Edge Function source.
 PUBLIC_SOURCE_FILES = [
-    "index.html", "library.html", "policies.html", "404.html",
-    "site.js", "availability.js", "library.js",
+    "index.html", "booking.html", "library.html", "policies.html", "404.html", "client-gallery.html",
+    "site.js", "availability.js", "library.js", "client-gallery.js",
     "supabase/functions/portfolio-submit/index.ts",
     "supabase/functions/toki-calendar/index.ts",
 ]
@@ -73,6 +73,35 @@ for relative in PUBLIC_SOURCE_FILES:
     ):
         if pattern.search(content):
             problems.append(f"{relative}: possible personal {label} embedded in public source")
+
+# Platform migration must enforce the live admin allowlist for journal writes and
+# must never disclose expired/unready delivery folders through public token RPCs.
+platform_migration = ROOT / "supabase" / "migrations" / "20261123120000_toki_v2_core_platform.sql"
+if not platform_migration.exists():
+    problems.append("platform migration: required file is missing")
+else:
+    migration = platform_migration.read_text(encoding="utf-8")
+    for required in (
+        "CREATE OR REPLACE FUNCTION private.is_portfolio_admin()",
+        "SET search_path = ''",
+        "USING ((SELECT private.is_portfolio_admin()))",
+        "WITH CHECK ((SELECT private.is_portfolio_admin()))",
+        "delivery_status IN ('ready', 'delivered')",
+        "delivery_folder_url IS NOT NULL",
+        "jsonb_array_length(p_selections) > 50",
+    ):
+        if required not in migration:
+            problems.append(f"platform migration: missing security control: {required}")
+    if 'USING (true)' in migration or 'WITH CHECK (true)' in migration:
+        problems.append("platform migration: unrestricted authenticated journal write policy detected")
+
+client_gallery = ROOT / "client-gallery.js"
+if client_gallery.exists():
+    gallery_source = client_gallery.read_text(encoding="utf-8")
+    if "DEFAULT_PHOTOS" in gallery_source:
+        problems.append("client-gallery.js: fabricated fallback photos must not appear as client deliveries")
+    if "new URLSearchParams(window.location.search)" in gallery_source:
+        problems.append("client-gallery.js: bearer access keys must not be accepted from query strings")
 
 if problems:
     print("FAIL TOKI static security audit:")

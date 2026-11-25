@@ -21,13 +21,8 @@
   let selectedPhotos = new Set();
   let galleryData = null;
 
-  // Sample client photos for delivery presentation if private storage links are not populated
-  const DEFAULT_PHOTOS = [
-    { id: "frame-001", title: "Edited Portrait 01", url: "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/3db8c3355_242599.jpg" },
-    { id: "frame-002", title: "Detail Study 02", url: "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/b21ff20c7_242600.jpg" },
-    { id: "frame-003", title: "Atmosphere Study 03", url: "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/e03bfd350_242598.jpg" },
-    { id: "frame-004", title: "Composition Study 04", url: "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/52f603569_242601.jpg" }
-  ];
+  const selectionSummary = document.querySelector(".client-selection-summary");
+
 
   async function fetchGallery(token) {
     tokenError.style.display = "none";
@@ -63,6 +58,16 @@
     }
   }
 
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, (character) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[character]);
+  }
+
   function renderGallery() {
     gateSection.hidden = true;
     gallerySection.hidden = false;
@@ -70,30 +75,64 @@
     greeting.textContent = `Photographs for ${galleryData.client_name || "You"}`;
     sessionDetails.textContent = `${galleryData.session_type || "Session"} • Delivered ${galleryData.confirmed_date || "recently"}`;
 
-    if (galleryData.delivery_folder_url) {
-      driveLink.href = galleryData.delivery_folder_url;
-      driveLink.style.display = "inline-flex";
-    } else {
+    try {
+      const folderUrl = new URL(String(galleryData.delivery_folder_url || ""));
+      if (folderUrl.protocol === "https:" && folderUrl.hostname === "drive.google.com") {
+        driveLink.href = folderUrl.href;
+        driveLink.style.display = "inline-flex";
+      } else {
+        driveLink.removeAttribute("href");
+        driveLink.style.display = "none";
+      }
+    } catch {
+      driveLink.removeAttribute("href");
       driveLink.style.display = "none";
     }
 
-    if (Array.isArray(galleryData.client_selected_photos)) {
-      selectedPhotos = new Set(galleryData.client_selected_photos);
+    const suppliedPhotos = Array.isArray(galleryData.photos) ? galleryData.photos : [];
+    const photos = suppliedPhotos.map((photo) => {
+      if (!photo || typeof photo.id !== "string" || typeof photo.title !== "string" || typeof photo.url !== "string") return null;
+      try {
+        const url = new URL(photo.url);
+        if (url.protocol !== "https:") return null;
+        return { id: photo.id, title: photo.title, url: url.href };
+      } catch {
+        return null;
+      }
+    }).filter(Boolean);
+
+    if (!photos.length) {
+      selectedPhotos.clear();
+      if (selectionSummary) selectionSummary.hidden = true;
+      photoGrid.innerHTML = `
+        <div class="client-gallery-empty" role="status">
+          <span class="client-gallery-empty__eyebrow">PRIVATE DELIVERY</span>
+          <h2>Your files are shared through the studio's private delivery link.</h2>
+          <p>This portal has verified your access key, but a private photo preview list has not been connected to it yet. Use the delivery link above to view and download the actual photographs. Contact the studio for help if the link is unavailable.</p>
+        </div>
+      `;
+      return;
     }
+
+    if (selectionSummary) selectionSummary.hidden = false;
+    selectedPhotos = new Set(
+      Array.isArray(galleryData.client_selected_photos)
+        ? galleryData.client_selected_photos.filter((id) => typeof id === "string")
+        : []
+    );
     updateSelectedCount();
 
-    const photos = DEFAULT_PHOTOS;
-    photoGrid.innerHTML = photos.map(p => {
-      const isSelected = selectedPhotos.has(p.id);
+    photoGrid.innerHTML = photos.map((photo) => {
+      const isSelected = selectedPhotos.has(photo.id);
       return `
-        <div class="client-photo-item ${isSelected ? "is-selected" : ""}" data-id="${p.id}" tabindex="0" role="button" aria-pressed="${isSelected}" aria-label="Select photo ${p.title}">
-          <img src="${p.url}" alt="${p.title}" loading="lazy">
+        <div class="client-photo-item ${isSelected ? "is-selected" : ""}" data-id="${escapeHtml(photo.id)}" tabindex="0" role="button" aria-pressed="${isSelected}" aria-label="Select photo ${escapeHtml(photo.title)}">
+          <img src="${escapeHtml(photo.url)}" alt="${escapeHtml(photo.title)}" loading="lazy" decoding="async">
           <div class="client-photo-select-btn" aria-hidden="true">${isSelected ? "✓" : "+"}</div>
         </div>
       `;
     }).join("");
 
-    photoGrid.querySelectorAll(".client-photo-item").forEach(item => {
+    photoGrid.querySelectorAll(".client-photo-item").forEach((item) => {
       const toggle = () => {
         const id = item.dataset.id;
         if (selectedPhotos.has(id)) {
@@ -110,9 +149,9 @@
         updateSelectedCount();
       };
       item.addEventListener("click", toggle);
-      item.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
+      item.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
           toggle();
         }
       });
@@ -160,11 +199,5 @@
     if (token) fetchGallery(token);
   });
 
-  // Check URL param
-  const urlParams = new URLSearchParams(window.location.search);
-  const tokenFromUrl = urlParams.get("token");
-  if (tokenFromUrl) {
-    tokenInput.value = tokenFromUrl;
-    fetchGallery(tokenFromUrl);
-  }
+  // Access keys are entered into the password field, never placed in a URL.
 })();

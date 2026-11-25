@@ -29,6 +29,7 @@ def main() -> None:
     assert 'id="client-gallery-section"' in client_html
     assert 'id="client-token-form"' in client_html
     assert 'id="client-token-input"' in client_html
+    assert 'type="password" id="client-token-input"' in client_html
     assert 'id="client-photo-grid"' in client_html
     assert 'id="client-submit-selection-btn"' in client_html
     assert 'id="client-drive-link"' in client_html
@@ -99,22 +100,18 @@ def main() -> None:
             assert drive_btn.is_visible()
             assert "https://drive.google.com/drive/folders/test-delivery" in (drive_btn.get_attribute("href") or "")
 
-            # Check pre-selected photo count
-            assert "1 photo" in page.locator("#client-selected-count").inner_text()
-            items = page.locator(".client-photo-item")
-            assert items.count() == 4
-            assert items.nth(0).get_attribute("aria-pressed") == "true"
+            # Never substitute practice/sample photos for a client's actual delivered images.
+            assert page.locator(".client-photo-item").count() == 0
+            assert page.locator(".client-gallery-empty").is_visible()
+            assert "Google Drive" in page.locator(".client-gallery-empty").inner_text()
+            assert page.locator(".client-selection-summary").is_hidden()
 
-            # Toggle a second photo
-            items.nth(1).click()
-            assert items.nth(1).get_attribute("aria-pressed") == "true"
-            assert "2 photos" in page.locator("#client-selected-count").inner_text()
-
-            # Submit selections
-            page.locator("#client-submit-selection-btn").click()
-
-            # Test URL token parameter auto-load
+            # Bearer tokens in query strings are not accepted; enter the key into the password field instead.
             page.goto(base_url + "/client-gallery.html?token=token-maya-123", wait_until="domcontentloaded")
+            assert page.locator("#client-gate-section").is_visible()
+            assert not page.locator("#client-gallery-section").is_visible()
+            page.locator("#client-token-input").fill("token-maya-123")
+            page.locator('#client-token-form button[type="submit"]').click()
             page.locator("#client-gallery-section").wait_for(state="visible", timeout=7000)
             assert "Maya Lin" in page.locator("#client-greeting").inner_text()
 
@@ -122,7 +119,7 @@ def main() -> None:
     finally:
         server.shutdown()
 
-    print("PASS TOKI client gallery QA: token authentication gate, personalized proofing gallery, photo favorite selection toggles, Drive link delivery, and URL token preloading.")
+    print("PASS TOKI client gallery QA: password-gated delivery, Google Drive handoff, no fabricated sample photos, no bearer token query strings, and honest empty-state messaging.")
 
 
 if __name__ == "__main__":

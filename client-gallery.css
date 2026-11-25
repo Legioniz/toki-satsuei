@@ -182,3 +182,30 @@ body[hidden]{
 .client-btn-download:hover{
   background:#fff;
 }
+
+.client-gallery-empty{
+  grid-column:1 / -1;
+  padding:clamp(28px,5vw,64px);
+  border:1px solid var(--gallery-border);
+  background:var(--gallery-card);
+}
+.client-gallery-empty__eyebrow{
+  display:block;
+  margin-bottom:14px;
+  color:#e27b84;
+  font:700 11px var(--c-mono,monospace);
+  letter-spacing:.16em;
+}
+.client-gallery-empty h2{
+  max-width:24ch;
+  margin:0 0 12px;
+  color:#f4f1ea;
+  font:500 clamp(26px,3.2vw,36px)/1.15 var(--serif,"Cormorant Garamond",serif);
+}
+.client-gallery-empty p{
+  max-width:68ch;
+  margin:0;
+  color:#d4ccc2;
+  font-size:15px;
+  line-height:1.8;
+}

@@ -102,15 +102,41 @@ BEGIN
   END IF;
 
   IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE tablename = 'toki_journal_entries' AND policyname = 'Admins manage journal entries'
+    SELECT 1 FROM pg_policies WHERE tablename = 'toki_journal_entries' AND policyname = 'Public can view published journal entries'
   ) THEN
-    CREATE POLICY "Admins manage journal entries"
-      ON public.toki_journal_entries FOR ALL
-      TO authenticated
-      USING (true)
-      WITH CHECK (true);
+    CREATE POLICY "Public can view published journal entries"
+      ON public.toki_journal_entries FOR SELECT
+      TO anon, authenticated
+      USING (published = true);
   END IF;
 END $$;
+
+CREATE SCHEMA IF NOT EXISTS private;
+
+CREATE OR REPLACE FUNCTION private.is_portfolio_admin()
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.admin_users AS allowed_admin
+    WHERE allowed_admin.user_id = (SELECT auth.uid())
+  );
+$$;
+
+REVOKE ALL ON FUNCTION private.is_portfolio_admin() FROM PUBLIC, anon;
+GRANT USAGE ON SCHEMA private TO authenticated;
+GRANT EXECUTE ON FUNCTION private.is_portfolio_admin() TO authenticated;
+
+DROP POLICY IF EXISTS "Admins manage journal entries" ON public.toki_journal_entries;
+CREATE POLICY "Admins manage journal entries"
+  ON public.toki_journal_entries FOR ALL
+  TO authenticated
+  USING ((SELECT private.is_portfolio_admin()))
+  WITH CHECK ((SELECT private.is_portfolio_admin()));
 
 -- 6. Function for client delivery lookup & selection submission
 CREATE OR REPLACE FUNCTION public.toki_get_client_gallery(p_token text)
@@ -136,12 +162,13 @@ BEGIN
     'delivery_folder_url', delivery_folder_url,
     'delivery_expires_at', delivery_expires_at,
     'client_selected_photos', client_selected_photos,
-    'client_selection_submitted_at', client_selection_submitted_at,
-    'is_expired', (delivery_expires_at IS NOT NULL AND clock_timestamp() > delivery_expires_at)
+    'client_selection_submitted_at', client_selection_submitted_at
   ) INTO v_result
   FROM public.toki_booking_requests
   WHERE delivery_token = trim(p_token)
-    AND delivery_status NOT IN ('revoked');
+    AND delivery_status IN ('ready', 'delivered')
+    AND delivery_folder_url IS NOT NULL
+    AND (delivery_expires_at IS NULL OR clock_timestamp() <= delivery_expires_at);
 
   IF v_result IS NULL THEN
     RETURN json_build_object('ok', false, 'message', 'Gallery not found or access has been revoked.');
@@ -166,13 +193,27 @@ BEGIN
     RETURN json_build_object('ok', false, 'message', 'Invalid access token.');
   END IF;
 
+  IF p_selections IS NULL OR jsonb_typeof(p_selections) <> 'array' THEN
+    RETURN json_build_object('ok', false, 'message', 'Selections must be a list of photo IDs.');
+  END IF;
+
+  IF jsonb_array_length(p_selections) > 50 OR EXISTS (
+    SELECT 1
+    FROM jsonb_array_elements(p_selections) AS selected(value)
+    WHERE jsonb_typeof(selected.value) <> 'string'
+       OR char_length(selected.value #>> '{}') NOT BETWEEN 1 AND 128
+  ) THEN
+    RETURN json_build_object('ok', false, 'message', 'The selection list contains too many or invalid photo IDs.');
+  END IF;
+
   UPDATE public.toki_booking_requests
   SET
-    client_selected_photos = COALESCE(p_selections, '[]'::jsonb),
+    client_selected_photos = p_selections,
     client_selection_submitted_at = clock_timestamp(),
     updated_at = clock_timestamp()
   WHERE delivery_token = trim(p_token)
-    AND delivery_status NOT IN ('revoked')
+    AND delivery_status IN ('ready', 'delivered')
+    AND delivery_folder_url IS NOT NULL
     AND (delivery_expires_at IS NULL OR clock_timestamp() <= delivery_expires_at);
 
   IF FOUND THEN

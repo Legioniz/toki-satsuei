@@ -295,8 +295,15 @@
   modalCancelBtn?.addEventListener("click", closeBookingModal);
 
   modalGenTokenBtn?.addEventListener("click", () => {
-    const rand = "toki-" + Math.random().toString(36).substring(2, 10) + "-" + Date.now().toString(36);
-    modalDeliveryToken.value = rand;
+    if (!window.crypto || typeof window.crypto.getRandomValues !== "function") {
+      modalDeliveryToken.value = "";
+      window.alert("Secure token generation is unavailable in this browser. Use an updated browser over HTTPS.");
+      return;
+    }
+    const bytes = new Uint8Array(32);
+    window.crypto.getRandomValues(bytes);
+    const token = Array.from(bytes, (value) => value.toString(16).padStart(2, "0")).join("");
+    modalDeliveryToken.value = "toki-" + token;
   });
 
   // Save changes

@@ -33,9 +33,9 @@
     <!-- Token Input Gate -->
     <section class="client-auth-card" id="client-gate-section" aria-labelledby="gate-title">
       <h2 id="gate-title">Access Your Photographs</h2>
-      <p>Enter the private delivery key provided by TOKI SATSUEI in your confirmation message to view your photographs and select favorites.</p>
+      <p>Enter the private delivery key provided by TOKI SATSUEI to open your Google Drive delivery folder. The key is entered here rather than placed in a shareable URL.</p>
       <form id="client-token-form">
-        <input type="text" id="client-token-input" class="admin-input" placeholder="e.g. toki-7x9q-2026" required aria-label="Gallery access token">
+        <input type="password" id="client-token-input" class="admin-input" placeholder="Enter your private delivery key" autocomplete="off" autocapitalize="none" spellcheck="false" required aria-label="Gallery access key">
         <div id="client-token-error" role="alert" style="color:#f1a1a6;font-size:12px;margin-bottom:12px;display:none;"></div>
         <button type="submit" class="admin-btn" id="client-submit-token-btn">Open Private Gallery ↗</button>
       </form>

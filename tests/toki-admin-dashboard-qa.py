@@ -172,7 +172,8 @@ def main() -> None:
             # Test token generator
             page.locator("#modal-gen-token-btn").click()
             token_val = page.locator("#modal-delivery-token").input_value()
-            assert len(token_val) >= 8
+            assert token_val.startswith("toki-") and len(token_val) == 69
+            assert all(character in "0123456789abcdef" for character in token_val[5:]), "Delivery token must use 256 bits from Web Crypto"
 
             # Close modal
             page.locator("#modal-close-btn").click()
