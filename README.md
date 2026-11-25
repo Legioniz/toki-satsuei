@@ -133,4 +133,4 @@ Edit the source stylesheets, then run `python scripts/build-css.py` to regenerat
 
 ### Client delivery portal
 
-The client portal validates delivery keys and links clients to the private Google Drive folder. It does not display practice images as client photographs. An in-page proofing grid remains hidden until a real, server-provided photo manifest is connected to the delivery record. Access keys are entered into the password field and are not accepted in query strings.
+The client portal validates delivery keys and opens the private delivery URL configured by the studio. The destination must use HTTPS; the portal does not depend on a particular third-party storage provider. It does not display practice images as client photographs. An in-page proofing grid remains hidden until a real, server-provided photo manifest is connected to the delivery record. Access keys are entered into the password field and are not accepted in query strings.

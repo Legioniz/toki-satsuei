@@ -33,7 +33,7 @@
     <!-- Token Input Gate -->
     <section class="client-auth-card" id="client-gate-section" aria-labelledby="gate-title">
       <h2 id="gate-title">Access Your Photographs</h2>
-      <p>Enter the private delivery key provided by TOKI SATSUEI to open your Google Drive delivery folder. The key is entered here rather than placed in a shareable URL.</p>
+      <p>Enter the private delivery key provided by TOKI SATSUEI to open your private photo delivery. The key is entered here rather than placed in a shareable URL.</p>
       <form id="client-token-form">
         <input type="password" id="client-token-input" class="admin-input" placeholder="Enter your private delivery key" autocomplete="off" autocapitalize="none" spellcheck="false" required aria-label="Gallery access key">
         <div id="client-token-error" role="alert" style="color:#f1a1a6;font-size:12px;margin-bottom:12px;display:none;"></div>
@@ -63,14 +63,14 @@
         <!-- Rendered photos -->
       </div>
 
-      <!-- Download Box -->
+      <!-- Private delivery link -->
       <div class="client-download-box">
         <div>
-          <h3>Full Resolution Archive</h3>
-          <p>Download your complete set of full-resolution edited photographs and high-quality unedited proofs.</p>
+          <h3>Private Photo Delivery</h3>
+          <p>Open the studio-provided private link to view and download your delivered photographs.</p>
         </div>
-        <a href="#" class="client-btn-download" id="client-drive-link" target="_blank" rel="noopener noreferrer">
-          Open Google Drive <span>↗</span>
+        <a href="#" class="client-btn-download" id="client-delivery-link" target="_blank" rel="noopener noreferrer" hidden>
+          Open Private Delivery <span>↗</span>
         </a>
       </div>
     </section>

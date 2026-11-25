@@ -47,7 +47,7 @@
   const modalReservationFee = document.querySelector("#modal-reservation-fee");
   const modalReservationPaid = document.querySelector("#modal-reservation-paid");
   const modalBalancePaid = document.querySelector("#modal-balance-paid");
-  const modalDeliveryFolder = document.querySelector("#modal-delivery-folder");
+  const modalDeliveryUrl = document.querySelector("#modal-delivery-url");
   const modalDeliveryToken = document.querySelector("#modal-delivery-token");
   const modalGenTokenBtn = document.querySelector("#modal-gen-token-btn");
   const modalAdminNotes = document.querySelector("#modal-admin-notes");
@@ -280,7 +280,7 @@
     modalReservationPaid.checked = Boolean(b.reservation_fee_paid);
     modalBalancePaid.checked = Boolean(b.balance_paid);
 
-    modalDeliveryFolder.value = b.delivery_folder_url || "";
+    modalDeliveryUrl.value = b.delivery_folder_url || "";
     modalDeliveryToken.value = b.delivery_token || "";
     modalAdminNotes.value = b.admin_notes || "";
 
@@ -323,7 +323,7 @@
       reservation_fee_paid_at: modalReservationPaid.checked ? new Date().toISOString() : null,
       balance_paid: modalBalancePaid.checked,
       balance_paid_at: modalBalancePaid.checked ? new Date().toISOString() : null,
-      delivery_folder_url: modalDeliveryFolder.value.trim() || null,
+      delivery_folder_url: modalDeliveryUrl.value.trim() || null, // Legacy DB column; now stores a provider-neutral private delivery URL.
       delivery_token: modalDeliveryToken.value.trim() || null,
       admin_notes: modalAdminNotes.value.trim() || null,
       updated_at: new Date().toISOString()

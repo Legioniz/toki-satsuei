@@ -15,7 +15,7 @@
   const selectedCountDisplay = document.querySelector("#client-selected-count");
   const submitSelectionBtn = document.querySelector("#client-submit-selection-btn");
   const photoGrid = document.querySelector("#client-photo-grid");
-  const driveLink = document.querySelector("#client-drive-link");
+  const deliveryLink = document.querySelector("#client-delivery-link");
 
   let currentToken = "";
   let selectedPhotos = new Set();
@@ -75,18 +75,22 @@
     greeting.textContent = `Photographs for ${galleryData.client_name || "You"}`;
     sessionDetails.textContent = `${galleryData.session_type || "Session"} • Delivered ${galleryData.confirmed_date || "recently"}`;
 
+    let deliveryHref = "";
     try {
-      const folderUrl = new URL(String(galleryData.delivery_folder_url || ""));
-      if (folderUrl.protocol === "https:" && folderUrl.hostname === "drive.google.com") {
-        driveLink.href = folderUrl.href;
-        driveLink.style.display = "inline-flex";
-      } else {
-        driveLink.removeAttribute("href");
-        driveLink.style.display = "none";
+      const url = new URL(String(galleryData.delivery_folder_url || ""));
+      if (url.protocol === "https:" && url.hostname && !url.username && !url.password) {
+        deliveryHref = url.href;
       }
     } catch {
-      driveLink.removeAttribute("href");
-      driveLink.style.display = "none";
+      deliveryHref = "";
+    }
+
+    if (deliveryHref) {
+      deliveryLink.href = deliveryHref;
+      deliveryLink.hidden = false;
+    } else {
+      deliveryLink.removeAttribute("href");
+      deliveryLink.hidden = true;
     }
 
     const suppliedPhotos = Array.isArray(galleryData.photos) ? galleryData.photos : [];
@@ -108,7 +112,7 @@
         <div class="client-gallery-empty" role="status">
           <span class="client-gallery-empty__eyebrow">PRIVATE DELIVERY</span>
           <h2>Your files are shared through the studio's private delivery link.</h2>
-          <p>This portal has verified your access key, but a private photo preview list has not been connected to it yet. Use the delivery link above to view and download the actual photographs. Contact the studio for help if the link is unavailable.</p>
+          <p>This portal has verified your access key, but a private photo preview list has not been connected to this delivery yet. ${deliveryHref ? "Use the private delivery link above to view and download your photographs." : "Contact the studio through your official booking conversation to request your delivery details."}</p>
         </div>
       `;
       return;
