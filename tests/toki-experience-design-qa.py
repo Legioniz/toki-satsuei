@@ -120,8 +120,8 @@ def main() -> None:
             assert booking_page.locator("#wizard-to-stage-2").count() == 0
             assert booking_page.locator('input[name="booking_terms_consent"]').evaluate("(node) => node.required")
             assert booking_page.locator('input[name="privacy_consent"]').evaluate("(node) => node.required")
-            assert booking_page.locator(".package-duration").count() == 4
-            duration_cards = [" ".join(value.split()) for value in booking_page.locator(".package-duration").all_inner_texts()]
+            assert page.locator(".package-duration").count() == 4
+            duration_cards = [" ".join(value.split()) for value in page.locator(".package-duration").all_inner_texts()]
             assert ["15 minutes" in duration_cards[0], "30 minutes" in duration_cards[1],
                     "60 minutes" in duration_cards[2], "30 minutes" in duration_cards[3]] == [True] * 4
             session_select = booking_page.locator('select[name="session"]')
