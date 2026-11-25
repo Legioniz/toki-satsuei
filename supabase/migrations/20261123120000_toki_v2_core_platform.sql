@@ -143,7 +143,7 @@ CREATE OR REPLACE FUNCTION public.toki_get_client_gallery(p_token text)
 RETURNS json
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public, pg_temp
+SET search_path = ''
 AS $$
 DECLARE
   v_result json;
@@ -184,7 +184,7 @@ CREATE OR REPLACE FUNCTION public.toki_submit_client_selection(p_token text, p_s
 RETURNS json
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public, pg_temp
+SET search_path = ''
 AS $$
 DECLARE
   v_updated boolean;

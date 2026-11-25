@@ -89,6 +89,7 @@ else:
         "delivery_status IN ('ready', 'delivered')",
         "delivery_folder_url IS NOT NULL",
         "jsonb_array_length(p_selections) > 50",
+        "SET search_path = ''",
     ):
         if required not in migration:
             problems.append(f"platform migration: missing security control: {required}")
@@ -102,6 +103,12 @@ if client_gallery.exists():
         problems.append("client-gallery.js: fabricated fallback photos must not appear as client deliveries")
     if "new URLSearchParams(window.location.search)" in gallery_source:
         problems.append("client-gallery.js: bearer access keys must not be accepted from query strings")
+
+admin_source = (ROOT / "admin.js").read_text(encoding="utf-8")
+if "Math.random().toString(36)" in admin_source:
+    problems.append("admin.js: delivery access keys must use a cryptographically secure random generator")
+if "crypto.getRandomValues" not in admin_source:
+    problems.append("admin.js: secure delivery-key generator is missing")
 
 if problems:
     print("FAIL TOKI static security audit:")

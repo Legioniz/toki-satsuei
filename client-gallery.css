@@ -209,3 +209,5 @@ body[hidden]{
   font-size:15px;
   line-height:1.8;
 }
+
+.client-selection-summary[hidden]{display:none!important}
