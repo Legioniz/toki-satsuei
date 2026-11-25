@@ -12,7 +12,9 @@ permissions:
 
 concurrency:
   group: toki-satsuei-pages-queue-v2-${{ github.ref }}
-  cancel-in-progress: true
+  # Preserve active runs and queue rapid consecutive pushes without cancelling them.
+  queue: max
+  cancel-in-progress: false
 
 jobs:
   verify-and-package:
