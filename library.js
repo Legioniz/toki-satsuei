@@ -147,7 +147,7 @@ function makeAlbumCard(category,album){
     element("small","album-card-count",countWords(album.media.length,"item","items"))
   );
   button.append(wrap,meta);
-  button.addEventListener("click",()=>openAlbum(category,album));
+  button.addEventListener("click",()=>openAlbum(category,album,button));
   return button;
 }
 function makeCategoryGroup(category){
@@ -264,9 +264,9 @@ function updateDialogProgress(){
   if(left)left.disabled=mediaRail.scrollLeft<=3;
   if(right)right.disabled=mediaRail.scrollLeft>=maxScroll-3;
 }
-function openAlbum(category,album){
+function openAlbum(category,album,sourceElement=document.activeElement){
   window.TokiSFX?.playShutter();
-  albumReturnFocus=document.activeElement instanceof HTMLElement?document.activeElement:null;
+  albumReturnFocus=sourceElement instanceof HTMLElement?sourceElement:(document.activeElement instanceof HTMLElement?document.activeElement:null);
   activeAlbum={category,album};
   dialogTitle.textContent=album.title;
   dialogCategory.textContent=category.title;

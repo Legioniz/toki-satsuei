@@ -19,7 +19,32 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  freshness:
+    name: Skip stale queued snapshots
+    runs-on: ubuntu-24.04
+    outputs:
+      is_current: ${{ steps.check.outputs.is_current }}
+    steps:
+      - name: Check whether this push is still the main branch head
+        id: check
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_EVENT_NAME" != "push" ]]; then
+            echo "is_current=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          current_sha="$(git ls-remote "https://github.com/${GITHUB_REPOSITORY}.git" refs/heads/main | awk '{print $1}')"
+          if [[ "$current_sha" == "$GITHUB_SHA" ]]; then
+            echo "is_current=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_current=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping stale queued commit $GITHUB_SHA; main is $current_sha."
+          fi
+
   verify-and-package:
+    needs: freshness
+    if: needs.freshness.outputs.is_current == 'true'
     permissions:
       contents: read
     runs-on: ubuntu-24.04
@@ -144,7 +169,8 @@ jobs:
           path: ./dist
 
   deploy:
-    if: github.event_name != 'pull_request'
+    needs: [freshness, verify-and-package]
+    if: github.event_name != 'pull_request' && needs.freshness.outputs.is_current == 'true'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

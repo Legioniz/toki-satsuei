@@ -88,6 +88,16 @@
     ".gallery-card .gallery-image img"
   ].join(",");
 
+  let scrollScenes = [];
+  let scrollTracked = [];
+  let scrollParallax = [];
+
+  function refreshScrollTargets() {
+    scrollScenes = Array.from(document.querySelectorAll(SCROLL_SCENE_SELECTOR));
+    scrollTracked = Array.from(document.querySelectorAll(SCROLL_TRACKED_SELECTOR));
+    scrollParallax = Array.from(document.querySelectorAll(SCROLL_PARALLAX_SELECTOR));
+  }
+
   root.classList.add("motion-system-ready", "motion-ready");
 
   /* Resolve profile name for an element, respecting explicit markup attributes. */
@@ -437,6 +447,7 @@
     matchingElements(node, SCROLL_PARALLAX_SELECTOR).forEach(media => {
       media.classList.add("toki-scroll-parallax");
     });
+    refreshScrollTargets();
   }
 
   function prepare(element) {
@@ -551,7 +562,7 @@
   let smoothedVel = 0;
 
   function updateSectionDepth(vh) {
-    const scenes = Array.from(document.querySelectorAll(SCROLL_SCENE_SELECTOR));
+    const scenes = scrollScenes;
     let focusedScene = null;
     let focusedScore = -1;
 
@@ -579,7 +590,7 @@
       scene.classList.toggle("is-scene-active", scene === focusedScene);
     });
 
-    document.querySelectorAll(SCROLL_TRACKED_SELECTOR).forEach(el => {
+    scrollTracked.forEach(el => {
       const rect = el.getBoundingClientRect();
       if (rect.bottom < -120 || rect.top > vh + 120) return;
       const centerOffset = ((rect.top + rect.height * 0.5) - vh * 0.5) / Math.max(1, vh);
@@ -590,7 +601,7 @@
     const parallaxStrength = root.dataset.motionTier === "lite"
       ? 6
       : root.dataset.viewportClass === "phone" ? 9 : 16;
-    document.querySelectorAll(SCROLL_PARALLAX_SELECTOR).forEach(media => {
+    scrollParallax.forEach(media => {
       const rect = media.getBoundingClientRect();
       if (rect.bottom < -120 || rect.top > vh + 120) return;
       const centerOffset = ((rect.top + rect.height * 0.5) - vh * 0.5) / Math.max(1, vh);
@@ -678,6 +689,7 @@
           if (node.nodeType === Node.ELEMENT_NODE) scan(node);
         });
       });
+      refreshScrollTargets();
     });
     mutationObserver.observe(document.body, { childList: true, subtree: true });
   }

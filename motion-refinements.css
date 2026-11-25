@@ -113,3 +113,61 @@ html.motion-system-ready :where(
     box-shadow: none;
   }
 }
+
+
+/* Archive container transform: the selected album frame inherits the card's spatial origin. */
+::view-transition-group(toki-album-container) {
+  animation-duration: 460ms;
+  animation-timing-function: var(--ease-shutter-snap);
+}
+::view-transition-old(toki-album-container),
+::view-transition-new(toki-album-container) {
+  animation-duration: 460ms;
+  animation-timing-function: var(--ease-shutter-snap);
+}
+
+/* Active chapter focus stays clear without adding another competing progress rail. */
+.toki-scroll-scene > .toki-scene-track {
+  opacity: 0.48;
+  transition: opacity 260ms var(--ease-shutter-snap);
+}
+.toki-scroll-scene.is-scene-active > .toki-scene-track {
+  opacity: 1;
+}
+.toki-scroll-scene.is-scene-active > .toki-scene-track::before {
+  filter: drop-shadow(0 0 5px rgba(195, 42, 57, 0.26));
+}
+.toki-scroll-scene.is-scene-active .section-heading h2 em {
+  text-shadow: 0 0 18px rgba(195, 42, 57, 0.2);
+  transition: text-shadow 320ms var(--ease-expo-out);
+}
+
+/* Lite devices keep the choreography, but skip its most expensive blur and sweep work. */
+html[data-motion-tier="lite"] .toki-hero-scanbeam {
+  animation: none !important;
+  display: none !important;
+}
+html[data-motion-tier="lite"] .motion-item[data-motion="develop-print"].is-motion-visible,
+html[data-motion-tier="lite"] [data-reveal][data-motion="develop-print"].is-visible {
+  animation-duration: 580ms !important;
+  filter: none !important;
+}
+html[data-motion-tier="lite"] .motion-item[data-motion="spring-card"].is-motion-visible,
+html[data-motion-tier="lite"] [data-reveal][data-motion="spring-card"].is-visible {
+  animation-duration: 540ms !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(toki-album-container),
+  ::view-transition-old(toki-album-container),
+  ::view-transition-new(toki-album-container) {
+    animation: none !important;
+  }
+  .toki-scroll-scene > .toki-scene-track {
+    opacity: 0 !important;
+    transition: none !important;
+  }
+  .toki-scroll-scene.is-scene-active .section-heading h2 em {
+    text-shadow: none !important;
+  }
+}

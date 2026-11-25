@@ -35,6 +35,7 @@ def main() -> None:
     shared_motion_css = (ROOT / "motion-refinements.css").read_text(encoding="utf-8")
     intro_css = (ROOT / "motion-system.css").read_text(encoding="utf-8")
     workflow = (ROOT / ".github/workflows/deploy.yml").read_text(encoding="utf-8")
+    archive_script = (ROOT / "library.js").read_text(encoding="utf-8")
 
     intro_timing = re.search(
         r"animation:\s*tokiIntroCurtainOut\s+([0-9.]+)s\s+var\(--ease-quart-in-out\)\s+([0-9.]+)s\s+forwards",
@@ -57,6 +58,16 @@ def main() -> None:
         "data-scroll-direction", "refreshScrollScenes",
     ]:
         assert token in motion, f"Motion engine is missing {token}"
+    for token in ["refreshScrollTargets", "scrollScenes", "scrollTracked", "scrollParallax"]:
+        assert token in motion, f"Scroll engine is missing cached target registry: {token}"
+    for token in [
+        "document.startViewTransition", "toki-album-container",
+        "clearAlbumViewTransitionNames", "reducedMotion",
+    ]:
+        assert token in archive_script, f"Archive container transition is missing {token}"
+    assert "::view-transition-group(toki-album-container)" in shared_motion_css, (
+        "Shared album container transition timing is missing."
+    )
     for token in ["focus-pull", "film-gate", "@keyframes tokiFocusPull", "@keyframes tokiFilmGate"]:
         assert token in global_css, f"Reveal profile is missing {token}"
     for token in [".toki-scene-track", ".toki-scroll-parallax", "prefers-reduced-motion: reduce"]:
@@ -64,7 +75,7 @@ def main() -> None:
     for token in [".is-scene-active", "::view-transition-new(root)", "tokiPageEnter", "data-motion-tier"]:
         assert token in shared_motion_css, f"Shared motion refinements are missing {token}"
     assert "toki-scroll-motion-qa.py" in workflow, "Scroll motion browser QA is not part of CI."
-    expected_asset_version = "20261125-v11-quick-intro"
+    shared_asset_versions = set()
     for page_name in ["index.html", "library.html", "policies.html", "404.html", "admin.html", "client-gallery.html"]:
         page_source = (ROOT / page_name).read_text(encoding="utf-8")
         bundle = {
@@ -75,12 +86,16 @@ def main() -> None:
             "admin.html": "toki-admin.css",
             "client-gallery.html": "toki-client.css",
         }[page_name]
-        assert f"./{bundle}?v={expected_asset_version}" in page_source, (
-            f"{page_name}: generated stylesheet cache key is stale"
+        css_version = re.search(rf'href="./{re.escape(bundle)}\?v=([^"]+)"', page_source)
+        motion_version = re.search(r'src="./motion-system\.js\?v=([^"]+)"', page_source)
+        assert css_version and motion_version, f"{page_name}: shared motion asset cache key is missing"
+        assert css_version.group(1) == motion_version.group(1), (
+            f"{page_name}: stylesheet and motion controller cache keys are out of sync"
         )
-        assert f"./motion-system.js?v={expected_asset_version}" in page_source, (
-                f"{page_name}: shared motion controller cache key is stale"
-            )
+        shared_asset_versions.add(css_version.group(1))
+    assert len(shared_asset_versions) == 1, (
+        "Page bundles and the shared motion controller must use one coordinated cache version."
+    )
 
 
     server = ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler))

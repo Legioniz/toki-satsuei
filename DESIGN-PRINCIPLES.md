@@ -88,3 +88,12 @@ One stylesheet, loaded last, owns the visual language. Change a token and the wh
 - Supported cross-document view transitions preserve the site masthead and use a short, low-amplitude page handoff. Standard navigation remains the fallback.
 - Micro-interactions use short tactile feedback on controls; motion remains decorative and never communicates booking status or replaces readable state.
 - The 404 page loads the same shared motion controller as the other pages so runtime behavior is consistent across all six site surfaces.
+
+
+## Motion implementation update — 25 November 2026
+
+- Scroll-linked chapter rails share one cached target registry. Scroll frames update only the registered scenes, tracked content, and parallax media; DOM insertions and removals refresh that registry.
+- Archive album cards progressively enhance into their first media frame with a shared-element View Transition. Browsers without the API, or visitors requesting reduced motion, retain the existing dialog entrance and focus behavior.
+- The active chapter gets a restrained focus treatment. Lite devices retain the same hierarchy while skipping the viewfinder scan sweep and shortening heavier reveal profiles.
+- Page stylesheets and the shared motion runtime use one coordinated cache version. CI verifies that relationship instead of pinning a test to a specific release string.
+- Queued push runs check whether their commit is still the main head before installing browser dependencies. A second freshness check remains at deploy time to prevent a stale artifact from replacing the latest site.
