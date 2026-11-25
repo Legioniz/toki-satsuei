@@ -103,7 +103,10 @@ def main() -> None:
             # Never substitute practice/sample photos for a client's actual delivered images.
             assert page.locator(".client-photo-item").count() == 0
             assert page.locator(".client-gallery-empty").is_visible()
-            assert "Google Drive" in page.locator(".client-gallery-empty").inner_text()
+            empty_state = page.locator(".client-gallery-empty").inner_text().lower()
+            assert "private delivery link" in empty_state
+            assert "private photo preview list has not been connected" in empty_state
+            assert "Google Drive" in drive_btn.inner_text()
             assert page.locator(".client-selection-summary").is_hidden()
 
             # Bearer tokens in query strings are not accepted; enter the key into the password field instead.
