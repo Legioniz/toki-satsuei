@@ -13,7 +13,7 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE_URL = "https://legioniz.github.io/toki-satsuei"
-PUBLIC_PAGES = ["index.html", "library.html", "policies.html"]
+PUBLIC_PAGES = ["index.html", "booking.html", "library.html", "policies.html"]
 
 
 class QuietHandler(SimpleHTTPRequestHandler):
@@ -31,6 +31,7 @@ def main() -> None:
 
     index = (ROOT / "index.html").read_text(encoding="utf-8")
     site = (ROOT / "site.js").read_text(encoding="utf-8")
+    booking = (ROOT / "booking.html").read_text(encoding="utf-8")
     archive = (ROOT / "library.html").read_text(encoding="utf-8")
     policies = (ROOT / "policies.html").read_text(encoding="utf-8")
     not_found = (ROOT / "404.html").read_text(encoding="utf-8")
@@ -49,21 +50,22 @@ def main() -> None:
     assert "no-show" in policies.lower()
     assert "full refund of all payments made" in policies
     assert "the version of the booking terms you accepted" in policies.lower() and "the time you accepted them" in policies.lower()
-    assert 'id="inquiry-form"' in index and 'name="privacy_consent"' in index
-    assert 'name="booking_terms_consent"' in index
-    assert "20% reservation fee" in index
-    assert "duration agreed before confirmation" in index
-    assert 'name="contact_method"' in index and 'name="preferred_date"' in index
-    assert 'name="website"' in index and "Send booking request" in index
+    assert 'id="inquiry-form"' not in index and 'href="./booking.html"' in index
+    assert 'id="inquiry-form"' in booking and 'name="privacy_consent"' in booking
+    assert 'name="booking_terms_consent"' in booking
+    assert "20% reservation fee" in booking
+    assert "duration agreed before confirmation" in booking
+    assert 'name="contact_method"' in booking and 'name="preferred_date"' in booking
+    assert 'name="website"' in booking and "Send booking request" in booking
     assert "TOKI_BOOKING_ENDPOINT" in site and 'kind:"toki_booking"' in site
     assert "copy inquiry message" not in index.lower()
     assert "facebook-section" not in index and "facebook-feed.js" not in index
     assert "honeypot" not in policies.lower() and "hmac" not in policies.lower()
     assert "Cloudflare Turnstile" in policies and "privacy policy" in policies
     assert "private Supabase booking table" in policies and "optional private Make.com webhook" in policies
-    assert 'id="toki-turnstile"' in index
-    assert 'data-sitekey="0x4AAAAAAGDDFcLp8PfycH-f"' in index
-    assert 'src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>' in index
+    assert 'id="toki-turnstile"' in booking
+    assert 'data-sitekey="0x4AAAAAAGDDFcLp8PfycH-f"' in booking
+    assert 'src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>' in booking
     assert 'window.addEventListener("load",mountTurnstile' in site
     assert 'action:"toki_booking"' in site
     assert "does not reserve a date" in policies
@@ -74,7 +76,7 @@ def main() -> None:
     tree = ET.parse(ROOT / "sitemap.xml")
     ns = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
     locations = [node.text for node in tree.findall(".//sm:loc", ns)]
-    expected = [BASE_URL + "/", BASE_URL + "/library.html", BASE_URL + "/policies.html"]
+    expected = [BASE_URL + "/", BASE_URL + "/library.html", BASE_URL + "/policies.html", BASE_URL + "/booking.html"]
     assert locations == expected, f"Unexpected sitemap URLs: {locations}"
 
     server = ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler))
@@ -86,7 +88,7 @@ def main() -> None:
             browser = playwright.chromium.launch(headless=True, args=["--no-sandbox", "--disable-dev-shm-usage"])
             context = browser.new_context(viewport={"width": 390, "height": 844})
             context.route("https://**", lambda route: route.abort())
-            for page_name in ["index.html", "library.html", "policies.html", "404.html"]:
+            for page_name in ["index.html", "booking.html", "library.html", "policies.html", "404.html"]:
                 page = context.new_page()
                 page.goto(base + "/" + page_name, wait_until="domcontentloaded")
                 assert page.locator("main#main-content").count() == 1, f"{page_name}: main landmark missing"

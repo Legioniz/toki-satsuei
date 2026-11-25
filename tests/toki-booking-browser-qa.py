@@ -46,17 +46,19 @@ def fill_valid_form(page) -> tuple[str, str]:
 
 def main() -> None:
     index = (ROOT / "index.html").read_text(encoding="utf-8")
+    booking = (ROOT / "booking.html").read_text(encoding="utf-8")
     site = (ROOT / "site.js").read_text(encoding="utf-8")
     edge = (ROOT / "supabase/functions/portfolio-submit/index.ts").read_text(encoding="utf-8")
     policies = (ROOT / "policies.html").read_text(encoding="utf-8")
-    assert 'id="inquiry-form"' in index
-    assert 'name="privacy_consent"' in index
-    assert 'name="booking_terms_consent"' in index
-    assert 'data-booking-terms-version="2026-11-16-v1"' in index
-    assert 'name="website"' in index
-    assert 'type="time" name="preferred_time"' in index
-    assert '24-hour format' in index
-    assert "Copy inquiry message" not in index
+    assert 'id="inquiry-form"' not in index and 'href="./booking.html"' in index
+    assert 'id="inquiry-form"' in booking
+    assert 'name="privacy_consent"' in booking
+    assert 'name="booking_terms_consent"' in booking
+    assert 'data-booking-terms-version="2026-11-16-v1"' in booking
+    assert 'name="website"' in booking
+    assert 'type="time" name="preferred_time"' in booking
+    assert '24-hour format' in booking
+    assert "Copy inquiry message" not in booking
     assert "TOKI_BOOKING_ENDPOINT" in site
     assert "kind:\"toki_booking\"" in site
     assert "preferredTimePattern" in edge and "preferred_time: preferredTime" in edge
@@ -71,9 +73,9 @@ def main() -> None:
     assert "allowedTimes = ['Morning', 'Afternoon', 'Evening', 'Flexible']" not in edge
     assert "clipboard.writeText" not in site
     assert "private Supabase booking table" in policies and "does not reserve a date" in policies.lower()
-    assert 'id="toki-turnstile"' in index
-    assert 'data-sitekey="0x4AAAAAAGDDFcLp8PfycH-f"' in index
-    assert 'src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>' in index
+    assert 'id="toki-turnstile"' in booking
+    assert 'data-sitekey="0x4AAAAAAGDDFcLp8PfycH-f"' in booking
+    assert 'src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>' in booking
     assert 'window.addEventListener("load",mountTurnstile' in site
     assert 'window.addEventListener("toki-turnstile-ready",mountTurnstile)' in site
     assert 'action:"toki_booking"' in site
@@ -139,8 +141,15 @@ def main() -> None:
                 }))
 
             context.route(SUPABASE_HOST + "/functions/v1/portfolio-submit", successful_submission)
+            launcher = context.new_page()
+            launcher.goto(base + "/index.html#sessions", wait_until="domcontentloaded")
+            launcher.locator('.package-card[data-session="Quick Snap"] .package-link').click()
+            launcher.wait_for_function("location.pathname.endsWith('/booking.html')")
+            assert launcher.locator('select[name="session"]').input_value() == "Quick Snap"
+            launcher.close()
+
             page = context.new_page()
-            page.goto(base + "/index.html#contact", wait_until="domcontentloaded")
+            page.goto(base + "/booking.html", wait_until="domcontentloaded")
             form = page.locator("#inquiry-form")
 
             # Same-day requests must use a time beyond the current Manila minute.
@@ -164,10 +173,8 @@ def main() -> None:
             assert form.locator('input[name="booking_terms_consent"]').get_attribute("required") is not None
             assert form.locator('input[name="website"]').get_attribute("tabindex") == "-1"
 
-            # Package cards and the structured package selector must stay in sync.
-            page.locator('.package-card[data-session="Quick Snap"]').click()
+            # The homepage package choice is carried into the dedicated booking page.
             assert page.locator('select[name="session"]').input_value() == "Quick Snap"
-            assert page.locator('.package-card[data-session="Quick Snap"] .package-link').get_attribute("aria-pressed") == "true"
 
             # Missing required fields must be blocked before a network request.
             page.locator('button[type="submit"]').click()
@@ -242,7 +249,7 @@ def main() -> None:
 
             error_context.route(SUPABASE_HOST + "/functions/v1/portfolio-submit", rate_limited)
             error_page = error_context.new_page()
-            error_page.goto(base + "/index.html#contact", wait_until="domcontentloaded")
+            error_page.goto(base + "/booking.html", wait_until="domcontentloaded")
             failure_preferred_date, _ = fill_valid_form(error_page)
             error_page.locator('button[type="submit"]').click()
             error_page.get_by_text("Too many submissions. Please try again later.").wait_for(state="visible", timeout=7000)
@@ -281,7 +288,7 @@ def main() -> None:
             gate_requests = []
             gate_context.route(SUPABASE_HOST + "/functions/v1/portfolio-submit", lambda route: gate_requests.append(route.request) or route.fulfill(status=500, body="unexpected request"))
             gate_page = gate_context.new_page()
-            gate_page.goto(base + "/index.html#contact", wait_until="domcontentloaded")
+            gate_page.goto(base + "/booking.html", wait_until="domcontentloaded")
             fill_valid_form(gate_page)
             gate_page.locator('button[type="submit"]').click()
             assert len(gate_requests) == 0

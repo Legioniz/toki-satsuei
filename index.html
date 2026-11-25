@@ -56,7 +56,13 @@
     @media(max-width:680px){.hero-opening{min-height:max(640px,calc(100svh - 100px));min-height:max(640px,calc(100dvh - 100px))}.hero-opening .hero-bottom-rule{align-items:flex-start;flex-wrap:wrap}.hero-opening .hero-bottom-rule span:first-child{white-space:nowrap}.hero-opening .hero-bottom-rule span:last-child{max-width:100%;text-align:left}}
     @media(max-height:560px) and (orientation:landscape){.hero-opening{min-height:540px;padding-top:64px;padding-bottom:64px}.hero-opening h1{font-size:clamp(48px,7.5vw,74px)}.hero-opening .hero-footnote{margin-top:18px}.hero-opening .hero-bottom-rule{padding-block:9px}.hero-opening .hero-frame{display:none}}
   </style>
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+  <style id="standalone-booking-entry-styles">
+    .contact-panel--standalone .contact-copy{grid-column:1/-1;max-width:780px}
+    .contact-panel--standalone .contact-copy>p:not(.eyebrow){max-width:54ch}
+    .contact-panel--standalone .hero-actions{gap:18px 24px;flex-wrap:wrap}
+    .contact-panel--standalone .button-red{min-height:52px}
+    @media(max-width:680px){.contact-panel--standalone{gap:24px}.contact-panel--standalone .contact-copy h2{font-size:clamp(48px,13vw,62px)}}
+  </style>
   <script src="./motion-system.js?v=20261125-v12-balanced-motion" defer></script>
   <script src="./site.js?v=20261125-v7-adaptive" defer></script>
   <script src="./availability.js?v=20261125-v7-adaptive" defer></script>
@@ -78,7 +84,7 @@
       <a href="#availability">Availability</a>
       <a href="#about">About</a>
       <a href="#faq">FAQs</a>
-      <a class="nav-contact" href="#contact">Book a session <span>↗</span></a>
+      <a class="nav-contact" href="./booking.html">Book a session <span>↗</span></a>
     </nav>
   </header>
 
@@ -324,7 +330,7 @@
               <button class="availability-clear-date" id="availability-clear-date" type="button">CLEAR</button>
             </div>
           </div>
-          <a class="button button-light availability-cta" href="#contact">Ask about a date <span>↗</span></a>
+          <a class="button button-light availability-cta" href="./booking.html">Ask about a date <span>↗</span></a>
         </div>
         <div class="availability-calendar">
           <div class="calendar-card">
@@ -436,7 +442,7 @@
     </section>
 
     <section class="contact-section section-wrap" id="contact">
-      <div class="contact-panel">
+      <div class="contact-panel contact-panel--standalone">
         <section class="toki-assurance" data-reveal="up" aria-label="Studio guarantees and booking terms">
           <div class="toki-assurance__grid">
             <article class="toki-pillar">
@@ -447,8 +453,8 @@
                 </svg>
               </span>
               <div>
-                <h3 class="toki-pillar__title">Private Client Galleries</h3>
-                <p class="toki-pillar__meta">A private access key is required to open your delivered photographs.</p>
+                <h3 class="toki-pillar__title">Private Photo Delivery</h3>
+                <p class="toki-pillar__meta">Edited photographs and selected unedited JPEGs are shared through a private Google Drive folder.</p>
               </div>
             </article>
             <article class="toki-pillar">
@@ -498,150 +504,11 @@
           <h2>Have a moment<br>in <em>mind?</em></h2>
           <p>Have a question before sending a request? Message us and we’ll help you plan the details.</p>
           <div class="hero-actions">
-            <a class="button button-red" href="https://www.facebook.com/tokisatsuiephotography/" target="_blank" rel="noopener noreferrer">Message us on Facebook <span>↗</span></a>
-            <a class="text-link" href="https://www.instagram.com/tokisatsuiephotography/" target="_blank" rel="noopener noreferrer">Ask a question first on Instagram <span>↗</span></a>
+            <a class="button button-red" href="./booking.html">Open booking page <span>↗</span></a>
+            <a class="text-link" href="https://www.facebook.com/tokisatsuiephotography/" target="_blank" rel="noopener noreferrer">Message us on Facebook <span>↗</span></a>
           </div>
         </div>
-        <form class="inquiry-form toki-booking-sheet" id="inquiry-form" data-booking-terms-version="2026-11-16-v1" data-reveal="right" aria-labelledby="booking-form-title">
-          <div class="booking-form-intro">
-            <p class="booking-form-kicker">BOOKING REQUEST / QUEZON CITY</p>
-            <h3 id="booking-form-title">Let’s plan your frame.</h3>
-            <p>Complete this booking sheet in one pass. Requested dates and times use Philippine Time.</p>
-            <div class="booking-expectation" role="note">
-              <strong>Before you send</strong>
-              <span>A request is not a reservation. Your date is not held until the details and price are agreed in writing and TOKI SATSUEI confirms your session. This form does not take payment.</span>
-            </div>
-          </div>
-
-          <div class="toki-booking-sheet__layout">
-            <div class="toki-booking-sheet__group">
-              <fieldset class="booking-fieldset">
-                <legend>Session details</legend>
-                <label>Your name
-                  <input name="name" autocomplete="name" maxlength="100" placeholder="How should we call you?" required>
-                </label>
-                <div class="form-split">
-                  <label>What are you planning?
-                    <select name="session" required>
-                      <option value="">Choose a session</option>
-                      <option value="Quick Snap" data-duration="15 minutes">Quick Snap · 15 minutes</option>
-                      <option value="Toki Portraits" data-duration="30 minutes">Toki Portraits · 30 minutes</option>
-                      <option value="Signature Session" data-duration="60 minutes">Signature Session · 60 minutes</option>
-                      <option value="Duo Session" data-duration="30 minutes">Duo Session · 30 minutes</option>
-                      <option value="Outdoor session" data-duration="Agreed before confirmation">Outdoor session · duration agreed before confirmation</option>
-                      <option value="Event coverage" data-duration="Agreed before confirmation">Event coverage · duration agreed before confirmation</option>
-                      <option value="Custom session" data-duration="Agreed before confirmation">Something else / custom session · duration agreed before confirmation</option>
-                    </select>
-                    <small class="session-duration-note" id="session-duration-note" role="status">Choose a session to see its expected duration.</small>
-                  </label>
-                  <label>Number of participants
-                    <input name="participants" type="number" min="1" max="12" step="1" value="1" required>
-                  </label>
-                </div>
-                <div class="form-split">
-                  <label>Additional edited photos
-                    <input name="additional_photos" id="form-additional-photos" type="number" min="0" max="50" step="1" value="0">
-                    <small>+₱30 per additional photo</small>
-                  </label>
-                  <label>Additional session time (mins)
-                    <input name="additional_time" id="form-additional-time" type="number" min="0" max="120" step="15" value="0">
-                    <small>+₱75 per 15 minutes</small>
-                  </label>
-                </div>
-              </fieldset>
-
-              <fieldset class="booking-fieldset">
-                <legend>Date &amp; location</legend>
-                <div class="form-split">
-                  <label>Preferred date
-                    <input type="date" name="preferred_date" required>
-                  </label>
-                  <label>Preferred time (Philippine Time)
-                    <input type="time" name="preferred_time" step="60" required aria-describedby="preferred-time-note">
-                    <small id="preferred-time-note">Use 24-hour format (HH:MM). Same-day requests must be at least one minute ahead.</small>
-                  </label>
-                </div>
-                <div class="form-split">
-                  <label>Alternative date (optional)
-                    <input type="date" name="alternate_date">
-                  </label>
-                  <label>Location or event
-                    <input name="location" maxlength="200" placeholder="e.g. Quezon City / convention venue" required>
-                  </label>
-                </div>
-              </fieldset>
-            </div>
-
-            <div class="toki-booking-sheet__group">
-              <fieldset class="booking-fieldset">
-                <legend>Contact &amp; notes</legend>
-                <div class="form-split">
-                  <label>Preferred contact channel
-                    <select name="contact_method" id="contact-method" required>
-                      <option value="">Choose a channel</option>
-                      <option value="instagram">Instagram</option>
-                      <option value="facebook">Facebook Messenger</option>
-                      <option value="email">Email</option>
-                    </select>
-                  </label>
-                  <label><span id="contact-value-label">Your contact detail</span>
-                    <input name="contact_value" id="contact-value" type="text" maxlength="254" autocomplete="off" placeholder="Select channel first" required>
-                  </label>
-                </div>
-                <label>Creative notes
-                  <textarea name="notes" rows="4" minlength="10" maxlength="2000" placeholder="Character or concept, number of people, references, venue details, or anything we should know…" required></textarea>
-                </label>
-              </fieldset>
-
-              <div class="booking-terms-summary" role="note" aria-label="Reservation and cancellation summary">
-                <strong>Reservation &amp; cancellation terms</strong>
-                <span>For paid sessions, a 20% reservation fee is due only after the final price and schedule are agreed in writing. It is credited toward your total; the balance is due on or before the session. Free portfolio sessions do not require a deposit.</span>
-                <a href="./policies.html#pricing">Read the complete payment, cancellation and rescheduling policy ↗</a>
-              </div>
-
-              <label class="booking-consent">
-                <input type="checkbox" name="booking_terms_consent" required>
-                <span>I have read and agree to the reservation fee, payment, cancellation, and rescheduling terms. I understand that this request is not confirmed until the applicable requirements are completed and written confirmation is sent.</span>
-              </label>
-              <label class="booking-consent">
-                <input type="checkbox" name="privacy_consent" required>
-                <span>I agree that TOKI SATSUEI may use these details to review and respond to this booking request under its Privacy Policy.</span>
-              </label>
-
-              <label class="booking-honeypot" aria-hidden="true">Leave this field empty
-                <input name="website" type="text" tabindex="-1" autocomplete="off">
-              </label>
-
-              <div class="booking-verification">
-                <p class="booking-verification-label">HUMAN VERIFICATION</p>
-                <div class="booking-turnstile" id="toki-turnstile" data-sitekey="0x4AAAAAAGDDFcLp8PfycH-f"></div>
-              </div>
-
-              <button class="button button-red form-submit toki-booking-sheet__submit" type="submit">
-                <span>Send booking request</span>
-                <span aria-hidden="true">↗</span>
-              </button>
-            </div>
-          </div>
-
-          <p class="form-status" id="form-status" role="status" aria-live="polite">Your request will be stored privately for TOKI SATSUEI to review. Your session is not confirmed until the details are agreed in writing.</p>
-          <p class="form-privacy-note">Please share only the details needed to plan your session. Do not include passwords, identity documents, or payment credentials. Permission to publish photographs is requested separately. <a href="./policies.html#booking">Read the booking policy</a> and <a href="./policies.html#consent">privacy and photo-consent policy.</a></p>
-
-          <div class="booking-reference-card is-hidden" id="booking-reference-card" role="region" aria-label="Booking request confirmation" tabindex="-1">
-            <p class="eyebrow">Request Received &middot; 時の記憶</p>
-            <h3>Your booking request has been recorded.</h3>
-            <p>Thank you for reaching out! We have saved your request privately in our booking queue. Please save your reference code below:</p>
-            <div class="reference-code-box">
-              <input class="reference-code-input" id="booking-reference-code" type="text" readonly aria-label="Generated booking reference code" value="TOKI-00000000">
-              <button type="button" class="btn-copy-ref" id="btn-copy-reference" aria-label="Copy reference code">Copy Code</button>
-            </div>
-            <p><strong>Next steps:</strong> We will review your preferred date, location, and session details against our calendar and reach out via your chosen contact channel within 24 to 48 hours.</p>
-            <div class="ref-card-expectation" role="note">
-              <strong>Important Reminder</strong>
-              <span>This request is not a confirmed reservation. A paid session is confirmed only after we agree in writing on the final price and schedule, the 20% reservation fee is verified, and we send written confirmation. Free portfolio sessions require written agreement before scheduling.</span>
-            </div>
-          </div>
-        </form>
+        
       </div>
     </section>
   </main>
@@ -662,7 +529,7 @@
   </footer>
 
   <button class="back-to-top" id="back-to-top" type="button" aria-label="Back to top">↑</button>
-  <div role="region" aria-label="Quick booking"><a class="button button-red mobile-cta" href="#contact">Book a session</a></div>
+  <div role="region" aria-label="Quick booking"><a class="button button-red mobile-cta" href="./booking.html">Book a session</a></div>
 
   <dialog class="lightbox" id="lightbox" aria-label="Photograph preview">
     <button class="lightbox-close" type="button" aria-label="Close photograph preview">×</button>

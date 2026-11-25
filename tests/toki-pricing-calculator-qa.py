@@ -104,8 +104,9 @@ def main() -> None:
 
             # Click Apply to Booking Form
             page.locator("#calc-apply-to-booking").click()
+            page.wait_for_function("location.pathname.endsWith('/booking.html')")
 
-            # Verify prefilled values in #inquiry-form
+            # Verify values prefilled on the separate booking page
             form_session = page.locator('select[name="session"]').input_value()
             form_participants = page.locator('input[name="participants"]').input_value()
             form_notes = page.locator('textarea[name="notes"]').input_value()

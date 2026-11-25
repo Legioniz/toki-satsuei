@@ -13,6 +13,7 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parents[1]
 PAGES = {
     "index.html": [".hero-opening", ".work-section", ".about-section", ".contact-section"],
+    "booking.html": [".contact-section"],
     "library.html": [".archive-head"],
     "policies.html": [".policy-hero", ".policy-article"],
     "admin.html": [".admin-main"],
@@ -76,10 +77,11 @@ def main() -> None:
         assert token in shared_motion_css, f"Shared motion refinements are missing {token}"
     assert "toki-scroll-motion-qa.py" in workflow, "Scroll motion browser QA is not part of CI."
     shared_asset_versions = set()
-    for page_name in ["index.html", "library.html", "policies.html", "404.html", "admin.html", "client-gallery.html"]:
+    for page_name in ["index.html", "booking.html", "library.html", "policies.html", "404.html", "admin.html", "client-gallery.html"]:
         page_source = (ROOT / page_name).read_text(encoding="utf-8")
         bundle = {
             "index.html": "toki-home.css",
+            "booking.html": "toki-home.css",
             "library.html": "toki-archive.css",
             "policies.html": "toki-policies.css",
             "404.html": "toki-404.css",

@@ -12,7 +12,7 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 VIEWPORTS = [320, 360, 390, 430, 680, 768, 820, 1024, 1280, 1440]
-PAGES = ["index.html", "library.html", "policies.html", "404.html"]
+PAGES = ["index.html", "booking.html", "library.html", "policies.html", "404.html"]
 
 
 class QuietHandler(SimpleHTTPRequestHandler):
@@ -53,11 +53,12 @@ def main() -> None:
     not_found = (ROOT / "404.html").read_text(encoding="utf-8")
     bundles = {
         "home": ("index.html", "toki-home.css"),
+        "booking": ("booking.html", "toki-home.css"),
         "archive": ("library.html", "toki-archive.css"),
         "policies": ("policies.html", "toki-policies.css"),
         "404": ("404.html", "toki-404.css"),
     }
-    for label, source in [("home", home), ("archive", archive), ("policies", policy), ("404", not_found)]:
+    for label, source in [("home", home), ("booking", (ROOT / "booking.html").read_text(encoding="utf-8")), ("archive", archive), ("policies", policy), ("404", not_found)]:
         page, bundle = bundles[label]
         bundle_header = (ROOT / bundle).read_text(encoding="utf-8").splitlines()[0]
         assert "cinematic.css" in bundle_header, f"{label}: cinematic stylesheet is not included in {bundle}"
@@ -97,6 +98,7 @@ def main() -> None:
                 page.wait_for_selector("main#main-content")
                 expected_bundle = {
                     "index.html": "toki-home.css",
+                    "booking.html": "toki-home.css",
                     "library.html": "toki-archive.css",
                     "policies.html": "toki-policies.css",
                     "404.html": "toki-404.css",

@@ -437,7 +437,13 @@ sessionSelect?.addEventListener("change",()=>{
 });
 updateSessionDurationNote();
 function selectSession(card,{moveToForm=true}={}) {
-  if(!card||!sessionSelect)return;
+  if(!card)return;
+  if(!form||!sessionSelect){
+    const target=new URL("./booking.html",window.location.href);
+    if(card.dataset.session)target.searchParams.set("session",card.dataset.session);
+    window.location.assign(target.toString());
+    return;
+  }
   sessionCards.forEach(item=>{
     const selected=item===card;
     item.classList.toggle("is-selected",selected);
@@ -556,6 +562,63 @@ function updateDateLimits(){
   }
   if(alternateDate)alternateDate.setCustomValidity(alternateDate.value&&preferredDate?.value===alternateDate.value?"Choose a different alternative date.":"");
 }
+function applyBookingQueryPrefill(){
+  if(!form)return;
+  const params=new URLSearchParams(window.location.search);
+  const allowedSessions=new Set(["Quick Snap","Toki Portraits","Signature Session","Duo Session","Outdoor session","Event coverage","Custom session"]);
+  const requestedSession=params.get("session");
+  if(requestedSession&&allowedSessions.has(requestedSession)&&sessionSelect){
+    sessionSelect.value=requestedSession;
+    sessionSelect.dispatchEvent(new Event("change",{bubbles:true}));
+  }
+  const participantInput=form.querySelector('input[name="participants"]');
+  const requestedParticipants=Number(params.get("participants"));
+  if(participantInput&&Number.isInteger(requestedParticipants)&&requestedParticipants>=1&&requestedParticipants<=12){
+    participantInput.value=String(requestedSession==="Duo Session"?Math.max(2,requestedParticipants):requestedParticipants);
+  }
+  const photoInput=form.querySelector('input[name="additional_photos"]');
+  const requestedPhotos=Number(params.get("additional_photos"));
+  if(photoInput&&Number.isInteger(requestedPhotos)&&requestedPhotos>=0&&requestedPhotos<=50){
+    photoInput.value=String(requestedPhotos);
+  }
+  const timeInput=form.querySelector('input[name="additional_time"]');
+  const requestedTime=Number(params.get("additional_time"));
+  if(timeInput&&Number.isInteger(requestedTime)&&requestedTime>=0&&requestedTime<=120&&requestedTime%15===0){
+    timeInput.value=String(requestedTime);
+  }
+  const requestedDate=params.get("date")||"";
+  if(/^\\d{4}-\\d{2}-\\d{2}$/.test(requestedDate)&&requestedDate>=manilaNow().date){
+    const parsedDate=new Date(requestedDate+"T00:00:00Z");
+    if(Number.isFinite(parsedDate.getTime())&&parsedDate.toISOString().slice(0,10)===requestedDate&&preferredDate){
+      preferredDate.value=requestedDate;
+    }
+  }
+  const notesField=form.querySelector('textarea[name="notes"]');
+  const addOns=[];
+  if(Number.isInteger(requestedPhotos)&&requestedPhotos>0&&requestedPhotos<=50){
+    addOns.push(requestedPhotos+" extra edited photo"+(requestedPhotos===1?"":"s"));
+  }
+  if(Number.isInteger(requestedTime)&&requestedTime>0&&requestedTime<=120&&requestedTime%15===0){
+    addOns.push(requestedTime+" min extra time");
+  }
+  if(notesField&&addOns.length)notesField.value="Requested add-ons: "+addOns.join(", ")+".";
+  updateDateLimits();
+  updateContactInput();
+  updateSessionDurationNote();
+  const bookedSlots=Number(params.get("bookedSlots"));
+  const dateWasApplied=Boolean(requestedDate)&&preferredDate?.value===requestedDate;
+  const messages=[];
+  if(requestedSession&&allowedSessions.has(requestedSession))messages.push("Selected "+requestedSession+".");
+  if(dateWasApplied){
+    const formattedDate=new Intl.DateTimeFormat("en-PH",{timeZone:"Asia/Manila",dateStyle:"long"}).format(new Date(requestedDate+"T00:00:00+08:00"));
+    messages.push("You selected "+formattedDate+".");
+    if(Number.isInteger(bookedSlots)&&bookedSlots>0&&bookedSlots<=40){
+      messages.push(bookedSlots+" confirmed time "+(bookedSlots===1?"window is":"windows are")+" already listed. You may still request another non-overlapping time.");
+    }
+    messages.push("This is an inquiry only; your session is not reserved until TOKI SATSUEI confirms it in writing.");
+  }
+  if(messages.length&&status)status.textContent=messages.join(" ");
+}
 function updateContactInput(){
   if(!contactMethod||!contactValue)return;
   const method=contactMethod.value;
@@ -583,8 +646,8 @@ function extractBookingPayload(formElement,turnstileToken){
     preferred_time:String(data.get("preferred_time")||""),
     location:String(data.get("location")||"").trim(),
     participants,
-    additional_photos: Math.max(0, parseInt(String(data.get("additional_photos")||"0"), 10) || 0),
-    additional_time: Math.max(0, parseInt(String(data.get("additional_time")||"0"), 10) || 0),
+    additional_photos: Number(data.get("additional_photos")||"0"),
+    additional_time: Number(data.get("additional_time")||"0"),
     notes:String(data.get("notes")||"").trim(),
     privacy_consent:formElement.querySelector('input[name="privacy_consent"]')?.checked===true,
     booking_terms_consent:formElement.querySelector('input[name="booking_terms_consent"]')?.checked===true,
@@ -601,6 +664,9 @@ function extractBookingPayload(formElement,turnstileToken){
     &&/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(payload.preferred_time)
     &&payload.location.length>=2&&payload.location.length<=200
     &&Number.isInteger(payload.participants)&&payload.participants>=1&&payload.participants<=12
+    &&(payload.session_type!=="Duo Session"||payload.participants>=2)
+    &&Number.isInteger(payload.additional_photos)&&payload.additional_photos>=0&&payload.additional_photos<=50
+    &&Number.isInteger(payload.additional_time)&&payload.additional_time>=0&&payload.additional_time<=120&&payload.additional_time%15===0
     &&payload.notes.length>=10&&payload.notes.length<=2000
     &&payload.privacy_consent&&payload.booking_terms_consent
     &&payload.booking_terms_version==="2026-11-16-v1"
@@ -618,6 +684,7 @@ function updateBookingStatus(message,state=""){
 }
 updateDateLimits();
 updateContactInput();
+applyBookingQueryPrefill();
 preferredDate?.addEventListener("change",updateDateLimits);
 preferredDate?.addEventListener("input",updateDateLimits);
 preferredTime?.addEventListener("input",updateDateLimits);
@@ -884,17 +951,24 @@ form?.addEventListener("submit",async event=>{
 
   btnApply?.addEventListener("click",()=>{
     const formElement=document.querySelector("#inquiry-form");
-    if(!formElement)return;
+    const selectedPkg=packageSelect?packageSelect.value:"Toki Portraits";
+    const participants=partInput?partInput.value:"1";
+    const extraPhotos=parseInt(photoInput?.value||"0",10);
+    const extraTimeMins=parseInt(timeInput?.value||"0",10);
+    if(!formElement){
+      const target=new URL("./booking.html",window.location.href);
+      target.searchParams.set("session",selectedPkg);
+      target.searchParams.set("participants",String(participants));
+      target.searchParams.set("additional_photos",String(extraPhotos));
+      target.searchParams.set("additional_time",String(extraTimeMins));
+      window.location.assign(target.toString());
+      return;
+    }
     const sessionField=formElement.querySelector('select[name="session"]');
     const participantsField=formElement.querySelector('input[name="participants"]');
     const photosField=formElement.querySelector('input[name="additional_photos"]');
     const timeField=formElement.querySelector('input[name="additional_time"]');
     const notesField=formElement.querySelector('textarea[name="notes"]');
-
-    const selectedPkg=packageSelect?packageSelect.value:"Toki Portraits";
-    const participants=partInput?partInput.value:"1";
-    const extraPhotos=parseInt(photoInput?.value||"0",10);
-    const extraTimeMins=parseInt(timeInput?.value||"0",10);
 
     if(sessionField){
       sessionField.value=selectedPkg;

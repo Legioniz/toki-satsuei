@@ -17,7 +17,7 @@ def main():
             base = f"http://127.0.0.1:{server.server_address[1]}"
             with sync_playwright() as p:
                 browser = p.chromium.launch()
-                for page_name in ("index.html", "library.html", "policies.html", "404.html"):
+                for page_name in ("index.html", "booking.html", "library.html", "policies.html", "404.html"):
                     assert "viewport-fit=cover" in (ROOT / page_name).read_text(), page_name + " lacks viewport-fit=cover"
                     for label, (w, h) in {"portrait phone": (390, 844), "landscape phone": (667, 375), "portrait tablet": (820, 1180), "landscape tablet": (1180, 820)}.items():
                         page = browser.new_page(viewport={"width": w, "height": h})

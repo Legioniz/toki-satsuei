@@ -5,6 +5,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 EXPECTED = {
     "index.html": "toki-home.css",
+    "booking.html": "toki-home.css",
     "library.html": "toki-archive.css",
     "policies.html": "toki-policies.css",
     "404.html": "toki-404.css",

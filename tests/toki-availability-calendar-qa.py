@@ -128,17 +128,23 @@ def main() -> None:
             assert "10:00" in slot_text and "11:30" in slot_text and "2:00" in slot_text and "3:00" in slot_text
             assert "non-overlapping" in page.locator("#availability-booked-slot-note").inner_text().lower()
             page.locator("#availability-use-date").click()
+            page.wait_for_function("location.pathname.endsWith('/booking.html')")
             assert page.locator('#inquiry-form input[name="preferred_date"]').input_value() == booked_date.isoformat()
             assert "2 confirmed time windows" in page.locator("#form-status").inner_text().lower()
-            page.wait_for_function("() => document.activeElement?.name === 'preferred_date'")
+
+            page.goto(base + "/index.html", wait_until="domcontentloaded")
+            page.wait_for_function("() => document.querySelector('#availability-updated')?.textContent?.startsWith('UPDATED ')")
 
             page.locator(f'.calendar-day[data-date="{free_date.isoformat()}"]').click()
             assert page.locator(f'.calendar-day[data-date="{free_date.isoformat()}"]').get_attribute("aria-pressed") == "true"
             assert "no confirmed time windows" in page.locator("#availability-booked-slot-list").inner_text().lower()
             page.locator("#availability-use-date").click()
+            page.wait_for_function("location.pathname.endsWith('/booking.html')")
             assert page.locator('#inquiry-form input[name="preferred_date"]').input_value() == free_date.isoformat()
             assert "inquiry only" in page.locator("#form-status").inner_text().lower()
 
+            page.goto(base + "/index.html", wait_until="domcontentloaded")
+            page.wait_for_function("() => document.querySelector('#availability-updated')?.textContent?.startsWith('UPDATED ')")
             previous_month = page.locator("#availability-month").inner_text()
             page.locator("#availability-next").click()
             page.wait_for_function(

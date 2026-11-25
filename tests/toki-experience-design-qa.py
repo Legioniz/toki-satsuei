@@ -23,10 +23,10 @@ class QuietHandler(SimpleHTTPRequestHandler):
 
 
 def main() -> None:
-    pages = ["index.html", "library.html", "policies.html", "404.html"]
+    pages = ["index.html", "booking.html", "library.html", "policies.html", "404.html"]
     for filename in pages:
         source = (ROOT / filename).read_text(encoding="utf-8")
-        bundle_name = {"index.html": "toki-home.css", "library.html": "toki-archive.css", "policies.html": "toki-policies.css", "404.html": "toki-404.css"}[filename]
+        bundle_name = {"index.html": "toki-home.css", "booking.html": "toki-home.css", "library.html": "toki-archive.css", "policies.html": "toki-policies.css", "404.html": "toki-404.css"}[filename]
         assert "experience.css" in (ROOT / bundle_name).read_text(encoding="utf-8").splitlines()[0], f"{filename}: experience layer is not bundled"
 
     css = (ROOT / "experience.css").read_text(encoding="utf-8")
@@ -51,22 +51,24 @@ def main() -> None:
     assert ".toki-booking-sheet .booking-fieldset .form-split > label" in motion_js
 
     home = (ROOT / "index.html").read_text(encoding="utf-8")
+    booking = (ROOT / "booking.html").read_text(encoding="utf-8")
     policy = (ROOT / "policies.html").read_text(encoding="utf-8")
-    assert home.count('<fieldset class="booking-fieldset">') == 3
+    assert 'id="inquiry-form"' not in home and 'href="./booking.html"' in home
+    assert booking.count('<fieldset class="booking-fieldset">') == 3
     assert "wizard-progress" not in home and "wizard-stage" not in home
     assert "wizard-to-stage-2" not in home and "Proceed to Step 2" not in home
-    assert "toki-assurance" in home and "toki-booking-sheet__layout" in home
-    assert "A request is not a reservation" in home
-    assert "at least one minute ahead" in home
-    assert 'name="preferred_time"' in home and 'step="60"' in home
+    assert "toki-assurance" in booking and "toki-booking-sheet__layout" in booking
+    assert "A request is not a reservation" in booking
+    assert "at least one minute ahead" in booking
+    assert 'name="preferred_time"' in booking and 'step="60"' in booking
     assert 'href="#availability"' in home
-    assert 'data-booking-terms-version="2026-11-16-v1"' in home
-    assert 'name="booking_terms_consent"' in home
+    assert 'data-booking-terms-version="2026-11-16-v1"' in booking
+    assert 'name="booking_terms_consent"' in booking
     assert home.count('class="package-duration"') == 4
     for duration in ["15 minutes", "30 minutes", "60 minutes"]:
         assert duration in home
     assert "Outdoor sessions · Event coverage · Custom sessions" in home
-    assert "20% reservation fee" in home
+    assert "20% reservation fee" in booking
     assert "48 hours" in policy.lower()
     assert "at the scheduled start time" in policy.lower()
     assert "after the agreed start time" in policy.lower()
@@ -103,24 +105,27 @@ def main() -> None:
             intro = page.locator(".toki-intro-curtain")
             assert intro.count() == 1, "The logo intro should appear on a normal-motion page load."
             assert intro.locator(".toki-intro-logo").get_attribute("src") == "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/30515ce50_Toki_Satsuei_Brushstroke_Emblem.png"
-            page.wait_for_selector(".booking-fieldset")
-            assert page.locator(".booking-fieldset").count() == 3
-            legends = [" ".join(value.split()) for value in page.locator(".booking-fieldset legend").all_inner_texts()]
+            assert page.locator("#inquiry-form").count() == 0, "Homepage should link out to booking instead of embedding the form."
+            booking_page = context.new_page()
+            booking_page.goto(base + "/booking.html", wait_until="domcontentloaded")
+            booking_page.wait_for_selector(".booking-fieldset")
+            assert booking_page.locator(".booking-fieldset").count() == 3
+            legends = [" ".join(value.split()) for value in booking_page.locator(".booking-fieldset legend").all_inner_texts()]
             assert legends == ["SESSION DETAILS", "DATE & LOCATION", "CONTACT & NOTES"], legends
-            assert page.locator(".primary-nav a").count() == 7
-            assert page.locator(".booking-expectation").is_visible()
-            assert page.locator(".booking-terms-summary").is_visible()
-            assert page.locator(".toki-assurance").is_visible()
-            assert page.locator(".wizard-progress").count() == 0
-            assert page.locator("#wizard-to-stage-2").count() == 0
-            assert page.locator('input[name="booking_terms_consent"]').evaluate("(node) => node.required")
-            assert page.locator('input[name="privacy_consent"]').evaluate("(node) => node.required")
-            assert page.locator(".package-duration").count() == 4
-            duration_cards = [" ".join(value.split()) for value in page.locator(".package-duration").all_inner_texts()]
+            assert booking_page.locator(".primary-nav a").count() == 7
+            assert booking_page.locator(".booking-expectation").is_visible()
+            assert booking_page.locator(".booking-terms-summary").is_visible()
+            assert booking_page.locator(".toki-assurance").is_visible()
+            assert booking_page.locator(".wizard-progress").count() == 0
+            assert booking_page.locator("#wizard-to-stage-2").count() == 0
+            assert booking_page.locator('input[name="booking_terms_consent"]').evaluate("(node) => node.required")
+            assert booking_page.locator('input[name="privacy_consent"]').evaluate("(node) => node.required")
+            assert booking_page.locator(".package-duration").count() == 4
+            duration_cards = [" ".join(value.split()) for value in booking_page.locator(".package-duration").all_inner_texts()]
             assert ["15 minutes" in duration_cards[0], "30 minutes" in duration_cards[1],
                     "60 minutes" in duration_cards[2], "30 minutes" in duration_cards[3]] == [True] * 4
-            session_select = page.locator('select[name="session"]')
-            duration_note = page.locator("#session-duration-note")
+            session_select = booking_page.locator('select[name="session"]')
+            duration_note = booking_page.locator("#session-duration-note")
             session_select.select_option("Quick Snap")
             assert duration_note.inner_text() == "Typical duration: 15 minutes. The exact start and end time will be agreed in writing."
             session_select.select_option("Signature Session")
@@ -133,11 +138,11 @@ def main() -> None:
                 'input[name="preferred_date"]', 'input[name="preferred_time"]',
                 'input[name="contact_value"]', 'textarea[name="notes"]',
             ]:
-                height = page.locator(selector).evaluate("(node) => node.getBoundingClientRect().height")
+                height = booking_page.locator(selector).evaluate("(node) => node.getBoundingClientRect().height")
                 assert height >= 44, f"{selector} is below the 44px control target: {height}"
 
-            date_input = page.locator('input[name="preferred_date"]')
-            time_input = page.locator('input[name="preferred_time"]')
+            date_input = booking_page.locator('input[name="preferred_date"]')
+            time_input = booking_page.locator('input[name="preferred_time"]')
             today = datetime.now(ZoneInfo("Asia/Manila")).date().isoformat()
             date_input.fill(today)
             date_input.dispatch_event("change")
@@ -152,7 +157,7 @@ def main() -> None:
             date_input.dispatch_event("change")
             assert time_input.get_attribute("min") == "00:00", "Future dates should permit any time of day"
 
-            contrast = page.locator(".inquiry-form").evaluate("""form => {
+            contrast = booking_page.locator(".inquiry-form").evaluate("""form => {
               const panel = form.closest(".contact-panel");
               const label = form.querySelector("label");
               const input = form.querySelector('input[name="name"]');
@@ -174,23 +179,23 @@ def main() -> None:
             assert contrast["input"] >= 4.5, f"Form input text misses 4.5:1 contrast: {contrast}"
 
             for width in [320, 390, 680, 768, 1024, 1440]:
-                page.set_viewport_size({"width": width, "height": 850})
-                layout_columns = page.locator(".toki-booking-sheet__layout").evaluate("(node) => getComputedStyle(node).gridTemplateColumns.trim().split(/\\s+/).length")
-                split_columns = page.locator(".toki-booking-sheet .form-split").first.evaluate("(node) => getComputedStyle(node).gridTemplateColumns.trim().split(/\\s+/).length")
-                geometry = page.locator('select[name="session"]').evaluate("(node) => ({control: node.getBoundingClientRect().width, label: node.parentElement.getBoundingClientRect().width})")
+                booking_page.set_viewport_size({"width": width, "height": 850})
+                layout_columns = booking_page.locator(".toki-booking-sheet__layout").evaluate("(node) => getComputedStyle(node).gridTemplateColumns.trim().split(/\\s+/).length")
+                split_columns = booking_page.locator(".toki-booking-sheet .form-split").first.evaluate("(node) => getComputedStyle(node).gridTemplateColumns.trim().split(/\\s+/).length")
+                geometry = booking_page.locator('select[name="session"]').evaluate("(node) => ({control: node.getBoundingClientRect().width, label: node.parentElement.getBoundingClientRect().width})")
                 assert layout_columns == 1, f"Booking groups should remain vertical at {width}px"
                 assert split_columns == 1, f"Booking fields should remain one per row at {width}px"
                 assert geometry["control"] >= geometry["label"] - 1, f"Booking control should fill its row at {width}px: {geometry}"
 
-            page.set_viewport_size({"width": 320, "height": 700})
-            assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), "Horizontal overflow at 320px"
-            page.locator(".site-header").evaluate("(node) => { node.classList.remove('is-auto-hidden','is-initial-hidden'); node.classList.add('is-revealed'); node.style.transform = 'translateY(0)'; }")
-            page.wait_for_timeout(300)
-            page.locator(".menu-toggle").click()
-            assert page.locator(".menu-toggle").get_attribute("aria-expanded") == "true"
-            assert page.locator(".primary-nav").is_visible()
-            page.keyboard.press("Escape")
-            assert page.locator(".menu-toggle").get_attribute("aria-expanded") == "false"
+            booking_page.set_viewport_size({"width": 320, "height": 700})
+            assert booking_page.evaluate("document.documentElement.scrollWidth <= innerWidth"), "Horizontal overflow at 320px"
+            booking_page.locator(".site-header").evaluate("(node) => { node.classList.remove('is-auto-hidden','is-initial-hidden'); node.classList.add('is-revealed'); node.style.transform = 'translateY(0)'; }")
+            booking_page.wait_for_timeout(300)
+            booking_page.locator(".menu-toggle").click()
+            assert booking_page.locator(".menu-toggle").get_attribute("aria-expanded") == "true"
+            assert booking_page.locator(".primary-nav").is_visible()
+            booking_page.keyboard.press("Escape")
+            assert booking_page.locator(".menu-toggle").get_attribute("aria-expanded") == "false"
 
             reduced_context = browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="reduce")
             reduced_context.route("https://**", lambda route: route.abort())

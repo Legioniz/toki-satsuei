@@ -9,7 +9,7 @@ The complete standalone TOKI SATSUEI website, kept separate from the Legioniz pe
 
 ## Included
 
-- Homepage, services, session guide, FAQs, and inquiry form
+- Homepage, services, session guide, FAQs, and a dedicated online booking page
 - Public booking, payment, rescheduling, privacy, and photo-consent guidelines
 - Branded 404 page, `robots.txt`, and XML sitemap for search discovery
 - Responsive photo archive with search, category rails, and album viewer
@@ -58,7 +58,7 @@ python tests/toki-live-http-security-qa.py
 
 ## Booking, privacy, and image consent
 
-The public [booking and photo policies](https://legioniz.github.io/toki-satsuei/policies.html) describe how requests are reviewed, how prices and payment terms are agreed, how schedule changes are handled, how files are delivered, and how client photographs may be shared. The inquiry form sends the details you choose to provide to a Supabase Edge Function, which stores them in the private `public.toki_booking_requests` table. Anonymous visitors cannot read or insert directly into that table; the server-side intake is rate-limited and the owner dashboard reads requests under administrator-only Row Level Security. New requests are not reservations, do not hold a date, and do not request payment. Booking administration is handled directly in the Supabase Dashboard. Use the read-only `public.toki_booking_inbox` view to inspect requests and edit the underlying `public.toki_booking_requests` table. No personal-portfolio dashboard is used for TOKI bookings. Client photographs are not added to the public portfolio without permission from the people featured.
+The public [booking and photo policies](https://legioniz.github.io/toki-satsuei/policies.html) describe how requests are reviewed, how prices and payment terms are agreed, how schedule changes are handled, how files are delivered, and how client photographs may be shared. The standalone `booking.html` page sends the details you choose to provide to a Supabase Edge Function, which stores them in the private `public.toki_booking_requests` table. Anonymous visitors cannot read or insert directly into that table; the server-side intake is rate-limited and the owner dashboard reads requests under administrator-only Row Level Security. New requests are not reservations, do not hold a date, and do not request payment. Booking administration is handled directly in the Supabase Dashboard. Use the read-only `public.toki_booking_inbox` view to inspect requests and edit the underlying `public.toki_booking_requests` table. No personal-portfolio dashboard is used for TOKI bookings. Client photographs are not added to the public portfolio without permission from the people featured.
 
 The site currently labels its existing gallery images as practice/detail studies. It does not claim to have a finished public cosplay or portrait client portfolio yet.
 
@@ -72,14 +72,15 @@ The homepage includes a live monthly calendar backed by the separate `toki-calen
 
 ## Runtime integration map
 
-The site is delivered as six static pages backed by unified bundled CSS (`scripts/build-css.py`), shared progressive motion/effects, and modular JavaScript controllers:
+The site is delivered as seven static pages backed by unified bundled CSS (`scripts/build-css.py`), shared progressive motion/effects, and modular JavaScript controllers:
 
 | File | Used by | Responsibility |
 | --- | --- | --- |
 | `toki-home.css`, `toki-archive.css`, `toki-policies.css`, `toki-404.css`, `toki-admin.css`, `toki-client.css` | All pages | Validated page bundles compiled by `scripts/build-css.py` from `styles.css`, `refinement.css`, `policies.css`, `availability.css`, `motion-system.css`, `cinematic.css`, `experience.css`, `fixes.css`, `pricing-calculator.css`, `library.css`, `pages.css`, `admin.css`, `client-gallery.css`, `design-system.css`, `orientation.css`, the shared `global-motion.css`, and the homepage-only `site-enhancements.css` |
-| `motion-system.js` | Home, archive, policies, admin, client gallery | Official-logo aperture intro, six reveal profiles, scroll-linked chapter rails and bounded image parallax, pointer tilt, shutter feedback, menu, and dialog helpers |
-| `site.js` | Home, archive, and policies | Navigation, page progress, interactive pricing calculator + booking sheet synchronization, Web Audio feedback, and Supabase intake relay |
+| `motion-system.js` | Home, booking, archive, policies, admin, client gallery | Official-logo aperture intro, six reveal profiles, scroll-linked chapter rails and bounded image parallax, pointer tilt, shutter feedback, menu, and dialog helpers |
+| `site.js` | Home, booking, archive, and policies | Navigation, page progress, interactive pricing calculator + booking sheet synchronization, Web Audio feedback, and Supabase intake relay |
 | `availability.css` + `availability.js` | `index.html` | Public monthly calendar, confirmed-date feed, Manila month rollover, inquiry prefill, and minute refresh |
+| `site.js` + `booking.html` | Dedicated desktop/mobile booking form, secure request submission, and cross-page package, calculator, and calendar prefill |
 | `library.js` | `library.html` | Archive filters, search, media manifest, and album viewer |
 | `admin.js` + `admin.html` | Studio operations console | Authenticated booking inbox management, pricing/add-ons inspection, confirmation windows, and token generation |
 | `client-gallery.js` + `client-gallery.html` | Private client gallery | Token-gated photo delivery and client favorite selection |
@@ -95,7 +96,7 @@ The booking form uses Cloudflare Turnstile with the `toki_booking` action and th
 ### One-time owner setup
 
 1. Create a Cloudflare Turnstile widget restricted to `legioniz.github.io`.
-2. Keep the site key in the public form markup in `index.html`; it is designed to be public.
+2. Keep the site key in the public form markup in `booking.html`; it is designed to be public.
 3. In Supabase **Edge Functions → Secrets**, add `TOKI_TURNSTILE_SECRET_KEY` with the secret that matches the TOKI sitekey. Do not overwrite the existing `TURNSTILE_SECRET_KEY`; it is reserved for the personal portfolio's inquiry/comment widget.
 4. After the new secret is saved, deploy the updated `portfolio-submit` Edge Function.
 5. Live CI requires missing-token rejection by default; no additional GitHub variable is needed.

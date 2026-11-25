@@ -70,24 +70,30 @@ def main():
    assert home.locator('a[href="https://www.instagram.com/tokisatsuiephotography/"]').count()>=1,"Official Instagram link was removed"
    passed+=1
 
-   name_field=home.locator('input[name="name"]')
+   assert home.locator("#inquiry-form").count()==0,"Homepage should not embed the booking form"
+   assert home.locator('a.nav-contact[href="./booking.html"]').count()==1,"Homepage booking navigation should open the booking page"
+   booking_page=context.new_page()
+   booking_page.goto(base+"/booking.html",wait_until="domcontentloaded")
+   name_field=booking_page.locator('input[name="name"]')
    name_field.fill("Motion QA");name_field.fill("")
    name_field.blur()
-   assert name_field.evaluate("(el)=>el.matches(':user-invalid')"),"Inquiry form validation feedback did not activate"
+   assert name_field.evaluate("(el)=>el.matches(':user-invalid')"),"Booking page validation feedback did not activate"
+   booking_page.close()
    passed+=1
 
-   duo_card=home.locator('.package-card[data-session="Duo Session"]')
-   duo_card.click()
-   assert duo_card.locator(".package-link").get_attribute("aria-pressed")=="true"
-   assert home.locator('select[name="session"]').input_value()=="Duo Session"
-   home.wait_for_function("document.querySelector('#form-status').textContent.includes('Duo Session')")
-   assert "Duo Session" in home.locator("#form-status").inner_text()
-   assert home.locator('.package-card .package-link[aria-pressed="true"]').count()==1
-   portrait_card=home.locator('.package-card[data-session="Toki Portraits"]')
+   launcher=context.new_page()
+   launcher.goto(base+"/index.html#sessions",wait_until="domcontentloaded")
+   duo_card=launcher.locator('.package-card[data-session="Duo Session"]')
+   duo_card.locator(".package-link").click()
+   launcher.wait_for_function("location.pathname.endsWith('/booking.html')")
+   assert launcher.locator('select[name="session"]').input_value()=="Duo Session","Duo package was not carried into booking"
+   launcher.goto(base+"/index.html#sessions",wait_until="domcontentloaded")
+   portrait_card=launcher.locator('.package-card[data-session="Toki Portraits"]')
    portrait_card.locator(".package-link").focus()
-   home.keyboard.press("Enter")
-   assert portrait_card.locator(".package-link").get_attribute("aria-pressed")=="true"
-   assert home.locator('select[name="session"]').input_value()=="Toki Portraits"
+   launcher.keyboard.press("Enter")
+   launcher.wait_for_function("location.pathname.endsWith('/booking.html')")
+   assert launcher.locator('select[name="session"]').input_value()=="Toki Portraits","Keyboard package selection did not prefill booking"
+   launcher.close()
    passed+=1
 
    home.evaluate("window.scrollTo({top:0,behavior:'instant'})")

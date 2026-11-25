@@ -137,10 +137,11 @@ jobs:
           set -euo pipefail
           rm -rf dist
           mkdir -p dist
-          cp index.html library.html policies.html 404.html admin.html client-gallery.html toki-home.css toki-archive.css toki-policies.css toki-404.css toki-admin.css toki-client.css motion-system.js site.js availability.js library.js admin.js client-gallery.js media-library.json robots.txt sitemap.xml _headers dist/
+          cp index.html booking.html library.html policies.html 404.html admin.html client-gallery.html toki-home.css toki-archive.css toki-policies.css toki-404.css toki-admin.css toki-client.css motion-system.js site.js availability.js library.js admin.js client-gallery.js media-library.json robots.txt sitemap.xml _headers dist/
           cp -R media-library dist/
           touch dist/.nojekyll
           test -s dist/index.html
+          test -s dist/booking.html
           test -s dist/library.html
           test -s dist/policies.html
           test -s dist/404.html

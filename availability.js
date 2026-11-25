@@ -210,11 +210,17 @@
       setStatus("That date can no longer be selected. Choose another future date.", "error");
       return;
     }
-    const dateInput = document.querySelector('#inquiry-form input[name="preferred_date"]');
-    if (!dateInput) return;
-
     const chosenDate = selectedDate;
     const slots = bookingsByDate.get(chosenDate) || [];
+    const dateInput = document.querySelector('#inquiry-form input[name="preferred_date"]');
+    if (!dateInput) {
+      const target = new URL("./booking.html", window.location.href);
+      target.searchParams.set("date", chosenDate);
+      target.searchParams.set("bookedSlots", String(slots.length));
+      target.searchParams.set("source", "availability-calendar");
+      window.location.assign(target.toString());
+      return;
+    }
     dateInput.value = chosenDate;
     dateInput.dispatchEvent(new Event("change", { bubbles: true }));
 

@@ -9,10 +9,11 @@ import re
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
-PAGES = ("index.html", "library.html", "policies.html", "404.html", "admin.html", "client-gallery.html")
+PAGES = ("index.html", "booking.html", "library.html", "policies.html", "404.html", "admin.html", "client-gallery.html")
 WORKFLOW = ROOT / ".github/workflows/deploy.yml"
 EXPECTED_CONSUMERS = {
     "index.html": ("motion-system.js", "site.js", "availability.js"),
+    "booking.html": ("motion-system.js", "site.js"),
     "library.html": ("motion-system.js", "site.js", "library.js"),
     "policies.html": ("motion-system.js", "site.js"),
     "404.html": ("motion-system.js",),
