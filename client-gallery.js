@@ -15,7 +15,6 @@
   const selectedCountDisplay = document.querySelector("#client-selected-count");
   const submitSelectionBtn = document.querySelector("#client-submit-selection-btn");
   const photoGrid = document.querySelector("#client-photo-grid");
-  const deliveryLink = document.querySelector("#client-delivery-link");
 
   let currentToken = "";
   let selectedPhotos = new Set();
@@ -75,26 +74,6 @@
     greeting.textContent = `Photographs for ${galleryData.client_name || "You"}`;
     sessionDetails.textContent = `${galleryData.session_type || "Session"} • Delivered ${galleryData.confirmed_date || "recently"}`;
 
-    let deliveryHref = "";
-    try {
-      const url = new URL(String(galleryData.delivery_folder_url || ""));
-      if (url.protocol === "https:" && url.hostname && !url.username && !url.password) {
-        deliveryHref = url.href;
-      }
-    } catch {
-      deliveryHref = "";
-    }
-
-    if (deliveryHref) {
-      deliveryLink.href = deliveryHref;
-      deliveryLink.hidden = false;
-      deliveryLink.style.display = "inline-flex";
-    } else {
-      deliveryLink.removeAttribute("href");
-      deliveryLink.hidden = true;
-      deliveryLink.style.display = "none";
-    }
-
     const suppliedPhotos = Array.isArray(galleryData.photos) ? galleryData.photos : [];
     const photos = suppliedPhotos.map((photo) => {
       if (!photo || typeof photo.id !== "string" || typeof photo.title !== "string" || typeof photo.url !== "string") return null;
@@ -114,7 +93,7 @@
         <div class="client-gallery-empty" role="status">
           <span class="client-gallery-empty__eyebrow">PRIVATE DELIVERY</span>
           <h2>Your files are shared through the studio's private delivery link.</h2>
-          <p>This portal has verified your access key, but a private photo preview list has not been connected to this delivery yet. ${deliveryHref ? "Use the private delivery link above to view and download your photographs." : "Contact the studio through your official booking conversation to request your delivery details."}</p>
+          <p>This portal has verified your access key, but a private photo preview list has not been connected to this delivery yet. Contact the studio through your official booking conversation to request your photographs.</p>
         </div>
       `;
       return;

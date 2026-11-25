@@ -32,10 +32,12 @@ def main() -> None:
     assert 'type="password" id="client-token-input"' in client_html
     assert 'id="client-photo-grid"' in client_html
     assert 'id="client-submit-selection-btn"' in client_html
-    assert 'id="client-delivery-link"' in client_html
+    assert 'id="client-delivery-link"' not in client_html
     assert "Google Drive" not in client_html
     client_script = (ROOT / "client-gallery.js").read_text(encoding="utf-8")
     assert "drive.google.com" not in client_script
+    assert "deliveryLink" not in client_script
+    assert "deliveryHref" not in client_script
     assert 'toki-client.css' in client_html
     assert 'client-gallery.js' in client_html
 
@@ -53,22 +55,15 @@ def main() -> None:
             context.route("https://fonts.gstatic.com/**", lambda route: route.abort())
 
             # Route Supabase RPC calls
-            gallery_lookup_count = 0
             def mock_rpc(route):
-                nonlocal gallery_lookup_count
                 req = route.request
                 if "toki_get_client_gallery" in req.url:
-                    gallery_lookup_count += 1
-                    delivery_url = "https://delivery.example/clients/test-delivery"
-                    if gallery_lookup_count > 1:
-                        delivery_url = "http://delivery.example/insecure"
                     route.fulfill(status=200, content_type="application/json", body=json.dumps({
                         "ok": True,
                         "client_name": "Maya Lin",
                         "session_type": "Signature Session",
                         "confirmed_date": "2026-11-20",
                         "delivery_status": "ready",
-                        "delivery_folder_url": delivery_url,
                         "client_selected_photos": ["frame-001"],
                     }))
                     return
@@ -104,12 +99,6 @@ def main() -> None:
             assert "Maya Lin" in page.locator("#client-greeting").inner_text()
             assert "Signature Session" in page.locator("#client-session-details").inner_text()
 
-            # A provider-neutral HTTPS destination is accepted without hard-coding a storage brand.
-            delivery_btn = page.locator("#client-delivery-link")
-            assert delivery_btn.is_visible()
-            assert delivery_btn.inner_text().lower().startswith("open private delivery")
-            assert delivery_btn.get_attribute("href") == "https://delivery.example/clients/test-delivery"
-
             # Never substitute practice/sample photos for a client's actual delivered images.
             assert page.locator(".client-photo-item").count() == 0
             assert page.locator(".client-gallery-empty").is_visible()
@@ -127,13 +116,11 @@ def main() -> None:
             page.locator('#client-token-form button[type="submit"]').click()
             page.locator("#client-gallery-section").wait_for(state="visible", timeout=7000)
             assert "Maya Lin" in page.locator("#client-greeting").inner_text()
-            assert page.locator("#client-delivery-link").is_hidden(), "Insecure HTTP delivery URLs must never be exposed."
-
             browser.close()
     finally:
         server.shutdown()
 
-    print("PASS TOKI client gallery QA: password-gated private HTTPS delivery, rejected insecure links, no fabricated sample photos, no bearer token query strings, and honest empty-state messaging.")
+    print("PASS TOKI client gallery QA: password-gated access, no delivery-link control, no fabricated sample photos, no bearer token query strings, and honest empty-state messaging.")
 
 
 if __name__ == "__main__":
