@@ -178,7 +178,6 @@ jobs:
       pages: write
       id-token: write
     runs-on: ubuntu-24.04
-    needs: verify-and-package
     steps:
       - name: Check that this commit is still the main branch head
         id: freshness
