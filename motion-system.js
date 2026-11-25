@@ -441,7 +441,7 @@
 
   function prepare(element) {
     if (!(element instanceof HTMLElement)) return;
-    if (element.matches(".hero-opening")) return;
+    if (element.matches(".hero-opening, .toki-scene-track")) return;
 
     const hasRevealAttr = element.hasAttribute("data-reveal");
     if (!hasRevealAttr && !element.classList.contains("motion-item")) {

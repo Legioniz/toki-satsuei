@@ -66,6 +66,9 @@ def main() -> None:
                     assert scene.locator(":scope > .toki-scene-track").count() == 1, (
                         f"{filename}: {selector} is missing its focus rail"
                     )
+                    assert not scene.locator(":scope > .toki-scene-track").evaluate(
+                        "(node) => node.classList.contains('motion-item')"
+                    ), f"{filename}: decorative focus rail must not enter the content reveal system"
                 assert page.locator(".toki-scene-track").count() >= len(selectors)
                 page.close()
 
