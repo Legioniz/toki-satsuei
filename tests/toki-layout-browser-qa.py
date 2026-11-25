@@ -280,10 +280,18 @@ def main():
                 archive.mouse.move(click_x, click_y)
                 archive.mouse.down()
                 archive.mouse.up()
+                # View Transition DOM updates run in the next rendering update; wait for
+                # the real dialog state rather than assuming showModal() is synchronous.
+                archive.wait_for_function(
+                    "() => { const element = document.querySelector('#album-dialog'); return element?.open && getComputedStyle(element).display !== 'none'; }",
+                    timeout=1500,
+                )
                 dialog_state = archive.locator("#album-dialog").evaluate("(element) => ({open:element.open, display:getComputedStyle(element).display, connected:element.isConnected})")
                 event_state = archive.evaluate("() => ({cardClicks:window.__qaCardClicks, showModalCalls:window.__qaShowModalCalls})")
                 assert dialog_state["open"] and dialog_state["display"] != "none", \
                     f"archive dialog did not open at {width}px: {dialog_state}; events: {event_state}; card: {card_state}; page errors: {archive_errors}"
+                assert event_state == {"cardClicks": 1, "showModalCalls": 1}, \
+                    f"archive card should open exactly once at {width}px: {event_state}"
                 archive.wait_for_timeout(450)
                 dialog = boxes(archive, [".album-dialog", ".album-dialog-panel", ".album-media-rail", ".album-dialog-note"])
                 for item in dialog[1:]:
