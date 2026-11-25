@@ -126,6 +126,11 @@ def main():
    assert archive.locator(".album-card.motion-item").count() >= 1, "Archive cards were not enrolled in shared motion"
    card=archive.locator(".album-card").first;card.click()
    album_dialog=archive.locator("#album-dialog")
+   # Shared-element View Transitions commit the dialog update on the next frame.
+   archive.wait_for_function(
+    "() => { const dialog = document.querySelector('#album-dialog'); return dialog?.open && getComputedStyle(dialog).display !== 'none'; }",
+    timeout=1500
+   )
    assert album_dialog.evaluate("(el)=>el.open"),"Album dialog did not open"
    archive.keyboard.press("End")
    archive.wait_for_function("document.querySelector('#album-dialog-position').textContent==='03 / 03'")
