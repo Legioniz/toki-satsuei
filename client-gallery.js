@@ -88,9 +88,11 @@
     if (deliveryHref) {
       deliveryLink.href = deliveryHref;
       deliveryLink.hidden = false;
+      deliveryLink.style.display = "inline-flex";
     } else {
       deliveryLink.removeAttribute("href");
       deliveryLink.hidden = true;
+      deliveryLink.style.display = "none";
     }
 
     const suppliedPhotos = Array.isArray(galleryData.photos) ? galleryData.photos : [];
