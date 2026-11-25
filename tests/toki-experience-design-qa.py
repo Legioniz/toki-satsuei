@@ -57,6 +57,7 @@ def main() -> None:
     assert booking.count('<fieldset class="booking-fieldset">') == 3
     assert "wizard-progress" not in home and "wizard-stage" not in home
     assert "wizard-to-stage-2" not in home and "Proceed to Step 2" not in home
+    assert 'class="booking-page"' in booking
     assert "toki-assurance" in booking and "toki-booking-sheet__layout" in booking
     assert "A request is not a reservation" in booking
     assert "at least one minute ahead" in booking
@@ -82,6 +83,8 @@ def main() -> None:
     assert "WITH (security_invoker = true)" in inbox_migration
     assert "booking_terms_version" in inbox_migration and "booking_terms_accepted_at" in inbox_migration
     assert "function updateSessionDurationNote()" in site
+    assert r"if(/^\d{4}-\d{2}-\d{2}$/.test(requestedDate)" in site
+    assert "bookedSlots" not in site
     assert "booking_terms_consent" in site and "booking_terms_version" in site
     assert "function manilaNow()" in site and "preferredTime.min" in site
     assert "bookingTermsConsent" in edge
@@ -178,14 +181,35 @@ def main() -> None:
             assert contrast["label"] >= 4.5, f"Form labels miss 4.5:1 contrast: {contrast}"
             assert contrast["input"] >= 4.5, f"Form input text misses 4.5:1 contrast: {contrast}"
 
-            for width in [320, 390, 680, 768, 1024, 1440]:
+            for width in [320, 390, 680, 768, 960, 1024, 1200, 1440]:
                 booking_page.set_viewport_size({"width": width, "height": 850})
                 layout_columns = booking_page.locator(".toki-booking-sheet__layout").evaluate("(node) => getComputedStyle(node).gridTemplateColumns.trim().split(/\\s+/).length")
                 split_columns = booking_page.locator(".toki-booking-sheet .form-split").first.evaluate("(node) => getComputedStyle(node).gridTemplateColumns.trim().split(/\\s+/).length")
+                expected_layout_columns = 2 if width >= 1200 else 1
+                expected_split_columns = 2 if width >= 960 else 1
+                assert layout_columns == expected_layout_columns, f"Unexpected booking group layout at {width}px: {layout_columns}"
+                assert split_columns == expected_split_columns, f"Unexpected field layout at {width}px: {split_columns}"
                 geometry = booking_page.locator('select[name="session"]').evaluate("(node) => ({control: node.getBoundingClientRect().width, label: node.parentElement.getBoundingClientRect().width})")
-                assert layout_columns == 1, f"Booking groups should remain vertical at {width}px"
-                assert split_columns == 1, f"Booking fields should remain one per row at {width}px"
                 assert geometry["control"] >= geometry["label"] - 1, f"Booking control should fill its row at {width}px: {geometry}"
+
+            # Verify query prefill and ignore URL-supplied availability counts.
+            prefill_date = (datetime.now(ZoneInfo("Asia/Manila")).date() + timedelta(days=5)).isoformat()
+            prefill_page = context.new_page()
+            prefill_page.goto(
+                base + "/booking.html?session=Duo%20Session&participants=3&additional_photos=2&additional_time=15&date="
+                + prefill_date + "&bookedSlots=99&source=availability-calendar",
+                wait_until="domcontentloaded",
+            )
+            assert prefill_page.locator('select[name="session"]').input_value() == "Duo Session"
+            assert prefill_page.locator('input[name="participants"]').input_value() == "3"
+            assert prefill_page.locator('input[name="additional_photos"]').input_value() == "2"
+            assert prefill_page.locator('input[name="additional_time"]').input_value() == "15"
+            assert prefill_page.locator('input[name="preferred_date"]').input_value() == prefill_date
+            handoff_status = prefill_page.locator("#form-status").inner_text().lower()
+            assert "inquiry only" in handoff_status
+            assert "guide only" in handoff_status
+            assert "99 confirmed" not in handoff_status
+            prefill_page.close()
 
             booking_page.set_viewport_size({"width": 320, "height": 700})
             assert booking_page.evaluate("document.documentElement.scrollWidth <= innerWidth"), "Horizontal overflow at 320px"

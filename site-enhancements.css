@@ -1,4 +1,4 @@
-/* TOKI SATSUEI — homepage booking sheet: full-width, one-field-per-row layout. */
+/* TOKI SATSUEI — dedicated booking route and responsive form layout. */
 .toki-booking-sheet .toki-booking-sheet__layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -77,5 +77,39 @@
   .toki-booking-sheet .booking-fieldset select:hover,
   .toki-booking-sheet .booking-fieldset textarea:hover {
     border-color: rgba(195, 42, 57, 0.58);
+  }
+}
+
+
+/* Keep sticky navigation above the homepage hero's decorative scene layers. */
+.site-header { position: sticky; top: 0; z-index: 100; isolation: isolate; pointer-events: auto; }
+.site-header .menu-toggle, .site-header .primary-nav { position: relative; z-index: 2; pointer-events: auto; }
+.hero-opening { position: relative; z-index: 0; }
+
+/* The booking sheet lives on its own page. */
+.booking-page .contact-panel { grid-template-columns: minmax(0, 1fr); gap: clamp(2rem, 4vw, 3.5rem); }
+.booking-page .contact-copy { max-width: 880px; }
+.booking-page .inquiry-form { width: 100%; min-width: 0; }
+.booking-page .toki-booking-sheet .toki-booking-sheet__layout { max-width: 1240px; gap: clamp(1.5rem, 2.5vw, 2.5rem); }
+
+@media (min-width: 960px) {
+  .booking-page .toki-booking-sheet .form-split,
+  .booking-page .toki-booking-sheet .toki-field-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1rem, 1.6vw, 1.4rem);
+  }
+}
+@media (min-width: 1200px) {
+  .booking-page .toki-booking-sheet .toki-booking-sheet__layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    max-width: 1240px;
+  }
+}
+@media (max-width: 959px) {
+  .booking-page .toki-booking-sheet .toki-booking-sheet__layout,
+  .booking-page .toki-booking-sheet .form-split,
+  .booking-page .toki-booking-sheet .toki-field-row {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

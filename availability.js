@@ -216,7 +216,6 @@
     if (!dateInput) {
       const target = new URL("./booking.html", window.location.href);
       target.searchParams.set("date", chosenDate);
-      target.searchParams.set("bookedSlots", String(slots.length));
       target.searchParams.set("source", "availability-calendar");
       window.location.assign(target.toString());
       return;

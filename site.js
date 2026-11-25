@@ -587,7 +587,7 @@ function applyBookingQueryPrefill(){
     timeInput.value=String(requestedTime);
   }
   const requestedDate=params.get("date")||"";
-  if(/^\\d{4}-\\d{2}-\\d{2}$/.test(requestedDate)&&requestedDate>=manilaNow().date){
+  if(/^\d{4}-\d{2}-\d{2}$/.test(requestedDate)&&requestedDate>=manilaNow().date){
     const parsedDate=new Date(requestedDate+"T00:00:00Z");
     if(Number.isFinite(parsedDate.getTime())&&parsedDate.toISOString().slice(0,10)===requestedDate&&preferredDate){
       preferredDate.value=requestedDate;
@@ -605,15 +605,14 @@ function applyBookingQueryPrefill(){
   updateDateLimits();
   updateContactInput();
   updateSessionDurationNote();
-  const bookedSlots=Number(params.get("bookedSlots"));
   const dateWasApplied=Boolean(requestedDate)&&preferredDate?.value===requestedDate;
   const messages=[];
   if(requestedSession&&allowedSessions.has(requestedSession))messages.push("Selected "+requestedSession+".");
   if(dateWasApplied){
     const formattedDate=new Intl.DateTimeFormat("en-PH",{timeZone:"Asia/Manila",dateStyle:"long"}).format(new Date(requestedDate+"T00:00:00+08:00"));
     messages.push("You selected "+formattedDate+".");
-    if(Number.isInteger(bookedSlots)&&bookedSlots>0&&bookedSlots<=40){
-      messages.push(bookedSlots+" confirmed time "+(bookedSlots===1?"window is":"windows are")+" already listed. You may still request another non-overlapping time.");
+    if(params.get("source")==="availability-calendar"){
+      messages.push("The public calendar is a guide only. We will confirm the exact time with you in writing.");
     }
     messages.push("This is an inquiry only; your session is not reserved until TOKI SATSUEI confirms it in writing.");
   }

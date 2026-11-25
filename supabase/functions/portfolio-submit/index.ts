@@ -312,8 +312,15 @@ Deno.serve(async (request) => {
       const location = readText(payload.location)
       const notes = readText(payload.notes)
       const participants = payload.participants
-      const additionalPhotos = typeof payload.additional_photos === 'number' && Number.isInteger(payload.additional_photos) && payload.additional_photos >= 0 && payload.additional_photos <= 50 ? payload.additional_photos : 0
-      const additionalTime = typeof payload.additional_time === 'number' && Number.isInteger(payload.additional_time) && payload.additional_time >= 0 && payload.additional_time <= 120 ? payload.additional_time : 0
+      const additionalPhotosValue = payload.additional_photos ?? 0
+      const additionalPhotosValid = typeof additionalPhotosValue === 'number'
+        && Number.isInteger(additionalPhotosValue) && additionalPhotosValue >= 0 && additionalPhotosValue <= 50
+      const additionalPhotos = additionalPhotosValid ? additionalPhotosValue : 0
+      const additionalTimeValue = payload.additional_time ?? 0
+      const additionalTimeValid = typeof additionalTimeValue === 'number'
+        && Number.isInteger(additionalTimeValue) && additionalTimeValue >= 0
+        && additionalTimeValue <= 120 && additionalTimeValue % 15 === 0
+      const additionalTime = additionalTimeValid ? additionalTimeValue : 0
       const privacyConsent = payload.privacy_consent === true
       const bookingTermsConsent = payload.booking_terms_consent === true
       const bookingTermsVersion = readText(payload.booking_terms_version)
@@ -338,12 +345,13 @@ Deno.serve(async (request) => {
         && (preferredDate !== now.date || preferredTime > now.time)
         && location !== null && location.length >= 2 && location.length <= 200
         && typeof participants === 'number' && Number.isInteger(participants) && participants >= 1 && participants <= 12
+        && additionalPhotosValid && additionalTimeValid
         && notes !== null && notes.length >= 10 && notes.length <= 2000
         && privacyConsent
         && bookingTermsConsent
         && bookingTermsVersion === expectedBookingTermsVersion
       if (!valid) {
-        return response({ ok: false, message: 'Please review your contact details, session, dates, exact requested time (24-hour HH:MM), location, participant count, privacy acknowledgement, and booking/payment/cancellation terms acknowledgement. Same-day requests must be for a future time in Philippine Time.' }, 400, origin)
+        return response({ ok: false, message: 'Please review your contact details, session, dates, exact requested time (24-hour HH:MM), location, participant count, valid add-ons (time in 15-minute increments), privacy acknowledgement, and booking/payment/cancellation terms acknowledgement. Same-day requests must be for a future time in Philippine Time.' }, 400, origin)
       }
 
       const referenceCode = `TOKI-${crypto.randomUUID().replaceAll('-', '').slice(0, 8).toUpperCase()}`

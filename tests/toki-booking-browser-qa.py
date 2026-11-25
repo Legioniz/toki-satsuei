@@ -66,6 +66,8 @@ def main() -> None:
     assert "bookingTermsVersion === expectedBookingTermsVersion" in edge
     assert "booking_terms_accepted_at: bookingTermsAcceptedAt" in edge
     assert "booking_terms_version: expectedBookingTermsVersion" in edge
+    assert "additionalPhotosValid" in edge
+    assert "additionalTimeValid" in edge and "additionalTimeValue % 15 === 0" in edge
     assert "booking_terms_consent" in site and "booking_terms_version" in site
     assert "function manilaNow()" in edge
     assert "(preferredDate !== now.date || preferredTime > now.time)" in edge
