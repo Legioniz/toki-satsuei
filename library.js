@@ -264,6 +264,21 @@ function updateDialogProgress(){
   if(left)left.disabled=mediaRail.scrollLeft<=3;
   if(right)right.disabled=mediaRail.scrollLeft>=maxScroll-3;
 }
+const ALBUM_VIEW_TRANSITION_NAME="toki-album-container";
+
+function clearAlbumViewTransitionNames(sourceCard,targetFrame){
+  sourceCard?.style.removeProperty("view-transition-name");
+  targetFrame?.style.removeProperty("view-transition-name");
+}
+
+function presentAlbumDialog(){
+  dialog.showModal();
+  dialog.classList.remove("is-opening");
+  requestAnimationFrame(()=>dialog.classList.add("is-opening"));
+  requestAnimationFrame(updateDialogProgress);
+  closeDialog.focus();
+}
+
 function openAlbum(category,album,sourceElement=document.activeElement){
   window.TokiSFX?.playShutter();
   albumReturnFocus=sourceElement instanceof HTMLElement?sourceElement:(document.activeElement instanceof HTMLElement?document.activeElement:null);
@@ -293,12 +308,30 @@ function openAlbum(category,album,sourceElement=document.activeElement){
     mediaRail.append(figure);
   });
   mediaRail.scrollLeft=0;
-  dialog.showModal();
-  dialog.classList.remove("is-opening");
-  requestAnimationFrame(()=>dialog.classList.add("is-opening"));
-  requestAnimationFrame(updateDialogProgress);
-  closeDialog.focus();
+
+  const targetFrame=mediaRail.querySelector(".album-frame-media img, .album-frame-media video");
+  if(hasViewTransitions&&!reducedMotion&&sourceElement instanceof HTMLElement&&targetFrame){
+    sourceElement.style.viewTransitionName=ALBUM_VIEW_TRANSITION_NAME;
+    let transition;
+    try{
+      transition=document.startViewTransition(()=>{
+        sourceElement.style.viewTransitionName="none";
+        targetFrame.style.viewTransitionName=ALBUM_VIEW_TRANSITION_NAME;
+        presentAlbumDialog();
+      });
+    }catch{
+      clearAlbumViewTransitionNames(sourceElement,targetFrame);
+      presentAlbumDialog();
+      return;
+    }
+    const cleanup=()=>clearAlbumViewTransitionNames(sourceElement,targetFrame);
+    transition.finished.then(cleanup,cleanup);
+    transition.updateCallbackDone?.catch(cleanup);
+    return;
+  }
+  presentAlbumDialog();
 }
+
 function closeAlbum(){
   if(!dialog.open)return;
   window.TokiSFX?.playFocus();
