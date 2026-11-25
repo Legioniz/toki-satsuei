@@ -43,6 +43,25 @@ def main() -> None:
     for token in [".toki-scene-track", ".toki-scroll-parallax", "prefers-reduced-motion: reduce"]:
         assert token in global_css, f"Global motion layer is missing {token}"
     assert "toki-scroll-motion-qa.py" in workflow, "Scroll motion browser QA is not part of CI."
+    expected_asset_version = "20261125-v9-scroll-choreography"
+    for page_name in ["index.html", "library.html", "policies.html", "404.html", "admin.html", "client-gallery.html"]:
+        page_source = (ROOT / page_name).read_text(encoding="utf-8")
+        bundle = {
+            "index.html": "toki-home.css",
+            "library.html": "toki-archive.css",
+            "policies.html": "toki-policies.css",
+            "404.html": "toki-404.css",
+            "admin.html": "toki-admin.css",
+            "client-gallery.html": "toki-client.css",
+        }[page_name]
+        assert f"./{bundle}?v={expected_asset_version}" in page_source, (
+            f"{page_name}: generated stylesheet cache key is stale"
+        )
+        if page_name != "404.html":
+            assert f"./motion-system.js?v={expected_asset_version}" in page_source, (
+                f"{page_name}: shared motion controller cache key is stale"
+            )
+
 
     server = ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler))
     thread = Thread(target=server.serve_forever, daemon=True)
@@ -77,27 +96,47 @@ def main() -> None:
             page.wait_for_selector(".toki-scroll-scene > .toki-scene-track")
             assert page.locator(".toki-scroll-scene").count() >= 10
 
-            # The active chapter marker advances with the document's scroll position.
+            # Chapter progress is updated after a real document scroll.
             work = page.locator(".work-section")
-            work.evaluate("""node => {
-              document.documentElement.style.scrollBehavior = "auto";
-              window.scrollTo(0, window.scrollY + node.getBoundingClientRect().top - innerHeight * 0.38);
-            }""")
-            page.wait_for_timeout(90)
+            initial_scroll = page.evaluate("window.scrollY")
+            target_scroll = work.evaluate("""node => Math.min(
+              document.documentElement.scrollHeight - innerHeight,
+              Math.max(0, window.scrollY + node.getBoundingClientRect().top - innerHeight * 0.38)
+            )""")
+            page.evaluate("""target => {
+              const scroller = document.scrollingElement;
+              scroller.style.scrollBehavior = "auto";
+              scroller.scrollTop = target;
+              window.TokiMotion.refreshScrollScenes();
+            }""", target_scroll)
+            page.wait_for_timeout(40)
+            first_scroll = page.evaluate("window.scrollY")
             first = float(work.evaluate("(node) => node.style.getPropertyValue('--toki-scene-progress')"))
-            page.evaluate("window.scrollBy(0, 120)")
-            page.wait_for_timeout(90)
+            page.evaluate("""() => {
+              document.scrollingElement.scrollTop += 120;
+              window.TokiMotion.refreshScrollScenes();
+            }""")
+            page.wait_for_timeout(40)
+            second_scroll = page.evaluate("window.scrollY")
             second = float(work.evaluate("(node) => node.style.getPropertyValue('--toki-scene-progress')"))
+            assert first_scroll > initial_scroll and second_scroll > first_scroll, (
+                f"Browser did not advance its scroll position: {initial_scroll} -> {first_scroll} -> {second_scroll}"
+            )
             assert 0 <= first <= 1 and 0 <= second <= 1 and second > first, (
                 f"Chapter progress should advance while scrolling: {first} -> {second}"
             )
 
             # Photography receives a small, bounded parallax offset as it crosses the viewport.
             about_image = page.locator(".about-visual img")
-            about_image.evaluate("""node => {
-              window.scrollTo(0, window.scrollY + node.getBoundingClientRect().top - innerHeight * 0.42);
-            }""")
-            page.wait_for_timeout(90)
+            parallax_scroll = about_image.evaluate("""node => Math.min(
+              document.documentElement.scrollHeight - innerHeight,
+              Math.max(0, window.scrollY + node.getBoundingClientRect().top - innerHeight * 0.42)
+            )""")
+            page.evaluate("""target => {
+              document.scrollingElement.scrollTop = target;
+              window.TokiMotion.refreshScrollScenes();
+            }""", parallax_scroll)
+            page.wait_for_timeout(40)
             parallax = about_image.evaluate("(node) => node.style.getPropertyValue('--toki-parallax-y')")
             assert parallax.endswith("px"), f"About image did not receive scroll parallax: {parallax}"
             assert abs(float(parallax.removesuffix("px"))) <= 16, f"Parallax exceeded its motion budget: {parallax}"
