@@ -111,7 +111,7 @@ def main() -> None:
             )""")
             page.evaluate("""target => {
               const scroller = document.scrollingElement;
-              scroller.style.scrollBehavior = "auto";
+              scroller.style.setProperty("scroll-behavior", "auto", "important");
               scroller.scrollTop = target;
               window.TokiMotion.refreshScrollScenes();
             }""", target_scroll)
