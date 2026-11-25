@@ -106,7 +106,7 @@ def main() -> None:
             empty_state = page.locator(".client-gallery-empty").inner_text().lower()
             assert "private delivery link" in empty_state
             assert "private photo preview list has not been connected" in empty_state
-            assert "Google Drive" in drive_btn.inner_text()
+            assert "google drive" in drive_btn.inner_text().lower()
             assert page.locator(".client-selection-summary").is_hidden()
 
             # Bearer tokens in query strings are not accepted; enter the key into the password field instead.
