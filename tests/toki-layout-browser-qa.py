@@ -251,6 +251,20 @@ def main():
                 check_archive(archive, width)
                 checks += 1
 
+            # Install instrumentation once; resetting wrappers/listeners per viewport
+            # would make the counters accumulate and create false duplicate-click failures.
+            archive.evaluate("""() => {
+                window.__qaCardClicks = 0;
+                window.__qaShowModalCalls = 0;
+                document.addEventListener("click", (event) => {
+                    if (event.target.closest(".album-card")) window.__qaCardClicks += 1;
+                }, true);
+                const originalShowModal = HTMLDialogElement.prototype.showModal;
+                HTMLDialogElement.prototype.showModal = function () {
+                    window.__qaShowModalCalls += 1;
+                    return originalShowModal.call(this);
+                };
+            }""")
             for width, height in [(320,568),(390,844),(768,900),(1024,768),(1440,900)]:
                 archive.set_viewport_size({"width":width,"height":height})
                 card = archive.locator(".album-card").first
@@ -261,18 +275,7 @@ def main():
                     const rect = element.getBoundingClientRect();
                     return rect.top >= 0 && rect.bottom <= window.innerHeight;
                 }""")
-                archive.evaluate("""() => {
-                    window.__qaCardClicks = 0;
-                    window.__qaShowModalCalls = 0;
-                    document.addEventListener("click", (event) => {
-                        if (event.target.closest(".album-card")) window.__qaCardClicks += 1;
-                    }, true);
-                    const originalShowModal = HTMLDialogElement.prototype.showModal;
-                    HTMLDialogElement.prototype.showModal = function () {
-                        window.__qaShowModalCalls += 1;
-                        return originalShowModal.call(this);
-                    };
-                }""")
+                archive.evaluate("() => { window.__qaCardClicks = 0; window.__qaShowModalCalls = 0; }")
                 card_state = archive.locator(".album-card").first.evaluate("(element) => { const r=element.getBoundingClientRect(); const hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2); return {disabled:element.disabled, tag:element.tagName, text:element.innerText, pointerEvents:getComputedStyle(element).pointerEvents, railClass:element.closest('.album-rail')?.className, centerTarget:hit?.tagName+' '+(typeof hit?.className==='string'?hit.className:'' ), hasFocus:document.hasFocus(), scrollY:window.scrollY, rect:{left:r.left,right:r.right,top:r.top,bottom:r.bottom}}; }")
                 card_box = archive.locator(".album-card").first.bounding_box()
                 click_x = card_box["x"] + card_box["width"] / 2
