@@ -217,6 +217,7 @@
       const target = new URL("./booking.html", window.location.href);
       target.searchParams.set("date", chosenDate);
       target.searchParams.set("source", "availability-calendar");
+      if (slots.length) target.searchParams.set("confirmed_windows", String(slots.length));
       window.location.assign(target.toString());
       return;
     }

@@ -613,6 +613,10 @@ function applyBookingQueryPrefill(){
     messages.push("You selected "+formattedDate+".");
     if(params.get("source")==="availability-calendar"){
       messages.push("The public calendar is a guide only. We will confirm the exact time with you in writing.");
+      const confirmedWindows=Number(params.get("confirmed_windows"));
+      if(Number.isInteger(confirmedWindows)&&confirmedWindows>0&&confirmedWindows<=1000){
+        messages.push("The calendar showed "+confirmedWindows+" confirmed time windows when you selected this date; you may request another non-overlapping time, subject to confirmation.");
+      }
     }
     messages.push("This is an inquiry only; your session is not reserved until TOKI SATSUEI confirms it in writing.");
   }
