@@ -87,8 +87,9 @@ def main() -> None:
             assert page.locator("#client-gate-section").is_visible()
             assert not page.locator("#client-gallery-section").is_visible()
 
-            # Submit token
-            page.locator("#client-token-input").fill("token-maya-123")
+            # Submit a correctly formatted high-entropy delivery key.
+            test_gallery_token = "toki-" + ("a" * 64)
+            page.locator("#client-token-input").fill(test_gallery_token)
             page.locator('#client-token-form button[type="submit"]').click()
 
             # Wait for gallery to appear
@@ -109,10 +110,10 @@ def main() -> None:
             assert page.locator(".client-selection-summary").is_hidden()
 
             # Bearer tokens in query strings are not accepted; enter the key into the password field instead.
-            page.goto(base_url + "/client-gallery.html?token=token-maya-123", wait_until="domcontentloaded")
+            page.goto(base_url + "/client-gallery.html?token=" + test_gallery_token, wait_until="domcontentloaded")
             assert page.locator("#client-gate-section").is_visible()
             assert not page.locator("#client-gallery-section").is_visible()
-            page.locator("#client-token-input").fill("token-maya-123")
+            page.locator("#client-token-input").fill(test_gallery_token)
             page.locator('#client-token-form button[type="submit"]').click()
             page.locator("#client-gallery-section").wait_for(state="visible", timeout=7000)
             assert "Maya Lin" in page.locator("#client-greeting").inner_text()
