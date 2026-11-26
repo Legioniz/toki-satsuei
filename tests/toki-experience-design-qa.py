@@ -269,10 +269,17 @@ def main() -> None:
             )
             booking_page.wait_for_function("""() => {
               const header = document.querySelector(".site-header");
-              return window.scrollY <= 1 && header &&
-                !header.classList.contains("is-auto-hidden") &&
-                !header.classList.contains("is-initial-hidden") &&
-                header.getAttribute("aria-hidden") === "false" && !header.inert;
+              const button = header?.querySelector(".menu-toggle");
+              if (!header || !button || window.scrollY > 1 ||
+                  header.classList.contains("is-auto-hidden") ||
+                  header.classList.contains("is-initial-hidden") ||
+                  header.getAttribute("aria-hidden") !== "false" || header.inert) return false;
+              const headerRect = header.getBoundingClientRect();
+              const buttonRect = button.getBoundingClientRect();
+              return Math.abs(headerRect.top) <= 1 &&
+                buttonRect.left >= 0 && buttonRect.top >= 0 &&
+                buttonRect.right <= window.innerWidth &&
+                buttonRect.bottom <= window.innerHeight;
             }""")
             menu_toggle = booking_page.locator(".menu-toggle")
             menu_box = menu_toggle.bounding_box()
