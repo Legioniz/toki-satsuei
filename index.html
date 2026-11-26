@@ -22,11 +22,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./toki-home.css?v=20261126-v14-mobile-booking">
+  <link rel="stylesheet" href="./toki-home.css?v=20261127-v1-smart-header">
   <link rel="icon" href="https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/30515ce50_Toki_Satsuei_Brushstroke_Emblem.png" type="image/png">
   <link rel="preload" as="image" href="https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/3db8c3355_242599.jpg">
   <style id="homepage-hero-critical-styles">
-    .hero-opening{width:100%;max-width:none;margin:0;min-height:clamp(630px,calc(100svh - 114px),820px);padding:76px max(32px,calc((100% - 1220px)/2)) 82px;display:flex;align-items:center;position:relative;isolation:isolate;overflow:hidden;background:#090909;color:#f4f0e9}
+    .hero-opening{width:100%;max-width:none;margin:0;min-height:max(100svh,680px);min-height:max(100dvh,680px);padding:76px max(32px,calc((100% - 1220px)/2)) 82px;display:flex;align-items:center;position:relative;isolation:isolate;overflow:hidden;background:#090909;color:#f4f0e9}
     .hero-opening .hero-art{position:absolute;inset:0;z-index:-1;min-height:0;background:#111;overflow:hidden}
     .hero-opening .hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:69% 42%;filter:saturate(.9) contrast(1.06);opacity:1;transform:scale(1.035);animation:heroPhotoIn 1.45s cubic-bezier(.2,.7,.2,1) both}
     .hero-opening .hero-art:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,5,5,.98) 0%,rgba(5,5,5,.92) 34%,rgba(5,5,5,.64) 58%,rgba(5,5,5,.14) 100%),linear-gradient(0deg,rgba(5,5,5,.72) 0%,transparent 46%)}
@@ -49,11 +49,11 @@
     @keyframes heroPhotoIn{from{opacity:.45;transform:scale(1.09)}to{opacity:1;transform:scale(1.035)}}
     @keyframes heroCopyIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
     @keyframes heroPrintIn{from{opacity:0;translate:0 22px}to{opacity:1;translate:0 0}}
-    @media(max-width:960px){.hero-opening{min-height:690px;padding-inline:24px}.hero-opening .hero-copy{width:62%}.hero-opening h1{font-size:clamp(64px,8.5vw,88px)}.hero-opening .frame-one{right:5%;width:126px;height:166px}.hero-opening .frame-two{right:18%;width:110px;height:142px}.hero-opening .hero-index{left:24px}}
-    @media(max-width:680px){.hero-opening{min-height:740px;padding:76px 18px 86px;align-items:flex-start}.hero-opening .hero-art:after{background:linear-gradient(90deg,rgba(5,5,5,.9),rgba(5,5,5,.54) 70%,rgba(5,5,5,.3)),linear-gradient(0deg,rgba(5,5,5,.75),transparent 72%)}.hero-opening .hero-photo{object-position:62% center}.hero-opening .hero-copy{width:100%;padding-top:24px}.hero-opening .eyebrow{font-size:11px;margin-bottom:23px}.hero-opening h1{font-size:clamp(54px,13vw,72px);line-height:.9}.hero-opening .hero-lead{max-width:330px;font-size:12px;margin:22px 0}.hero-opening .hero-actions{gap:17px}.hero-opening .hero-footnote{margin-top:34px;font-size:11px}.hero-opening .hero-stamp{right:18px;top:20px;font-size:16px}.hero-opening .hero-index{top:22px;left:18px;font-size:11px}.hero-opening .hero-frame{display:none}.hero-opening .hero-bottom-rule{left:18px;right:18px;gap:12px;font-size:11px;letter-spacing:.12em;padding:12px 0}.hero-opening .hero-bottom-rule span:first-child{white-space:nowrap}}
+    @media(max-width:960px){.hero-opening{min-height:max(690px,100svh);min-height:max(690px,100dvh);padding-inline:24px}.hero-opening .hero-copy{width:62%}.hero-opening h1{font-size:clamp(64px,8.5vw,88px)}.hero-opening .frame-one{right:5%;width:126px;height:166px}.hero-opening .frame-two{right:18%;width:110px;height:142px}.hero-opening .hero-index{left:24px}}
+    @media(max-width:680px){.hero-opening{min-height:max(640px,100svh);min-height:max(640px,100dvh);padding:76px 18px 86px;align-items:flex-start}.hero-opening .hero-art:after{background:linear-gradient(90deg,rgba(5,5,5,.9),rgba(5,5,5,.54) 70%,rgba(5,5,5,.3)),linear-gradient(0deg,rgba(5,5,5,.75),transparent 72%)}.hero-opening .hero-photo{object-position:62% center}.hero-opening .hero-copy{width:100%;padding-top:24px}.hero-opening .eyebrow{font-size:11px;margin-bottom:23px}.hero-opening h1{font-size:clamp(54px,13vw,72px);line-height:.9}.hero-opening .hero-lead{max-width:330px;font-size:12px;margin:22px 0}.hero-opening .hero-actions{gap:17px}.hero-opening .hero-footnote{margin-top:34px;font-size:11px}.hero-opening .hero-stamp{right:18px;top:20px;font-size:16px}.hero-opening .hero-index{top:22px;left:18px;font-size:11px}.hero-opening .hero-frame{display:none}.hero-opening .hero-bottom-rule{left:18px;right:18px;gap:12px;font-size:11px;letter-spacing:.12em;padding:12px 0}.hero-opening .hero-bottom-rule span:first-child{white-space:nowrap}}
     @media(prefers-reduced-motion:reduce){.hero-opening .hero-photo,.hero-opening .hero-copy,.hero-opening .hero-frame{animation:none!important;transform:none!important;translate:none!important}}
 
-    @media(max-width:680px){.hero-opening{min-height:max(640px,calc(100svh - 100px));min-height:max(640px,calc(100dvh - 100px))}.hero-opening .hero-bottom-rule{align-items:flex-start;flex-wrap:wrap}.hero-opening .hero-bottom-rule span:first-child{white-space:nowrap}.hero-opening .hero-bottom-rule span:last-child{max-width:100%;text-align:left}}
+    @media(max-width:680px){.hero-opening{min-height:max(640px,100svh);min-height:max(640px,100dvh)}.hero-opening .hero-bottom-rule{align-items:flex-start;flex-wrap:wrap}.hero-opening .hero-bottom-rule span:first-child{white-space:nowrap}.hero-opening .hero-bottom-rule span:last-child{max-width:100%;text-align:left}}
     @media(max-height:560px) and (orientation:landscape){.hero-opening{min-height:540px;padding-top:64px;padding-bottom:64px}.hero-opening h1{font-size:clamp(48px,7.5vw,74px)}.hero-opening .hero-footnote{margin-top:18px}.hero-opening .hero-bottom-rule{padding-block:9px}.hero-opening .hero-frame{display:none}}
   </style>
   <style id="standalone-booking-entry-styles">
@@ -63,11 +63,11 @@
     .contact-panel--standalone .button-red{min-height:52px}
     @media(max-width:680px){.contact-panel--standalone{gap:24px}.contact-panel--standalone .contact-copy h2{font-size:clamp(48px,13vw,62px)}}
   </style>
-  <script src="./motion-system.js?v=20261126-v14-mobile-booking" defer></script>
-  <script src="./site.js?v=20261126-v15-interaction-fixes" defer></script>
+  <script src="./motion-system.js?v=20261127-v1-smart-header" defer></script>
+  <script src="./site.js?v=20261127-v1-smart-header" defer></script>
   <script src="./availability.js?v=20261126-v15-interaction-fixes" defer></script>
 </head>
-<body>
+<body class="home-page">
   
 <div id="fb-root"></div>
   <div class="page-progress" aria-hidden="true"><span id="page-progress-bar"></span></div>
