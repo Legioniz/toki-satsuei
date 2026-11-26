@@ -315,7 +315,7 @@
     bodyOverflowBeforeModal = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     modal.hidden = false;
-    requestAnimationFrame(() => modalCloseBtn?.focus({ preventScroll: true }));
+    modalCloseBtn?.focus({ preventScroll: true });
   }
 
   function closeBookingModal(force = false) {

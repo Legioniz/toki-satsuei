@@ -27,7 +27,7 @@ EXPECTED_DATA = {
 EXPECTED_SCRIPT_VERSIONS = {
     "site.js": "20261126-v15-interaction-fixes",
     "availability.js": "20261126-v15-interaction-fixes",
-    "admin.js": "20261126-v15-interaction-fixes",
+    "admin.js": "20261126-v16-admin-focus-fix",
     "client-gallery.js": "20261126-v15-interaction-fixes",
     "library.js": "20261126-v15-interaction-fixes",
 }
