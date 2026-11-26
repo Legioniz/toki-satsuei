@@ -348,3 +348,9 @@ body.client-body .client-main {
 @media (max-width: 820px) {
   :root { --toki-header-offset: 66px; }
 }
+
+
+/* The homepage opening tracks the actual visible viewport; it must win over cinematic mobile sizing. */
+body.home-page .hero-opening {
+  min-height: max(640px, var(--toki-viewport-height, 100vh)) !important;
+}
