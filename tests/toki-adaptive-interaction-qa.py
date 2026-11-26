@@ -173,6 +173,12 @@ def main():
    archive.set_viewport_size({"width":390,"height":844})
    archive.locator(".site-header").evaluate("(node) => { node.classList.remove('is-auto-hidden','is-initial-hidden'); node.style.transform = 'translateY(0)'; }")
    archive.wait_for_timeout(400)
+   menu_hit=archive.locator(".menu-toggle").evaluate("""button => {
+       const rect=button.getBoundingClientRect();
+       const target=document.elementFromPoint(rect.left+rect.width/2,rect.top+rect.height/2);
+       return {accepted:target===button||button.contains(target),target:target?.className||target?.tagName};
+   }""")
+   assert menu_hit["accepted"], f"Archive masthead is occluded by {menu_hit['target']}"
    archive.locator(".menu-toggle").click()
    assert archive.locator(".menu-toggle").get_attribute("aria-expanded")=="true"
    archive.keyboard.press("Escape")
