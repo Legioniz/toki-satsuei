@@ -259,7 +259,7 @@ else:
         problems.append("TOKI Turnstile scope constraint migration: table scope allowlist is missing the verification scope")
 
 
-gallery_selection_guard_migration = ROOT / "supabase" / "migrations" / "20261126033600_toki_gallery_selection_type_guard.sql"
+gallery_selection_guard_migration = ROOT / "supabase" / "migrations" / "20261126033603_toki_gallery_selection_type_guard.sql"
 if not gallery_selection_guard_migration.exists():
     problems.append("TOKI gallery selection JSON guard migration: required file is missing")
 else:
