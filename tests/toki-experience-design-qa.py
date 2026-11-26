@@ -233,18 +233,20 @@ def main() -> None:
 
             booking_page.set_viewport_size({"width": 320, "height": 700})
             assert booking_page.evaluate("document.documentElement.scrollWidth <= innerWidth"), "Horizontal overflow at 320px"
-            # Exercise the same production visibility API used by the shared motion
-            # controller; do not fake a visible header by changing CSS classes alone.
+            # Return to the top of this interior page and let the scroll controller
+            # reveal the masthead through its normal user-facing path.
             booking_page.evaluate("""() => {
-              const header = document.querySelector(".site-header");
-              if (!window.TokiMotion?.setHeaderVisible) throw new Error("Shared header visibility helper is unavailable");
-              if (!window.TokiMotion.setHeaderVisible(true)) throw new Error("Booking header could not enter its visible state");
+              const scroller = document.scrollingElement;
+              scroller.style.setProperty("scroll-behavior", "auto", "important");
+              scroller.scrollTop = 0;
             }""")
             booking_page.wait_for_function("""() => {
               const header = document.querySelector(".site-header");
-              return header && !header.classList.contains("is-auto-hidden") &&
+              return window.scrollY <= 1 && header &&
+                !header.classList.contains("is-auto-hidden") &&
                 !header.classList.contains("is-initial-hidden") &&
-                header.getAttribute("aria-hidden") === "false" && !header.inert;
+                header.getAttribute("aria-hidden") === "false" && !header.inert &&
+                !header.getAnimations().some(animation => animation.playState === "running");
             }""")
             booking_page.locator(".menu-toggle").click()
             assert booking_page.locator(".menu-toggle").get_attribute("aria-expanded") == "true"
