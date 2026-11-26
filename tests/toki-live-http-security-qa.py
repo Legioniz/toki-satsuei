@@ -75,7 +75,7 @@ def main() -> None:
     assert status == 405, f"Unsupported HTTP method returned {status}"
     status, _, _ = request(INTAKE, "POST", None, {"kind": "toki_booking"})
     assert status == 403, f"Origin-less POST returned {status}"
-    status, _, _ = request(INTAKE, "POST", ALLOWED_ORIGIN, raw=b"{")
+    status, _, _ = request(INTAKE, "POST", ALLOWED_ORIGIN, raw=b"{", extra_headers={"Content-Type": "application/json"})
     assert status == 400, f"Malformed JSON returned {status}"
     status, _, _ = request(INTAKE, "POST", ALLOWED_ORIGIN, raw=b"{}", extra_headers={"Content-Type": "text/plain"})
     assert status == 415, f"Unsupported content type returned {status}"
