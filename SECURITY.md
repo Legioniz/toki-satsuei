@@ -101,6 +101,11 @@ No GitHub branch ruleset is currently configured. The GitHub integration used he
 The site remains hosted on GitHub Pages. Its `_headers` file is not enforced there; CSP, HSTS, frame restrictions, and WAF-level traffic controls still require a header-capable host or a trusted proxy.
 
 
+
+## Deliberate public client-gallery RPC exception
+
+The public `toki_get_client_gallery` and `toki_submit_client_selection` RPC wrappers are intentionally callable by `anon` and `authenticated` clients and run as `SECURITY DEFINER`. They are bearer-token APIs, not general booking-table access: each call is delegated to a function in the non-exposed `private` schema, which validates the 256-bit delivery key, hashes it before lookup, checks delivery state and expiry, enforces per-token/global quotas, and returns or changes only the gallery fields. Direct EXECUTE on the private implementation functions is revoked from `PUBLIC`, `anon`, and `authenticated`. Keep the `private` schema out of the PostgREST exposed-schema list. Supabase advisor warnings for these two public wrappers are expected and must be re-reviewed whenever their implementation changes.
+
 ## Sensitive-data-safe operational logging
 
 The booking Edge Function must never write a PostgREST error response body or submitted booking record to logs. Database failures may log only the internal table name, HTTP status, and a validated five-character database error code. The Make notification request rejects redirects so its custom API-key header cannot be forwarded to a redirect destination. Do not add request-body, token, contact, or credential logging to diagnose production issues.
