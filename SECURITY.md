@@ -55,6 +55,7 @@ All listed quotas are server-enforced fixed windows of 10 minutes. Quota-service
 | Operation | Limit per 10 minutes | Additional constraints |
 |---|---:|---|
 | Booking intake per network bucket | 4 | Turnstile; JSON body <= 12,000 bytes |
+| Shared Turnstile verification attempts per network | 20 | Separate ceiling; failed CAPTCHA attempts do not consume normal submission quotas |
 | Booking intake per normalized contact | 2 | HMAC-derived bucket |
 | Public availability calendar per network bucket | 30 | GET only; confirmed date/time projection |
 | Client gallery global | 120 | Shared abuse ceiling |

@@ -238,6 +238,17 @@ else:
         if marker not in sql:
             problems.append(f"TOKI gallery private RPC migration: missing control: {marker}")
 
+
+turnstile_quota_migration = ROOT / "supabase" / "migrations" / "20261126034000_toki_turnstile_verification_quota_ceiling.sql"
+if not turnstile_quota_migration.exists():
+    problems.append("TOKI Turnstile quota migration: required file is missing")
+else:
+    sql = turnstile_quota_migration.read_text(encoding="utf-8")
+    if "WHEN 'portfolio_turnstile_verify' THEN 20" not in sql:
+        problems.append("TOKI Turnstile quota migration: dedicated verification ceiling is missing")
+    if "p_limit > v_scope_ceiling" not in sql:
+        problems.append("TOKI Turnstile quota migration: requested quota ceiling validation is missing")
+
 if problems:
     print("FAIL TOKI static security audit:")
     for problem in problems:
