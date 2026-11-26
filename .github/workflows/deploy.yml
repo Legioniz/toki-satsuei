@@ -51,6 +51,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
@@ -82,7 +84,7 @@ jobs:
       - name: Audit secrets and personal data in public source
         run: python tests/toki-security-static-qa.py
 
-      - name: Scan current repository files with Gitleaks
+      - name: Scan full Git history and working tree with Gitleaks
         shell: bash
         run: |
           set -euo pipefail
@@ -91,7 +93,7 @@ jobs:
           tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
           sudo install /tmp/gitleaks /usr/local/bin/gitleaks
           set +e
-          gitleaks dir --redact --verbose --report-format json --report-path /tmp/gitleaks-report.json --exit-code 1 .
+          gitleaks git --redact --verbose --report-format json --report-path /tmp/gitleaks-report.json --exit-code 1 .
           scan_status=$?
           set -e
           if [[ -s /tmp/gitleaks-report.json ]]; then

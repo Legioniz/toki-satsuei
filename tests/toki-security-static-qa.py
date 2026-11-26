@@ -118,7 +118,7 @@ if not workflow.exists():
 else:
     workflow_text = workflow.read_text(encoding="utf-8")
     for label, marker in (
-        ("Gitleaks repository scan", "gitleaks dir --redact --verbose"),
+        ("Gitleaks full-history scan", "gitleaks git --redact --verbose"),
         ("Python dependency audit", "pip-audit -r requirements-test.txt"),
     ):
         if marker not in workflow_text:
