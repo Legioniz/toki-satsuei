@@ -125,11 +125,26 @@ def check_header(page, width, label):
             }""")
             page.wait_for_timeout(100)
             assert page.locator(".hero-opening").evaluate("(node) => node.getBoundingClientRect().bottom < 0"), f"{label}: test setup did not move the hero fully out of the viewport"
-            page.evaluate("() => window.TokiMotion.setHeaderVisible(true)")
-            page.wait_for_timeout(100)
-            assert not page.locator(".site-header").evaluate("(node) => node.classList.contains('is-auto-hidden')"), f"{label}: the masthead should be revealable outside the hero"
+            # A short upward scroll is the real interaction that reveals the header
+            # after the homepage hero has left the viewport.
+            page.evaluate("""() => {
+              const scroller = document.scrollingElement;
+              scroller.scrollTop = Math.max(0, scroller.scrollTop - 12);
+            }""")
         else:
-            page.locator(".site-header").evaluate("(node) => { node.classList.remove('is-auto-hidden','is-initial-hidden'); node.inert = false; node.setAttribute('aria-hidden','false'); node.style.transform = 'translateY(0)'; }")
+            # Interior pages reveal their header naturally when returned to the top.
+            page.evaluate("""() => {
+              const scroller = document.scrollingElement;
+              scroller.style.setProperty("scroll-behavior", "auto", "important");
+              scroller.scrollTop = 0;
+            }""")
+        page.wait_for_function("""() => {
+          const header = document.querySelector(".site-header");
+          return header && !header.classList.contains("is-auto-hidden") &&
+            !header.classList.contains("is-initial-hidden") &&
+            header.getAttribute("aria-hidden") === "false" && !header.inert &&
+            !header.getAnimations().some(animation => animation.playState === "running");
+        }""")
         page.locator(".menu-toggle").click()
         opened = boxes(page, [".site-header", ".primary-nav"])
         assert opened[1]["display"] != "none", f"{label}: navigation did not open at {width}px"

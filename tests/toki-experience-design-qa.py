@@ -233,10 +233,75 @@ def main() -> None:
 
             booking_page.set_viewport_size({"width": 320, "height": 700})
             assert booking_page.evaluate("document.documentElement.scrollWidth <= innerWidth"), "Horizontal overflow at 320px"
-            booking_page.locator(".site-header").evaluate("(node) => { node.classList.remove('is-auto-hidden','is-initial-hidden'); node.classList.add('is-revealed'); node.style.transform = 'translateY(0)'; }")
-            booking_page.wait_for_timeout(300)
-            booking_page.locator(".menu-toggle").click()
-            assert booking_page.locator(".menu-toggle").get_attribute("aria-expanded") == "true"
+            # Generate a real down/up scroll pair. Form-control checks above may
+            # already have left the page at the top, making a simple scrollTop=0
+            # assignment a no-op that cannot notify the shared header controller.
+            scroll_range = booking_page.evaluate(
+                "() => document.documentElement.scrollHeight - window.innerHeight"
+            )
+            assert scroll_range > 96, "Booking page must be scrollable for masthead interaction QA."
+            booking_page.evaluate("""() => {
+              document.scrollingElement.style.setProperty("scroll-behavior", "auto", "important");
+              document.scrollingElement.scrollTop = 0;
+            }""")
+            booking_page.wait_for_function("window.scrollY <= 1")
+            # Let the scroll listener's queued animation-frame update finish before
+            # issuing the next direction, so consecutive scrolls cannot coalesce.
+            booking_page.evaluate(
+                "() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))"
+            )
+            booking_page.evaluate("""() => {
+              document.scrollingElement.scrollTop = Math.min(240,
+                document.documentElement.scrollHeight - window.innerHeight - 1);
+            }""")
+            booking_page.wait_for_function("window.scrollY > 1")
+            booking_page.wait_for_function("""() => {
+              const header = document.querySelector(".site-header");
+              return header && header.classList.contains("is-auto-hidden") &&
+                header.getAttribute("aria-hidden") === "true" && header.inert;
+            }""")
+            previous_scroll = booking_page.evaluate("window.scrollY")
+            booking_page.evaluate("() => { document.scrollingElement.scrollTop = 0; }")
+            booking_page.wait_for_function(
+                "(previous) => window.scrollY < previous",
+                arg=previous_scroll,
+                timeout=1500,
+            )
+            booking_page.wait_for_function("""() => {
+              const header = document.querySelector(".site-header");
+              const button = header?.querySelector(".menu-toggle");
+              if (!header || !button || window.scrollY > 1 ||
+                  header.classList.contains("is-auto-hidden") ||
+                  header.classList.contains("is-initial-hidden") ||
+                  header.getAttribute("aria-hidden") !== "false" || header.inert) return false;
+              const headerRect = header.getBoundingClientRect();
+              const buttonRect = button.getBoundingClientRect();
+              return Math.abs(headerRect.top) <= 1 &&
+                buttonRect.left >= 0 && buttonRect.top >= 0 &&
+                buttonRect.right <= window.innerWidth &&
+                buttonRect.bottom <= window.innerHeight;
+            }""")
+            menu_toggle = booking_page.locator(".menu-toggle")
+            menu_box = menu_toggle.bounding_box()
+            assert menu_box and menu_toggle.is_visible() and menu_toggle.is_enabled(), (
+                "Booking navigation toggle must be visible and enabled before pointer interaction."
+            )
+            menu_hit = menu_toggle.evaluate("""button => {
+              const rect = button.getBoundingClientRect();
+              const target = document.elementFromPoint(
+                rect.left + rect.width / 2,
+                rect.top + rect.height / 2
+              );
+              return {accepted: target === button || button.contains(target), target: target?.className || target?.tagName};
+            }""")
+            assert menu_hit["accepted"], f"Booking navigation toggle is occluded by {menu_hit['target']}"
+            # Use viewport coordinates after the explicit hit-test. Locator.click()
+            # may auto-scroll a fixed header button and race the scroll-hide controller.
+            booking_page.mouse.click(
+                menu_box["x"] + menu_box["width"] / 2,
+                menu_box["y"] + menu_box["height"] / 2,
+            )
+            assert menu_toggle.get_attribute("aria-expanded") == "true"
             assert booking_page.locator(".primary-nav").is_visible()
             booking_page.keyboard.press("Escape")
             assert booking_page.locator(".menu-toggle").get_attribute("aria-expanded") == "false"

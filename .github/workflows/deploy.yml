@@ -11,10 +11,10 @@ permissions:
   contents: read
 
 concurrency:
-  # Normal pushes remain ordered; the one deliberate priority-validation commit
-  # uses an isolated group so its final verification is not trapped behind stale snapshots.
-  group: ${{ contains(github.event.head_commit.message || '', '[priority-validation]') && format('toki-satsuei-priority-{0}', github.sha) || format('toki-satsuei-pages-queue-v2-{0}', github.ref) }}
-  # Preserve active runs and queue rapid consecutive pushes without cancelling them.
+  # Verify each pull-request merge snapshot independently so stale PR revisions
+  # cannot block validation of the latest revision. Main pushes remain ordered.
+  group: ${{ github.event_name == 'pull_request' && format('toki-satsuei-pr-check-{0}', github.sha) || (contains(github.event.head_commit.message || '', '[priority-validation]') && format('toki-satsuei-priority-{0}', github.sha)) || format('toki-satsuei-pages-queue-v2-{0}', github.ref) }}
+  # Preserve active runs and queue rapid main-branch pushes without cancelling them.
   queue: max
   cancel-in-progress: false
 

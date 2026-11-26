@@ -119,8 +119,19 @@ def main():
    }""")
    home.wait_for_timeout(120)
    assert home.locator(".hero-opening").evaluate("(node)=>node.getBoundingClientRect().bottom<0"), "Hero must clear the viewport before opening the mobile menu"
-   home.evaluate("() => window.TokiMotion.setHeaderVisible(true)")
-   home.wait_for_timeout(360)
+   # Reveal the masthead through a real upward scroll after the hero clears.
+   home.evaluate("""() => {
+     const scroller=document.scrollingElement;
+     scroller.scrollTop=Math.max(0,scroller.scrollTop-12);
+   }""")
+   home.wait_for_function("""() => {
+     const header=document.querySelector(".site-header");
+     const bounds=header?.getBoundingClientRect();
+     return header && bounds && bounds.top>=-1 && bounds.top<=1 &&
+       !header.classList.contains("is-auto-hidden") &&
+       header.getAttribute("aria-hidden")==="false" && !header.inert &&
+       !header.getAnimations().some(animation=>animation.playState==="running");
+   }""")
    header_box=home.locator(".site-header").bounding_box()
    assert header_box and -1<=header_box["y"]<=1, f"Header did not reveal after hero exit: {header_box}"
    menu=home.locator(".menu-toggle");menu.click()
@@ -171,8 +182,21 @@ def main():
    assert not album_dialog.evaluate("(el)=>el.open")
    assert card.evaluate("(el)=>el===document.activeElement"),"Album dialog did not restore focus to its launch card"
    archive.set_viewport_size({"width":390,"height":844})
-   archive.locator(".site-header").evaluate("(node) => { node.classList.remove('is-auto-hidden','is-initial-hidden'); node.style.transform = 'translateY(0)'; }")
-   archive.wait_for_timeout(400)
+   # The archive is an interior page: return to the top and let the production
+   # scroll controller reveal the masthead naturally before testing the hit target.
+   archive.evaluate("""() => {
+       const scroller = document.scrollingElement;
+       scroller.style.setProperty("scroll-behavior", "auto", "important");
+       scroller.scrollTop = 0;
+   }""")
+   archive.wait_for_function("""() => {
+       const header = document.querySelector(".site-header");
+       return window.scrollY <= 1 && header &&
+           !header.classList.contains("is-auto-hidden") &&
+           !header.classList.contains("is-initial-hidden") &&
+           header.getAttribute("aria-hidden") === "false" && !header.inert &&
+           !header.getAnimations().some(animation => animation.playState === "running");
+   }""")
    menu_hit=archive.locator(".menu-toggle").evaluate("""button => {
        const rect=button.getBoundingClientRect();
        const target=document.elementFromPoint(rect.left+rect.width/2,rect.top+rect.height/2);
