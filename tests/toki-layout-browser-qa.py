@@ -125,11 +125,18 @@ def check_header(page, width, label):
             }""")
             page.wait_for_timeout(100)
             assert page.locator(".hero-opening").evaluate("(node) => node.getBoundingClientRect().bottom < 0"), f"{label}: test setup did not move the hero fully out of the viewport"
-            page.evaluate("() => window.TokiMotion.setHeaderVisible(true)")
-            page.wait_for_timeout(100)
-            assert not page.locator(".site-header").evaluate("(node) => node.classList.contains('is-auto-hidden')"), f"{label}: the masthead should be revealable outside the hero"
-        else:
-            page.locator(".site-header").evaluate("(node) => { node.classList.remove('is-auto-hidden','is-initial-hidden'); node.inert = false; node.setAttribute('aria-hidden','false'); node.style.transform = 'translateY(0)'; }")
+        # Use the same visibility contract on every page. Directly removing CSS
+        # classes can leave aria-hidden/inert out of sync with what is painted.
+        page.evaluate("""() => {
+          if (!window.TokiMotion?.setHeaderVisible) throw new Error("Shared header visibility helper is unavailable");
+          if (!window.TokiMotion.setHeaderVisible(true)) throw new Error("Masthead could not enter its visible state");
+        }""")
+        page.wait_for_function("""() => {
+          const header = document.querySelector(".site-header");
+          return header && !header.classList.contains("is-auto-hidden") &&
+            !header.classList.contains("is-initial-hidden") &&
+            header.getAttribute("aria-hidden") === "false" && !header.inert;
+        }""")
         page.locator(".menu-toggle").click()
         opened = boxes(page, [".site-header", ".primary-nav"])
         assert opened[1]["display"] != "none", f"{label}: navigation did not open at {width}px"
