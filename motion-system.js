@@ -649,6 +649,79 @@
     decayFrame = requestAnimationFrame(decayVelocity);
   }
 
+
+  /* Unified masthead visibility: scroll-direction aware and locked while the homepage hero is visible. */
+  const headerElements = Array.from(document.querySelectorAll(".site-header, .admin-header, .client-header"));
+  const headerHero = document.querySelector(".hero-opening");
+  let headerPreviousY = Math.max(0, window.scrollY || 0);
+  let headerDirection = 0;
+  let headerDirectionDistance = 0;
+  let headerFrame = 0;
+  const HEADER_DIRECTION_THRESHOLD = 3;
+
+  function heroOwnsViewport() {
+    if (!headerHero) return false;
+    const bounds = headerHero.getBoundingClientRect();
+    return bounds.bottom > 1 && bounds.top < Math.max(1, window.innerHeight || 1);
+  }
+
+  function setHeaderVisible(visible) {
+    if (!headerElements.length) return false;
+    const heroLock = heroOwnsViewport();
+    const shouldShow = Boolean(visible) && !heroLock;
+    headerElements.forEach(header => {
+      header.classList.toggle("is-auto-hidden", !shouldShow);
+      if (heroLock && header.classList.contains("site-header")) header.classList.add("is-initial-hidden");
+      else header.classList.remove("is-initial-hidden");
+      header.setAttribute("aria-hidden", String(!shouldShow));
+      if ("inert" in header) header.inert = !shouldShow;
+    });
+    return shouldShow;
+  }
+
+  function updateHeaderVisibility() {
+    const currentY = Math.max(0, window.scrollY || 0);
+    const delta = currentY - headerPreviousY;
+    const heroLock = heroOwnsViewport();
+    const focusWithinHeader = headerElements.some(header => header.matches(":focus-within"));
+
+    if (heroLock) {
+      headerDirection = 0;
+      headerDirectionDistance = 0;
+      setHeaderVisible(false);
+    } else if (focusWithinHeader || currentY <= 1) {
+      headerDirection = 0;
+      headerDirectionDistance = 0;
+      setHeaderVisible(true);
+    } else if (Math.abs(delta) > 0) {
+      const nextDirection = Math.sign(delta);
+      if (nextDirection !== headerDirection) {
+        headerDirection = nextDirection;
+        headerDirectionDistance = 0;
+      }
+      headerDirectionDistance += Math.abs(delta);
+      if (headerDirectionDistance >= HEADER_DIRECTION_THRESHOLD) {
+        setHeaderVisible(headerDirection < 0);
+        headerDirectionDistance = 0;
+      }
+    }
+    headerPreviousY = currentY;
+  }
+
+  if (headerElements.length) {
+    setHeaderVisible(window.scrollY <= 1 && !heroOwnsViewport());
+    updateHeaderVisibility();
+    window.addEventListener("scroll", () => {
+      if (headerFrame) return;
+      headerFrame = requestAnimationFrame(() => {
+        headerFrame = 0;
+        updateHeaderVisibility();
+      });
+    }, { passive: true });
+    window.addEventListener("resize", updateHeaderVisibility, { passive: true });
+    window.addEventListener("orientationchange", () => requestAnimationFrame(updateHeaderVisibility), { passive: true });
+  }
+
   const coarsePointer = window.matchMedia("(pointer: coarse)");
 
   function computeMotionTier() {
@@ -745,6 +818,7 @@
     swap,
     updateText,
     setMenuOpen,
+    setHeaderVisible,
     closeDialog,
     triggerShutterFlash,
     pulseMetric,
