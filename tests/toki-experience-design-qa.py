@@ -251,7 +251,7 @@ def main() -> None:
                 "() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))"
             )
             booking_page.evaluate("""() => {
-              document.scrollingElement.scrollTop = Math.min(96,
+              document.scrollingElement.scrollTop = Math.min(240,
                 document.documentElement.scrollHeight - window.innerHeight - 1);
             }""")
             booking_page.wait_for_function("window.scrollY > 1")
