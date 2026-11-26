@@ -233,13 +233,35 @@ def main() -> None:
 
             booking_page.set_viewport_size({"width": 320, "height": 700})
             assert booking_page.evaluate("document.documentElement.scrollWidth <= innerWidth"), "Horizontal overflow at 320px"
-            # Return to the top of this interior page and let the scroll controller
-            # reveal the masthead through its normal user-facing path.
+            # Generate a real down/up scroll pair. Form-control checks above may
+            # already have left the page at the top, making a simple scrollTop=0
+            # assignment a no-op that cannot notify the shared header controller.
+            scroll_range = booking_page.evaluate(
+                "() => document.documentElement.scrollHeight - window.innerHeight"
+            )
+            assert scroll_range > 96, "Booking page must be scrollable for masthead interaction QA."
             booking_page.evaluate("""() => {
-              const scroller = document.scrollingElement;
-              scroller.style.setProperty("scroll-behavior", "auto", "important");
-              scroller.scrollTop = 0;
+              document.scrollingElement.style.setProperty("scroll-behavior", "auto", "important");
+              document.scrollingElement.scrollTop = 0;
             }""")
+            booking_page.wait_for_function("window.scrollY <= 1")
+            booking_page.evaluate("""() => {
+              document.scrollingElement.scrollTop = Math.min(96,
+                document.documentElement.scrollHeight - window.innerHeight - 1);
+            }""")
+            booking_page.wait_for_function("window.scrollY > 1")
+            booking_page.wait_for_function("""() => {
+              const header = document.querySelector(".site-header");
+              return header && header.classList.contains("is-auto-hidden") &&
+                header.getAttribute("aria-hidden") === "true" && header.inert;
+            }""")
+            previous_scroll = booking_page.evaluate("window.scrollY")
+            booking_page.evaluate("() => { document.scrollingElement.scrollTop = 0; }")
+            booking_page.wait_for_function(
+                "(previous) => window.scrollY < previous",
+                arg=previous_scroll,
+                timeout=1500,
+            )
             booking_page.wait_for_function("""() => {
               const header = document.querySelector(".site-header");
               return window.scrollY <= 1 && header &&
