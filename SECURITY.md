@@ -72,6 +72,8 @@ Booking caps: 12 participants, 50 additional photos, 120 additional minutes in 1
 3. Anonymous REST access to booking rows remains denied. Public availability is a field-minimized projection only.
 4. Public write APIs enforce method, origin, content type, body-size limits, schema validation, abuse quotas, and human verification where applicable. CORS is not authentication.
 5. Quota checks fail closed. Never expose an RPC that lets anonymous callers allocate arbitrary quota buckets or alter limits.
+6. Network rate limits must use only the Cloudflare-overwritten `cf-connecting-ip` header. Never trust caller-supplied `X-Forwarded-For` or `X-Real-IP`; use a shared fail-closed bucket if the trusted header is unavailable.
+7. Client-gallery quota rows and the shared gallery quota must be charged only after an active, unexpired delivery token has been found. Random or expired tokens must not allocate quota rows or consume the shared quota.
 6. Delivery tokens remain cryptographically random; only hashes are persisted; expiry and revocation are checked on every use; global and per-token traffic are limited.
 7. SECURITY DEFINER functions require an empty or explicitly safe search_path, qualified object names, narrow EXECUTE grants, input validation, and authorization review.
 8. Schema changes are migration-tracked, scoped to TOKI-owned objects, and followed by Supabase advisors and live authorization tests.
@@ -101,3 +103,6 @@ The site remains hosted on GitHub Pages. Its `_headers` file is not enforced the
 ## Sensitive-data-safe operational logging
 
 The booking Edge Function must never write a PostgREST error response body or submitted booking record to logs. Database failures may log only the internal table name, HTTP status, and a validated five-character database error code. The Make notification request rejects redirects so its custom API-key header cannot be forwarded to a redirect destination. Do not add request-body, token, contact, or credential logging to diagnose production issues.
+
+
+Production deployment is restricted to `refs/heads/main`, including manually dispatched workflow runs. A successful verification run from another branch must never deploy the Pages production environment.
