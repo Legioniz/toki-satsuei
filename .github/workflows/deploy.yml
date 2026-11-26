@@ -84,6 +84,9 @@ jobs:
       - name: Audit secrets and personal data in public source
         run: python tests/toki-security-static-qa.py
 
+      - name: Verify TOKI API security limits and retry contracts
+        run: python tests/toki-api-contract-qa.py
+
       - name: Scan full Git history and working tree with Gitleaks
         shell: bash
         run: |

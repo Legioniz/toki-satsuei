@@ -22,6 +22,9 @@ const serviceKeyHeaders = {
 };
 
 type Booking = { date: string; start_time: string; end_time: string };
+// The database quota uses fixed 10-minute windows.
+const CALENDAR_LIMIT = 30;
+const CALENDAR_WINDOW_SECONDS = 600;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/;
 
@@ -62,7 +65,7 @@ async function consumeCalendarQuota(bucketHash: string): Promise<boolean> {
     body: JSON.stringify({
       p_bucket_hash: bucketHash,
       p_scope: "toki_calendar",
-      p_limit: 30,
+      p_limit: CALENDAR_LIMIT,
     }),
   });
   if (!result.ok) throw new Error("Calendar quota service unavailable");
@@ -74,6 +77,8 @@ function corsHeaders(origin: string | null): Record<string, string> {
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store, private",
     "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "no-referrer",
     "Access-Control-Allow-Origin": origin === ALLOWED_ORIGIN ? ALLOWED_ORIGIN : "null",
     "Access-Control-Allow-Methods": "GET, OPTIONS",
     "Access-Control-Allow-Headers": "apikey, content-type, x-client-info",
@@ -129,7 +134,7 @@ Deno.serve(async (request: Request) => {
         { ok: false, message: "The calendar is receiving too many requests. Please retry in a moment." },
         429,
         origin,
-        { "Retry-After": "60" },
+        { "Retry-After": String(CALENDAR_WINDOW_SECONDS) },
       );
     }
 

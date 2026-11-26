@@ -46,3 +46,38 @@ These checks are additional guardrails, not proof that the application is vulner
 ## Hosting response headers
 
 The site is deployed on GitHub Pages. The repository's `_headers` file is retained as configuration input for a hosting platform that supports that convention, but GitHub Pages does not apply it as HTTP response headers. Do not treat the listed CSP, frame, referrer, or permissions policies as active on the live Pages site. Enforcing those headers requires a hosting platform or proxy that supports response-header configuration, followed by verification against the live HTTP response.
+
+
+## TOKI API and traffic enforcement
+
+All listed quotas are server-enforced fixed windows of 10 minutes. Quota-service failures fail closed.
+
+| Operation | Limit per 10 minutes | Additional constraints |
+|---|---:|---|
+| Booking intake per network bucket | 4 | Turnstile; JSON body <= 12,000 bytes |
+| Booking intake per normalized contact | 2 | HMAC-derived bucket |
+| Public availability calendar per network bucket | 30 | GET only; confirmed date/time projection |
+| Client gallery global | 120 | Shared abuse ceiling |
+| Client gallery per access token | 10 | 256-bit random token; SHA-256 hash stored |
+| General inquiry | 4 | Turnstile; bounded fields |
+| Comment submission | 6 | Turnstile; moderation pending |
+| Consented page-view event | 60 | Bounded path and UUID session ID |
+
+Booking caps: 12 participants, 50 additional photos, 120 additional minutes in 15-minute increments, and 2,000 note characters. Gallery selections: 50 unique IDs, each <= 128 characters. Calendar rate-limit responses advertise 600 seconds, matching the database fixed window.
+
+## Non-negotiable application rules
+
+1. Never place Supabase secret/service-role keys, webhook credentials, Turnstile secrets, or database passwords in browser assets or Git history.
+2. Browser code may use only the Supabase publishable key. Privileged access stays in Edge Functions or tightly scoped private database functions.
+3. Anonymous REST access to booking rows remains denied. Public availability is a field-minimized projection only.
+4. Public write APIs enforce method, origin, content type, body-size limits, schema validation, abuse quotas, and human verification where applicable. CORS is not authentication.
+5. Quota checks fail closed. Never expose an RPC that lets anonymous callers allocate arbitrary quota buckets or alter limits.
+6. Delivery tokens remain cryptographically random; only hashes are persisted; expiry and revocation are checked on every use; global and per-token traffic are limited.
+7. SECURITY DEFINER functions require an empty or explicitly safe search_path, qualified object names, narrow EXECUTE grants, input validation, and authorization review.
+8. Schema changes are migration-tracked, scoped to TOKI-owned objects, and followed by Supabase advisors and live authorization tests.
+9. Do not change shared Supabase roles, global Auth settings, unrelated tables, or unrelated functions without impact review.
+10. Production deployment must pass the single repository workflow, including history/secret scans, dependency audit, static QA, browser QA, and live API boundary checks.
+11. Preserve Git history. Never force-push or rewrite history routinely. If a secret enters history, rotate it immediately; history rewriting is secondary and coordinated.
+12. Configure GitHub rulesets outside code: require PRs and successful verification, block force pushes and branch deletion, require conversation resolution, and restrict bypass. The connected GitHub integration cannot administer these settings.
+
+These rules reduce risk; they do not make a site invulnerable. GitHub Pages does not apply the repository _headers file as response headers. A header-capable host or trusted proxy is required for site-wide CSP/HSTS/frame policies.
