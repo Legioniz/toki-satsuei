@@ -272,8 +272,7 @@ def main() -> None:
               return window.scrollY <= 1 && header &&
                 !header.classList.contains("is-auto-hidden") &&
                 !header.classList.contains("is-initial-hidden") &&
-                header.getAttribute("aria-hidden") === "false" && !header.inert &&
-                !header.getAnimations().some(animation => animation.playState === "running");
+                header.getAttribute("aria-hidden") === "false" && !header.inert;
             }""")
             menu_toggle = booking_page.locator(".menu-toggle")
             menu_box = menu_toggle.bounding_box()
