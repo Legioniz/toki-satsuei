@@ -125,17 +125,25 @@ def check_header(page, width, label):
             }""")
             page.wait_for_timeout(100)
             assert page.locator(".hero-opening").evaluate("(node) => node.getBoundingClientRect().bottom < 0"), f"{label}: test setup did not move the hero fully out of the viewport"
-        # Use the same visibility contract on every page. Directly removing CSS
-        # classes can leave aria-hidden/inert out of sync with what is painted.
-        page.evaluate("""() => {
-          if (!window.TokiMotion?.setHeaderVisible) throw new Error("Shared header visibility helper is unavailable");
-          if (!window.TokiMotion.setHeaderVisible(true)) throw new Error("Masthead could not enter its visible state");
-        }""")
+            # A short upward scroll is the real interaction that reveals the header
+            # after the homepage hero has left the viewport.
+            page.evaluate("""() => {
+              const scroller = document.scrollingElement;
+              scroller.scrollTop = Math.max(0, scroller.scrollTop - 12);
+            }""")
+        else:
+            # Interior pages reveal their header naturally when returned to the top.
+            page.evaluate("""() => {
+              const scroller = document.scrollingElement;
+              scroller.style.setProperty("scroll-behavior", "auto", "important");
+              scroller.scrollTop = 0;
+            }""")
         page.wait_for_function("""() => {
           const header = document.querySelector(".site-header");
           return header && !header.classList.contains("is-auto-hidden") &&
             !header.classList.contains("is-initial-hidden") &&
-            header.getAttribute("aria-hidden") === "false" && !header.inert;
+            header.getAttribute("aria-hidden") === "false" && !header.inert &&
+            !header.getAnimations().some(animation => animation.playState === "running");
         }""")
         page.locator(".menu-toggle").click()
         opened = boxes(page, [".site-header", ".primary-nav"])
