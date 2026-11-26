@@ -170,7 +170,10 @@
         button.title = isPast ? "Past date" : "Select to enquire about this date";
       }
 
-      if (isToday) button.classList.add("is-today");
+      if (isToday) {
+        button.classList.add("is-today");
+        button.setAttribute("aria-current", "date");
+      }
       if (isSelected) button.classList.add("is-selected");
       if (isPast) button.classList.add("is-past");
       fragment.appendChild(button);
@@ -195,6 +198,7 @@
       setStatus("Selected " + formatDate(dateKey) + ". No confirmed time windows are listed yet; the requested schedule still needs confirmation.");
     }
     renderCalendar();
+    daysGrid.querySelector('[data-date="' + dateKey + '"]')?.focus({ preventScroll: true });
   }
 
   function clearSelection() {
@@ -307,7 +311,11 @@
     if (requestController) requestController.abort();
     const controller = new AbortController();
     requestController = controller;
-    const timeout = window.setTimeout(() => controller.abort(), 12000);
+    let timedOut = false;
+    const timeout = window.setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, 12000);
     refreshInFlight = true;
 
     if (monthDataKey !== requestedMonth) {
@@ -338,13 +346,17 @@
       }
       updatedText.textContent = "UPDATED " + clockTimeFormatter.format(new Date()) + " PHT · AUTOMATIC CHECK EVERY MINUTE";
     } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError" && requestedMonth !== displayedMonth) return;
+      if (controller.signal.aborted && requestController !== controller) return;
+      if (controller.signal.aborted && !timedOut) return;
       if (requestedMonth !== displayedMonth) return;
 
       if (loadedForMonth) {
         setStatus("Could not refresh. Showing the last successful schedule; retry to check for changes.", "error");
       } else {
-        setStatus((error && error.friendly ? error.message : "The live schedule could not be loaded.") + " Message us to check a date.", "error");
+        const failureMessage = timedOut
+          ? "The calendar request timed out."
+          : (error && error.friendly ? error.message : "The live schedule could not be loaded.");
+        setStatus(failureMessage + " Message us to check a date.", "error");
         updatedText.textContent = "Schedule unavailable. Message us to check a date.";
         const errorMessage = document.createElement("p");
         errorMessage.className = "calendar-error";

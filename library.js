@@ -63,15 +63,18 @@ const activeTransitions=new WeakMap();
 function animateChange(node,render){
   if(!node){render();return;}
   if(reducedMotion||!node.animate){render();return;}
+  activeTransitions.get(node)?.animation?.cancel();
   const token=(activeTransitions.get(node)?.token||0)+1;
-  activeTransitions.set(node,{token,animation:null});
-  const fade=node.animate([{opacity:1},{opacity:0}],{duration:110,easing:"ease-in"});
+  const fade=node.animate([{opacity:1},{opacity:0}],{duration:110,easing:"ease-in",fill:"both"});
   activeTransitions.set(node,{token,animation:fade});
   fade.finished.then(()=>{
     if(activeTransitions.get(node)?.token!==token)return;
     render();
-    const entrance=node.animate([{opacity:0},{opacity:1}],{duration:200,easing:"cubic-bezier(.2,.7,.2,1)"});
+    const entrance=node.animate([{opacity:0},{opacity:1}],{duration:200,easing:"cubic-bezier(.2,.7,.2,1)",fill:"both"});
     activeTransitions.set(node,{token,animation:entrance});
+    return entrance.finished.then(()=>{
+      if(activeTransitions.get(node)?.token===token)activeTransitions.delete(node);
+    });
   }).catch(()=>{});
 }
 function setCount(visibleCategories){

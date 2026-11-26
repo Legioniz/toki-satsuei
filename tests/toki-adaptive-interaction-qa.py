@@ -48,10 +48,16 @@ def main():
    assert dialog.evaluate("(el)=>el.open"),"Gallery lightbox did not open"
    assert home.locator(".lightbox-caption strong").inner_text()==first_title
    home.locator(".lightbox-next").click()
-   assert home.locator(".lightbox-caption strong").inner_text()!=first_title,"Next button did not change image"
-   home.wait_for_function("document.querySelector('.lightbox-image').getAnimations().some(animation=>animation.playState==='running')",timeout=2000)
+   home.locator(".lightbox-next").click()
+   third_full=home.locator(".gallery-card:visible").nth(2).get_attribute("data-full")
+   third_title=home.locator(".gallery-card:visible").nth(2).get_attribute("data-title")
+   home.wait_for_function("(expected)=>document.querySelector('.lightbox-image')?.getAttribute('src')===expected",arg=third_full)
+   assert home.locator(".lightbox-caption strong").inner_text()==third_title,"Rapid next navigation applied a stale lightbox frame"
    home.keyboard.press("ArrowLeft")
-   assert home.locator(".lightbox-caption strong").inner_text()==first_title,"Left arrow did not return to first image"
+   second_title=home.locator(".gallery-card:visible").nth(1).get_attribute("data-title")
+   assert home.locator(".lightbox-caption strong").inner_text()==second_title,"Left arrow did not move to the previous image"
+   home.keyboard.press("ArrowLeft")
+   assert home.locator(".lightbox-caption strong").inner_text()==first_title,"Second left arrow did not return to the first image"
    assert home.locator(".lightbox-position").inner_text()=="01 / 04"
    home.locator(".lightbox-close").click()
    assert dialog.evaluate("(el)=>el.getAnimations().some(animation=>animation.playState==='running')"),"Lightbox exit transition did not start"

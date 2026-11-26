@@ -58,6 +58,10 @@
   let currentFilter = "all";
   let searchQuery = "";
   let adminIdleTimer = null;
+  let modalReturnFocus = null;
+  let bodyOverflowBeforeModal = "";
+  let saveInFlight = false;
+  const modalSaveBtn = document.querySelector("#modal-save-btn");
   const ADMIN_IDLE_TIMEOUT_MS = 20 * 60 * 1000;
 
   // Helper: headers for authenticated requests
@@ -307,16 +311,54 @@
     modalDeliveryToken.placeholder = b.delivery_token_hash ? "Saved key cannot be viewed. Generate a new key to rotate it." : "Generate a new private key";
     modalAdminNotes.value = b.admin_notes || "";
 
+    modalReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    bodyOverflowBeforeModal = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     modal.hidden = false;
+    requestAnimationFrame(() => modalCloseBtn?.focus({ preventScroll: true }));
   }
 
-  function closeBookingModal() {
+  function closeBookingModal(force = false) {
+    if (saveInFlight && !force) return;
     modalDeliveryToken.value = "";
     modal.hidden = true;
+    document.body.style.overflow = bodyOverflowBeforeModal;
+    const returnTarget = modalReturnFocus;
+    modalReturnFocus = null;
+    if (returnTarget?.isConnected) returnTarget.focus({ preventScroll: true });
   }
 
-  modalCloseBtn?.addEventListener("click", closeBookingModal);
-  modalCancelBtn?.addEventListener("click", closeBookingModal);
+  modalCloseBtn?.addEventListener("click", () => closeBookingModal());
+  modalCancelBtn?.addEventListener("click", () => closeBookingModal());
+  modal?.addEventListener("click", event => {
+    if (event.target === modal) closeBookingModal();
+  });
+  document.addEventListener("keydown", event => {
+    if (!modal || modal.hidden) return;
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeBookingModal();
+      return;
+    }
+    if (event.key !== "Tab") return;
+    const focusable = Array.from(modal.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )).filter(element => element.getClientRects().length > 0 && !element.closest("[hidden]"));
+    if (!focusable.length) {
+      event.preventDefault();
+      modalCloseBtn?.focus();
+      return;
+    }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && (document.activeElement === first || !modal.contains(document.activeElement))) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && (document.activeElement === last || !modal.contains(document.activeElement))) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
 
   modalGenTokenBtn?.addEventListener("click", () => {
     if (!window.crypto || typeof window.crypto.getRandomValues !== "function") {
@@ -347,7 +389,7 @@
   modalForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const id = modalBookingId.value;
-    if (!id) return;
+    if (!id || saveInFlight) return;
 
     const deliveryUrl = modalDeliveryUrl.value.trim();
     const newDeliveryToken = modalDeliveryToken.value.trim();
@@ -372,6 +414,13 @@
       updated_at: new Date().toISOString()
     };
 
+    saveInFlight = true;
+    if (modalSaveBtn) {
+      modalSaveBtn.disabled = true;
+      modalSaveBtn.textContent = "Saving…";
+    }
+    if (modalCancelBtn) modalCancelBtn.disabled = true;
+    if (modalCloseBtn) modalCloseBtn.disabled = true;
     try {
       if (newDeliveryToken) {
         payload.delivery_token_hash = await sha256Hex(newDeliveryToken);
@@ -387,15 +436,22 @@
       });
 
       if (!res.ok) {
-        const err = await res.text();
-        alert("Failed to update booking: " + err);
+        alert("Failed to update booking. Check the details and try again.");
         return;
       }
 
-      closeBookingModal();
+      closeBookingModal(true);
       loadBookings();
-    } catch (err) {
-      alert("Network error updating booking.");
+    } catch {
+      alert("Network error updating booking. Your changes were not confirmed; please retry.");
+    } finally {
+      saveInFlight = false;
+      if (modalSaveBtn) {
+        modalSaveBtn.disabled = false;
+        modalSaveBtn.textContent = "Save Changes ↗";
+      }
+      if (modalCancelBtn) modalCancelBtn.disabled = false;
+      if (modalCloseBtn) modalCloseBtn.disabled = false;
     }
   });
 

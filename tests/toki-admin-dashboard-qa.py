@@ -182,6 +182,17 @@ def main() -> None:
             assert dialog.is_visible()
             assert "Alex Cosplayer" in page.locator("#modal-client-name").inner_text()
             assert page.locator("#modal-status-select").input_value() == "reviewing"
+            assert page.evaluate("document.activeElement?.id") == "modal-close-btn", "Admin modal did not move focus inside on open"
+            page.locator("#modal-save-btn").focus()
+            page.keyboard.press("Tab")
+            assert page.evaluate("document.activeElement?.id") == "modal-close-btn", "Admin modal Tab focus escaped instead of wrapping"
+            page.keyboard.press("Shift+Tab")
+            assert page.evaluate("document.activeElement?.id") == "modal-save-btn", "Admin modal reverse Tab focus did not wrap"
+            page.keyboard.press("Escape")
+            assert dialog.is_hidden(), "Escape did not close the admin modal"
+            assert page.locator("button.admin-action-btn").first.evaluate("(el)=>el===document.activeElement"), "Admin modal did not restore focus to its opener"
+            page.locator("button.admin-action-btn").first.click()
+            assert dialog.is_visible()
 
             # Test token generator
             page.locator("#modal-gen-token-btn").click()

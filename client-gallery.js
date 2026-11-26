@@ -14,8 +14,10 @@
   const sessionDetails = document.querySelector("#client-session-details");
   const selectedCountDisplay = document.querySelector("#client-selected-count");
   const submitSelectionBtn = document.querySelector("#client-submit-selection-btn");
+  const tokenSubmitBtn = document.querySelector("#client-submit-token-btn");
   const photoGrid = document.querySelector("#client-photo-grid");
 
+  let tokenRequestInFlight = false;
   let currentToken = "";
   let selectedPhotos = new Set();
   let galleryData = null;
@@ -137,7 +139,7 @@
       };
       item.addEventListener("click", toggle);
       item.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" || event.key === " ") {
+        if ((event.key === "Enter" || event.key === " ") && !event.repeat) {
           event.preventDefault();
           toggle();
         }
@@ -180,8 +182,9 @@
     }
   });
 
-  tokenForm?.addEventListener("submit", (e) => {
+  tokenForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (tokenRequestInFlight) return;
     const token = tokenInput.value.trim().toLowerCase();
     tokenInput.value = "";
     if (!/^toki-[0-9a-f]{64}$/.test(token)) {
@@ -189,7 +192,23 @@
       tokenError.style.display = "block";
       return;
     }
-    void fetchGallery(token);
+
+    tokenRequestInFlight = true;
+    if (tokenSubmitBtn) {
+      tokenSubmitBtn.disabled = true;
+      tokenSubmitBtn.setAttribute("aria-busy", "true");
+      tokenSubmitBtn.textContent = "VERIFYING…";
+    }
+    try {
+      await fetchGallery(token);
+    } finally {
+      tokenRequestInFlight = false;
+      if (tokenSubmitBtn) {
+        tokenSubmitBtn.disabled = false;
+        tokenSubmitBtn.removeAttribute("aria-busy");
+        tokenSubmitBtn.textContent = "Open Private Gallery ↗";
+      }
+    }
   });
 
   // Access keys are entered into the password field, never placed in a URL.

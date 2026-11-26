@@ -337,25 +337,31 @@ const lightboxPosition=document.querySelector(".lightbox-position");
 const lightboxPrevious=document.querySelector(".lightbox-prev");
 const lightboxNext=document.querySelector(".lightbox-next");
 const visibleGalleryCards=()=>galleryCards.filter(card=>!card.hidden);
-let lightboxCards=[],lightboxIndex=0,touchStartX=0,touchStartY=0,lightboxReturnFocus=null;
+let lightboxCards=[],lightboxIndex=0,touchStartX=0,touchStartY=0,lightboxReturnFocus=null,lightboxFrameRevision=0;
 function renderLightboxFrame(direction=0){
   const card=lightboxCards[lightboxIndex];if(!card)return;
+  const revision=++lightboxFrameRevision;
+  lightboxImage?.getAnimations?.().forEach(animation=>animation.cancel());
   const updateImage=()=>{
+    if(revision!==lightboxFrameRevision)return;
     lightboxImage.src=card.dataset.full;
     lightboxImage.alt=card.querySelector("img")?.alt||card.dataset.title||"TOKI SATSUEI photograph";
   };
   if(lightboxImage.getAttribute("src")&&!reducedMotion&&lightboxImage.animate){
     const offset=direction===0?0:direction*44;
-    lightboxImage.animate([
+    const exit=lightboxImage.animate([
       {opacity:1,transform:"translateX(0) scale(1)",filter:"brightness(1)"},
       {opacity:0,transform:`translateX(${-offset}px) scale(0.96)`,filter:"brightness(1.4) blur(3px)"}
-    ],{duration:140,easing:"ease-in"}).finished.then(()=>{
+    ],{duration:140,easing:"ease-in",fill:"both"});
+    exit.finished.then(()=>{
+      if(revision!==lightboxFrameRevision)return;
       updateImage();
+      if(revision!==lightboxFrameRevision)return;
       lightboxImage.animate([
         {opacity:0,transform:`translateX(${offset}px) scale(0.96)`,filter:"brightness(1.4) blur(3px)"},
         {opacity:1,transform:"translateX(0) scale(1)",filter:"brightness(1) blur(0)"}
-      ],{duration:320,easing:"cubic-bezier(0.16, 1, 0.3, 1)"});
-    }).catch(()=>updateImage());
+      ],{duration:320,easing:"cubic-bezier(0.16, 1, 0.3, 1)",fill:"both"});
+    }).catch(()=>{if(revision===lightboxFrameRevision)updateImage();});
   }else if(lightboxImage.getAttribute("src")&&window.TokiMotion?.swap){
     window.TokiMotion.swap(lightboxImage,updateImage,{duration:110,enterDuration:230});
   }else updateImage();
@@ -399,7 +405,7 @@ lightbox?.addEventListener("touchend",event=>{
   const dx=touch.clientX-touchStartX,dy=touch.clientY-touchStartY;
   if(Math.abs(dx)>44&&Math.abs(dx)>Math.abs(dy)*1.2)stepLightbox(dx<0?1:-1);
 },{passive:true});
-lightbox?.addEventListener("close",()=>{lightboxImage?.removeAttribute("src");lightboxCards=[];lightboxIndex=0;const returnTarget=lightboxReturnFocus;lightboxReturnFocus=null;if(returnTarget&&typeof returnTarget.focus==="function")window.setTimeout(()=>returnTarget.focus({preventScroll:true}),0);});
+lightbox?.addEventListener("close",()=>{lightboxFrameRevision+=1;lightboxImage?.getAnimations?.().forEach(animation=>animation.cancel());lightboxImage?.removeAttribute("src");lightboxCards=[];lightboxIndex=0;const returnTarget=lightboxReturnFocus;lightboxReturnFocus=null;if(returnTarget&&typeof returnTarget.focus==="function")window.setTimeout(()=>returnTarget.focus({preventScroll:true}),0);});
 document.addEventListener("keydown",event=>{
   if(!lightbox?.open)return;
   if(event.key==="ArrowRight"){event.preventDefault();stepLightbox(1);}
@@ -861,9 +867,25 @@ form?.addEventListener("submit",async event=>{
     "Duo Session":{base:450,includedParticipants:2,duration:30}
   };
 
+  function syncStepper(button,input,min,max){
+    if(!button||!input)return;
+    const value=Number.parseInt(input.value,10);
+    const current=Number.isFinite(value)?value:min;
+    const disabled=button.id.endsWith("-minus")?current<=min:current>=max;
+    button.disabled=disabled;
+    button.setAttribute("aria-disabled",String(disabled));
+  }
+
   function recalculate(){
     const selectedPkg=packageSelect?packageSelect.value:"Toki Portraits";
     const pkgData=RATES[selectedPkg]||RATES["Toki Portraits"];
+    const participantMin=pkgData.includedParticipants===2?2:1;
+    syncStepper(btnPartMinus,partInput,participantMin,12);
+    syncStepper(btnPartPlus,partInput,participantMin,12);
+    syncStepper(btnPhotoMinus,photoInput,0,50);
+    syncStepper(btnPhotoPlus,photoInput,0,50);
+    syncStepper(btnTimeMinus,timeInput,0,120);
+    syncStepper(btnTimePlus,timeInput,0,120);
     const basePrice=pkgData.base;
     const participants=parseInt(partInput?.value||"1",10);
     const extraPhotos=parseInt(photoInput?.value||"0",10);

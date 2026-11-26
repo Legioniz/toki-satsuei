@@ -122,6 +122,8 @@ def main() -> None:
             assert booked_button.is_enabled(), "Partially booked dates must remain selectable"
             assert booked_button.locator(".calendar-booking-count").inner_text() == "2"
             booked_button.click()
+            assert page.evaluate("document.activeElement?.dataset?.date") == booked_date.isoformat(), "Calendar selection lost keyboard focus after rerender"
+            assert booked_button.get_attribute("aria-current") is None, "A future date must not be marked as today"
             slots = page.locator("#availability-booked-slot-list li")
             assert slots.count() == 2, "Both confirmed time windows must be shown"
             slot_text = page.locator("#availability-booked-slot-list").inner_text()

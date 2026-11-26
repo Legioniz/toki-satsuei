@@ -78,6 +78,9 @@ def main() -> None:
             # Verify initial default state (Toki Portraits)
             assert "₱350" in page.locator("#calc-total-display").inner_text()
             assert "₱70" in page.locator("#calc-breakdown-list").inner_text()
+            assert page.locator("#calc-part-minus").is_disabled(), "Participant decrement should be disabled at its minimum"
+            assert page.locator("#calc-photo-minus").is_disabled(), "Photo decrement should be disabled at zero"
+            assert page.locator("#calc-time-minus").is_disabled(), "Time decrement should be disabled at zero"
 
             # Select Duo Session
             page.locator("#calc-package-select").select_option("Duo Session")
@@ -101,6 +104,33 @@ def main() -> None:
             assert page.locator("#calc-time-qty").input_value() == "15"
             assert "₱635" in page.locator("#calc-total-display").inner_text()
             assert "₱127" in page.locator("#calc-breakdown-list").inner_text()
+
+            # Every stepper enforces and exposes its exact lower and upper limits.
+            assert page.locator("#calc-part-minus").is_disabled(), "Duo Session allows decrement below two participants"
+            for _ in range(9):
+                page.locator("#calc-part-plus").click()
+            assert page.locator("#calc-part-qty").input_value() == "12"
+            assert page.locator("#calc-part-plus").is_disabled(), "Participant increment remained active above twelve"
+            for _ in range(9):
+                page.locator("#calc-part-minus").click()
+            assert page.locator("#calc-part-qty").input_value() == "3"
+
+            for _ in range(48):
+                page.locator("#calc-photo-plus").click()
+            assert page.locator("#calc-photo-qty").input_value() == "50"
+            assert page.locator("#calc-photo-plus").is_disabled(), "Photo increment remained active above fifty"
+            for _ in range(48):
+                page.locator("#calc-photo-minus").click()
+            assert page.locator("#calc-photo-qty").input_value() == "2"
+
+            for _ in range(7):
+                page.locator("#calc-time-plus").click()
+            assert page.locator("#calc-time-qty").input_value() == "120"
+            assert page.locator("#calc-time-plus").is_disabled(), "Time increment remained active above 120 minutes"
+            for _ in range(7):
+                page.locator("#calc-time-minus").click()
+            assert page.locator("#calc-time-qty").input_value() == "15"
+            assert page.locator("#calc-total-display").inner_text() == "₱635", "Stepper boundary checks changed the quotation"
 
             # Click Apply to Booking Form
             page.locator("#calc-apply-to-booking").click()
