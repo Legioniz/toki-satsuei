@@ -36,7 +36,7 @@ If a secret is ever committed, remove the exposed value from the current source,
 
 The single GitHub Actions verification workflow performs the following checks before deployment:
 
-- GitHub's repository-level CodeQL default setup analyzes JavaScript/TypeScript, Python, and GitHub Actions workflow code and publishes results to GitHub code scanning. It runs as a GitHub-managed dynamic workflow, separate from the single tracked deployment workflow.
+- The existing deployment workflow runs GitHub CodeQL advanced setup on JavaScript/TypeScript and Python using the `security-and-quality` query suite. Results are uploaded to GitHub code scanning before the Pages artifact can deploy. The CodeQL actions are pinned to the v4.39.5 commit and are covered by the existing weekly GitHub Actions Dependabot updates.
 - Gitleaks scans the checked-out repository files for credential patterns. Its only explicit allowlist is the `sb_publishable_...` key format, which Supabase documents as safe for frontend use when RLS and least-privilege policies are correctly configured. Secret keys and generic API-key findings are not allowlisted. The scanner binary is version-pinned and its release archive is SHA-256 verified before execution.
 - `pip-audit` checks the Python test dependencies in `requirements-test.txt` against known vulnerability advisories.
 - Dependabot checks the Python dependency manifest and GitHub Actions references weekly and can propose update pull requests.

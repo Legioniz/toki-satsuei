@@ -120,6 +120,10 @@ else:
     for label, marker in (
         ("Gitleaks repository scan", "gitleaks dir --redact --verbose"),
         ("Python dependency audit", "pip-audit -r requirements-test.txt"),
+        ("CodeQL initialization", "github/codeql-action/init@"),
+        ("CodeQL analysis", "github/codeql-action/analyze@"),
+        ("CodeQL security-and-quality queries", "queries: security-and-quality"),
+        ("CodeQL security-events permission", "security-events: write"),
     ):
         if marker not in workflow_text:
             problems.append(f"deploy workflow: missing {label}")
