@@ -354,3 +354,10 @@ body.client-body .client-main {
 body.home-page .hero-opening {
   min-height: max(640px, var(--toki-viewport-height, 100vh)) !important;
 }
+
+
+/* hero-viewport-height-lock: the opening scene fills the viewport independently of masthead/announcement flow. */
+body.home-page .hero-opening {
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+}
