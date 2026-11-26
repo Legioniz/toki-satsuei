@@ -1,0 +1,7 @@
+title = "TOKI SATSUEI secret scanning"
+
+[allowlist]
+description = "Supabase publishable keys are intentionally embedded in frontend code and are not secret credentials. Supabase secret keys remain blocked."
+regexes = [
+  '''sb_publishable_[A-Za-z0-9_-]{16,}'''
+]

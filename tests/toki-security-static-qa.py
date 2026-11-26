@@ -110,6 +110,40 @@ if "Math.random().toString(36)" in admin_source:
 if "crypto.getRandomValues" not in admin_source:
     problems.append("admin.js: secure delivery-key generator is missing")
 
+
+# Keep the automated security scanning configuration from silently disappearing.
+workflow = ROOT / ".github" / "workflows" / "deploy.yml"
+if not workflow.exists():
+    problems.append(".github/workflows/deploy.yml: required security workflow is missing")
+else:
+    workflow_text = workflow.read_text(encoding="utf-8")
+    for label, marker in (
+        ("Gitleaks repository scan", "gitleaks dir --redact --verbose"),
+        ("Python dependency audit", "pip-audit -r requirements-test.txt"),
+    ):
+        if marker not in workflow_text:
+            problems.append(f"deploy workflow: missing {label}")
+
+dependabot = ROOT / ".github" / "dependabot.yml"
+if not dependabot.exists():
+    problems.append(".github/dependabot.yml: dependency update configuration is missing")
+else:
+    dependabot_text = dependabot.read_text(encoding="utf-8")
+    for ecosystem in ('package-ecosystem: "pip"', 'package-ecosystem: "github-actions"'):
+        if ecosystem not in dependabot_text:
+            problems.append(f"Dependabot configuration: missing {ecosystem}")
+
+
+gitleaks_config = ROOT / ".gitleaks.toml"
+if not gitleaks_config.exists():
+    problems.append(".gitleaks.toml: narrowly scoped public-key allowlist is missing")
+else:
+    gitleaks_text = gitleaks_config.read_text(encoding="utf-8")
+    if "sb_publishable_[A-Za-z0-9_-]{16,}" not in gitleaks_text:
+        problems.append(".gitleaks.toml: expected Supabase publishable-key allowlist is missing")
+    if "sb_secret_" in gitleaks_text or "generic-api-key" in gitleaks_text:
+        problems.append(".gitleaks.toml: secret or generic API-key rules must not be allowlisted")
+
 if problems:
     print("FAIL TOKI static security audit:")
     for problem in problems:
