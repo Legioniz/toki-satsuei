@@ -160,6 +160,8 @@ if "console.error('Insert failed', { table, status: result.status, databaseCode 
     problems.append("Booking intake: database logs must contain only table, HTTP status, and safe SQLSTATE")
 if "redirect: 'error'" not in booking_function:
     problems.append("Booking notification: webhook redirects must be rejected to protect its API key")
+if "&& TOKI_TURNSTILE_SECRET)" not in booking_function:
+    problems.append("Booking service health probe: required TOKI Turnstile secret must be included in readiness")
 
 admin_source = (ROOT / "admin.js").read_text(encoding="utf-8")
 if "delivery_token:" in admin_source or "b.delivery_token ||" in admin_source:

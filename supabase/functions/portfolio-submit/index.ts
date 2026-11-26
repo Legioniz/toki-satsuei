@@ -264,7 +264,7 @@ Deno.serve(async (request) => {
 
   // Safe deployment probe: reports configuration state, never key material.
   if (request.method === 'GET') {
-    const ready = Boolean(SUPABASE_URL && SERVICE_ROLE_KEY && ALLOWED_ORIGIN && ALLOWED_HOSTNAME && RATE_SECRET)
+    const ready = Boolean(SUPABASE_URL && SERVICE_ROLE_KEY && ALLOWED_ORIGIN && ALLOWED_HOSTNAME && RATE_SECRET && TOKI_TURNSTILE_SECRET)
     return response({ ok: ready, service: 'portfolio-submit', status: ready ? 'ready' : 'missing_server_credentials' }, ready ? 200 : 503, origin)
   }
   if (request.method === 'OPTIONS') return response({ ok: true }, 204, origin)
