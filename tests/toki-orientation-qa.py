@@ -43,9 +43,10 @@ def main():
                             page.wait_for_timeout(120)
                             assert page.locator(".hero-opening").evaluate("(node) => node.getBoundingClientRect().bottom < 0"), "hero should be fully out of the viewport before revealing the menu"
                             page.evaluate("() => window.TokiMotion.setHeaderVisible(true)")
-                            page.wait_for_timeout(120)
-                            header = page.locator(".site-header").bounding_box()["height"]
-                            assert header <= 68, f"landscape header too tall: {header}px"
+                            page.wait_for_timeout(360)  # allow the masthead's 280ms reveal transition to finish
+                            header_box = page.locator(".site-header").bounding_box()
+                            assert header_box and -1 <= header_box["y"] <= 1, f"masthead did not finish revealing outside the hero: {header_box}"
+                            assert header_box["height"] <= 68, f"landscape header too tall: {header_box['height']}px"
                             page.locator(".menu-toggle").click()
                             page.wait_for_timeout(200)
                             nav = page.locator(".primary-nav").bounding_box()
