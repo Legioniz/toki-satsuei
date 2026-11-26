@@ -154,8 +154,19 @@ window.addEventListener("scroll",()=>{
     scrollTicking=true;
   }
 },{passive:true});
-window.addEventListener("resize",updatePageChrome,{passive:true});
-window.addEventListener("orientationchange",()=>requestAnimationFrame(updatePageChrome),{passive:true});
+let lastViewportOrientation=window.matchMedia("(orientation: portrait)").matches?"portrait":"landscape";
+function syncViewportOrientation(){
+  const nextOrientation=window.matchMedia("(orientation: portrait)").matches?"portrait":"landscape";
+  if(nextOrientation!==lastViewportOrientation){
+    lastViewportOrientation=nextOrientation;
+    if(nav?.classList.contains("is-open"))setMenuOpen(false);
+  }
+  updatePageChrome();
+}
+window.addEventListener("resize",syncViewportOrientation,{passive:true});
+window.addEventListener("orientationchange",()=>{
+  requestAnimationFrame(syncViewportOrientation);
+},{passive:true});
 updatePageChrome();
 backToTop?.addEventListener("click",()=>window.scrollTo({top:0,behavior:reducedMotion?"auto":"smooth"}));
 
