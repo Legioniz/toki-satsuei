@@ -345,6 +345,7 @@ Deno.serve(async (request) => {
         && (preferredDate !== now.date || preferredTime > now.time)
         && location !== null && location.length >= 2 && location.length <= 200
         && typeof participants === 'number' && Number.isInteger(participants) && participants >= 1 && participants <= 12
+        && (sessionType !== 'Duo Session' || participants >= 2)
         && additionalPhotosValid && additionalTimeValid
         && notes !== null && notes.length >= 10 && notes.length <= 2000
         && privacyConsent

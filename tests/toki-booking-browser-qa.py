@@ -68,6 +68,7 @@ def main() -> None:
     assert "booking_terms_version: expectedBookingTermsVersion" in edge
     assert "additionalPhotosValid" in edge
     assert "additionalTimeValid" in edge and "additionalTimeValue % 15 === 0" in edge
+    assert "sessionType !== 'Duo Session' || participants >= 2" in edge
     assert "booking_terms_consent" in site and "booking_terms_version" in site
     assert "function manilaNow()" in edge
     assert "(preferredDate !== now.date || preferredTime > now.time)" in edge
@@ -189,6 +190,16 @@ def main() -> None:
             page.locator('input[name="contact_value"]').fill("alex@example.com")
             page.locator('select[name="contact_method"]').select_option("instagram")
             page.locator('input[name="contact_value"]').fill("@alex.cosplay")
+
+            # Duo Session minimum is enforced before any request leaves the browser.
+            duo_participants = page.locator('input[name="participants"]')
+            duo_participants.fill("1")
+            assert duo_participants.evaluate("(node) => node.validity.customError")
+            assert "at least two participants" in duo_participants.evaluate("(node) => node.validationMessage").lower()
+            page.locator('button[type="submit"]').click()
+            assert len(submissions) == 0
+            duo_participants.fill("2")
+            assert not duo_participants.evaluate("(node) => node.validity.customError")
 
             page.locator('button[type="submit"]').click()
             page.get_by_text("TOKI-A1B2C3D4").wait_for(state="visible", timeout=7000)

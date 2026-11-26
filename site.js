@@ -408,7 +408,15 @@ document.addEventListener("keydown",event=>{
 
 const sessionSelect=form?.querySelector('select[name="session"]');
 const sessionDurationNote=form?.querySelector("#session-duration-note");
+const participantInput=form?.querySelector('input[name="participants"]');
 const sessionCards=[...document.querySelectorAll(".package-card[data-session]")];
+function updateParticipantConstraint(){
+  if(!participantInput)return;
+  const duoSelected=sessionSelect?.value==="Duo Session";
+  const count=Number(participantInput.value);
+  participantInput.setCustomValidity(duoSelected&&(!Number.isInteger(count)||count<2)
+    ?"A Duo Session requires at least two participants.":"");
+}
 function updateSessionDurationNote(){
   if(!sessionSelect||!sessionDurationNote)return;
   const selected=sessionSelect.selectedOptions?.[0];
@@ -423,6 +431,7 @@ function updateSessionDurationNote(){
 }
 sessionSelect?.addEventListener("change",()=>{
   updateSessionDurationNote();
+  updateParticipantConstraint();
   const value=sessionSelect.value;
   sessionCards.forEach(item=>{
     const active=item.dataset.session===value;
@@ -435,7 +444,9 @@ sessionSelect?.addEventListener("change",()=>{
     calcSelect.dispatchEvent(new Event("change",{bubbles:true}));
   }
 });
+participantInput?.addEventListener("input",updateParticipantConstraint);
 updateSessionDurationNote();
+updateParticipantConstraint();
 function selectSession(card,{moveToForm=true}={}) {
   if(!card)return;
   if(!form||!sessionSelect){
@@ -605,6 +616,7 @@ function applyBookingQueryPrefill(){
   updateDateLimits();
   updateContactInput();
   updateSessionDurationNote();
+  updateParticipantConstraint();
   const dateWasApplied=Boolean(requestedDate)&&preferredDate?.value===requestedDate;
   const messages=[];
   if(requestedSession&&allowedSessions.has(requestedSession))messages.push("Selected "+requestedSession+".");
@@ -749,6 +761,7 @@ form?.addEventListener("submit",async event=>{
     updateDateLimits();
     updateContactInput();
     updateSessionDurationNote();
+    updateParticipantConstraint();
     updateBookingStatus("Request received. Your reference is "+reference+". We’ll review the details and contact you through your selected channel. Your date is not reserved until we send written confirmation. No payment has been taken; for paid sessions, payment instructions follow only after the final details and price are agreed.","success");
   }catch(error){
     const message=error instanceof Error?error.message:"The booking service could not be reached. Please try again or contact us through Facebook or Instagram.";

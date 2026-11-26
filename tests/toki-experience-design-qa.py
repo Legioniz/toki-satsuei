@@ -43,7 +43,11 @@ def main() -> None:
         assert selector in css, f"Experience layer is missing {selector}"
 
     assert "grid-template-columns: minmax(0, 1fr)" in enhancements
+    motion_refinements = (ROOT / "motion-refinements.css").read_text(encoding="utf-8")
     assert ".toki-booking-sheet .form-split" in enhancements
+    assert ".booking-page .toki-assurance__grid" in motion_refinements
+    assert ".booking-page .toki-booking-sheet .booking-fieldset" in motion_refinements
+    assert "motion-refinements.css" in home_bundle.splitlines()[0]
     assert "site-enhancements.css" in home_bundle.splitlines()[0]
     assert "global-motion.css" in home_bundle.splitlines()[0]
     assert ".toki-intro-logo" in global_motion
@@ -189,8 +193,24 @@ def main() -> None:
                 expected_split_columns = 2 if width >= 960 else 1
                 assert layout_columns == expected_layout_columns, f"Unexpected booking group layout at {width}px: {layout_columns}"
                 assert split_columns == expected_split_columns, f"Unexpected field layout at {width}px: {split_columns}"
+                if width <= 680:
+                    assurance_columns = booking_page.locator(".toki-assurance__grid").evaluate(
+                        "(node) => getComputedStyle(node).gridTemplateColumns.trim().split(/\\s+/).length"
+                    )
+                    expected_assurance_columns = 1 if width <= 360 else 2
+                    assert assurance_columns == expected_assurance_columns, (
+                        f"Unexpected mobile assurance layout at {width}px: {assurance_columns}"
+                    )
                 geometry = booking_page.locator('select[name="session"]').evaluate("(node) => ({control: node.getBoundingClientRect().width, label: node.parentElement.getBoundingClientRect().width})")
                 assert geometry["control"] >= geometry["label"] - 1, f"Booking control should fill its row at {width}px: {geometry}"
+
+            booking_page.set_viewport_size({"width": 390, "height": 844})
+            mobile_fieldset = booking_page.locator(".booking-fieldset").first.evaluate("""node => {
+              const style = getComputedStyle(node);
+              return {border: style.borderTopStyle, background: style.backgroundColor};
+            }""")
+            assert mobile_fieldset["border"] == "solid", f"Mobile form section should read as a distinct card: {mobile_fieldset}"
+            assert mobile_fieldset["background"] != "rgba(0, 0, 0, 0)", f"Mobile form card needs a defined surface: {mobile_fieldset}"
 
             # Verify query prefill and ignore URL-supplied availability counts.
             prefill_date = (datetime.now(ZoneInfo("Asia/Manila")).date() + timedelta(days=5)).isoformat()
