@@ -114,26 +114,25 @@ def main() -> None:
     for booking in calendar["bookings"]:
         assert set(booking) == {"date", "start_time", "end_time"}, "Calendar exposed unexpected booking fields"
 
-    # Four deliberately incomplete booking probes must never insert a row; the fifth is throttled.
+    # Missing/invalid Turnstile tokens must be rejected before the booking quota is charged.
+    # This prevents unauthenticated probes from exhausting a real visitor's booking allowance.
     booking_responses = []
     for _ in range(5):
         code, _, response_body = request(INTAKE, "POST", ALLOWED_ORIGIN,
                                          {"kind": "toki_booking", "website": ""})
         booking_responses.append((code, decode(response_body)))
-    assert all(code == 400 for code, _ in booking_responses[:4]), (
-        "Incomplete probes should stop before storage: " + repr([code for code, _ in booking_responses])
+    assert all(code == 400 for code, _ in booking_responses), (
+        "Invalid Turnstile probes must be rejected without consuming the booking quota: "
+        + repr([code for code, _ in booking_responses])
     )
     if EXPECT_TURNSTILE:
         assert all("human verification failed" in payload.get("message", "").lower()
-                   for _, payload in booking_responses[:4]), (
+                   for _, payload in booking_responses), (
             "Missing tokens are not being rejected by live Turnstile verification: "
-            + repr([payload for _, payload in booking_responses[:4]])
+            + repr([payload for _, payload in booking_responses])
         )
-    assert booking_responses[4][0] == 429, (
-        "Booking rate limit did not trigger: " + repr([code for code, _ in booking_responses])
-    )
 
-    print("PASS live TOKI HTTP security QA: CORS, origin and method restrictions, invalid/oversized payloads, private REST authorization, calendar field minimization, Turnstile rejection (when enabled), and booking rate limits.")
+    print("PASS live TOKI HTTP security QA: CORS, origin and method restrictions, invalid/oversized payloads, private REST authorization, gallery quota isolation, calendar field minimization, and pre-quota Turnstile rejection.")
 
 
 if __name__ == "__main__":
