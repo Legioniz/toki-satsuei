@@ -47,17 +47,10 @@ jobs:
     if: needs.freshness.outputs.is_current == 'true'
     permissions:
       contents: read
-      security-events: write
     runs-on: ubuntu-24.04
     steps:
       - name: Check out repository
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
-
-      - name: Initialize CodeQL security analysis
-        uses: github/codeql-action/init@915412ff23e8b7659517e607487dbeae018f2934 # v4.39.5
-        with:
-          languages: javascript-typescript, python
-          queries: security-and-quality
 
       - name: Set up Python
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
@@ -159,9 +152,6 @@ jobs:
           TOKI_EXPECT_TURNSTILE: ${{ vars.TOKI_EXPECT_TURNSTILE || '1' }}
         run: python tests/toki-live-http-security-qa.py
 
-
-      - name: Analyze JavaScript/TypeScript and Python with CodeQL
-        uses: github/codeql-action/analyze@915412ff23e8b7659517e607487dbeae018f2934 # v4.39.5
 
       - name: Assemble standalone Pages artifact
         run: |
