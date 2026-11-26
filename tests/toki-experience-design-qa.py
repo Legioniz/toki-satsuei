@@ -233,8 +233,19 @@ def main() -> None:
 
             booking_page.set_viewport_size({"width": 320, "height": 700})
             assert booking_page.evaluate("document.documentElement.scrollWidth <= innerWidth"), "Horizontal overflow at 320px"
-            booking_page.locator(".site-header").evaluate("(node) => { node.classList.remove('is-auto-hidden','is-initial-hidden'); node.classList.add('is-revealed'); node.style.transform = 'translateY(0)'; }")
-            booking_page.wait_for_timeout(300)
+            # Exercise the same production visibility API used by the shared motion
+            # controller; do not fake a visible header by changing CSS classes alone.
+            booking_page.evaluate("""() => {
+              const header = document.querySelector(".site-header");
+              if (!window.TokiMotion?.setHeaderVisible) throw new Error("Shared header visibility helper is unavailable");
+              if (!window.TokiMotion.setHeaderVisible(true)) throw new Error("Booking header could not enter its visible state");
+            }""")
+            booking_page.wait_for_function("""() => {
+              const header = document.querySelector(".site-header");
+              return header && !header.classList.contains("is-auto-hidden") &&
+                !header.classList.contains("is-initial-hidden") &&
+                header.getAttribute("aria-hidden") === "false" && !header.inert;
+            }""")
             booking_page.locator(".menu-toggle").click()
             assert booking_page.locator(".menu-toggle").get_attribute("aria-expanded") == "true"
             assert booking_page.locator(".primary-nav").is_visible()
