@@ -719,3 +719,8 @@
   .archive-page .album-dialog-progress span,
   .archive-page .library-filter::before { transition: none; }
 }
+
+
+/* The archive hero's transparent top-padding overlaps the fixed mobile navigation. Let pointer input pass through the empty header area while preserving text selection on its visible content. */
+.archive-page .archive-head { pointer-events: none; }
+.archive-page .archive-head > * { pointer-events: auto; }
