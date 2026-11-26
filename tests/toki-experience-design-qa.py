@@ -267,12 +267,23 @@ def main() -> None:
                 arg=previous_scroll,
                 timeout=1500,
             )
+            # Confirm the controller has restored the accessible state, then move
+            # keyboard focus to the menu control. The design intentionally reveals
+            # the fixed masthead on :focus-within for keyboard navigation.
+            booking_page.wait_for_function("""() => {
+              const header = document.querySelector(".site-header");
+              return window.scrollY <= 1 && header &&
+                !header.classList.contains("is-auto-hidden") &&
+                !header.classList.contains("is-initial-hidden") &&
+                header.getAttribute("aria-hidden") === "false" && !header.inert;
+            }""")
+            menu_toggle = booking_page.locator(".menu-toggle")
+            menu_toggle.focus()
             booking_page.wait_for_function("""() => {
               const header = document.querySelector(".site-header");
               const button = header?.querySelector(".menu-toggle");
-              if (!header || !button || window.scrollY > 1 ||
+              if (!header || !button || !header.matches(":focus-within") ||
                   header.classList.contains("is-auto-hidden") ||
-                  header.classList.contains("is-initial-hidden") ||
                   header.getAttribute("aria-hidden") !== "false" || header.inert) return false;
               const headerRect = header.getBoundingClientRect();
               const buttonRect = button.getBoundingClientRect();
@@ -281,7 +292,6 @@ def main() -> None:
                 buttonRect.right <= window.innerWidth &&
                 buttonRect.bottom <= window.innerHeight;
             }""")
-            menu_toggle = booking_page.locator(".menu-toggle")
             menu_box = menu_toggle.bounding_box()
             assert menu_box and menu_toggle.is_visible() and menu_toggle.is_enabled(), (
                 "Booking navigation toggle must be visible and enabled before pointer interaction."
