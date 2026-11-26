@@ -85,6 +85,8 @@ def document_width(page, label, width):
     assert metrics["body"] <= width + 1, f"{label}: body has horizontal overflow at {width}px: {metrics}"
 
 def check_header(page, width, label):
+    if page.locator(".archive-head").count() > 0:
+        assert page.locator(".archive-head").evaluate("""node => getComputedStyle(node).pointerEvents === "none" && [...node.querySelectorAll("*")].every(child => getComputedStyle(child).pointerEvents === "none")"""), f"{label}: archive hero must not intercept navigation pointer input"
     header, brand, nav, toggle = boxes(page, [".site-header", ".brand", ".primary-nav", ".menu-toggle"])
     assert not header.get("missing"), f"{label}: site header is missing"
     if page.locator(".skip-link").count() > 0:

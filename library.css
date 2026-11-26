@@ -721,6 +721,6 @@
 }
 
 
-/* The archive hero's transparent top-padding overlaps the fixed mobile navigation. Let pointer input pass through the empty header area while preserving text selection on its visible content. */
-.archive-page .archive-head { pointer-events: none; }
-.archive-page .archive-head > * { pointer-events: auto; }
+/* The archive hero is decorative copy, not an interactive surface. Keep its full box click-through so it cannot intercept the fixed navigation. */
+.archive-page .archive-head,
+.archive-page .archive-head * { pointer-events: none; }
