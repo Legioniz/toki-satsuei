@@ -239,7 +239,7 @@ else:
             problems.append(f"TOKI gallery private RPC migration: missing control: {marker}")
 
 
-turnstile_quota_migration = ROOT / "supabase" / "migrations" / "20261126034000_toki_turnstile_verification_quota_ceiling.sql"
+turnstile_quota_migration = ROOT / "supabase" / "migrations" / "20261126033301_toki_turnstile_verification_quota_ceiling.sql"
 if not turnstile_quota_migration.exists():
     problems.append("TOKI Turnstile quota migration: required file is missing")
 else:
@@ -250,7 +250,7 @@ else:
         problems.append("TOKI Turnstile quota migration: requested quota ceiling validation is missing")
 
 
-turnstile_scope_constraint_migration = ROOT / "supabase" / "migrations" / "20261126034500_toki_turnstile_scope_allowlist.sql"
+turnstile_scope_constraint_migration = ROOT / "supabase" / "migrations" / "20261126033336_toki_turnstile_scope_allowlist.sql"
 if not turnstile_scope_constraint_migration.exists():
     problems.append("TOKI Turnstile scope constraint migration: required file is missing")
 else:
