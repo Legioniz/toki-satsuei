@@ -310,8 +310,8 @@ html[data-motion-tier="lite"] [data-reveal][data-motion="spring-card"].is-visibl
 
 
 /* Smart masthead: overlays the viewport, never reserves flow space, and obeys shared scroll intent. */
-:where(.site-header, .admin-header, .client-header) {
-  position: fixed;
+.site-header, .admin-header, .client-header {
+  position: fixed !important;
   top: 0;
   right: 0;
   left: 0;
@@ -319,18 +319,18 @@ html[data-motion-tier="lite"] [data-reveal][data-motion="spring-card"].is-visibl
   will-change: transform;
   transition: transform 280ms cubic-bezier(.2,.7,.2,1), visibility 0s linear 0s;
 }
-:where(.site-header, .admin-header, .client-header).is-auto-hidden {
+.site-header.is-auto-hidden, .admin-header.is-auto-hidden, .client-header.is-auto-hidden {
   transform: translate3d(0, calc(-100% - 6px), 0) !important;
-  visibility: hidden;
+  visibility: hidden !important;
   pointer-events: none !important;
   transition: transform 280ms cubic-bezier(.2,.7,.2,1), visibility 0s linear 280ms;
 }
 .site-header.is-initial-hidden {
   transition: none !important;
   transform: translate3d(0, calc(-100% - 6px), 0) !important;
-  visibility: hidden;
+  visibility: hidden !important;
 }
-:where(.site-header, .admin-header, .client-header):not(.is-auto-hidden) {
+.site-header:not(.is-auto-hidden), .admin-header:not(.is-auto-hidden), .client-header:not(.is-auto-hidden) {
   visibility: visible;
   pointer-events: auto;
 }
