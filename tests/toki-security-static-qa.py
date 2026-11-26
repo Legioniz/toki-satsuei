@@ -249,6 +249,15 @@ else:
     if "p_limit > v_scope_ceiling" not in sql:
         problems.append("TOKI Turnstile quota migration: requested quota ceiling validation is missing")
 
+
+turnstile_scope_constraint_migration = ROOT / "supabase" / "migrations" / "20261126034500_toki_turnstile_scope_allowlist.sql"
+if not turnstile_scope_constraint_migration.exists():
+    problems.append("TOKI Turnstile scope constraint migration: required file is missing")
+else:
+    sql = turnstile_scope_constraint_migration.read_text(encoding="utf-8")
+    if "portfolio_turnstile_verify" not in sql or "submission_rate_limits_scope_allowlist_check" not in sql:
+        problems.append("TOKI Turnstile scope constraint migration: table scope allowlist is missing the verification scope")
+
 if problems:
     print("FAIL TOKI static security audit:")
     for problem in problems:
