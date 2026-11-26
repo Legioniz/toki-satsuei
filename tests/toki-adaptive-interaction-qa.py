@@ -30,7 +30,8 @@ def main():
    home=context.new_page();errors=[]
    home.on("pageerror",lambda error:errors.append(str(error)))
    home.goto(base+"/index.html",wait_until="domcontentloaded")
-   home.wait_for_selector(".site-header");home.wait_for_timeout(220)
+   home.wait_for_selector(".site-header",state="attached");home.wait_for_timeout(220)
+   assert home.locator(".site-header").evaluate("(node)=>node.classList.contains('is-auto-hidden') && node.inert"), "Homepage masthead must remain hidden and inert while the hero is in view"
    home.wait_for_function("document.documentElement.classList.contains('motion-system-ready') && window.TokiMotion && document.querySelector('.gallery-card.motion-item')")
    assert home.evaluate("typeof window.TokiMotion.closeDialog === 'function' && typeof window.TokiMotion.setMenuOpen === 'function'"), "Shared menu/dialog transition helpers are missing"
    assert home.locator(".motion-item").count() >= 10, "Shared motion system did not prepare enough homepage content"
@@ -102,10 +103,26 @@ def main():
    launcher.close()
    passed+=1
 
-   home.evaluate("window.scrollTo({top:0,behavior:'instant'})")
+   home.evaluate("""() => {
+     const scroller=document.scrollingElement;
+     scroller.style.setProperty("scroll-behavior","auto","important");
+     scroller.scrollTop=0;
+   }""")
    home.set_viewport_size({"width":390,"height":844})
-   home.locator(".site-header").evaluate("(node) => { node.classList.remove('is-auto-hidden','is-initial-hidden'); node.style.transform = 'translateY(0)'; }")
-   home.wait_for_timeout(400)
+   home.wait_for_timeout(120)
+   assert home.locator(".site-header").evaluate("(node)=>node.classList.contains('is-auto-hidden')"), "Homepage masthead must stay hidden over the mobile hero"
+   home.evaluate("""() => {
+     const hero=document.querySelector(".hero-opening");
+     const scroller=document.scrollingElement;
+     scroller.style.setProperty("scroll-behavior","auto","important");
+     scroller.scrollTop=Math.max(0,window.scrollY+hero.getBoundingClientRect().bottom+80);
+   }""")
+   home.wait_for_timeout(120)
+   assert home.locator(".hero-opening").evaluate("(node)=>node.getBoundingClientRect().bottom<0"), "Hero must clear the viewport before opening the mobile menu"
+   home.evaluate("() => window.TokiMotion.setHeaderVisible(true)")
+   home.wait_for_timeout(360)
+   header_box=home.locator(".site-header").bounding_box()
+   assert header_box and -1<=header_box["y"]<=1, f"Header did not reveal after hero exit: {header_box}"
    menu=home.locator(".menu-toggle");menu.click()
    assert menu.get_attribute("aria-expanded")=="true"
    home.wait_for_function("document.querySelector('.primary-nav').getAnimations().length > 0")
