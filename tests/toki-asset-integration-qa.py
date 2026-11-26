@@ -24,6 +24,14 @@ EXPECTED_DATA = {
     "media-library.json": "library.js",
 }
 
+EXPECTED_SCRIPT_VERSIONS = {
+    "site.js": "20261126-v15-interaction-fixes",
+    "availability.js": "20261126-v15-interaction-fixes",
+    "admin.js": "20261126-v15-interaction-fixes",
+    "client-gallery.js": "20261126-v15-interaction-fixes",
+    "library.js": "20261126-v15-interaction-fixes",
+}
+
 
 class References(HTMLParser):
     def __init__(self) -> None:
@@ -121,6 +129,10 @@ def main() -> None:
         actual = tuple(script for script in parser.scripts if script in expected)
         if actual != expected or len(parser.scripts) != len(expected):
             failures.append(f"{page} has an incomplete or unexpected controller stack: {parser.scripts}")
+        page_source = (ROOT / page).read_text(encoding="utf-8")
+        for script, version in EXPECTED_SCRIPT_VERSIONS.items():
+            if script in parser.scripts and f"{script}?v={version}" not in page_source:
+                failures.append(f"{page} has a stale or inconsistent cache version for {script}")
         bundle_header = (ROOT / parser.styles[0]).read_text(encoding="utf-8").splitlines()[0] if len(parser.styles) == 1 else ""
         if len(parser.styles) != 1:
             failures.append(f"{page} should link exactly one bundled stylesheet, found {parser.styles}")
