@@ -34,6 +34,7 @@ def main() -> None:
     motion = (ROOT / "motion-system.js").read_text(encoding="utf-8")
     global_css = (ROOT / "global-motion.css").read_text(encoding="utf-8")
     shared_motion_css = (ROOT / "motion-refinements.css").read_text(encoding="utf-8")
+    design_system_css = (ROOT / "design-system.css").read_text(encoding="utf-8")
     intro_css = (ROOT / "motion-system.css").read_text(encoding="utf-8")
     workflow = (ROOT / ".github/workflows/deploy.yml").read_text(encoding="utf-8")
     archive_script = (ROOT / "library.js").read_text(encoding="utf-8")
@@ -76,6 +77,9 @@ def main() -> None:
     for token in [".is-scene-active", "::view-transition-new(root)", "tokiPageEnter", "data-motion-tier"]:
         assert token in shared_motion_css, f"Shared motion refinements are missing {token}"
     assert "toki-scroll-motion-qa.py" in workflow, "Scroll motion browser QA is not part of CI."
+    assert "site-header:not(.is-initial-hidden):hover" not in design_system_css, (
+        "The masthead must not reveal itself from pointer hover while scroll logic intends to hide it."
+    )
     shared_asset_versions = set()
     for page_name in ["index.html", "booking.html", "library.html", "policies.html", "404.html", "admin.html", "client-gallery.html"]:
         page_source = (ROOT / page_name).read_text(encoding="utf-8")
@@ -171,6 +175,11 @@ def main() -> None:
             page.wait_for_timeout(100)
             assert home_header.evaluate("(node) => node.classList.contains('is-auto-hidden')"), (
                 "Masthead must stay hidden while moving down beyond the hero."
+            )
+            page.mouse.move(4, 4)
+            page.wait_for_timeout(80)
+            assert home_header.evaluate("(node) => node.classList.contains('is-auto-hidden')"), (
+                "Pointer hover near the viewport top must not override the hidden masthead state."
             )
             page.evaluate("() => { document.scrollingElement.scrollTop -= 12; }")
             page.wait_for_timeout(100)
