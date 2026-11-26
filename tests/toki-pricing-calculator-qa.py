@@ -106,13 +106,16 @@ def main() -> None:
             assert "₱127" in page.locator("#calc-breakdown-list").inner_text()
 
             # Every stepper enforces and exposes its exact lower and upper limits.
-            assert page.locator("#calc-part-minus").is_disabled(), "Duo Session allows decrement below two participants"
+            assert page.locator("#calc-part-minus").is_enabled(), "Participant decrement should work above two"
             for _ in range(9):
                 page.locator("#calc-part-plus").click()
             assert page.locator("#calc-part-qty").input_value() == "12"
             assert page.locator("#calc-part-plus").is_disabled(), "Participant increment remained active above twelve"
-            for _ in range(9):
+            for _ in range(10):
                 page.locator("#calc-part-minus").click()
+            assert page.locator("#calc-part-qty").input_value() == "2"
+            assert page.locator("#calc-part-minus").is_disabled(), "Duo Session allows decrement below two participants"
+            page.locator("#calc-part-plus").click()
             assert page.locator("#calc-part-qty").input_value() == "3"
 
             for _ in range(48):
