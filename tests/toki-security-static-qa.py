@@ -206,7 +206,7 @@ else:
 
 
 
-quota_dos_migration = ROOT / "supabase" / "migrations" / "20261126030000_toki_gallery_quota_dos_hardening.sql"
+quota_dos_migration = ROOT / "supabase" / "migrations" / "20261126025446_toki_gallery_quota_dos_hardening.sql"
 if not quota_dos_migration.exists():
     problems.append("TOKI gallery quota migration: required file is missing")
 else:
