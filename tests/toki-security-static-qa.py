@@ -140,7 +140,7 @@ else:
         if marker not in sql:
             problems.append(f"TOKI gallery RPC isolation migration: missing control: {marker}")
 
-audit_migration = ROOT / "supabase" / "migrations" / "20261126011240_toki_admin_activity_append_only.sql"
+audit_migration = ROOT / "supabase" / "migrations" / "20261126012559_toki_admin_activity_append_only.sql"
 if not audit_migration.exists():
     problems.append("TOKI audit immutability migration: required file is missing")
 else:
