@@ -258,6 +258,22 @@ else:
     if "portfolio_turnstile_verify" not in sql or "submission_rate_limits_scope_allowlist_check" not in sql:
         problems.append("TOKI Turnstile scope constraint migration: table scope allowlist is missing the verification scope")
 
+
+gallery_selection_guard_migration = ROOT / "supabase" / "migrations" / "20261126033600_toki_gallery_selection_type_guard.sql"
+if not gallery_selection_guard_migration.exists():
+    problems.append("TOKI gallery selection JSON guard migration: required file is missing")
+else:
+    sql = gallery_selection_guard_migration.read_text(encoding="utf-8")
+    expected = (
+        "IF p_selections IS NULL THEN",
+        "jsonb_typeof(p_selections) IS DISTINCT FROM 'array'",
+        "IF pg_catalog.jsonb_array_length(p_selections) > 50 THEN",
+        "SET search_path = ''",
+    )
+    for marker in expected:
+        if marker not in sql:
+            problems.append(f"TOKI gallery selection JSON guard migration: missing {marker}")
+
 if problems:
     print("FAIL TOKI static security audit:")
     for problem in problems:
