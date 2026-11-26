@@ -32,8 +32,18 @@ def main():
                             expected = "portrait" if h > w else "landscape"
                             assert page.evaluate("document.documentElement.dataset.orientation") == expected, f"{page_name} {label}: wrong data-orientation"
                         if page_name == "index.html" and label == "landscape phone":
-                            page.locator(".site-header").evaluate("(node) => { node.classList.remove('is-auto-hidden','is-initial-hidden'); node.style.transform = 'translateY(0)'; }")
-                            page.wait_for_timeout(400)
+                            # Do not expose the masthead over the opening hero. Reveal it only after
+                            # the hero has completely cleared the visible viewport.
+                            page.evaluate("""() => {
+                              const hero = document.querySelector(".hero-opening");
+                              const scroller = document.scrollingElement;
+                              scroller.style.setProperty("scroll-behavior", "auto", "important");
+                              scroller.scrollTop = Math.max(0, window.scrollY + hero.getBoundingClientRect().bottom + 80);
+                            }""")
+                            page.wait_for_timeout(120)
+                            assert page.locator(".hero-opening").evaluate("(node) => node.getBoundingClientRect().bottom < 0"), "hero should be fully out of the viewport before revealing the menu"
+                            page.evaluate("() => window.TokiMotion.setHeaderVisible(true)")
+                            page.wait_for_timeout(120)
                             header = page.locator(".site-header").bounding_box()["height"]
                             assert header <= 68, f"landscape header too tall: {header}px"
                             page.locator(".menu-toggle").click()
