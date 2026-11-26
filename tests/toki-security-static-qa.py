@@ -111,6 +111,51 @@ if "crypto.getRandomValues" not in admin_source:
     problems.append("admin.js: secure delivery-key generator is missing")
 
 
+security_migration = ROOT / "supabase" / "migrations" / "20261126005625_toki_security_hardening.sql"
+if not security_migration.exists():
+    problems.append("TOKI security migration: required file is missing")
+else:
+    sql = security_migration.read_text(encoding="utf-8")
+    for marker in ("SET search_path = ''", "toki_booking_contact", "REVOKE ALL ON FUNCTION public.consume_portfolio_quota", "FORCE ROW LEVEL SECURITY", "AFTER INSERT OR UPDATE OR DELETE", "Changed fields:"):
+        if marker not in sql:
+            problems.append(f"TOKI security migration: missing control: {marker}")
+
+delivery_migration = ROOT / "supabase" / "migrations" / "20261126010019_toki_delivery_token_hardening.sql"
+if not delivery_migration.exists():
+    problems.append("TOKI delivery migration: required file is missing")
+else:
+    sql = delivery_migration.read_text(encoding="utf-8")
+    for marker in ("delivery_token_hash", "extensions.digest(p_token,'sha256')", "toki_gallery_global", "toki_gallery_token", "delivery_expires_at"):
+        if marker not in sql:
+            problems.append(f"TOKI delivery migration: missing control: {marker}")
+    if "delivery_token text" in sql or "delivery_token =" in sql:
+        problems.append("TOKI delivery migration: raw access-token storage detected")
+
+rpc_isolation = ROOT / "supabase" / "migrations" / "20261126010625_toki_gallery_rpc_privilege_isolation.sql"
+if not rpc_isolation.exists():
+    problems.append("TOKI gallery RPC isolation migration: required file is missing")
+else:
+    sql = rpc_isolation.read_text(encoding="utf-8")
+    for marker in ("private.toki_get_client_gallery", "private.toki_submit_client_selection", "SECURITY DEFINER", "SECURITY INVOKER", "SET search_path = ''"):
+        if marker not in sql:
+            problems.append(f"TOKI gallery RPC isolation migration: missing control: {marker}")
+
+booking_function = (ROOT / "supabase" / "functions" / "portfolio-submit" / "index.ts").read_text(encoding="utf-8")
+if "consumeQuota(contactBucket, 'toki_booking_contact', 2)" not in booking_function:
+    problems.append("Booking intake: per-contact booking quota is missing")
+if "Content-Type must be application/json" not in booking_function:
+    problems.append("Booking intake: strict JSON content-type enforcement is missing")
+
+admin_source = (ROOT / "admin.js").read_text(encoding="utf-8")
+if "delivery_token:" in admin_source or "b.delivery_token ||" in admin_source:
+    problems.append("admin.js: raw delivery token must never be read from or written to the database")
+if "delivery_token_hash" not in admin_source or "sha256Hex" not in admin_source:
+    problems.append("admin.js: hash-only delivery token storage is missing")
+if "ADMIN_IDLE_TIMEOUT_MS" not in admin_source or "/auth/v1/logout" not in admin_source:
+    problems.append("admin.js: admin idle logout and remote session revocation are missing")
+if "under_review" in admin_source or "awaiting_reservation_fee" in admin_source:
+    problems.append("admin.js: booking status values do not match the database")
+
 # Keep the automated security scanning configuration from silently disappearing.
 workflow = ROOT / ".github" / "workflows" / "deploy.yml"
 if not workflow.exists():

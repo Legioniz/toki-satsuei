@@ -82,11 +82,10 @@
         <div class="admin-filter-pills" role="group" aria-label="Filter bookings by status">
           <button type="button" class="admin-pill is-active" data-status="all">All</button>
           <button type="button" class="admin-pill" data-status="new">New</button>
-          <button type="button" class="admin-pill" data-status="under_review">Review</button>
-          <button type="button" class="admin-pill" data-status="awaiting_reservation_fee">Fee Pending</button>
+          <button type="button" class="admin-pill" data-status="reviewing">Review</button>
           <button type="button" class="admin-pill" data-status="confirmed">Confirmed</button>
-          <button type="button" class="admin-pill" data-status="completed">Completed</button>
-          <button type="button" class="admin-pill" data-status="delivered">Delivered</button>
+          <button type="button" class="admin-pill" data-status="declined">Declined</button>
+          <button type="button" class="admin-pill" data-status="cancelled">Cancelled</button>
         </div>
       </div>
 
@@ -161,14 +160,9 @@
               <label for="modal-status-select" class="admin-field-label">Status Progression</label>
               <select id="modal-status-select" class="admin-input">
                 <option value="new">New Inquiry</option>
-                <option value="under_review">Under Review</option>
-                <option value="awaiting_reservation_fee">Awaiting Reservation Fee</option>
+                <option value="reviewing">Under Review</option>
                 <option value="confirmed">Confirmed</option>
-                <option value="in_progress">In Progress</option>
-                <option value="completed">Completed</option>
-                <option value="editing">Editing</option>
-                <option value="ready_for_delivery">Ready for Delivery</option>
-                <option value="delivered">Delivered</option>
+                <option value="declined">Declined</option>
                 <option value="cancelled">Cancelled</option>
               </select>
             </div>
@@ -217,11 +211,13 @@
               <input type="url" id="modal-delivery-url" class="admin-input" placeholder="https://your-private-delivery-link.example">
             </div>
             <div>
-              <label for="modal-delivery-token" class="admin-field-label">Client Gallery Access Token</label>
-              <div style="display:flex;gap:8px;">
-                <input type="text" id="modal-delivery-token" class="admin-input" placeholder="toki-gallery-key" style="margin-bottom:0;">
+              <label for="modal-delivery-token" class="admin-field-label">New Client Gallery Access Key (256-bit)</label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <input type="text" id="modal-delivery-token" class="admin-input" placeholder="Generate a new private key" autocomplete="off" autocapitalize="none" spellcheck="false" style="margin-bottom:0;min-width:180px;">
                 <button type="button" id="modal-gen-token-btn" class="admin-btn" style="width:auto;padding:0 12px;font-size:11px;">Generate</button>
+                <button type="button" id="modal-copy-token-btn" class="admin-btn admin-btn-secondary" style="width:auto;padding:0 12px;font-size:11px;">Copy</button>
               </div>
+              <p class="admin-field-label" style="font-size:11px;line-height:1.5;margin-top:8px;color:#b9b2a8;">Keys are hashed before storage and expire after 30 days. Copy the key before saving; it cannot be retrieved later. Clearing the delivery URL revokes the key.</p>
             </div>
           </div>
 

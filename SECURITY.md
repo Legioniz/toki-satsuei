@@ -81,3 +81,18 @@ Booking caps: 12 participants, 50 additional photos, 120 additional minutes in 1
 12. Configure GitHub rulesets outside code: require PRs and successful verification, block force pushes and branch deletion, require conversation resolution, and restrict bypass. The connected GitHub integration cannot administer these settings.
 
 These rules reduce risk; they do not make a site invulnerable. GitHub Pages does not apply the repository _headers file as response headers. A header-capable host or trusted proxy is required for site-wide CSP/HSTS/frame policies.
+
+
+## Delivery-key storage and admin-session rules
+
+Delivery keys are 256-bit cryptographically random values. Only SHA-256 hashes are stored in the database; raw keys are displayed only when generated and cannot be recovered. Keys expire 30 days after issuance and can be revoked by clearing the private delivery URL. Gallery RPC entry points run as invoker and delegate to narrowly scoped functions in the non-exposed `private` schema. The internal quota RPC is not executable by browser roles.
+
+The admin dashboard persists only its short-lived access token, not a refresh token. It revokes the remote Supabase Auth session on logout and automatically logs out after 20 minutes of inactivity. The dashboard's booking status controls are aligned with the database's allowed values.
+
+## Remaining owner-only security settings
+
+Supabase Auth's leaked-password protection is currently disabled. Enable it in Supabase Dashboard → Authentication → Settings → Password Security, then review Auth rate limits and session lifetime. The connected Supabase tools do not expose these project-level Auth settings.
+
+No GitHub branch ruleset is currently configured. The GitHub integration used here can inspect rulesets but cannot create or edit them. Apply the repository ruleset described in `.github/SECURITY-RULESET.md` from GitHub Settings → Rules → Rulesets.
+
+The site remains hosted on GitHub Pages. Its `_headers` file is not enforced there; CSP, HSTS, frame restrictions, and WAF-level traffic controls still require a header-capable host or a trusted proxy.

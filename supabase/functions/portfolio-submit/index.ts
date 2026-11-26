@@ -257,6 +257,8 @@ Deno.serve(async (request) => {
     return response({ ok: false, message: 'The portfolio submission service is not fully configured.' }, 503, origin)
   }
   if (!origin || origin !== ALLOWED_ORIGIN) return response({ ok: false, message: 'Origin not allowed.' }, 403, origin)
+  const contentType = (request.headers.get('content-type') ?? '').split(';', 1)[0].trim().toLowerCase()
+  if (contentType !== 'application/json') return response({ ok: false, message: 'Content-Type must be application/json.' }, 415, origin)
   const contentLength = Number(request.headers.get('content-length') ?? '0')
   if (contentLength > 12_000) return response({ ok: false, message: 'Request is too large.' }, 413, origin)
 
@@ -353,6 +355,21 @@ Deno.serve(async (request) => {
         && bookingTermsVersion === expectedBookingTermsVersion
       if (!valid) {
         return response({ ok: false, message: 'Please review your contact details, session, dates, exact requested time (24-hour HH:MM), location, participant count, valid add-ons (time in 15-minute increments), privacy acknowledgement, and booking/payment/cancellation terms acknowledgement. Same-day requests must be for a future time in Philippine Time.' }, 400, origin)
+      }
+
+      // HMAC the normalized contact value for a second independent booking quota.
+      const contactBucket = await hmacHex(
+        RATE_SECRET,
+        `toki-booking-contact:${(contactMethod ?? '').toLowerCase()}:${(contactValue ?? '').trim().toLowerCase()}`,
+      )
+      try {
+        const contactAllowed = await consumeQuota(contactBucket, 'toki_booking_contact', 2)
+        if (!contactAllowed) {
+          return response({ ok: false, message: 'Too many booking requests for this contact. Please wait before trying again.' }, 429, origin, { 'Retry-After': '600' })
+        }
+      } catch (error) {
+        console.error('TOKI contact quota check failed:', error)
+        return response({ ok: false, message: 'Booking protection is temporarily unavailable. Please retry later.' }, 503, origin)
       }
 
       const referenceCode = `TOKI-${crypto.randomUUID().replaceAll('-', '').slice(0, 8).toUpperCase()}`

@@ -50,12 +50,15 @@
   const modalDeliveryUrl = document.querySelector("#modal-delivery-url");
   const modalDeliveryToken = document.querySelector("#modal-delivery-token");
   const modalGenTokenBtn = document.querySelector("#modal-gen-token-btn");
+  const modalCopyTokenBtn = document.querySelector("#modal-copy-token-btn");
   const modalAdminNotes = document.querySelector("#modal-admin-notes");
 
   let currentSession = null;
   let allBookings = [];
   let currentFilter = "all";
   let searchQuery = "";
+  let adminIdleTimer = null;
+  const ADMIN_IDLE_TIMEOUT_MS = 20 * 60 * 1000;
 
   // Helper: headers for authenticated requests
   function getAuthHeaders() {
@@ -75,7 +78,8 @@
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed?.access_token && parsed?.expires_at > Date.now() / 1000) {
-          currentSession = parsed;
+          currentSession = { access_token: parsed.access_token, expires_at: parsed.expires_at, user: { email: parsed.user?.email || "" } };
+          sessionStorage.setItem("toki_admin_session", JSON.stringify(currentSession));
           showDashboard();
           return;
         }
@@ -87,6 +91,8 @@
   }
 
   function showAuth() {
+    if (adminIdleTimer) window.clearTimeout(adminIdleTimer);
+    adminIdleTimer = null;
     currentSession = null;
     sessionStorage.removeItem("toki_admin_session");
     authSection.hidden = false;
@@ -94,7 +100,24 @@
     userNav.hidden = true;
   }
 
+  function scheduleAdminIdleLogout() {
+    if (adminIdleTimer) window.clearTimeout(adminIdleTimer);
+    if (currentSession?.access_token) adminIdleTimer = window.setTimeout(() => { void logoutAdminSession(); }, ADMIN_IDLE_TIMEOUT_MS);
+  }
+
+  async function logoutAdminSession() {
+    const accessToken = currentSession?.access_token || "";
+    showAuth();
+    if (!accessToken) return;
+    try {
+      await fetch(SUPABASE_URL + "/auth/v1/logout", { method: "POST", headers: { "apikey": PUBLISHABLE_KEY, "Authorization": "Bearer " + accessToken } });
+    } catch { /* Local credentials are cleared even if remote revocation is unavailable. */ }
+  }
+
+  ["pointerdown", "keydown", "touchstart"].forEach((eventName) => document.addEventListener(eventName, scheduleAdminIdleLogout, { passive: true }));
+
   function showDashboard() {
+    scheduleAdminIdleLogout();
     authSection.hidden = true;
     dashboardSection.hidden = false;
     userNav.hidden = false;
@@ -126,8 +149,9 @@
         return;
       }
 
-      currentSession = data;
-      sessionStorage.setItem("toki_admin_session", JSON.stringify(data));
+      // Persist only the short-lived access token; never store the refresh token in browser storage.
+      currentSession = { access_token: data.access_token, expires_at: data.expires_at, user: { email: data.user?.email || email } };
+      sessionStorage.setItem("toki_admin_session", JSON.stringify(currentSession));
       showDashboard();
     } catch (err) {
       authError.textContent = "Unable to connect to authorization service.";
@@ -135,9 +159,7 @@
     }
   });
 
-  logoutBtn?.addEventListener("click", () => {
-    showAuth();
-  });
+  logoutBtn?.addEventListener("click", () => { void logoutAdminSession(); });
 
   // Fetch Bookings
   async function loadBookings() {
@@ -169,10 +191,10 @@
 
   function updateMetrics() {
     metricTotal.textContent = String(allBookings.length);
-    metricReview.textContent = String(allBookings.filter(b => b.status === "under_review").length);
+    metricReview.textContent = String(allBookings.filter(b => b.status === "reviewing").length);
     metricConfirmed.textContent = String(allBookings.filter(b => b.status === "confirmed").length);
-    metricEditing.textContent = String(allBookings.filter(b => b.status === "editing" || b.status === "in_progress").length);
-    metricDelivered.textContent = String(allBookings.filter(b => b.status === "delivered").length);
+    metricEditing.textContent = String(allBookings.filter(b => b.delivery_status === "editing").length);
+    metricDelivered.textContent = String(allBookings.filter(b => b.delivery_status === "delivered").length);
   }
 
   function formatSessionAddons(b) {
@@ -203,12 +225,10 @@
     bookingTbody.innerHTML = filtered.map(b => {
       const statusClass = "status-tag--" + (
         b.status === "new" ? "new" :
-        b.status === "under_review" ? "review" :
-        b.status === "awaiting_reservation_fee" ? "fee" :
-        b.status === "confirmed" ? "confirmed" :
-        b.status === "completed" ? "completed" :
-        b.status === "delivered" ? "delivered" : "cancelled"
+        b.status === "reviewing" ? "review" :
+        b.status === "confirmed" ? "confirmed" : "cancelled"
       );
+      const statusLabel = ({ new: "New", reviewing: "Under Review", confirmed: "Confirmed", declined: "Declined", cancelled: "Cancelled" })[b.status] || "New";
       const feeStatus = b.reservation_fee_paid ? "Fee Paid" : "Fee Due";
       const feeColor = b.reservation_fee_paid ? "#76d69e" : "#df6871";
 
@@ -223,7 +243,7 @@
             <div style="color:#ede6dd;">${escapeHtml((b.session_type || "Session") + formatSessionAddons(b))}</div>
             <div style="font-size:12px;color:var(--admin-subtext);">${escapeHtml(b.confirmed_date || b.preferred_date || "—")} (${escapeHtml(b.preferred_time || "—")})</div>
           </td>
-          <td><span class="status-tag ${statusClass}">${escapeHtml((b.status || "new").replaceAll("_", " "))}</span></td>
+          <td><span class="status-tag ${statusClass}">${escapeHtml(statusLabel)}</span></td>
           <td>
             <div style="font-size:12px;color:${feeColor};">${feeStatus}</div>
             <div style="font-size:11px;color:var(--admin-subtext);font-family:var(--c-mono, monospace);">₱${Number(b.total_price || 0).toFixed(2)}</div>
@@ -281,13 +301,17 @@
     modalBalancePaid.checked = Boolean(b.balance_paid);
 
     modalDeliveryUrl.value = b.delivery_folder_url || "";
-    modalDeliveryToken.value = b.delivery_token || "";
+    modalDeliveryToken.value = "";
+    modalDeliveryToken.dataset.hasToken = String(Boolean(b.delivery_token_hash));
+    modalDeliveryToken.dataset.currentStatus = b.delivery_status || "pending";
+    modalDeliveryToken.placeholder = b.delivery_token_hash ? "Saved key cannot be viewed. Generate a new key to rotate it." : "Generate a new private key";
     modalAdminNotes.value = b.admin_notes || "";
 
     modal.hidden = false;
   }
 
   function closeBookingModal() {
+    modalDeliveryToken.value = "";
     modal.hidden = true;
   }
 
@@ -304,7 +328,20 @@
     window.crypto.getRandomValues(bytes);
     const token = Array.from(bytes, (value) => value.toString(16).padStart(2, "0")).join("");
     modalDeliveryToken.value = "toki-" + token;
+    modalDeliveryToken.dataset.hasToken = "true";
   });
+
+  modalCopyTokenBtn?.addEventListener("click", async () => {
+    const token = modalDeliveryToken.value.trim();
+    if (!token) return window.alert("Generate a new access key first.");
+    try { await navigator.clipboard.writeText(token); window.alert("Access key copied. Store it securely; it cannot be retrieved after this window closes."); }
+    catch { window.alert("Clipboard access is unavailable. Select and copy the key manually before saving."); }
+  });
+
+  async function sha256Hex(value) {
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+    return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  }
 
   // Save changes
   modalForm?.addEventListener("submit", async (e) => {
@@ -312,6 +349,13 @@
     const id = modalBookingId.value;
     if (!id) return;
 
+    const deliveryUrl = modalDeliveryUrl.value.trim();
+    const newDeliveryToken = modalDeliveryToken.value.trim();
+    if (newDeliveryToken && (!/^toki-[0-9a-f]{64}$/.test(newDeliveryToken) || !deliveryUrl)) return window.alert("A valid generated access key and a private HTTPS delivery URL are both required.");
+    if (deliveryUrl) {
+      try { if (new URL(deliveryUrl).protocol !== "https:") throw new Error("HTTPS required"); }
+      catch { return window.alert("The private delivery URL must be a valid HTTPS URL."); }
+    }
     const payload = {
       status: modalStatusSelect.value,
       confirmed_date: modalConfirmedDate.value || null,
@@ -323,13 +367,19 @@
       reservation_fee_paid_at: modalReservationPaid.checked ? new Date().toISOString() : null,
       balance_paid: modalBalancePaid.checked,
       balance_paid_at: modalBalancePaid.checked ? new Date().toISOString() : null,
-      delivery_folder_url: modalDeliveryUrl.value.trim() || null, // Legacy DB column; now stores a provider-neutral private delivery URL.
-      delivery_token: modalDeliveryToken.value.trim() || null,
+      delivery_folder_url: deliveryUrl || null,
       admin_notes: modalAdminNotes.value.trim() || null,
       updated_at: new Date().toISOString()
     };
 
     try {
+      if (newDeliveryToken) {
+        payload.delivery_token_hash = await sha256Hex(newDeliveryToken);
+        payload.delivery_expires_at = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        payload.delivery_status = "ready";
+      } else if (!deliveryUrl && modalDeliveryToken.dataset.hasToken === "true") {
+        payload.delivery_token_hash = null; payload.delivery_expires_at = null; payload.delivery_status = "revoked";
+      }
       const res = await fetch(SUPABASE_URL + `/rest/v1/toki_booking_requests?id=eq.${id}`, {
         method: "PATCH",
         headers: getAuthHeaders(),

@@ -77,11 +77,26 @@ def main() -> None:
     assert status == 403, f"Origin-less POST returned {status}"
     status, _, _ = request(INTAKE, "POST", ALLOWED_ORIGIN, raw=b"{")
     assert status == 400, f"Malformed JSON returned {status}"
+    status, _, _ = request(INTAKE, "POST", ALLOWED_ORIGIN, raw=b"{}", extra_headers={"Content-Type": "text/plain"})
+    assert status == 415, f"Unsupported content type returned {status}"
     status, _, _ = request(INTAKE, "POST", ALLOWED_ORIGIN, {"kind": "not-supported"})
     assert status == 400, f"Unsupported submission type returned {status}"
     status, _, _ = request(INTAKE, "POST", ALLOWED_ORIGIN, raw=b" " * 12001,
                            extra_headers={"Content-Type": "application/json"})
     assert status == 413, f"Oversized request returned {status}"
+
+    status, _, _ = request(REST + "/rpc/consume_portfolio_quota", "POST", ALLOWED_ORIGIN,
+                           {"p_bucket_hash": "0" * 64, "p_scope": "toki_booking", "p_limit": 4})
+    assert status != 200, "Anonymous caller executed the internal quota RPC"
+
+    import secrets
+    test_gallery_token = "toki-" + secrets.token_hex(32)
+    gallery_attempts = []
+    for _ in range(11):
+        code, _, response_body = request(REST + "/rpc/toki_get_client_gallery", "POST", ALLOWED_ORIGIN, {"p_token": test_gallery_token})
+        assert code == 200, f"Gallery RPC returned unexpected HTTP status {code}"
+        gallery_attempts.append(decode(response_body))
+    assert gallery_attempts[-1].get("code") == "rate_limited", "Gallery access-key attempt limit did not trigger"
 
     # Anonymous callers must not read the private booking table or inbox.
     for resource in ("toki_booking_requests", "toki_booking_inbox"):

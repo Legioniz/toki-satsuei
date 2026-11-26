@@ -25,6 +25,8 @@
 
   async function fetchGallery(token) {
     tokenError.style.display = "none";
+    currentToken = "";
+    galleryData = null;
     try {
       const res = await fetch(SUPABASE_URL + "/rest/v1/rpc/toki_get_client_gallery", {
         method: "POST",
@@ -180,8 +182,14 @@
 
   tokenForm?.addEventListener("submit", (e) => {
     e.preventDefault();
-    const token = tokenInput.value.trim();
-    if (token) fetchGallery(token);
+    const token = tokenInput.value.trim().toLowerCase();
+    tokenInput.value = "";
+    if (!/^toki-[0-9a-f]{64}$/.test(token)) {
+      tokenError.textContent = "Enter the complete private delivery key provided by the studio.";
+      tokenError.style.display = "block";
+      return;
+    }
+    void fetchGallery(token);
   });
 
   // Access keys are entered into the password field, never placed in a URL.
