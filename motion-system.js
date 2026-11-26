@@ -739,6 +739,8 @@
 
   function syncAdaptiveEnvironment() {
     const w = Math.max(1, window.innerWidth || root.clientWidth || 1024);
+    const viewportHeight = Math.max(1, window.innerHeight || root.clientHeight || 1);
+    root.style.setProperty("--toki-viewport-height", viewportHeight + "px");
     const viewportClass = w <= 680 ? "phone" : w <= 1180 ? "tablet" : w >= 1800 ? "tv" : "desktop";
     root.dataset.viewportClass = viewportClass;
     root.dataset.pointerMode = coarsePointer.matches ? "coarse" : "fine";
