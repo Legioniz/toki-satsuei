@@ -116,14 +116,29 @@ def check_header(page, width, label):
     if width <= 820:
         assert toggle["display"] != "none", f"{label}: tablet/mobile menu toggle is hidden at {width}px"
         assert nav["display"] == "none", f"{label}: closed navigation is occupying layout at {width}px"
-        page.locator(".site-header").evaluate("(node) => { node.classList.remove('is-auto-hidden','is-initial-hidden'); node.style.transform = 'translateY(0)'; }")
-        page.wait_for_timeout(400)
+        if page.locator(".hero-opening").count() > 0:
+            page.evaluate("""() => {
+              const hero = document.querySelector(".hero-opening");
+              const scroller = document.scrollingElement;
+              scroller.style.setProperty("scroll-behavior", "auto", "important");
+              scroller.scrollTop = Math.max(0, window.scrollY + hero.getBoundingClientRect().bottom + 80);
+            }""")
+            page.wait_for_timeout(100)
+            assert page.locator(".hero-opening").evaluate("(node) => node.getBoundingClientRect().bottom < 0"), f"{label}: test setup did not move the hero fully out of the viewport"
+            page.evaluate("() => window.TokiMotion.setHeaderVisible(true)")
+            page.wait_for_timeout(100)
+            assert not page.locator(".site-header").evaluate("(node) => node.classList.contains('is-auto-hidden')"), f"{label}: the masthead should be revealable outside the hero"
+        else:
+            page.locator(".site-header").evaluate("(node) => { node.classList.remove('is-auto-hidden','is-initial-hidden'); node.inert = false; node.setAttribute('aria-hidden','false'); node.style.transform = 'translateY(0)'; }")
         page.locator(".menu-toggle").click()
         opened = boxes(page, [".site-header", ".primary-nav"])
         assert opened[1]["display"] != "none", f"{label}: navigation did not open at {width}px"
         assert opened[1]["x"] >= -1 and opened[1]["right"] <= width + 1, f"{label}: open navigation is clipped: {opened[1]}"
-        page.locator(".menu-toggle").click()
+        page.keyboard.press("Escape")
         page.wait_for_function("!document.querySelector('.primary-nav').classList.contains('is-open')", timeout=2000)
+        if page.locator(".hero-opening").count() > 0:
+            page.evaluate("() => { document.scrollingElement.scrollTop = 0; }")
+            page.wait_for_timeout(80)
     else:
         assert nav["display"] != "none", f"{label}: desktop navigation is hidden at {width}px"
         assert brand["right"] <= nav["x"] + 1, f"{label}: brand overlaps navigation at {width}px"
@@ -148,7 +163,7 @@ def check_home(page, width):
     hero = page.locator(".hero-opening").bounding_box()
     viewport_height = page.evaluate("innerHeight")
     announcement_h = page.locator(".announcement").evaluate("(node) => node.getBoundingClientRect().height") if page.locator(".announcement").count() > 0 else 0
-    chrome_height = announcement_h + page.locator(".site-header").evaluate("(node) => node.getBoundingClientRect().height")
+    chrome_height = announcement_h
     # CSS uses 100svh (small viewport height) which may be ~30px less than innerHeight (100vh) in mobile browsers;
     # allow up to 36px tolerance to account for the svh/vh gap and sub-pixel rounding.
     assert hero and hero["height"] >= max(640, viewport_height - chrome_height - 36), f"{label}: hero does not extend to the available viewport height: hero={hero}, viewport={viewport_height}, chrome={chrome_height}"
@@ -220,7 +235,10 @@ def main():
             context.route("https://media.base44.com/**", lambda route: route.abort())
             home = context.new_page()
             home.goto(base + "/index.html", wait_until="domcontentloaded")
-            home.wait_for_selector(".site-header")
+            home.wait_for_selector(".site-header", state="attached")
+            assert home.locator(".site-header").evaluate("(node) => node.classList.contains('is-auto-hidden')"), (
+                "Homepage masthead must be intentionally hidden over the opening hero."
+            )
             for width, height in VIEWPORTS:
                 home.set_viewport_size({"width":width,"height":height})
                 home.wait_for_timeout(35)

@@ -214,7 +214,6 @@ html.motion-ready [data-reveal] { transition-duration: 840ms; transition-timing-
 .site-header.is-auto-hidden {
   transform: translateY(-100%);
 }
-.site-header:not(.is-initial-hidden):hover,
 .site-header:focus-within,
 .site-header:has(.primary-nav.is-open),
 .site-header:has(.menu-toggle:focus),

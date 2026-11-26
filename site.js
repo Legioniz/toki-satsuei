@@ -21,7 +21,7 @@ function setMenuOpen(open,returnFocus=false){
     menuButton.setAttribute("aria-expanded",String(open));
     menuButton.setAttribute("aria-label",open?"Close navigation":"Open navigation");
   }
-  if(open)setHeaderHidden(false);
+  if(open)window.TokiMotion?.setHeaderVisible(true);
   if(!open&&returnFocus)transition.then(()=>menuButton.focus({preventScroll:true}));
   return transition;
 }
@@ -137,39 +137,10 @@ if (document.readyState === "loading") {
   TokiSFX.init();
 }
 
-let scrollTicking=false,lastScrollY=window.scrollY,lastScrollDirection="up",hoverRevealed=false;
-
-function setHeaderHidden(hidden){
-  if(!siteHeader)return;
-  if(nav?.classList.contains("is-open")||siteHeader.matches(":focus-within")||siteHeader.classList.contains("is-revealed")){
-    siteHeader.classList.remove("is-auto-hidden","is-initial-hidden");
-    return;
-  }
-  const shouldHide=Boolean(hidden);
-  siteHeader.classList.toggle("is-auto-hidden",shouldHide);
-  if(!shouldHide){
-    siteHeader.classList.remove("is-initial-hidden");
-  }
-}
+let scrollTicking=false;
 
 function updatePageChrome(){
-  const root=document.documentElement,currentY=window.scrollY,delta=currentY-lastScrollY;
-  if(nav?.classList.contains("is-open")||siteHeader?.matches(":focus-within")||siteHeader?.classList.contains("is-revealed")){
-    setHeaderHidden(false);
-  }else if(currentY<=60){
-    // At the top of the page (hero view), keep header hidden to preserve full unobstructed hero view
-    hoverRevealed=false;
-    setHeaderHidden(true);
-  }else if(delta>3){
-    lastScrollDirection="down";
-    hoverRevealed=false;
-    setHeaderHidden(true);
-  }else if(delta< -3){
-    lastScrollDirection="up";
-    hoverRevealed=false;
-    setHeaderHidden(false);
-  }
-  lastScrollY=currentY;
+  const root=document.documentElement,currentY=window.scrollY;
   const progress=Math.min(1,Math.max(0,currentY/Math.max(1,root.scrollHeight-window.innerHeight)));
   if(progressBar)progressBar.style.transform="scaleX("+progress+")";
   siteHeader?.classList.toggle("is-scrolled",currentY>28);
@@ -177,41 +148,14 @@ function updatePageChrome(){
   scrollTicking=false;
 }
 
-window.addEventListener("scroll",()=>{if(!scrollTicking){requestAnimationFrame(updatePageChrome);scrollTicking=true;}},{passive:true});
+window.addEventListener("scroll",()=>{
+  if(!scrollTicking){
+    requestAnimationFrame(updatePageChrome);
+    scrollTicking=true;
+  }
+},{passive:true});
 window.addEventListener("resize",updatePageChrome,{passive:true});
 window.addEventListener("orientationchange",()=>requestAnimationFrame(updatePageChrome),{passive:true});
-
-if(siteHeader){
-  siteHeader.classList.add("is-initial-hidden","is-auto-hidden");
-  window.addEventListener("pointermove",event=>{
-    if(!hoverPointer||event.pointerType==="touch")return;
-    // Only allow hover reveal when scrolled into page; at top of page hero remains unhindered
-    if(window.scrollY > 80 && event.clientY<=52){
-      hoverRevealed=true;
-      setHeaderHidden(false);
-      return;
-    }
-    if(hoverRevealed&&event.clientY>siteHeader.offsetHeight+20){
-      hoverRevealed=false;
-      if(lastScrollDirection==="down"&&window.scrollY>28)setHeaderHidden(true);
-    }
-  },{passive:true});
-  window.addEventListener("touchstart",event=>{
-    if(window.scrollY > 60 && event.touches?.[0]?.clientY<=52){
-      hoverRevealed=true;
-      setHeaderHidden(false);
-    }
-  },{passive:true});
-  siteHeader.addEventListener("focusin",()=>{
-    hoverRevealed=true;
-    setHeaderHidden(false);
-  });
-  menuButton?.addEventListener("pointerenter",()=>{
-    if(window.scrollY > 60){
-      setHeaderHidden(false);
-    }
-  });
-}
 updatePageChrome();
 backToTop?.addEventListener("click",()=>window.scrollTo({top:0,behavior:reducedMotion?"auto":"smooth"}));
 

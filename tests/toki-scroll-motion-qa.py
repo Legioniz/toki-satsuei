@@ -34,6 +34,7 @@ def main() -> None:
     motion = (ROOT / "motion-system.js").read_text(encoding="utf-8")
     global_css = (ROOT / "global-motion.css").read_text(encoding="utf-8")
     shared_motion_css = (ROOT / "motion-refinements.css").read_text(encoding="utf-8")
+    design_system_css = (ROOT / "design-system.css").read_text(encoding="utf-8")
     intro_css = (ROOT / "motion-system.css").read_text(encoding="utf-8")
     workflow = (ROOT / ".github/workflows/deploy.yml").read_text(encoding="utf-8")
     archive_script = (ROOT / "library.js").read_text(encoding="utf-8")
@@ -76,6 +77,9 @@ def main() -> None:
     for token in [".is-scene-active", "::view-transition-new(root)", "tokiPageEnter", "data-motion-tier"]:
         assert token in shared_motion_css, f"Shared motion refinements are missing {token}"
     assert "toki-scroll-motion-qa.py" in workflow, "Scroll motion browser QA is not part of CI."
+    assert "site-header:not(.is-initial-hidden):hover" not in design_system_css, (
+        "The masthead must not reveal itself from pointer hover while scroll logic intends to hide it."
+    )
     shared_asset_versions = set()
     for page_name in ["index.html", "booking.html", "library.html", "policies.html", "404.html", "admin.html", "client-gallery.html"]:
         page_source = (ROOT / page_name).read_text(encoding="utf-8")
@@ -97,6 +101,18 @@ def main() -> None:
         shared_asset_versions.add(css_version.group(1))
     assert len(shared_asset_versions) == 1, (
         "Page bundles and the shared motion controller must use one coordinated cache version."
+    )
+
+    for token in ["headerElements", "heroOwnsViewport", "HEADER_DIRECTION_THRESHOLD", "setHeaderVisible"]:
+        assert token in motion, f"Shared header controller is missing {token}"
+    for page_name in PAGES:
+        page_source = (ROOT / page_name).read_text(encoding="utf-8")
+        assert any(token in page_source for token in ('site-header', 'admin-header', 'client-header')), (
+            f"{page_name}: expected a masthead for shared scroll behavior"
+        )
+    home_source = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert 'class="home-page"' in home_source and "100dvh" in home_source, (
+        "Homepage must use a viewport-height hero without reserving header space."
     )
 
 
@@ -138,6 +154,80 @@ def main() -> None:
                 "Normal-motion scroll regression context unexpectedly has reduced motion enabled."
             )
             assert page.locator(".toki-scroll-scene").count() >= 10
+
+            # The homepage masthead remains hidden throughout the hero, even on rapid scroll jumps.
+            home_header = page.locator(".site-header")
+            hero = page.locator(".hero-opening")
+            assert home_header.evaluate("(node) => node.classList.contains('is-auto-hidden')"), (
+                "Homepage masthead must be hidden while the opening hero is visible."
+            )
+            hero_height = hero.evaluate("(node) => node.getBoundingClientRect().height")
+            page.evaluate("""height => {
+              const scroller = document.scrollingElement;
+              scroller.style.setProperty("scroll-behavior", "auto", "important");
+              scroller.scrollTop = Math.floor(height * 0.42);
+            }""", hero_height)
+            page.wait_for_timeout(100)
+            assert home_header.evaluate("(node) => node.classList.contains('is-auto-hidden')"), (
+                "Fast movement inside the hero must never reveal the masthead."
+            )
+            page.evaluate("height => { document.scrollingElement.scrollTop = Math.ceil(height + 80); }", hero_height)
+            page.wait_for_timeout(100)
+            assert home_header.evaluate("(node) => node.classList.contains('is-auto-hidden')"), (
+                "Masthead must stay hidden while moving down beyond the hero."
+            )
+            page.mouse.move(4, 4)
+            page.wait_for_timeout(80)
+            assert home_header.evaluate("(node) => node.classList.contains('is-auto-hidden')"), (
+                "Pointer hover near the viewport top must not override the hidden masthead state."
+            )
+            page.evaluate("() => { document.scrollingElement.scrollTop -= 12; }")
+            page.wait_for_timeout(100)
+            assert not home_header.evaluate("(node) => node.classList.contains('is-auto-hidden')"), (
+                "A small upward scroll after the hero must reveal the masthead."
+            )
+            page.evaluate("height => { document.scrollingElement.scrollTop = Math.max(0, Math.floor(height - 100)); }", hero_height)
+            page.wait_for_timeout(100)
+            assert home_header.evaluate("(node) => node.classList.contains('is-auto-hidden')"), (
+                "Masthead must hide again when the hero re-enters the viewport."
+            )
+            page.evaluate("() => { document.scrollingElement.scrollTop = 0; }")
+            page.wait_for_timeout(100)
+            assert home_header.evaluate("(node) => node.classList.contains('is-auto-hidden')"), (
+                "Homepage masthead must remain hidden at the fully restored hero."
+            )
+
+            # All interior views start visible, hide on downward travel, and return on upward travel.
+            interior_headers = {
+                "booking.html": ".site-header",
+                "library.html": ".site-header",
+                "policies.html": ".site-header",
+                "404.html": ".site-header",
+                "admin.html": ".admin-header",
+                "client-gallery.html": ".client-header",
+            }
+            for filename, selector in interior_headers.items():
+                header_page = context.new_page()
+                header_page.goto(base + "/" + filename, wait_until="domcontentloaded")
+                header = header_page.locator(selector)
+                assert header.count() == 1, f"{filename}: masthead missing"
+                assert not header.evaluate("(node) => node.classList.contains('is-auto-hidden')"), (
+                    f"{filename}: masthead should be visible at the top of an interior page."
+                )
+                max_scroll = header_page.evaluate("() => document.documentElement.scrollHeight - innerHeight")
+                if max_scroll > 100:
+                    down_target = min(240, max_scroll - 1)
+                    header_page.evaluate("target => { document.scrollingElement.style.setProperty('scroll-behavior','auto','important'); document.scrollingElement.scrollTop = target; }", down_target)
+                    header_page.wait_for_timeout(100)
+                    assert header.evaluate("(node) => node.classList.contains('is-auto-hidden')"), (
+                        f"{filename}: masthead should hide while scrolling down."
+                    )
+                    header_page.evaluate("() => { document.scrollingElement.scrollTop -= 12; }")
+                    header_page.wait_for_timeout(100)
+                    assert not header.evaluate("(node) => node.classList.contains('is-auto-hidden')"), (
+                        f"{filename}: a small upward scroll should reveal the masthead."
+                    )
+                header_page.close()
 
             # Chapter progress is updated after a real document scroll.
             work = page.locator(".work-section")

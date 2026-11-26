@@ -307,3 +307,44 @@ html[data-motion-tier="lite"] [data-reveal][data-motion="spring-card"].is-visibl
   }
   .booking-page .toki-pillar:last-child { border-bottom: 0 !important; }
 }
+
+
+/* Smart masthead: overlays the viewport, never reserves flow space, and obeys shared scroll intent. */
+.site-header, .admin-header, .client-header {
+  position: fixed !important;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 1000;
+  will-change: transform;
+  transition: transform 280ms cubic-bezier(.2,.7,.2,1), visibility 0s linear 0s;
+}
+.site-header.is-auto-hidden, .admin-header.is-auto-hidden, .client-header.is-auto-hidden {
+  transform: translate3d(0, calc(-100% - 6px), 0) !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transition: transform 280ms cubic-bezier(.2,.7,.2,1), visibility 0s linear 280ms;
+}
+.site-header.is-initial-hidden {
+  transition: none !important;
+  transform: translate3d(0, calc(-100% - 6px), 0) !important;
+  visibility: hidden !important;
+}
+.site-header:not(.is-auto-hidden), .admin-header:not(.is-auto-hidden), .client-header:not(.is-auto-hidden) {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Interior views retain title clearance; the home hero starts at the viewport edge. */
+body:not(.home-page):not(.admin-body):not(.client-body) #main-content {
+  padding-top: var(--toki-header-offset, 82px);
+}
+body.admin-body .admin-main {
+  padding-top: calc(var(--s-5) + 58px);
+}
+body.client-body .client-main {
+  padding-top: calc(var(--s-6) + 58px);
+}
+@media (max-width: 820px) {
+  :root { --toki-header-offset: 66px; }
+}
