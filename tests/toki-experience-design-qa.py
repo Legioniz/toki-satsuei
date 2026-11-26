@@ -245,6 +245,11 @@ def main() -> None:
               document.scrollingElement.scrollTop = 0;
             }""")
             booking_page.wait_for_function("window.scrollY <= 1")
+            # Let the scroll listener's queued animation-frame update finish before
+            # issuing the next direction, so consecutive scrolls cannot coalesce.
+            booking_page.evaluate(
+                "() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))"
+            )
             booking_page.evaluate("""() => {
               document.scrollingElement.scrollTop = Math.min(96,
                 document.documentElement.scrollHeight - window.innerHeight - 1);
