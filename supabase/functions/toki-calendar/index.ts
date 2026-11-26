@@ -98,6 +98,15 @@ function jsonResponse(
   });
 }
 
+function trustedClientAddress(request: Request): string {
+  // Supabase Edge Functions are fronted by Cloudflare. Trust only the
+  // Cloudflare-overwritten client IP; never accept caller-controlled XFF/X-Real-IP.
+  const candidate = request.headers.get("cf-connecting-ip")?.trim() ?? "";
+  return candidate.length >= 2 && candidate.length <= 64 && /^[0-9a-fA-F:.]+$/.test(candidate)
+    ? candidate
+    : "unavailable-client";
+}
+
 Deno.serve(async (request: Request) => {
   const origin = request.headers.get("origin");
 
@@ -123,14 +132,6 @@ Deno.serve(async (request: Request) => {
   }
 
   try {
-function trustedClientAddress(request: Request): string {
-  // Supabase Edge Functions are fronted by Cloudflare. Trust only the
-  // Cloudflare-overwritten client IP; never accept caller-controlled XFF/X-Real-IP.
-  const candidate = request.headers.get("cf-connecting-ip")?.trim() ?? "";
-  return candidate.length >= 2 && candidate.length <= 64 && /^[0-9a-fA-F:.]+$/.test(candidate)
-    ? candidate
-    : "unavailable-client";
-}
     const forwarded = trustedClientAddress(request);
     const bucketHash = await hmacHex(RATE_SECRET, forwarded);
     const allowed = await consumeCalendarQuota(bucketHash);

@@ -250,6 +250,15 @@ async function sendTokiBookingNotification(booking: Record<string, unknown>) {
   }
 }
 
+function trustedClientAddress(request: Request): string {
+  // Supabase Edge Functions are fronted by Cloudflare. Trust only the
+  // Cloudflare-overwritten client IP; never accept caller-controlled XFF/X-Real-IP.
+  const candidate = request.headers.get('cf-connecting-ip')?.trim() ?? '';
+  return candidate.length >= 2 && candidate.length <= 64 && /^[0-9a-fA-F:.]+$/.test(candidate)
+    ? candidate
+    : 'unavailable-client';
+}
+
 Deno.serve(async (request) => {
   const origin = request.headers.get('origin')
 
@@ -284,15 +293,6 @@ Deno.serve(async (request) => {
 
   // Honeypot: respond successfully without storing anything so simple bots do not learn the trap.
   if (typeof payload.website === 'string' && payload.website.trim()) return response({ ok: true }, 200, origin)
-
-  function trustedClientAddress(request: Request): string {
-  // Supabase Edge Functions are fronted by Cloudflare. Trust only the
-  // Cloudflare-overwritten client IP; never accept caller-controlled XFF/X-Real-IP.
-  const candidate = request.headers.get('cf-connecting-ip')?.trim() ?? '';
-  return candidate.length >= 2 && candidate.length <= 64 && /^[0-9a-fA-F:.]+$/.test(candidate)
-    ? candidate
-    : 'unavailable-client';
-}
   if (kind !== 'page_view') {
     const token = typeof payload.turnstileToken === 'string' ? payload.turnstileToken : ''
     const expectedAction = kind === 'inquiry'
