@@ -111,7 +111,7 @@ def main() -> None:
             f"{page_name}: expected a masthead for shared scroll behavior"
         )
     home_source = (ROOT / "index.html").read_text(encoding="utf-8")
-    assert 'class="home-page"' in home_source and "100dvh" in home_source, (
+    assert 'class="home-page"' in home_source and "100vh" in home_source, (
         "Homepage must use a viewport-height hero without reserving header space."
     )
 
