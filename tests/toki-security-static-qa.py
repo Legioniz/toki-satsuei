@@ -156,6 +156,12 @@ if "Content-Type must be application/json" not in booking_function:
     problems.append("Booking intake: strict JSON content-type enforcement is missing")
 if "const errorPayload = await result.json().catch(() => null)" not in booking_function:
     problems.append("Booking intake: database error response must be parsed without logging submitted values")
+if "console.error('Portfolio submission failed:', { requestId, errorType: error instanceof Error ? error.name : 'unknown' })" not in booking_function:
+    problems.append("Booking intake: outer error logging must not serialize exception details")
+if "consumeQuota(bucket, 'portfolio_turnstile_verify', 20)" not in booking_function:
+    problems.append("Booking intake: dedicated CAPTCHA verification abuse quota is missing")
+if "return null;" not in booking_function or "if (!forwarded)" not in booking_function:
+    problems.append("Booking intake: missing trusted client IP must fail closed")
 if "console.error('Insert failed', { table, status: result.status, databaseCode })" not in booking_function:
     problems.append("Booking intake: database logs must contain only table, HTTP status, and safe SQLSTATE")
 if "redirect: 'error'" not in booking_function:
@@ -221,6 +227,16 @@ else:
             problems.append(f"TOKI gallery quota migration: missing control: {marker}")
     if sql.index("INTO v_result") > sql.index("toki_gallery_global"):
         problems.append("TOKI gallery quota migration: global quota must be charged only after an active token lookup")
+
+
+private_rpc_migration = ROOT / "supabase" / "migrations" / "20261126030600_toki_gallery_private_execute_lockdown.sql"
+if not private_rpc_migration.exists():
+    problems.append("TOKI gallery private RPC migration: required file is missing")
+else:
+    sql = private_rpc_migration.read_text(encoding="utf-8")
+    for marker in ("SECURITY DEFINER", "FROM PUBLIC, anon, authenticated", "TO anon, authenticated"):
+        if marker not in sql:
+            problems.append(f"TOKI gallery private RPC migration: missing control: {marker}")
 
 if problems:
     print("FAIL TOKI static security audit:")

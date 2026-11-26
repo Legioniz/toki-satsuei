@@ -104,7 +104,7 @@ function trustedClientAddress(request: Request): string {
   const candidate = request.headers.get("cf-connecting-ip")?.trim() ?? "";
   return candidate.length >= 2 && candidate.length <= 64 && /^[0-9a-fA-F:.]+$/.test(candidate)
     ? candidate
-    : "unavailable-client";
+    : null;
 }
 
 Deno.serve(async (request: Request) => {
@@ -133,6 +133,9 @@ Deno.serve(async (request: Request) => {
 
   try {
     const forwarded = trustedClientAddress(request);
+    if (!forwarded) {
+      return jsonResponse({ ok: false, message: "Request protection is temporarily unavailable." }, 503, origin);
+    }
     const bucketHash = await hmacHex(RATE_SECRET, forwarded);
     const allowed = await consumeCalendarQuota(bucketHash);
     if (!allowed) {

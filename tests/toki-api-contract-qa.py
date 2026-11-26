@@ -21,6 +21,8 @@ for label, text in (("booking", booking), ("calendar", calendar)):
     assert "function trustedClientAddress(request: Request)" in text, f"{label}: trusted IP resolver missing"
     assert "cf-connecting-ip" in text, f"{label}: Cloudflare client IP header missing"
     assert "x-forwarded-for" not in text and "x-real-ip" not in text, f"{label}: untrusted proxy header accepted"
-assert booking.index("verifyTurnstile(token, expectedAction, secret, isTokiBooking)") < booking.index("const forwarded = trustedClientAddress(request)"), "booking quota must not be consumed before human verification"
+assert booking.index("consumeQuota(bucket, 'portfolio_turnstile_verify', 20)") < booking.index("verifyTurnstile(token, expectedAction, secret, isTokiBooking)"), "a dedicated verification quota must protect the CAPTCHA provider"
+assert booking.index("verifyTurnstile(token, expectedAction, secret, isTokiBooking)") < booking.index("consumeQuota(bucket, kind, limits[kind] ?? 4)"), "normal submission quota must be charged only after successful human verification"
+assert "return null;" in booking and "if (!forwarded)" in booking, "missing trusted client IP must fail closed rather than sharing one fallback quota bucket"
 
-print("PASS TOKI API security contract: trusted client IP, Turnstile-before-quota, quota, retry window, CORS, cache, and response hardening.")
+print("PASS TOKI API security contract: trusted client IP, pre-verification quota, post-verification submission quota, quota, retry window, CORS, cache, and response hardening.")

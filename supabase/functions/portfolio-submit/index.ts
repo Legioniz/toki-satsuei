@@ -256,7 +256,7 @@ function trustedClientAddress(request: Request): string {
   const candidate = request.headers.get('cf-connecting-ip')?.trim() ?? '';
   return candidate.length >= 2 && candidate.length <= 64 && /^[0-9a-fA-F:.]+$/.test(candidate)
     ? candidate
-    : 'unavailable-client';
+    : null;
 }
 
 Deno.serve(async (request) => {
@@ -269,7 +269,7 @@ Deno.serve(async (request) => {
   }
   if (request.method === 'OPTIONS') return response({ ok: true }, 204, origin)
   if (request.method !== 'POST') return response({ ok: false, message: 'Method not allowed.' }, 405, origin)
-  if (!SUPABASE_URL || !SERVICE_ROLE_KEY || !ALLOWED_ORIGIN || !RATE_SECRET) {
+  if (!SUPABASE_URL || !SERVICE_ROLE_KEY || !ALLOWED_ORIGIN || !ALLOWED_HOSTNAME || !RATE_SECRET) {
     return response({ ok: false, message: 'The portfolio submission service is not fully configured.' }, 503, origin)
   }
   if (!origin || origin !== ALLOWED_ORIGIN) return response({ ok: false, message: 'Origin not allowed.' }, 403, origin)
@@ -290,9 +290,29 @@ Deno.serve(async (request) => {
   } catch { return response({ ok: false, message: 'Invalid JSON body.' }, 400, origin) }
   const kind = String(payload.kind ?? '')
   if (!['inquiry', 'comment', 'page_view', 'toki_booking'].includes(kind)) return response({ ok: false, message: 'Unsupported submission type.' }, 400, origin)
+  if (kind === 'toki_booking' && !TOKI_TURNSTILE_SECRET) return response({ ok: false, message: 'Booking verification is temporarily unavailable.' }, 503, origin)
 
   // Honeypot: respond successfully without storing anything so simple bots do not learn the trap.
   if (typeof payload.website === 'string' && payload.website.trim()) return response({ ok: true }, 200, origin)
+  const forwarded = trustedClientAddress(request)
+  if (!forwarded) return response({ ok: false, message: 'Request protection is temporarily unavailable. Please retry shortly.' }, 503, origin)
+  // Only an HMAC digest reaches Postgres; the raw address is neither stored nor logged.
+  const bucket = await hmacHex(RATE_SECRET, forwarded)
+  const limits: Record<string, number> = { inquiry: 4, comment: 6, page_view: 60, toki_booking: 4 }
+
+  // A separate pre-verification ceiling protects Cloudflare Siteverify from
+  // floods without spending the normal booking/inquiry/comment allowance.
+  const turnstileRequired = kind === 'toki_booking' || Boolean(TURNSTILE_SECRET)
+  if (turnstileRequired && kind !== 'page_view') {
+    try {
+      const verificationAllowed = await consumeQuota(bucket, 'portfolio_turnstile_verify', 20)
+      if (!verificationAllowed) return response({ ok: false, message: 'Too many verification attempts. Please wait before retrying.' }, 429, origin, { 'Retry-After': '600' })
+    } catch (error) {
+      console.error('Verification quota check failed:', error instanceof Error ? error.name : 'unknown')
+      return response({ ok: false, message: 'Submission protection is temporarily unavailable.' }, 503, origin)
+    }
+  }
+
   if (kind !== 'page_view') {
     const token = typeof payload.turnstileToken === 'string' ? payload.turnstileToken : ''
     const expectedAction = kind === 'inquiry'
@@ -305,15 +325,12 @@ Deno.serve(async (request) => {
     if (!(await verifyTurnstile(token, expectedAction, secret, isTokiBooking))) return response({ ok: false, message: 'Human verification failed. Please retry the challenge.' }, 400, origin)
   }
 
-  const forwarded = trustedClientAddress(request)
-  // Only an HMAC digest reaches Postgres; the raw address is neither stored nor logged.
-  const bucket = await hmacHex(RATE_SECRET, forwarded)
-  const limits: Record<string, number> = { inquiry: 4, comment: 6, page_view: 60, toki_booking: 4 }
+  // Charge the normal per-operation quota only after successful human verification.
   try {
     const allowed = await consumeQuota(bucket, kind, limits[kind] ?? 4)
     if (!allowed) return response({ ok: false, message: 'Too many submissions from this network. Please try again later.' }, 429, origin, { 'Retry-After': '600' })
   } catch (error) {
-    console.error('Quota check failed:', error)
+    console.error('Quota check failed:', error instanceof Error ? error.name : 'unknown')
     return response({ ok: false, message: 'Submission protection is temporarily unavailable.' }, 503, origin)
   }
 
@@ -494,7 +511,7 @@ Deno.serve(async (request) => {
     return response({ ok: true }, 200, origin)
   } catch (error) {
     const requestId = crypto.randomUUID().slice(0, 8)
-    console.error('Portfolio submission failed:', { requestId, error })
+    console.error('Portfolio submission failed:', { requestId, errorType: error instanceof Error ? error.name : 'unknown' })
     const message = error instanceof PublicError ? error.message : 'Submission failed. Please try again in a moment.'
     return response({ ok: false, message, request_id: requestId }, 500, origin)
   }
