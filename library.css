@@ -22,6 +22,14 @@
 }
 
 /* Header: keep the shared chrome, mark the current page. */
+.archive-page .site-header {
+  z-index: 1100 !important;
+  isolation: isolate;
+}
+.archive-main {
+  position: relative;
+  z-index: 0;
+}
 .archive-page .primary-nav .is-current { color: #fff; }
 
 /* ---------- Page head ---------- */
