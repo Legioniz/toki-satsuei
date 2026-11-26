@@ -140,6 +140,15 @@ else:
         if marker not in sql:
             problems.append(f"TOKI gallery RPC isolation migration: missing control: {marker}")
 
+audit_migration = ROOT / "supabase" / "migrations" / "20261126011240_toki_admin_activity_append_only.sql"
+if not audit_migration.exists():
+    problems.append("TOKI audit immutability migration: required file is missing")
+else:
+    sql = audit_migration.read_text(encoding="utf-8")
+    for marker in ("FORCE ROW LEVEL SECURITY", "FROM PUBLIC, anon, authenticated, service_role", "admin_activity_append_only", "append-only"):
+        if marker not in sql:
+            problems.append(f"TOKI audit immutability migration: missing control: {marker}")
+
 booking_function = (ROOT / "supabase" / "functions" / "portfolio-submit" / "index.ts").read_text(encoding="utf-8")
 if "consumeQuota(contactBucket, 'toki_booking_contact', 2)" not in booking_function:
     problems.append("Booking intake: per-contact booking quota is missing")
