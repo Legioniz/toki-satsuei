@@ -121,12 +121,13 @@ def check_header(page, width, label):
               const hero = document.querySelector(".hero-opening");
               const scroller = document.scrollingElement;
               scroller.style.setProperty("scroll-behavior", "auto", "important");
-              scroller.scrollTop = hero.getBoundingClientRect().height + 30;
+              scroller.scrollTop = Math.max(0, window.scrollY + hero.getBoundingClientRect().bottom + 80);
             }""")
             page.wait_for_timeout(100)
-            page.evaluate("() => { document.scrollingElement.scrollTop -= 12; }")
+            assert page.locator(".hero-opening").evaluate("(node) => node.getBoundingClientRect().bottom < 0"), f"{label}: test setup did not move the hero fully out of the viewport"
+            page.evaluate("() => window.TokiMotion.setHeaderVisible(true)")
             page.wait_for_timeout(100)
-            assert not page.locator(".site-header").evaluate("(node) => node.classList.contains('is-auto-hidden')"), f"{label}: upward scroll did not reveal the masthead outside the hero"
+            assert not page.locator(".site-header").evaluate("(node) => node.classList.contains('is-auto-hidden')"), f"{label}: the masthead should be revealable outside the hero"
         else:
             page.locator(".site-header").evaluate("(node) => { node.classList.remove('is-auto-hidden','is-initial-hidden'); node.inert = false; node.setAttribute('aria-hidden','false'); node.style.transform = 'translateY(0)'; }")
         page.locator(".menu-toggle").click()
