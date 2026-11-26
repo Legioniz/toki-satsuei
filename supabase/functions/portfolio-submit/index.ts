@@ -46,7 +46,7 @@ function response(body: unknown, status: number, origin: string | null, extraHea
     headers: {
       ...jsonHeaders,
       'Access-Control-Allow-Origin': corsOrigin,
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-client-info',
       'Vary': 'Origin',
       ...extraHeaders,
@@ -285,18 +285,14 @@ Deno.serve(async (request) => {
   // Honeypot: respond successfully without storing anything so simple bots do not learn the trap.
   if (typeof payload.website === 'string' && payload.website.trim()) return response({ ok: true }, 200, origin)
 
-  const forwarded = request.headers.get('cf-connecting-ip') ?? request.headers.get('x-real-ip') ?? request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? `unavailable|${(request.headers.get('user-agent') ?? 'unknown').slice(0, 160)}`
-  // Only an HMAC digest reaches Postgres; the raw address is neither stored nor logged.
-  const bucket = await hmacHex(RATE_SECRET, forwarded)
-  const limits: Record<string, number> = { inquiry: 4, comment: 6, page_view: 60, toki_booking: 4 }
-  try {
-    const allowed = await consumeQuota(bucket, kind, limits[kind] ?? 4)
-    if (!allowed) return response({ ok: false, message: 'Too many submissions from this network. Please try again later.' }, 429, origin, { 'Retry-After': '600' })
-  } catch (error) {
-    console.error('Quota check failed:', error)
-    return response({ ok: false, message: 'Submission protection is temporarily unavailable.' }, 503, origin)
-  }
-
+  function trustedClientAddress(request: Request): string {
+  // Supabase Edge Functions are fronted by Cloudflare. Trust only the
+  // Cloudflare-overwritten client IP; never accept caller-controlled XFF/X-Real-IP.
+  const candidate = request.headers.get('cf-connecting-ip')?.trim() ?? '';
+  return candidate.length >= 2 && candidate.length <= 64 && /^[0-9a-fA-F:.]+$/.test(candidate)
+    ? candidate
+    : 'unavailable-client';
+}
   if (kind !== 'page_view') {
     const token = typeof payload.turnstileToken === 'string' ? payload.turnstileToken : ''
     const expectedAction = kind === 'inquiry'
@@ -307,6 +303,18 @@ Deno.serve(async (request) => {
     const isTokiBooking = kind === 'toki_booking'
     const secret = isTokiBooking ? TOKI_TURNSTILE_SECRET : TURNSTILE_SECRET
     if (!(await verifyTurnstile(token, expectedAction, secret, isTokiBooking))) return response({ ok: false, message: 'Human verification failed. Please retry the challenge.' }, 400, origin)
+  }
+
+  const forwarded = trustedClientAddress(request)
+  // Only an HMAC digest reaches Postgres; the raw address is neither stored nor logged.
+  const bucket = await hmacHex(RATE_SECRET, forwarded)
+  const limits: Record<string, number> = { inquiry: 4, comment: 6, page_view: 60, toki_booking: 4 }
+  try {
+    const allowed = await consumeQuota(bucket, kind, limits[kind] ?? 4)
+    if (!allowed) return response({ ok: false, message: 'Too many submissions from this network. Please try again later.' }, 429, origin, { 'Retry-After': '600' })
+  } catch (error) {
+    console.error('Quota check failed:', error)
+    return response({ ok: false, message: 'Submission protection is temporarily unavailable.' }, 503, origin)
   }
 
   try {

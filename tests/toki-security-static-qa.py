@@ -204,6 +204,19 @@ else:
     if "sb_secret_" in gitleaks_text or "generic-api-key" in gitleaks_text:
         problems.append(".gitleaks.toml: secret or generic API-key rules must not be allowlisted")
 
+
+
+quota_dos_migration = ROOT / "supabase" / "migrations" / "20261126030000_toki_gallery_quota_dos_hardening.sql"
+if not quota_dos_migration.exists():
+    problems.append("TOKI gallery quota migration: required file is missing")
+else:
+    sql = quota_dos_migration.read_text(encoding="utf-8")
+    for marker in ("v_result IS NULL", "v_booking_id IS NULL", "toki_gallery_token", "toki_gallery_global"):
+        if marker not in sql:
+            problems.append(f"TOKI gallery quota migration: missing control: {marker}")
+    if sql.index("INTO v_result") > sql.index("toki_gallery_global"):
+        problems.append("TOKI gallery quota migration: global quota must be charged only after an active token lookup")
+
 if problems:
     print("FAIL TOKI static security audit:")
     for problem in problems:

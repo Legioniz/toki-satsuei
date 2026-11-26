@@ -123,10 +123,15 @@ Deno.serve(async (request: Request) => {
   }
 
   try {
-    const forwarded = request.headers.get("cf-connecting-ip")
-      ?? request.headers.get("x-real-ip")
-      ?? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
-      ?? "unavailable|" + (request.headers.get("user-agent") ?? "unknown").slice(0, 160);
+function trustedClientAddress(request: Request): string {
+  // Supabase Edge Functions are fronted by Cloudflare. Trust only the
+  // Cloudflare-overwritten client IP; never accept caller-controlled XFF/X-Real-IP.
+  const candidate = request.headers.get("cf-connecting-ip")?.trim() ?? "";
+  return candidate.length >= 2 && candidate.length <= 64 && /^[0-9a-fA-F:.]+$/.test(candidate)
+    ? candidate
+    : "unavailable-client";
+}
+    const forwarded = trustedClientAddress(request);
     const bucketHash = await hmacHex(RATE_SECRET, forwarded);
     const allowed = await consumeCalendarQuota(bucketHash);
     if (!allowed) {
