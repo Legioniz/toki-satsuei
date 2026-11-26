@@ -653,6 +653,7 @@
   /* Unified masthead visibility: scroll-direction aware and locked while the homepage hero is visible. */
   const headerElements = Array.from(document.querySelectorAll(".site-header, .admin-header, .client-header"));
   const headerHero = document.querySelector(".hero-opening");
+  const headerNavigation = document.querySelector(".primary-nav");
   let headerPreviousY = Math.max(0, window.scrollY || 0);
   let headerDirection = 0;
   let headerDirectionDistance = 0;
@@ -668,7 +669,9 @@
   function setHeaderVisible(visible) {
     if (!headerElements.length) return false;
     const heroLock = heroOwnsViewport();
-    const shouldShow = Boolean(visible) && !heroLock;
+    const navigationOpen = Boolean(headerNavigation?.classList.contains("is-open"));
+    const focusWithinHeader = headerElements.some(header => header.matches(":focus-within"));
+    const shouldShow = (Boolean(visible) || navigationOpen || focusWithinHeader) && !heroLock;
     headerElements.forEach(header => {
       header.classList.toggle("is-auto-hidden", !shouldShow);
       if (heroLock && header.classList.contains("site-header")) header.classList.add("is-initial-hidden");
@@ -684,12 +687,13 @@
     const delta = currentY - headerPreviousY;
     const heroLock = heroOwnsViewport();
     const focusWithinHeader = headerElements.some(header => header.matches(":focus-within"));
+    const navigationOpen = Boolean(headerNavigation?.classList.contains("is-open"));
 
     if (heroLock) {
       headerDirection = 0;
       headerDirectionDistance = 0;
       setHeaderVisible(false);
-    } else if (focusWithinHeader || currentY <= 1) {
+    } else if (focusWithinHeader || navigationOpen || currentY <= 1) {
       headerDirection = 0;
       headerDirectionDistance = 0;
       setHeaderVisible(true);
