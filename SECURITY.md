@@ -74,13 +74,14 @@ Booking caps: 12 participants, 50 additional photos, 120 additional minutes in 1
 5. Quota checks fail closed. Never expose an RPC that lets anonymous callers allocate arbitrary quota buckets or alter limits.
 6. Network rate limits must use only the Cloudflare-overwritten `cf-connecting-ip` header. Never trust caller-supplied `X-Forwarded-For` or `X-Real-IP`; use a shared fail-closed bucket if the trusted header is unavailable.
 7. Client-gallery quota rows and the shared gallery quota must be charged only after an active, unexpired delivery token has been found. Random or expired tokens must not allocate quota rows or consume the shared quota.
-6. Delivery tokens remain cryptographically random; only hashes are persisted; expiry and revocation are checked on every use; global and per-token traffic are limited.
-7. SECURITY DEFINER functions require an empty or explicitly safe search_path, qualified object names, narrow EXECUTE grants, input validation, and authorization review.
-8. Schema changes are migration-tracked, scoped to TOKI-owned objects, and followed by Supabase advisors and live authorization tests.
-9. Do not change shared Supabase roles, global Auth settings, unrelated tables, or unrelated functions without impact review.
-10. Production deployment must pass the single repository workflow, including history/secret scans, dependency audit, static QA, browser QA, and live API boundary checks.
-11. Preserve Git history. Never force-push or rewrite history routinely. If a secret enters history, rotate it immediately; history rewriting is secondary and coordinated.
-12. Configure GitHub rulesets outside code: require PRs and successful verification, block force pushes and branch deletion, require conversation resolution, and restrict bypass. The connected GitHub integration cannot administer these settings.
+8. Delivery tokens remain cryptographically random; only hashes are persisted; expiry and revocation are checked on every use; global and per-token traffic are limited.
+9. SECURITY DEFINER functions require an empty or explicitly safe search_path, qualified object names, narrow EXECUTE grants, input validation, and authorization review.
+10. Schema changes are migration-tracked, scoped to TOKI-owned objects, and followed by Supabase advisors and live authorization tests.
+11. Do not change shared Supabase roles, global Auth settings, unrelated tables, or unrelated functions without impact review.
+12. Production deployment must pass the single repository workflow, including history/secret scans, dependency audit, static QA, browser QA, and live API boundary checks.
+13. Production deployment is restricted to `refs/heads/main`, including manually dispatched workflow runs. A successful verification run from another branch must never deploy the Pages production environment.
+14. Preserve Git history. Never force-push or rewrite history routinely. If a secret enters history, rotate it immediately; history rewriting is secondary and coordinated.
+15. Configure GitHub rulesets outside code: require PRs and successful verification, block force pushes and branch deletion, require conversation resolution, and restrict bypass. The connected GitHub integration cannot administer these settings.
 
 These rules reduce risk; they do not make a site invulnerable. GitHub Pages does not apply the repository _headers file as response headers. A header-capable host or trusted proxy is required for site-wide CSP/HSTS/frame policies.
 
