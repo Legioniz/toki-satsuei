@@ -217,10 +217,24 @@ def main() -> None:
                 max_scroll = header_page.evaluate("() => document.documentElement.scrollHeight - innerHeight")
                 if max_scroll > 100:
                     down_target = min(240, max_scroll - 1)
-                    header_page.evaluate("target => { document.scrollingElement.style.setProperty('scroll-behavior','auto','important'); document.scrollingElement.scrollTop = target; }", down_target)
-                    header_page.wait_for_timeout(100)
+                    previous_scroll = header_page.evaluate("window.scrollY")
+                    header_page.evaluate("""target => {
+                      const scroller = document.scrollingElement;
+                      scroller.style.setProperty("scroll-behavior", "auto", "important");
+                      scroller.scrollTop = target;
+                    }""", down_target)
+                    header_page.wait_for_function(
+                        "(previous) => window.scrollY > previous",
+                        arg=previous_scroll,
+                        timeout=1500,
+                    )
+                    header_page.wait_for_function("""(headerSelector) => {
+                      const node = document.querySelector(headerSelector);
+                      return node && node.classList.contains("is-auto-hidden") &&
+                        node.getAttribute("aria-hidden") === "true" && node.inert;
+                    }""", arg=selector, timeout=1500)
                     assert header.evaluate("(node) => node.classList.contains('is-auto-hidden')"), (
-                        f"{filename}: masthead should hide while scrolling down."
+                        f"{filename}: masthead should hide after downward scroll is processed."
                     )
                     previous_scroll = header_page.evaluate("window.scrollY")
                     header_page.evaluate("""() => {
