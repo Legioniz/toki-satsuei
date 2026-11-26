@@ -119,8 +119,19 @@ def main():
    }""")
    home.wait_for_timeout(120)
    assert home.locator(".hero-opening").evaluate("(node)=>node.getBoundingClientRect().bottom<0"), "Hero must clear the viewport before opening the mobile menu"
-   home.evaluate("() => window.TokiMotion.setHeaderVisible(true)")
-   home.wait_for_timeout(360)
+   # Reveal the masthead through a real upward scroll after the hero clears.
+   home.evaluate("""() => {
+     const scroller=document.scrollingElement;
+     scroller.scrollTop=Math.max(0,scroller.scrollTop-12);
+   }""")
+   home.wait_for_function("""() => {
+     const header=document.querySelector(".site-header");
+     const bounds=header?.getBoundingClientRect();
+     return header && bounds && bounds.top>=-1 && bounds.top<=1 &&
+       !header.classList.contains("is-auto-hidden") &&
+       header.getAttribute("aria-hidden")==="false" && !header.inert &&
+       !header.getAnimations().some(animation=>animation.playState==="running");
+   }""")
    header_box=home.locator(".site-header").bounding_box()
    assert header_box and -1<=header_box["y"]<=1, f"Header did not reveal after hero exit: {header_box}"
    menu=home.locator(".menu-toggle");menu.click()
