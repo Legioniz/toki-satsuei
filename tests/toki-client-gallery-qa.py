@@ -38,6 +38,8 @@ def main() -> None:
     assert "drive.google.com" not in client_script
     assert "deliveryLink" not in client_script
     assert "deliveryHref" not in client_script
+    assert "Selections recorded locally" not in client_script
+    assert "Your selections were not saved" in client_script
     assert 'toki-client.css' in client_html
     assert 'client-gallery.js' in client_html
 

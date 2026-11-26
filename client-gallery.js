@@ -173,7 +173,7 @@
         alert(data?.message || "Failed to save selections. Please try again.");
       }
     } catch {
-      alert("Selections recorded locally. Please confirm with the studio via chat.");
+      alert("Could not reach the studio server. Your selections were not saved. Check your connection and try again.");
     } finally {
       submitSelectionBtn.disabled = false;
       submitSelectionBtn.textContent = "Save Favorites ↗";
