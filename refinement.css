@@ -671,7 +671,7 @@
 }
 
 /* Keep the mobile navigation out of document flow until it is explicitly opened. */
-@media (max-width: 820px) {.site-header{ position: sticky; }.primary-nav{
+@media (max-width: 820px) {.site-header{ position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }.primary-nav{
     display: none;
     position: absolute;
     top: 100%;
