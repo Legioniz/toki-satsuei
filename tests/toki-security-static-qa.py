@@ -154,6 +154,12 @@ if "consumeQuota(contactBucket, 'toki_booking_contact', 2)" not in booking_funct
     problems.append("Booking intake: per-contact booking quota is missing")
 if "Content-Type must be application/json" not in booking_function:
     problems.append("Booking intake: strict JSON content-type enforcement is missing")
+if "const errorPayload = await result.json().catch(() => null)" not in booking_function:
+    problems.append("Booking intake: database error response must be parsed without logging submitted values")
+if "console.error('Insert failed', { table, status: result.status, databaseCode })" not in booking_function:
+    problems.append("Booking intake: database logs must contain only table, HTTP status, and safe SQLSTATE")
+if "redirect: 'error'" not in booking_function:
+    problems.append("Booking notification: webhook redirects must be rejected to protect its API key")
 
 admin_source = (ROOT / "admin.js").read_text(encoding="utf-8")
 if "delivery_token:" in admin_source or "b.delivery_token ||" in admin_source:

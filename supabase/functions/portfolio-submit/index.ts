@@ -200,8 +200,13 @@ async function insertRecord(table: string, record: Record<string, unknown>, retu
     body: JSON.stringify(record),
   })
   if (!result.ok) {
-    const detail = await result.text()
-    console.error(`Insert failed for ${table}:`, detail.slice(0, 500))
+    // PostgREST error bodies can contain submitted values. Log only the stable
+    // SQLSTATE-style code and HTTP status; never log the body or booking record.
+    const errorPayload = await result.json().catch(() => null) as { code?: unknown } | null
+    const databaseCode = typeof errorPayload?.code === 'string' && /^[A-Z0-9]{5}$/.test(errorPayload.code)
+      ? errorPayload.code
+      : 'unknown'
+    console.error('Insert failed', { table, status: result.status, databaseCode })
     throw new PublicError('The request could not be saved. Please retry or use the official contact channel listed on the website.')
   }
   return returning ? await result.json() as Array<Record<string, unknown>> : null
@@ -226,6 +231,8 @@ async function sendTokiBookingNotification(booking: Record<string, unknown>) {
         ...(TOKI_EMAIL_WEBHOOK_API_KEY ? { 'x-make-apikey': TOKI_EMAIL_WEBHOOK_API_KEY } : {}),
       },
       body: JSON.stringify({ kind: 'toki_booking_notification', booking }),
+      // Do not forward the custom webhook API key through an HTTP redirect.
+      redirect: 'error',
       signal: controller.signal,
     })
     // Make's default Custom Webhook response is HTTP 200 with plain-text "Accepted".

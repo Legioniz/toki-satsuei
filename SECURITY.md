@@ -96,3 +96,8 @@ Supabase Auth's leaked-password protection is currently disabled. Enable it in S
 No GitHub branch ruleset is currently configured. The GitHub integration used here can inspect rulesets but cannot create or edit them. Apply the repository ruleset described in `.github/SECURITY-RULESET.md` from GitHub Settings → Rules → Rulesets.
 
 The site remains hosted on GitHub Pages. Its `_headers` file is not enforced there; CSP, HSTS, frame restrictions, and WAF-level traffic controls still require a header-capable host or a trusted proxy.
+
+
+## Sensitive-data-safe operational logging
+
+The booking Edge Function must never write a PostgREST error response body or submitted booking record to logs. Database failures may log only the internal table name, HTTP status, and a validated five-character database error code. The Make notification request rejects redirects so its custom API-key header cannot be forwarded to a redirect destination. Do not add request-body, token, contact, or credential logging to diagnose production issues.
