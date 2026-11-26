@@ -171,7 +171,20 @@ def main():
    assert not album_dialog.evaluate("(el)=>el.open")
    assert card.evaluate("(el)=>el===document.activeElement"),"Album dialog did not restore focus to its launch card"
    archive.set_viewport_size({"width":390,"height":844})
-   archive.locator(".site-header").evaluate("(node) => { node.classList.remove('is-auto-hidden','is-initial-hidden'); node.style.transform = 'translateY(0)'; }")
+   # Restore the real shared header state instead of stripping only its CSS classes.
+   # The production visibility helper also synchronizes aria-hidden and inert; leaving
+   # those behind makes a visually revealed header remain non-interactive to the browser.
+   archive.evaluate("""() => {
+       const header = document.querySelector(".site-header");
+       if (!window.TokiMotion?.setHeaderVisible) throw new Error("Shared header visibility helper is unavailable");
+       if (!window.TokiMotion.setHeaderVisible(true)) throw new Error("Archive header could not enter its visible state");
+   }""")
+   archive.wait_for_function("""() => {
+       const header = document.querySelector(".site-header");
+       return header && !header.classList.contains("is-auto-hidden") &&
+           !header.classList.contains("is-initial-hidden") &&
+           header.getAttribute("aria-hidden") === "false" && !header.inert;
+   }""")
    archive.wait_for_timeout(400)
    menu_hit=archive.locator(".menu-toggle").evaluate("""button => {
        const rect=button.getBoundingClientRect();
