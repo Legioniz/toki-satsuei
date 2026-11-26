@@ -96,7 +96,9 @@ def main() -> None:
         code, _, response_body = request(REST + "/rpc/toki_get_client_gallery", "POST", ALLOWED_ORIGIN, {"p_token": test_gallery_token})
         assert code == 200, f"Gallery RPC returned unexpected HTTP status {code}"
         gallery_attempts.append(decode(response_body))
-    assert gallery_attempts[-1].get("code") == "rate_limited", "Gallery access-key attempt limit did not trigger"
+    assert all(item.get("ok") is False and item.get("code") != "rate_limited" for item in gallery_attempts), (
+        "Unknown random gallery keys must not consume the shared or per-token quota"
+    )
 
     # Anonymous callers must not read the private booking table or inbox.
     for resource in ("toki_booking_requests", "toki_booking_inbox"):
