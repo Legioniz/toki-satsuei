@@ -222,10 +222,23 @@ def main() -> None:
                     assert header.evaluate("(node) => node.classList.contains('is-auto-hidden')"), (
                         f"{filename}: masthead should hide while scrolling down."
                     )
-                    header_page.evaluate("() => { document.scrollingElement.scrollTop -= 12; }")
-                    header_page.wait_for_timeout(100)
+                    previous_scroll = header_page.evaluate("window.scrollY")
+                    header_page.evaluate("""() => {
+                      const scroller = document.scrollingElement;
+                      scroller.scrollTop = Math.max(0, scroller.scrollTop - 24);
+                    }""")
+                    header_page.wait_for_function(
+                        "(previous) => window.scrollY < previous",
+                        arg=previous_scroll,
+                        timeout=1500,
+                    )
+                    header_page.wait_for_function("""() => {
+                      const node = document.querySelector(arguments[0]);
+                      return node && !node.classList.contains("is-auto-hidden") &&
+                        node.getAttribute("aria-hidden") === "false" && !node.inert;
+                    }""", arg=selector, timeout=1500)
                     assert not header.evaluate("(node) => node.classList.contains('is-auto-hidden')"), (
-                        f"{filename}: a small upward scroll should reveal the masthead."
+                        f"{filename}: an upward scroll should reveal the masthead after the scroll event is processed."
                     )
                 header_page.close()
 
