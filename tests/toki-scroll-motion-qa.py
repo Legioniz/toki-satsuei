@@ -232,8 +232,8 @@ def main() -> None:
                         arg=previous_scroll,
                         timeout=1500,
                     )
-                    header_page.wait_for_function("""() => {
-                      const node = document.querySelector(arguments[0]);
+                    header_page.wait_for_function("""(headerSelector) => {
+                      const node = document.querySelector(headerSelector);
                       return node && !node.classList.contains("is-auto-hidden") &&
                         node.getAttribute("aria-hidden") === "false" && !node.inert;
                     }""", arg=selector, timeout=1500)
