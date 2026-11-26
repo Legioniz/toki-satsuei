@@ -197,7 +197,7 @@ jobs:
 
   deploy:
     needs: [freshness, verify-and-package]
-    if: github.event_name != 'pull_request' && needs.freshness.outputs.is_current == 'true'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.freshness.outputs.is_current == 'true'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

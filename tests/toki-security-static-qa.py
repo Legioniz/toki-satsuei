@@ -184,6 +184,9 @@ else:
         if marker not in workflow_text:
             problems.append(f"deploy workflow: missing {label}")
 
+    if "if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.freshness.outputs.is_current == 'true'" not in workflow_text:
+        problems.append("deploy workflow: production deployment must be restricted to refs/heads/main")
+
 dependabot = ROOT / ".github" / "dependabot.yml"
 if not dependabot.exists():
     problems.append(".github/dependabot.yml: dependency update configuration is missing")
