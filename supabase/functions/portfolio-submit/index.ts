@@ -250,13 +250,12 @@ async function sendTokiBookingNotification(booking: Record<string, unknown>) {
   }
 }
 
-function trustedClientAddress(request: Request): string {
+function trustedClientAddress(request: Request): string | null {
   // Supabase Edge Functions are fronted by Cloudflare. Trust only the
   // Cloudflare-overwritten client IP; never accept caller-controlled XFF/X-Real-IP.
   const candidate = request.headers.get('cf-connecting-ip')?.trim() ?? '';
-  return candidate.length >= 2 && candidate.length <= 64 && /^[0-9a-fA-F:.]+$/.test(candidate)
-    ? candidate
-    : null;
+  if (candidate.length >= 2 && candidate.length <= 64 && /^[0-9a-fA-F:.]+$/.test(candidate)) return candidate;
+  return null;
 }
 
 Deno.serve(async (request) => {

@@ -160,6 +160,8 @@ if "console.error('Portfolio submission failed:', { requestId, errorType: error 
     problems.append("Booking intake: outer error logging must not serialize exception details")
 if "consumeQuota(bucket, 'portfolio_turnstile_verify', 20)" not in booking_function:
     problems.append("Booking intake: dedicated CAPTCHA verification abuse quota is missing")
+if "function trustedClientAddress(request: Request): string | null" not in booking_function:
+    problems.append("Booking intake: trusted client IP helper must expose its nullable return type")
 if "return null;" not in booking_function or "if (!forwarded)" not in booking_function:
     problems.append("Booking intake: missing trusted client IP must fail closed")
 if "console.error('Insert failed', { table, status: result.status, databaseCode })" not in booking_function:
