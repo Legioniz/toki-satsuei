@@ -30,9 +30,9 @@ def main():
    home=context.new_page();errors=[]
    home.on("pageerror",lambda error:errors.append(str(error)))
    home.goto(base+"/index.html",wait_until="domcontentloaded")
-   home.wait_for_selector(".site-header",state="attached");home.wait_for_timeout(220)
-   assert home.locator(".site-header").evaluate("(node)=>node.classList.contains('is-auto-hidden') && node.inert"), "Homepage masthead must remain hidden and inert while the hero is in view"
+   home.wait_for_selector(".site-header",state="attached")
    home.wait_for_function("document.documentElement.classList.contains('motion-system-ready') && window.TokiMotion && document.querySelector('.gallery-card.motion-item')")
+   assert home.locator(".site-header").evaluate("(node)=>node.classList.contains('is-auto-hidden') && node.inert"), "Homepage masthead must remain hidden and inert while the hero is in view"
    assert home.evaluate("typeof window.TokiMotion.closeDialog === 'function' && typeof window.TokiMotion.setMenuOpen === 'function'"), "Shared menu/dialog transition helpers are missing"
    assert home.locator(".motion-item").count() >= 10, "Shared motion system did not prepare enough homepage content"
    gallery_transition=home.locator(".gallery-card").first.evaluate("(el)=>getComputedStyle(el).transitionDuration")
