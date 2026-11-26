@@ -248,8 +248,27 @@ def main() -> None:
                 header.getAttribute("aria-hidden") === "false" && !header.inert &&
                 !header.getAnimations().some(animation => animation.playState === "running");
             }""")
-            booking_page.locator(".menu-toggle").click()
-            assert booking_page.locator(".menu-toggle").get_attribute("aria-expanded") == "true"
+            menu_toggle = booking_page.locator(".menu-toggle")
+            menu_box = menu_toggle.bounding_box()
+            assert menu_box and menu_toggle.is_visible() and menu_toggle.is_enabled(), (
+                "Booking navigation toggle must be visible and enabled before pointer interaction."
+            )
+            menu_hit = menu_toggle.evaluate("""button => {
+              const rect = button.getBoundingClientRect();
+              const target = document.elementFromPoint(
+                rect.left + rect.width / 2,
+                rect.top + rect.height / 2
+              );
+              return {accepted: target === button || button.contains(target), target: target?.className || target?.tagName};
+            }""")
+            assert menu_hit["accepted"], f"Booking navigation toggle is occluded by {menu_hit['target']}"
+            # Use viewport coordinates after the explicit hit-test. Locator.click()
+            # may auto-scroll a fixed header button and race the scroll-hide controller.
+            booking_page.mouse.click(
+                menu_box["x"] + menu_box["width"] / 2,
+                menu_box["y"] + menu_box["height"] / 2,
+            )
+            assert menu_toggle.get_attribute("aria-expanded") == "true"
             assert booking_page.locator(".primary-nav").is_visible()
             booking_page.keyboard.press("Escape")
             assert booking_page.locator(".menu-toggle").get_attribute("aria-expanded") == "false"
