@@ -27,7 +27,7 @@ MOCK_BOOKINGS = [
         "location": "Quezon Memorial Circle",
         "participants": 2,
         "notes": "Duo character shoot",
-        "status": "under_review",
+        "status": "reviewing",
         "confirmed_date": None,
         "confirmed_start_time": None,
         "confirmed_end_time": None,
@@ -36,7 +36,8 @@ MOCK_BOOKINGS = [
         "reservation_fee_paid": False,
         "balance_paid": False,
         "delivery_folder_url": None,
-        "delivery_token": "token-alex-123",
+        "delivery_status": "pending",
+        "delivery_token_hash": None,
         "admin_notes": "Needs lighting check",
         "created_at": "2026-11-20T10:00:00Z",
     },
@@ -62,7 +63,8 @@ MOCK_BOOKINGS = [
         "reservation_fee_paid": True,
         "balance_paid": False,
         "delivery_folder_url": None,
-        "delivery_token": "token-rhea-456",
+        "delivery_status": "pending",
+        "delivery_token_hash": None,
         "admin_notes": "Deposit verified via GCash",
         "created_at": "2026-11-21T11:00:00Z",
     },
@@ -107,10 +109,13 @@ def main() -> None:
                 "access_token": "test-mock-jwt-token",
                 "expires_at": 9999999999,
                 "user": {"email": "owner@tokisatsuei.com"},
+                "refresh_token": "legacy-refresh-token-must-not-persist",
             })
             context.add_init_script(f"""
                 sessionStorage.setItem("toki_admin_session", JSON.stringify({session_data}));
             """)
+
+            captured_updates = []
 
             # Route Supabase REST requests
             def mock_supabase(route):
@@ -118,8 +123,15 @@ def main() -> None:
                 if "auth/v1/token" in req.url:
                     route.fulfill(status=200, content_type="application/json", body=session_data)
                     return
+                if "auth/v1/logout" in req.url:
+                    route.fulfill(status=204, body="")
+                    return
                 if "toki_booking_requests" in req.url:
-                    route.fulfill(status=200, content_type="application/json", body=json.dumps(MOCK_BOOKINGS))
+                    if req.method == "PATCH":
+                        captured_updates.append(req.post_data_json)
+                        route.fulfill(status=204, body="")
+                    else:
+                        route.fulfill(status=200, content_type="application/json", body=json.dumps(MOCK_BOOKINGS))
                     return
                 route.continue_()
 
@@ -134,6 +146,8 @@ def main() -> None:
 
             # Check that user email is displayed in header
             assert "owner@tokisatsuei.com" in page.locator("#admin-user-email").inner_text()
+            stored_session = page.evaluate("sessionStorage.getItem('toki_admin_session')")
+            assert "refresh_token" not in stored_session, "Admin refresh token was persisted in sessionStorage"
 
             # Wait for table rows to render
             page.locator("tr[data-id]").first.wait_for(state="visible", timeout=7000)
@@ -167,7 +181,7 @@ def main() -> None:
             dialog = page.locator("#admin-detail-modal")
             assert dialog.is_visible()
             assert "Alex Cosplayer" in page.locator("#modal-client-name").inner_text()
-            assert page.locator("#modal-status-select").input_value() == "under_review"
+            assert page.locator("#modal-status-select").input_value() == "reviewing"
 
             # Test token generator
             page.locator("#modal-gen-token-btn").click()
@@ -175,8 +189,20 @@ def main() -> None:
             assert token_val.startswith("toki-") and len(token_val) == 69
             assert all(character in "0123456789abcdef" for character in token_val[5:]), "Delivery token must use 256 bits from Web Crypto"
 
-            # Close modal
-            page.locator("#modal-close-btn").click()
+            # Save the delivery key. Only its SHA-256 hash may be sent to Supabase.
+            page.locator("#modal-delivery-url").fill("https://drive.google.com/drive/folders/private-test")
+            page.locator("#modal-save-btn").click()
+            page.wait_for_function("document.querySelector('#admin-detail-modal').hidden")
+            assert captured_updates, "Admin booking update was not sent"
+            update_payload = captured_updates[-1]
+            assert "delivery_token_hash" in update_payload
+            assert "delivery_token" not in update_payload
+            assert update_payload["delivery_token_hash"] != token_val
+            assert len(update_payload["delivery_token_hash"]) == 64
+            assert all(character in "0123456789abcdef" for character in update_payload["delivery_token_hash"])
+            assert update_payload["delivery_status"] == "ready"
+            assert "delivery_expires_at" in update_payload
+            assert page.locator("#modal-delivery-token").input_value() == ""
             assert not dialog.is_visible()
 
             # Test sign out
