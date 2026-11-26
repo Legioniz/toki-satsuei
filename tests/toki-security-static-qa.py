@@ -229,7 +229,7 @@ else:
         problems.append("TOKI gallery quota migration: global quota must be charged only after an active token lookup")
 
 
-private_rpc_migration = ROOT / "supabase" / "migrations" / "20261126030600_toki_gallery_private_execute_lockdown.sql"
+private_rpc_migration = ROOT / "supabase" / "migrations" / "20261126032900_toki_gallery_private_execute_lockdown.sql"
 if not private_rpc_migration.exists():
     problems.append("TOKI gallery private RPC migration: required file is missing")
 else:
