@@ -31,6 +31,8 @@ The workflow publishes to [https://toki-satsuei.pages.dev/](https://toki-satsuei
 
 The previous `github.io/toki-satsuei` address is a legacy copy; this workflow no longer deploys to GitHub Pages. Keep it only as a temporary fallback until the Cloudflare Pages site is verified and the public links have been updated.
 
+Cloudflare Workers Builds remains enabled for main-branch production Worker builds. Its optional pull-request preview builds are disabled because this repository’s production website is packaged and deployed through the Cloudflare Pages workflow above; the Worker preview command requires a separate Wrangler `previews` configuration that this static Pages repository does not use. This does not disable production Worker builds or Cloudflare Pages deployments.
+
 ## HTTP security headers and cache integrity
 
 The build injects one consistent CSP meta fallback into all seven deployed HTML pages. It then fingerprints local CSS, JavaScript, JSON, fonts, images, and media URLs with a 32-hex-character SHA-256 prefix (128-bit cache key). Any content change automatically changes the asset URL; the build verifies every local reference before deployment.
