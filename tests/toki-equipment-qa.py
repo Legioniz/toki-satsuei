@@ -42,7 +42,7 @@ def main() -> None:
 
             camera_tab = root.locator('[data-equipment-component="camera"]')
             lens_tab = root.locator('[data-equipment-component="lens"]')
-            assert camera_tab.get_attribute("aria-pressed") == "true"
+            assert camera_tab.get_attribute("aria-selected") == "true"
             lens_tab.click()
             assert lens_tab.get_attribute("aria-pressed") == "true"
             assert root.locator('[data-spec-panel="lens"]').is_visible(), "Lens details did not become visible"
