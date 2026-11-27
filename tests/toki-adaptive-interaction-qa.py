@@ -178,7 +178,7 @@ def main():
    assert menu.get_attribute("aria-expanded")=="false"
    home.wait_for_function("!document.querySelector('.primary-nav').classList.contains('is-open')")
    # A short phone viewport must keep the complete menu reachable through its own scroll region.
-   home.set_viewport_size({"width":390,"height":360})
+   home.set_viewport_size({"width":390,"height":320})
    menu.click()
    home.wait_for_function("document.querySelector('.primary-nav')?.classList.contains('is-open')")
    home.wait_for_function("""() => {
