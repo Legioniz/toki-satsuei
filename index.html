@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./toki-home.css?v=20261127-v16-header-top-reveal">
+  <link rel="stylesheet" href="./toki-home.css?v=20261127-v17-equipment-field-study">
   <link rel="icon" href="https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/30515ce50_Toki_Satsuei_Brushstroke_Emblem.png" type="image/png">
   <link rel="preload" as="image" href="https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/3db8c3355_242599.jpg">
   <style id="homepage-hero-critical-styles">
@@ -63,8 +63,9 @@
     .contact-panel--standalone .button-red{min-height:52px}
     @media(max-width:680px){.contact-panel--standalone{gap:24px}.contact-panel--standalone .contact-copy h2{font-size:clamp(48px,13vw,62px)}}
   </style>
-  <script src="./motion-system.js?v=20261127-v16-header-top-reveal" defer></script>
+  <script src="./motion-system.js?v=20261127-v17-equipment-field-study" defer></script>
   <script src="./site.js?v=20261127-v3-smart-header" defer></script>
+  <script src="./equipment.js?v=20261127-v1-equipment-visualizer" defer></script>
   <script src="./availability.js?v=20261126-v15-interaction-fixes" defer></script>
 </head>
 <body class="home-page">
@@ -83,6 +84,7 @@
       <a href="#sessions">Sessions</a>
       <a href="#availability">Availability</a>
       <a href="#about">About</a>
+      <a href="#equipment">Equipment</a>
       <a href="#faq">FAQs</a>
       <a class="nav-contact" href="./booking.html">Book a session <span>↗</span></a>
     </nav>
@@ -394,6 +396,175 @@
           <p>TOKI SATSUEI is a small photography team based in Quezon City. We are still learning and building our public portfolio, so the current gallery shows practice and detail studies rather than a finished client collection.</p>
           <p>We keep sessions relaxed, use the light available to us, and focus on the details that make each photograph feel personal. Client photographs are added to the public archive only with permission.</p>
           <div class="about-signature"><span class="signature-mark">時</span><span><strong>TOKI SATSUEI</strong><small>時の記憶 — Memories of Time</small></span></div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="equipment-section" id="equipment" aria-labelledby="equipment-title" data-reveal="up">
+      <div class="section-wrap">
+        <div class="section-heading" data-reveal="up">
+          <div>
+            <p class="eyebrow">The field kit / 001</p>
+            <h2 id="equipment-title">The tools<br>behind <em>the frame.</em></h2>
+          </div>
+          <p class="section-aside">A closer look at the camera and lens we currently use. Explore an interactive model, inspect the front, rear and side views, and review the specifications that shape our on-location work.</p>
+        </div>
+
+        <div class="equipment-composition" data-equipment-root data-equipment-focus="camera">
+          <div class="equipment-viewer-panel" data-reveal="left">
+            <div class="equipment-viewer-top">
+              <span>FIELD OBJECT / EOS 3000D</span>
+              <span class="equipment-viewer-status" data-equipment-status aria-live="polite">3D INTERACTIVE VIEW</span>
+            </div>
+
+            <div class="equipment-selector" role="group" aria-label="Select equipment component">
+              <button type="button" data-equipment-component="camera" aria-pressed="true">CAMERA BODY</button>
+              <button type="button" data-equipment-component="lens" aria-pressed="false">18–55MM LENS</button>
+            </div>
+
+            <div class="equipment-stage" data-equipment-stage data-view="3d">
+              <div class="equipment-stage-glow" aria-hidden="true"></div>
+              <div class="equipment-model-3d" data-camera-model tabindex="0" role="group" aria-label="Interactive three-dimensional study of the Canon EOS 3000D camera with an 18 to 55 millimetre lens. Use arrow keys to rotate and Home to reset.">
+                <div class="equipment-camera" data-camera-object data-focus="camera" aria-hidden="true">
+                  <div class="camera-chassis">
+                    <div class="camera-face camera-face-front"></div>
+                    <div class="camera-face camera-face-back">
+                      <div class="camera-face-screen"></div>
+                      <div class="camera-controls"><i></i><i></i><i></i><i></i></div>
+                    </div>
+                    <div class="camera-face camera-face-left"></div>
+                    <div class="camera-face camera-face-right"></div>
+                    <div class="camera-face camera-face-top"></div>
+                    <div class="camera-face camera-face-bottom"></div>
+                    <div class="camera-prism"></div>
+                    <div class="camera-hotshoe"></div>
+                    <div class="camera-grip"></div>
+                    <div class="camera-lens">
+                      <span class="camera-lens-glint"></span>
+                      <span class="camera-lens-mark">EF-S 18–55mm</span>
+                    </div>
+                    <span class="camera-body-mark">CANON</span>
+                    <span class="camera-body-model">EOS 3000D</span>
+                    <span class="camera-shutter"></span>
+                    <span class="camera-dial"></span>
+                    <span class="camera-focus-dot"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="equipment-blueprint" data-equipment-blueprint data-focus="camera" data-view="front" hidden>
+                <svg viewBox="0 0 760 390" role="img" aria-label="Switchable front, rear and side two-dimensional camera schematics" focusable="false">
+                  <defs>
+                    <pattern id="equipment-grid" width="24" height="24" patternUnits="userSpaceOnUse">
+                      <path d="M24 0H0V24" class="blueprint-grid"/>
+                    </pattern>
+                  </defs>
+                  <rect x="0" y="0" width="760" height="390" fill="url(#equipment-grid)"/>
+                  <g data-blueprint-panel="front">
+                    <text x="24" y="29" class="blueprint-label">FRONT ELEVATION / 01</text>
+                    <rect x="180" y="91" width="400" height="218" rx="22" class="blueprint-outline"/>
+                    <path d="M303 91 L327 56 H438 L462 91" class="blueprint-detail"/>
+                    <rect x="344" y="62" width="77" height="24" rx="4" class="blueprint-detail"/>
+                    <rect x="525" y="119" width="40" height="160" rx="8" class="blueprint-detail"/>
+                    <circle cx="380" cy="203" r="83" class="blueprint-lens"/>
+                    <circle cx="380" cy="203" r="65" class="blueprint-detail"/>
+                    <circle cx="380" cy="203" r="48" class="blueprint-lens"/>
+                    <circle cx="380" cy="203" r="28" fill="#080c0e" stroke="#b9c1c0" stroke-width="1.5"/>
+                    <path d="M180 330H580M180 322V338M580 322V338" class="blueprint-dimension"/>
+                    <text x="380" y="354" text-anchor="middle" class="blueprint-note">APPROX. BODY WIDTH 129 mm</text>
+                    <text x="24" y="374" class="blueprint-note">ILLUSTRATIVE OUTLINE / NOT TO SCALE</text>
+                  </g>
+                  <g data-blueprint-panel="rear" hidden>
+                    <text x="24" y="29" class="blueprint-label">REAR ELEVATION / 02</text>
+                    <rect x="180" y="91" width="400" height="218" rx="22" class="blueprint-outline"/>
+                    <rect x="218" y="125" width="234" height="146" rx="8" class="blueprint-detail"/>
+                    <rect x="230" y="137" width="210" height="122" rx="2" fill="#111b20" stroke="#a9a398" stroke-width="1.5"/>
+                    <path d="M246 153H424M246 243H424" stroke="#77827e" stroke-width="1" stroke-dasharray="4 5" opacity=".65"/>
+                    <circle cx="505" cy="151" r="13" class="blueprint-detail"/>
+                    <circle cx="505" cy="197" r="13" class="blueprint-detail"/>
+                    <circle cx="505" cy="243" r="13" class="blueprint-detail"/>
+                    <rect x="470" y="267" width="76" height="20" rx="5" class="blueprint-detail"/>
+                    <text x="24" y="374" class="blueprint-note">REAR CONTROLS / DISPLAY PLACEMENT IS SCHEMATIC</text>
+                  </g>
+                  <g data-blueprint-panel="side" hidden>
+                    <text x="24" y="29" class="blueprint-label">SIDE PROFILE / 03</text>
+                    <path d="M230 100 Q220 100 220 116 V286 Q220 302 236 302 H450 Q466 302 466 286 V116 Q466 100 450 100Z" class="blueprint-outline"/>
+                    <path d="M248 100V68H408V100" class="blueprint-detail"/>
+                    <path d="M466 139H515V267H466" class="blueprint-detail"/>
+                    <rect x="515" y="155" width="91" height="96" rx="9" class="blueprint-detail"/>
+                    <path d="M606 166H633V240H606" fill="#171817" stroke="#e8828d" stroke-width="2"/>
+                    <path d="M220 330H633M220 322V338M633 322V338" class="blueprint-dimension"/>
+                    <text x="426" y="354" text-anchor="middle" class="blueprint-note">BODY + LENS PROFILE / NOT TO SCALE</text>
+                    <text x="24" y="374" class="blueprint-note">LENS EXTENSION VARIES WITH ZOOM POSITION</text>
+                  </g>
+                </svg>
+              </div>
+            </div>
+
+            <div class="equipment-blueprint-views" data-blueprint-view-controls hidden role="group" aria-label="Select two-dimensional view">
+              <button type="button" data-blueprint-view="front" aria-pressed="true">FRONT</button>
+              <button type="button" data-blueprint-view="rear" aria-pressed="false">REAR</button>
+              <button type="button" data-blueprint-view="side" aria-pressed="false">SIDE</button>
+            </div>
+
+            <div class="equipment-model-controls" data-equipment-rotation-controls>
+              <button type="button" data-rotate-left aria-label="Rotate camera left">↶</button>
+              <button type="button" data-rotate-right aria-label="Rotate camera right">↷</button>
+              <button type="button" data-rotate-up aria-label="Tilt camera up">↑</button>
+              <button type="button" data-rotate-down aria-label="Tilt camera down">↓</button>
+              <button type="button" class="equipment-reset" data-rotate-reset>RESET VIEW</button>
+              <p class="equipment-drag-hint" id="equipment-interaction-help">DRAG TO ROTATE · ARROW KEYS TO ADJUST · HOME TO RESET</p>
+            </div>
+
+            <div class="equipment-mode-switch" role="group" aria-label="Choose model presentation">
+              <button type="button" data-equipment-mode="3d" aria-pressed="true">3D MODEL</button>
+              <button type="button" data-equipment-mode="2d" aria-pressed="false">2D SCHEMATIC</button>
+            </div>
+          </div>
+
+          <aside class="equipment-spec-panel" data-reveal="right" aria-label="Equipment specifications">
+            <div data-spec-panel="camera" role="tabpanel">
+              <p class="equipment-spec-kicker">01 / CAMERA BODY</p>
+              <h3>Canon EOS<br>3000D</h3>
+              <p class="equipment-spec-intro">An entry-level DSLR built around an 18-megapixel APS-C sensor and Canon’s DIGIC 4+ image processor. This is the primary camera body used for TOKI SATSUEI sessions.</p>
+              <dl class="equipment-spec-grid">
+                <div class="equipment-spec"><dt>Effective resolution</dt><dd>18.0 MP</dd></div>
+                <div class="equipment-spec"><dt>Sensor format</dt><dd>APS-C CMOS</dd></div>
+                <div class="equipment-spec"><dt>Image processor</dt><dd>DIGIC 4+</dd></div>
+                <div class="equipment-spec"><dt>Standard ISO</dt><dd>100–6,400</dd></div>
+                <div class="equipment-spec"><dt>Expanded ISO</dt><dd>Up to 12,800</dd></div>
+                <div class="equipment-spec"><dt>Autofocus</dt><dd>9-point AF</dd></div>
+                <div class="equipment-spec"><dt>Continuous drive</dt><dd>Up to 3 fps</dd></div>
+                <div class="equipment-spec"><dt>Video</dt><dd>Full HD 1080p</dd></div>
+                <div class="equipment-spec"><dt>Connectivity</dt><dd>Built-in Wi-Fi</dd></div>
+                <div class="equipment-spec"><dt>Rear display</dt><dd>2.7-inch LCD</dd></div>
+              </dl>
+              <p class="equipment-spec-note">The centre autofocus point is cross-type. Published body dimensions are approximately 129 × 101.6 × 77.1 mm; weight is approximately 436 g with battery and memory card.</p>
+              <a class="equipment-source-link" href="https://asia.canon/en/consumer/eos-3000d-kit-ef-s18-55-iii/main/specification" target="_blank" rel="noopener noreferrer">CANON — OFFICIAL EOS 3000D SPECIFICATIONS ↗</a>
+            </div>
+
+            <div data-spec-panel="lens" role="tabpanel" hidden>
+              <p class="equipment-spec-kicker">02 / STANDARD ZOOM</p>
+              <h3>Canon EF-S<br>18–55mm</h3>
+              <p class="equipment-spec-intro">A general-purpose standard zoom used for environmental portraits, group frames, and everyday framing. The precise lens revision has not yet been confirmed.</p>
+              <dl class="equipment-spec-grid">
+                <div class="equipment-spec"><dt>Mount</dt><dd>Canon EF-S</dd></div>
+                <div class="equipment-spec"><dt>Focal length</dt><dd>18–55mm</dd></div>
+                <div class="equipment-spec"><dt>35mm equivalent</dt><dd>28.8–88mm</dd></div>
+                <div class="equipment-spec"><dt>Lens category</dt><dd>Standard zoom</dd></div>
+                <div class="equipment-spec"><dt>Maximum aperture</dt><dd>Version-dependent</dd></div>
+                <div class="equipment-spec"><dt>Stabilization</dt><dd>Variant-dependent</dd></div>
+              </dl>
+              <p class="equipment-spec-note">Canon released several EF-S 18–55mm versions. Aperture, optical stabilization, focusing motor, minimum focusing distance, and physical dimensions differ by revision. We will publish those details only after checking the exact markings on the lens barrel.</p>
+              <a class="equipment-source-link" href="https://global.canon/en/c-museum/" target="_blank" rel="noopener noreferrer">CANON CAMERA MUSEUM — LENS REFERENCE ↗</a>
+            </div>
+          </aside>
+        </div>
+
+        <div class="equipment-caption">
+          <span>FIELD KIT / CAMERA BODY + STANDARD ZOOM</span>
+          <span>3D MODEL AND 2D VIEWS ARE ILLUSTRATIVE, NOT MANUFACTURER CAD DRAWINGS.</span>
         </div>
       </div>
     </section>
