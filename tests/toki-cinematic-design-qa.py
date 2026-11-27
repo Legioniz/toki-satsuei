@@ -24,13 +24,16 @@ class QuietHandler(SimpleHTTPRequestHandler):
 
 
 def main() -> None:
-    for filename in [*PAGES, "cinematic.css"]:
+    for filename in [*PAGES, "styles/shared/cinematic.css"]:
         path = ROOT / filename
         assert path.is_file() and path.stat().st_size > 0, f"Missing cinematic asset: {filename}"
 
-    css = (ROOT / "cinematic.css").read_text(encoding="utf-8")
-    design_system = (ROOT / "design-system.css").read_text(encoding="utf-8")
-    motion_css = (ROOT / "motion-system.css").read_text(encoding="utf-8")
+    css = (ROOT / "styles/shared/cinematic.css").read_text(encoding="utf-8")
+    design_system = "\n".join(
+        (ROOT / path).read_text(encoding="utf-8")
+        for path in ("styles/tokens.css", "styles/base.css", "styles/components.css")
+    )
+    motion_css = (ROOT / "styles/shared/motion-system.css").read_text(encoding="utf-8")
     motion_js = (ROOT / "motion-system.js").read_text(encoding="utf-8")
     for token in ["--bg-canvas: #09090b", "--text-primary: #f5f2eb", "--text-secondary: #c7c1b6", "--accent-gold: #d8a448"]:
         assert token in design_system, f"Missing nocturne token: {token}"
@@ -63,7 +66,13 @@ def main() -> None:
         bundle_header = (ROOT / bundle).read_text(encoding="utf-8").splitlines()[0]
         assert "cinematic.css" in bundle_header, f"{label}: cinematic stylesheet is not included in {bundle}"
         assert f'href="./{bundle}"' in source, f"{label}: source stylesheet bundle reference is missing"
-        assert "family=Caveat" in source, f"{label}: handwritten annotation font is not loaded"
+        assert "family=Cormorant+Garamond" in source, f"{label}: editorial font is not loaded"
+        assert "family=DM+Sans" in source, f"{label}: body font is not loaded"
+        assert "family=Space+Mono" in source, f"{label}: technical font is not loaded"
+        if label in ("home", "404"):
+            assert "family=Caveat" in source, "404 handwritten annotation font is not loaded"
+        else:
+            assert "family=Caveat" not in source, f"{label}: unused handwritten font should not be requested"
         assert 'id="main-content"' in source, f"{label}: main content landmark is missing"
 
     assert "Stay with<br>the <em>feeling.</em>" in home

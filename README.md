@@ -93,16 +93,22 @@ The official TOKI SATSUEI brushstroke logo and the current hero/sample gallery p
 
 The homepage includes a live monthly calendar backed by the separate `toki-calendar` Supabase Edge Function. The private owner queue stores the final `confirmed_date`, `confirmed_start_time`, and `confirmed_end_time` separately from the original preferred and alternate choices. A database check prevents a booking from entering `confirmed` status without a complete, valid time window, and a GiST exclusion constraint rejects overlapping confirmed sessions while allowing multiple bookings on the same date when their windows do not overlap. The public endpoint reads only the confirmed date and start/end times, applies an HMAC-derived per-network quota through the existing atomic quota function, and returns time windows without customer identity or private booking fields. Visitors can select a partially booked date to see its existing time windows and still send an inquiry for another time. The calendar supports a current-month shortcut, keyboard date movement, selected-date preview, explicit inquiry prefill, retry after network errors, automatic one-minute refresh, and Manila-local month rollover. Displayed times use Philippine time. An unmarked time window is not a guaranteed availability promise; all sessions still require written confirmation.
 
+## Stylesheet source architecture
+
+Editable CSS lives under styles/. The shared design system is split into styles/tokens.css (design tokens and build-time breakpoint tokens), styles/base.css (typography, accessibility, and layout foundations), and styles/components.css (reusable controls and components). Cross-page legacy layers are grouped under styles/shared/; page-owned styling is under styles/pages/. The exact source order for each page is defined in scripts/build-css.py.
+
+The builder expands named @custom-media breakpoints into ordinary browser @media queries, then generates the six committed toki-*.css bundles. Every page still requests exactly one stylesheet. Source modules are not loaded individually by visitors. See styles/README.md before changing source ownership or bundle order.
+
 ## Runtime integration map
 
-The site is delivered as seven static pages backed by unified bundled CSS (`scripts/build-css.py`), shared progressive motion/effects, and modular JavaScript controllers:
+The site is delivered as seven static pages backed by unified bundled CSS (scripts/build-css.py), shared progressive motion/effects, and modular JavaScript controllers:
 
 | File | Used by | Responsibility |
 | --- | --- | --- |
-| `toki-home.css`, `toki-archive.css`, `toki-policies.css`, `toki-404.css`, `toki-admin.css`, `toki-client.css` | All pages | Validated page bundles compiled by `scripts/build-css.py` from `styles.css`, `refinement.css`, `policies.css`, `availability.css`, `motion-system.css`, `cinematic.css`, `experience.css`, `fixes.css`, `pricing-calculator.css`, `library.css`, `pages.css`, `admin.css`, `client-gallery.css`, `design-system.css`, `orientation.css`, the shared `global-motion.css`, and the homepage-only `site-enhancements.css` |
+| `toki-home.css`, `toki-archive.css`, `toki-policies.css`, `toki-404.css`, `toki-admin.css`, `toki-client.css` | All pages | Validated page bundles compiled by scripts/build-css.py from the shared design-system modules, ordered cross-page layers in styles/shared/, and page-specific modules in styles/pages/ |
 | `motion-system.js` | Home, booking, archive, policies, admin, client gallery | Official-logo aperture intro, six reveal profiles, scroll-linked chapter rails and bounded image parallax, pointer tilt, shutter feedback, menu, and dialog helpers |
 | `site.js` | Home, booking, archive, and policies | Navigation, page progress, interactive pricing calculator + booking sheet synchronization, Web Audio feedback, and Supabase intake relay |
-| `availability.css` + `availability.js` | `index.html` | Public monthly calendar, confirmed-date feed, Manila month rollover, inquiry prefill, and minute refresh |
+| `styles/pages/availability.css` + `availability.js` | `index.html` | Public monthly calendar, confirmed-date feed, Manila month rollover, inquiry prefill, and minute refresh |
 | `site.js` + `booking.html` | Dedicated desktop/mobile booking form, secure request submission, and cross-page package, calculator, and calendar prefill |
 | `library.js` | `library.html` | Archive filters, search, media manifest, and album viewer |
 | `admin.js` + `admin.html` | Studio operations console | Authenticated booking inbox management, pricing/add-ons inspection, confirmation windows, and token generation |
@@ -147,7 +153,7 @@ The source of the intake function is tracked at `supabase/functions/portfolio-su
 
 ## Motion and transition system
 
-The motion implementation has one runtime source of truth: `motion-system.js`, its core stylesheet `motion-system.css`, and shared refinements in `motion-refinements.css`. Scroll scenes receive a single active focal state, section progress, and bounded image parallax through the shared runtime. The active chapter marker is decorative and does not carry essential information.
+The motion implementation has one runtime source of truth: motion-system.js, its core stylesheet styles/shared/motion-system.css, and shared refinements in styles/shared/motion-refinements.css and styles/shared/global-motion.css. Scroll scenes receive a single active focal state, section progress, and bounded image parallax through the shared runtime. The active chapter marker is decorative and does not carry essential information.
 
 Cross-document view transitions progressively enhance supported browsers and preserve the masthead as a shared visual element. They do not replace normal navigation. Reduced-motion preferences disable the page transition and scroll-linked effects; constrained devices also skip continuous grain and ambient overlay work.
 

@@ -1,59 +1,3 @@
-/* =============================================================================
-   TOKI SATSUEI design system v2 (loaded last).  Order: tokens > base > layout >
-   components > motion > adaptive.  Every value below comes from a token.
-   Principles applied: 60/30/10 colour balance, modular type scale (1.25),
-   8pt spacing, Fitts (48px targets, thumb-zone CTA), Hick (one primary action
-   per view), Gestalt proximity (grouped spacing), Doherty (<400ms feedback),
-   WCAG 2.2 AA (contrast, focus, target size, reduced motion).
-============================================================================= */
-
-/* 1. TOKENS ---------------------------------------------------------------- */
-:root{
-  /* colour roles: paper 60% / ink 30% / accent 10% */
-  --c-paper:#f4f1ea; --c-paper-2:#e9e4da; --c-ink:#111110; --c-ink-2:#1a1918;
-  --c-text:#1c1a18; --c-text-2:#57514a; --c-on-ink:#f4f1ea; --c-on-ink-2:#bfb8ad;
-  --c-accent:#a31f2d; --c-accent-hi:#c32a39; --c-accent-soft:#e8828d;
-  --c-line:rgba(17,17,16,.14); --c-line-ink:rgba(244,241,234,.18);
-  /* fluid type scale, ratio 1.25 */
-  --step--1:clamp(.8125rem,.79rem + .1vw,.875rem);
-  --step-0:clamp(.9375rem,.9rem + .18vw,1.0625rem);
-  --step-1:clamp(1.125rem,1.06rem + .32vw,1.375rem);
-  --step-2:clamp(1.4rem,1.25rem + .7vw,1.9rem);
-  --step-3:clamp(1.75rem,1.45rem + 1.5vw,2.75rem);
-  --step-4:clamp(2.2rem,1.7rem + 2.6vw,4.25rem);
-  /* spacing, 8pt grid */
-  --s-1:.25rem; --s-2:.5rem; --s-3:.75rem; --s-4:1rem; --s-5:1.5rem; --s-6:2rem; --s-7:3rem; --s-8:4rem;
-  --section:clamp(4rem,3rem + 5vw,8rem);
-  --gutter:max(clamp(1.25rem,5vw,4rem),env(safe-area-inset-left),env(safe-area-inset-right));
-  --r-1:2px; --r-2:6px;
-  --shadow-1:0 1px 2px rgba(17,17,16,.08),0 4px 12px rgba(17,17,16,.06);
-  --shadow-2:0 2px 4px rgba(17,17,16,.1),0 14px 32px rgba(17,17,16,.14);
-  /* motion */
-  --dur-1:120ms; --dur-2:220ms; --dur-3:360ms; --dur-4:600ms;
-  --ease-out:cubic-bezier(.22,1,.36,1); --ease-in:cubic-bezier(.64,0,.78,0); --ease-io:cubic-bezier(.65,0,.35,1);
-  /* sizing */
-  --tap:3rem; --header-h:4rem;
-  /* map legacy variables onto the new roles so older rules inherit the system */
-  --paper:var(--c-paper); --paper-2:var(--c-paper-2); --ink:var(--c-ink); --red:var(--c-accent); --red-bright:var(--c-accent-hi);
-  --wrap:min(1240px,calc(100% - 2 * var(--gutter)));
-}
-
-/* 2. BASE ------------------------------------------------------------------ */
-html{scroll-padding-top:calc(var(--header-h) + var(--s-4));-webkit-text-size-adjust:100%;text-size-adjust:100%}
-body{font-size:var(--step-0);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
-:where(h1,h2,h3){text-wrap:balance}
-:where(p,li,figcaption){text-wrap:pretty}
-::selection{background:var(--c-accent);color:#fff}
-:focus-visible{outline:2px solid #fff;outline-offset:2px;box-shadow:0 0 0 5px var(--c-accent-hi);border-radius:var(--r-1)}
-:focus:not(:focus-visible){outline:0}
-.about-caption,.archive-signature{color:#a8a197;opacity:1} /* was <4.5:1 on dark */
-
-/* 3. LAYOUT RHYTHM --------------------------------------------------------- */
-.work-section,.services-section,.sessions-section,.availability-section,.process-section,.about-section,.faq-section{
-  padding-block:var(--section)}
-.section-heading h2{font-size:var(--step-4);line-height:1.02;letter-spacing:-.015em}
-.section-heading :is(.eyebrow,.section-aside){font-size:var(--step--1)}
-
 /* 4. COMPONENTS ------------------------------------------------------------ */
 /* buttons: 48px targets, tactile press feedback */
 .button,.form-submit,.availability-cta,.filter-button{min-height:var(--tap);display:inline-flex;align-items:center;justify-content:center;gap:var(--s-2);
@@ -156,7 +100,7 @@ body{font-size:var(--step-0);-webkit-font-smoothing:antialiased;text-rendering:o
    A quiet Nothing-inspired layer: type and spacing carry the hierarchy, while
    the existing warm paper / charcoal / crimson identity and official assets stay.
 */
-:root{--c-mono:"Space Mono","DM Mono",monospace;--c-display:"Space Grotesk","DM Sans",Arial,sans-serif}
+:root{--c-mono:"Space Mono","DM Mono",monospace;--c-display:"DM Sans","DM Sans",Arial,sans-serif}
 .hero-proof{display:flex;flex-wrap:wrap;gap:8px 18px;margin:20px 0 0;color:#d0c7bc;font:11px/1.4 var(--c-mono);letter-spacing:.09em}
 .hero-proof span{display:inline-flex;align-items:center;gap:8px}
 .hero-proof span+span::before{content:"/";color:var(--c-accent-hi)}
@@ -697,7 +641,7 @@ html {
 }
 
 .section-aside {
-  font-family: var(--sans, "Space Grotesk", sans-serif);
+  font-family: var(--sans, "DM Sans", sans-serif);
   font-size: 0.9375rem;
   line-height: 1.7;
   color: #a49e95;
@@ -751,7 +695,7 @@ html {
 }
 
 .package-card li {
-  font-family: var(--sans, "Space Grotesk", sans-serif);
+  font-family: var(--sans, "DM Sans", sans-serif);
   font-size: 0.84rem;
   line-height: 1.6;
   color: #4a453f;

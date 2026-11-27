@@ -1,24 +1,62 @@
 #!/usr/bin/env python3
-"""Bundle each page's stylesheets into one file, preserving the existing cascade order.
+"""Build page-scoped TOKI bundles from the modular source architecture.
 
-Source files stay the place to edit. Run `python scripts/build-css.py` after changing any of them,
-and commit the toki-*.css bundles. `--check` fails if a bundle is out of date (used by CI).
-The minifier is deliberately conservative (comments and whitespace only), so rendering is identical.
+The bundle manifest preserves the historic source order so the cascade remains
+stable while shared tokens, foundations, components, and page styles gain clear
+ownership. Source modules are never loaded directly by visitors.
 """
 import re, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+CUSTOM_MEDIA = dict(re.findall(
+    r"@custom-media\s+(--[\w-]+)\s+([^;]+);",
+    (ROOT / "styles" / "tokens.css").read_text(encoding="utf-8"),
+))
+
+# Logical legacy names are retained in the manifest/header for compatibility
+# with QA and release notes. The paths below are the actual editable sources.
+SOURCE_PATHS = {
+    "styles": ["styles/shared/foundation.css"],
+    "refinement": ["styles/shared/refinements.css"],
+    "motion-system": ["styles/shared/motion-system.css"],
+    "cinematic": ["styles/shared/cinematic.css"],
+    "experience": ["styles/pages/home-booking.css"],
+    "fixes": ["styles/shared/compatibility-fixes.css"],
+    "orientation": ["styles/shared/orientation.css"],
+    "global-motion": ["styles/shared/global-motion.css"],
+    "site-enhancements": ["styles/shared/site-enhancements.css"],
+    "motion-refinements": ["styles/shared/motion-refinements.css"],
+    "mobile-nav": ["styles/shared/mobile-navigation.css"],
+    "design-system": [
+        "styles/tokens.css",
+        "styles/base.css",
+        "styles/components.css",
+    ],
+    "policies": ["styles/pages/policies.css"],
+    "availability": ["styles/pages/availability.css"],
+    "pricing-calculator": ["styles/pages/pricing-calculator.css"],
+    "equipment": ["styles/pages/equipment.css"],
+    "library": ["styles/pages/archive.css"],
+    "admin": ["styles/pages/admin.css"],
+    "client-gallery": ["styles/pages/gallery.css"],
+    "pages": ["styles/pages/page-shells.css"],
+}
+
 BUNDLES = {
     "toki-home.css": ["styles", "refinement", "policies", "availability", "motion-system", "cinematic", "experience", "fixes", "pricing-calculator", "design-system", "orientation", "global-motion", "site-enhancements", "motion-refinements", "mobile-nav", "equipment"],
-    "toki-archive.css": ["styles", "library", "refinement", "motion-system", "cinematic", "experience", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
-    "toki-policies.css": ["styles", "refinement", "policies", "motion-system", "cinematic", "experience", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
-    "toki-404.css": ["styles", "refinement", "policies", "motion-system", "cinematic", "experience", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
+    "toki-archive.css": ["styles", "library", "refinement", "motion-system", "cinematic", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
+    "toki-policies.css": ["styles", "refinement", "policies", "motion-system", "cinematic", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
+    "toki-404.css": ["styles", "refinement", "policies", "motion-system", "cinematic", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
     "toki-admin.css": ["styles", "refinement", "motion-system", "admin", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
     "toki-client.css": ["styles", "refinement", "motion-system", "client-gallery", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
 }
 
 def minify(css: str) -> str:
+    # Expand source-only custom media tokens before the browser sees the bundle.
+    for name, condition in CUSTOM_MEDIA.items():
+        css = re.sub(rf"@media\s*\(\s*{re.escape(name)}\s*\)", f"@media {condition}", css)
+    css = re.sub(r"@custom-media\s+--[\w-]+\s+[^;]+;", "", css)
     css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
     css = re.sub(r"\s+", " ", css)
     css = re.sub(r"\s*([{};,])\s*", r"\1", css)
@@ -26,8 +64,19 @@ def minify(css: str) -> str:
     css = css.replace(";}", "}")
     return css.strip()
 
+def source_paths(name: str) -> list[str]:
+    if name in SOURCE_PATHS:
+        return SOURCE_PATHS[name]
+    return [f"{name}.css"]
+
 def build(name: str) -> str:
-    parts = [minify((ROOT / f"{src}.css").read_text(encoding="utf-8")) for src in BUNDLES[name]]
+    parts = [
+        minify("\n".join(
+            (ROOT / path).read_text(encoding="utf-8")
+            for path in source_paths(source)
+        ))
+        for source in BUNDLES[name]
+    ]
     header = f"/* {name}: generated by scripts/build-css.py from {', '.join(s + '.css' for s in BUNDLES[name])}. */\n"
     return header + "\n".join(parts) + "\n"
 
