@@ -11,18 +11,21 @@
   const modeButtons = Array.from(root.querySelectorAll("[data-equipment-mode]"));
   const angleButtons = Array.from(root.querySelectorAll("[data-equipment-angle]"));
   const angleControls = root.querySelector("[data-equipment-angles]");
-  const modelEmbed = "https://sketchfab.com/models/7d57163f3bec464cbb213428e1c37cf7/embed";
+  const modelUid = "7d57163f3bec464cbb213428e1c37cf7";
+  const viewerApiSource = "https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js";
   const angles = {
     front: { position: "0%", label: "Front view of a Canon EOS 3000D camera with an EF-S 18–55mm kit lens." },
     flash: { position: "25%", label: "Front view of the Canon EOS 3000D with its pop-up flash raised." },
-    left: { position: "50%", label: "Left-side profile of the Canon EOS 3000D showing the side port covers and attached lens." },
-    right: { position: "75%", label: "Right-side profile of the Canon EOS 3000D with the attached lens." },
+    left: { position: "50%", label: "Left-side profile of the EOS 3000D showing the side port covers and attached lens." },
+    right: { position: "75%", label: "Right-side profile of the EOS 3000D with the attached lens." },
     top: { position: "100%", label: "Top view of the Canon EOS 3000D and attached EF-S 18–55mm kit lens." }
   };
 
   if (!stage || !photo || !embedHost || !status || !modeButtons.length || !angleButtons.length) return;
 
   let iframe = null;
+  let viewerApiPromise = null;
+  let viewerStarted = false;
 
   function announce(message) {
     status.textContent = message;
@@ -41,17 +44,91 @@
     announce("2D PHOTO VIEW / " + selected.toUpperCase());
   }
 
+  function loadViewerApi() {
+    if (typeof window.Sketchfab === "function") return Promise.resolve(window.Sketchfab);
+    if (viewerApiPromise) return viewerApiPromise;
+
+    viewerApiPromise = new Promise((resolve, reject) => {
+      const existing = document.querySelector("script[data-sketchfab-viewer-api]");
+      const script = existing || document.createElement("script");
+      const onLoad = () => {
+        if (typeof window.Sketchfab === "function") resolve(window.Sketchfab);
+        else reject(new Error("Sketchfab Viewer API did not initialize."));
+      };
+      const onError = () => reject(new Error("Sketchfab Viewer API could not be loaded."));
+
+      if (existing) {
+        existing.addEventListener("load", onLoad, { once: true });
+        existing.addEventListener("error", onError, { once: true });
+        return;
+      }
+
+      script.src = viewerApiSource;
+      script.async = true;
+      script.dataset.sketchfabViewerApi = "true";
+      script.addEventListener("load", onLoad, { once: true });
+      script.addEventListener("error", onError, { once: true });
+      document.head.appendChild(script);
+    });
+
+    return viewerApiPromise;
+  }
+
+  function requestHighDefinitionTextures(api) {
+    api.addEventListener("viewerready", () => {
+      if (typeof api.setTextureQuality !== "function") {
+        announce("3D MODEL / HD TEXTURE CONTROL UNAVAILABLE");
+        return;
+      }
+
+      api.setTextureQuality("hd", error => {
+        announce(error
+          ? "3D MODEL / HD TEXTURE REQUEST FAILED — DEFAULT QUALITY"
+          : "3D MODEL / HIGH-DEFINITION TEXTURES REQUESTED");
+      });
+    });
+  }
+
+  function startViewer() {
+    if (!iframe || viewerStarted) return;
+    viewerStarted = true;
+    announce("3D MODEL / LOADING VIEWER API");
+
+    loadViewerApi().then(Sketchfab => {
+      if (!iframe || !embedHost.contains(iframe)) return;
+      const client = new Sketchfab(iframe);
+
+      client.init(modelUid, {
+        autostart: 1,
+        success: api => {
+          api.start(() => requestHighDefinitionTextures(api));
+        },
+        error: () => {
+          viewerStarted = false;
+          announce("3D MODEL / VIEWER FAILED — RETRY BY RESELECTING 3D");
+        }
+      });
+    }).catch(() => {
+      viewerStarted = false;
+      announce("3D MODEL / VIEWER API UNAVAILABLE");
+    });
+  }
+
   function ensureViewer() {
-    if (iframe) return;
+    if (iframe) {
+      startViewer();
+      return;
+    }
+
     iframe = document.createElement("iframe");
     iframe.title = "Interactive Sketchfab 3D reference model titled Canon EOS 3000";
-    iframe.src = modelEmbed;
     iframe.loading = "lazy";
     iframe.allow = "autoplay; fullscreen; xr-spatial-tracking";
     iframe.allowFullscreen = true;
     iframe.referrerPolicy = "strict-origin-when-cross-origin";
     iframe.setAttribute("aria-label", "Interactive 3D Canon EOS 3000 reference model hosted by Sketchfab");
     embedHost.appendChild(iframe);
+    startViewer();
   }
 
   function setMode(mode) {
@@ -62,7 +139,6 @@
     angleControls.hidden = show3d;
     if (show3d) {
       ensureViewer();
-      announce("3D MODEL / SKETCHFAB COMMUNITY REFERENCE");
     } else {
       setAngle(photo.dataset.angle || "front");
     }

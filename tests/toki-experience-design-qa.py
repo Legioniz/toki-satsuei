@@ -60,6 +60,14 @@ def main() -> None:
     assert 'data-equipment-mode="2d"' in equipment and 'data-equipment-mode="3d"' in equipment
     assert "eos-3000d-angle-sprite.webp" in (ROOT / "equipment.css").read_text(encoding="utf-8")
     assert "https://sketchfab.com/3d-models/canon-eos-3000-7d57163f3bec464cbb213428e1c37cf7" in equipment
+
+    viewer = (ROOT / "equipment-viewer.js").read_text(encoding="utf-8")
+    headers = (ROOT / "_headers").read_text(encoding="utf-8")
+    assert "https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js" in viewer
+    assert 'api.addEventListener("viewerready"' in viewer
+    assert 'api.setTextureQuality("hd"' in viewer, "The Sketchfab model must request the highest supported texture quality."
+    assert "https://static.sketchfab.com" in headers.split("Content-Security-Policy:", 1)[1].split(";", 1)[0]
+    assert "https://static.sketchfab.com" in home, "The page CSP must allow the official Sketchfab Viewer API script."
     assert "Canon EOS 3000D" in equipment and "Canon EF-S 18–55mm" in equipment
     assert "lens revision" in equipment.lower(), "Lens revision caveat must stay visible."
     assert "equipment-model-3d" not in equipment and "equipment-blueprint" not in equipment, "Retired CSS/2D schematic must stay removed."
