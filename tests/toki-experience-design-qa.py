@@ -55,14 +55,16 @@ def main() -> None:
     assert ".toki-booking-sheet .booking-fieldset .form-split > label" in motion_js
 
     home = (ROOT / "index.html").read_text(encoding="utf-8")
-    equipment = home.split('<section class="equipment-section"', 1)[1].split('</section>', 1)[0]
-    assert equipment.count('class="equipment-card"') == 2, "Equipment section should show only the camera and lens cards."
-    assert "equipment-model-3d" not in equipment and "equipment-blueprint" not in equipment, "Interactive 3D/2D equipment models must stay removed."
-    assert "data-equipment-mode" not in equipment and "data-camera-object" not in equipment, "Legacy equipment model controls must not return."
-    assert "https://asia.canon/en/pro-imaging/eos-3000d-kit-ef-s18-55-iii/main/product" in equipment
-    assert "https://global.canon/en/c-museum/product/ef410.html" in equipment
-    assert "LENS REVISION UNCONFIRMED" in equipment
-    assert 'equipment.js' not in home, "The removed equipment model controller must not be loaded."
+    equipment = home.split('<section class="equipment-section"', 1)[1].split('<section class="faq-section"', 1)[0]
+    assert equipment.count('data-equipment-angle=') == 5, "Equipment viewer must expose all five supplied 2D camera angles."
+    assert 'data-equipment-mode="2d"' in equipment and 'data-equipment-mode="3d"' in equipment
+    assert "eos-3000d-angle-sprite.webp" in (ROOT / "equipment.css").read_text(encoding="utf-8")
+    assert "https://sketchfab.com/3d-models/canon-eos-3000-7d57163f3bec464cbb213428e1c37cf7" in equipment
+    assert "Canon EOS 3000D" in equipment and "Canon EF-S 18–55mm" in equipment
+    assert "lens revision" in equipment.lower(), "Lens revision caveat must stay visible."
+    assert "equipment-model-3d" not in equipment and "equipment-blueprint" not in equipment, "Retired CSS/2D schematic must stay removed."
+    assert "data-camera-object" not in equipment, "Legacy CSS camera object must not return."
+    assert 'equipment.js' not in home and 'equipment-viewer.js' in home
     booking = (ROOT / "booking.html").read_text(encoding="utf-8")
     policy = (ROOT / "policies.html").read_text(encoding="utf-8")
     assert 'id="inquiry-form"' not in home and 'href="./booking.html"' in home
