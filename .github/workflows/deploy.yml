@@ -217,10 +217,14 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     permissions:
+      contents: read
       pages: write
       id-token: write
     runs-on: ubuntu-24.04
     steps:
+      - name: Check out the exact deployed commit for live verification
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+
       - name: Check that this commit is still the main branch head
         id: freshness
         shell: bash
