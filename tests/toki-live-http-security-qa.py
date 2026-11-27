@@ -17,6 +17,7 @@ CALENDAR = SUPABASE + "/functions/v1/toki-calendar"
 REST = SUPABASE + "/rest/v1"
 PUBLISHABLE_KEY = "sb_publishable_PRGb0-smtTzCm9VHuM9NOQ_ZFh1wKRS"
 ALLOWED_ORIGIN = "https://legioniz.github.io"
+PAGES_ORIGIN = "https://toki-satsuei.pages.dev"
 UNTRUSTED_ORIGIN = "https://untrusted.example"
 EXPECT_TURNSTILE = os.getenv("TOKI_EXPECT_TURNSTILE", "0").strip().lower() in {"1", "true", "yes"}
 
@@ -75,6 +76,20 @@ def main() -> None:
                                                 "Access-Control-Request-Headers": "apikey,content-type"})
     assert status == 204, f"Allowed CORS preflight returned {status}"
     assert headers.get("Access-Control-Allow-Origin") == ALLOWED_ORIGIN
+
+    # The replacement Pages origin is explicitly allowlisted on both public APIs.
+    status, headers, _ = request(INTAKE, "OPTIONS", PAGES_ORIGIN,
+                                 extra_headers={"Access-Control-Request-Method": "POST",
+                                                "Access-Control-Request-Headers": "apikey,content-type"})
+    assert status == 204 and headers.get("Access-Control-Allow-Origin") == PAGES_ORIGIN
+    status, headers, _ = request(CALENDAR, "OPTIONS", PAGES_ORIGIN,
+                                 extra_headers={"Access-Control-Request-Method": "GET",
+                                                "Access-Control-Request-Headers": "apikey,content-type"})
+    assert status == 204 and headers.get("Access-Control-Allow-Origin") == PAGES_ORIGIN
+
+    status, _, body = request(INTAKE, "POST", PAGES_ORIGIN, {"kind": "toki_booking", "website": ""})
+    assert status == 400, f"Pages origin was not accepted by the booking intake: {status} {body[:200]!r}"
+
     status, headers, _ = request(INTAKE, "OPTIONS", UNTRUSTED_ORIGIN,
                                  extra_headers={"Access-Control-Request-Method": "POST"})
     assert status == 204
@@ -121,6 +136,11 @@ def main() -> None:
     month = datetime.now(ZoneInfo("Asia/Manila")).strftime("%Y-%m")
     status, _, body = request(CALENDAR + "?month=" + month, "GET", ALLOWED_ORIGIN)
     assert status == 200, f"Public calendar returned {status}: {body[:300]!r}"
+    # The same confirmed-time projection must remain available from the new Pages origin.
+    pages_status, _, pages_body = request(CALENDAR + "?month=" + month, "GET", PAGES_ORIGIN)
+    assert pages_status == 200, f"Pages-origin calendar returned {pages_status}: {pages_body[:300]!r}"
+    pages_calendar = decode(pages_body)
+    assert pages_calendar.get("ok") is True and isinstance(pages_calendar.get("bookings"), list)
     calendar = decode(body)
     assert calendar.get("ok") is True and isinstance(calendar.get("bookings"), list)
     for booking in calendar["bookings"]:
