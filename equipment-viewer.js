@@ -11,7 +11,6 @@
   const modeButtons = Array.from(root.querySelectorAll("[data-equipment-mode]"));
   const angleButtons = Array.from(root.querySelectorAll("[data-equipment-angle]"));
   const angleControls = root.querySelector("[data-equipment-angles]");
-  const modelPage = "https://sketchfab.com/3d-models/canon-eos-3000-7d57163f3bec464cbb213428e1c37cf7";
   const modelEmbed = "https://sketchfab.com/models/7d57163f3bec464cbb213428e1c37cf7/embed";
   const angles = {
     front: { position: "0%", label: "Front view of a Canon EOS 3000D camera with an EF-S 18–55mm kit lens." },
