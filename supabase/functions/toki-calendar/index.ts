@@ -15,7 +15,27 @@ const legacyServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const SERVICE_ROLE_KEY = modernSecretKey || legacyServiceRoleKey;
 const USE_MODERN_SECRET = Boolean(modernSecretKey);
 const RATE_SECRET = Deno.env.get("PORTFOLIO_RATE_LIMIT_SECRET") ?? SERVICE_ROLE_KEY;
-const ALLOWED_ORIGIN = Deno.env.get("PORTFOLIO_ALLOWED_ORIGIN") ?? "https://legioniz.github.io";
+const PRIMARY_ALLOWED_ORIGIN = Deno.env.get("PORTFOLIO_ALLOWED_ORIGIN") ?? "https://legioniz.github.io";
+const ADDITIONAL_ALLOWED_ORIGINS = [
+  "https://toki-satsuei.pages.dev",
+  ...(Deno.env.get("PORTFOLIO_ADDITIONAL_ALLOWED_ORIGINS") ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+];
+const ALLOWED_ORIGINS = new Set(
+  [PRIMARY_ALLOWED_ORIGIN, ...ADDITIONAL_ALLOWED_ORIGINS].filter((origin) => {
+    try {
+      const parsed = new URL(origin);
+      return parsed.protocol === "https:" && parsed.origin === origin;
+    } catch {
+      return false;
+    }
+  }),
+);
+function isAllowedOrigin(origin: string | null): origin is string {
+  return Boolean(origin && ALLOWED_ORIGINS.has(origin));
+}
 const serviceKeyHeaders = {
   apikey: SERVICE_ROLE_KEY,
   ...(USE_MODERN_SECRET ? {} : { Authorization: "Bearer " + SERVICE_ROLE_KEY }),
@@ -79,7 +99,7 @@ function corsHeaders(origin: string | null): Record<string, string> {
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
     "Referrer-Policy": "no-referrer",
-    "Access-Control-Allow-Origin": origin === ALLOWED_ORIGIN ? ALLOWED_ORIGIN : "null",
+    "Access-Control-Allow-Origin": isAllowedOrigin(origin) ? origin : "null",
     "Access-Control-Allow-Methods": "GET, OPTIONS",
     "Access-Control-Allow-Headers": "apikey, content-type, x-client-info",
     "Vary": "Origin",
@@ -110,7 +130,7 @@ Deno.serve(async (request: Request) => {
   const origin = request.headers.get("origin");
 
   if (request.method === "OPTIONS") {
-    if (origin !== ALLOWED_ORIGIN) {
+    if (!isAllowedOrigin(origin)) {
       return jsonResponse({ ok: false, message: "Origin not allowed." }, 403, origin);
     }
     return jsonResponse({}, 204, origin);
@@ -118,10 +138,10 @@ Deno.serve(async (request: Request) => {
   if (request.method !== "GET") {
     return jsonResponse({ ok: false, message: "Method not allowed." }, 405, origin);
   }
-  if (origin !== ALLOWED_ORIGIN) {
+  if (!isAllowedOrigin(origin)) {
     return jsonResponse({ ok: false, message: "Origin not allowed." }, 403, origin);
   }
-  if (!SUPABASE_URL || !SERVICE_ROLE_KEY || !RATE_SECRET || !ALLOWED_ORIGIN) {
+  if (!SUPABASE_URL || !SERVICE_ROLE_KEY || !RATE_SECRET || ALLOWED_ORIGINS.size === 0) {
     return jsonResponse({ ok: false, message: "Calendar service is not configured." }, 503, origin);
   }
 
