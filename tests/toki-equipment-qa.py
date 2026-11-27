@@ -44,7 +44,7 @@ def main() -> None:
             lens_tab = root.locator('[data-equipment-component="lens"]')
             assert camera_tab.get_attribute("aria-selected") == "true"
             lens_tab.click()
-            assert lens_tab.get_attribute("aria-pressed") == "true"
+            assert lens_tab.get_attribute("aria-selected") == "true"
             assert root.locator('[data-spec-panel="lens"]').is_visible(), "Lens details did not become visible"
             assert root.locator('[data-spec-panel="camera"]').is_hidden(), "Camera details should be hidden while lens is selected"
 
