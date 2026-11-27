@@ -193,12 +193,12 @@ def main():
    assert drawer_state["top"]>=drawer_state["headerBottom"]-1, f"Mobile drawer overlaps the header after its entrance transition: {drawer_state}"
    assert drawer_state["left"]<=drawer_state["headerLeft"]+1 and drawer_state["right"]>=drawer_state["headerRight"]-1, f"Mobile drawer does not span the header: {drawer_state}"
    assert drawer_state["firstTop"]>=drawer_state["top"]-1 and drawer_state["firstBottom"]<=drawer_state["bottom"]+1, f"First navigation link is clipped: {drawer_state}"
-    quick_cta_state=home.locator(".mobile-cta").evaluate("""element=>{
-      const style=getComputedStyle(element);
-      return {width:element.getBoundingClientRect().width,opacity:style.opacity,visibility:style.visibility,pointerEvents:style.pointerEvents};
-    }""")
-    assert quick_cta_state["width"]<=210, f"Mobile CTA should remain compact: {quick_cta_state}"
-    assert quick_cta_state["opacity"]=="0" and quick_cta_state["visibility"]=="hidden" and quick_cta_state["pointerEvents"]=="none", f"Sticky controls must not overlap an open mobile drawer: {quick_cta_state}"
+   quick_cta_state=home.locator(".mobile-cta").evaluate("""element=>{
+     const style=getComputedStyle(element);
+     return {width:element.getBoundingClientRect().width,opacity:style.opacity,visibility:style.visibility,pointerEvents:style.pointerEvents};
+   }""")
+   assert quick_cta_state["width"]<=210, f"Mobile CTA should remain compact: {quick_cta_state}"
+   assert quick_cta_state["opacity"]=="0" and quick_cta_state["visibility"]=="hidden" and quick_cta_state["pointerEvents"]=="none", f"Sticky controls must not overlap an open mobile drawer: {quick_cta_state}"
    icon_transform=home.locator(".menu-toggle span").first.evaluate("(el)=>getComputedStyle(el).transform")
    assert icon_transform != "none", "Mobile menu icon did not enter its open state"
    home.keyboard.press("Escape")
@@ -254,11 +254,11 @@ def main():
    last_link.scroll_into_view_if_needed()
    assert last_link.is_visible(), "Last navigation link is not reachable inside a short mobile drawer"
    assert drawer.evaluate("nav=>nav.scrollTop>0"), "Navigation scroll did not stay inside the drawer"
-    home.keyboard.press("Escape")
-    home.wait_for_function("!document.querySelector('.primary-nav').classList.contains('is-open')")
-    menu.click()
-    home.wait_for_function("document.querySelector('.primary-nav').classList.contains('is-open')")
-    assert drawer.evaluate("nav=>nav.scrollTop===0"), "Reopened mobile navigation must reset to the first item"
+   home.keyboard.press("Escape")
+   home.wait_for_function("!document.querySelector('.primary-nav').classList.contains('is-open')")
+   menu.click()
+   home.wait_for_function("document.querySelector('.primary-nav').classList.contains('is-open')")
+   assert drawer.evaluate("nav=>nav.scrollTop===0"), "Reopened mobile navigation must reset to the first item"
 
    home.keyboard.press("Escape")
    home.wait_for_function("!document.querySelector('.primary-nav').classList.contains('is-open')")
