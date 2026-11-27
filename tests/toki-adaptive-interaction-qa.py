@@ -190,15 +190,23 @@ def main():
      ];
      return animations.every(animation=>animation.playState!=="running");
    }""")
-   link_metrics=drawer.evaluate("nav=>({count:nav.querySelectorAll(\"a\").length,heights:Array.from(nav.querySelectorAll(\"a\")).map(a=>a.getBoundingClientRect().height),overflowY:getComputedStyle(nav).overflowY})")
+   link_metrics=drawer.evaluate("""nav=>{
+     const style=getComputedStyle(nav);
+     return {
+       count:nav.querySelectorAll("a").length,
+       heights:Array.from(nav.querySelectorAll("a")).map(a=>a.getBoundingClientRect().height),
+       overflowY:style.overflowY,
+       flexDirection:style.flexDirection,
+       scrollHeight:nav.scrollHeight,
+       clientHeight:nav.clientHeight,
+       maxHeight:style.maxHeight
+     };
+   }""")
    assert link_metrics["count"]==7, f"Mobile navigation must retain all seven destinations: {link_metrics}"
+   assert link_metrics["flexDirection"]=="column", f"Mobile navigation must stack links vertically: {link_metrics}"
    assert all(height>=48 for height in link_metrics["heights"]), f"Mobile navigation links must retain 48px touch targets: {link_metrics}"
    assert link_metrics["overflowY"] in ("auto","scroll"), f"Short-screen menu is not scrollable: {link_metrics}"
-   # Force a constrained drawer in the browser test to prove overflow stays inside
-   # the nav itself; natural viewport height may still fit the menu by a few pixels.
-   drawer.evaluate("nav=>{nav.style.transition='none';nav.style.maxHeight='120px';nav.scrollTop=0}")
-   short_state=drawer.evaluate("nav=>({overflowY:getComputedStyle(nav).overflowY,scrollHeight:nav.scrollHeight,clientHeight:nav.clientHeight,maxHeight:getComputedStyle(nav).maxHeight})")
-   assert short_state["scrollHeight"]>short_state["clientHeight"], f"Constrained mobile drawer must scroll internally: {short_state}"
+   assert link_metrics["scrollHeight"]>link_metrics["clientHeight"], f"Mobile drawer must naturally overflow within a short viewport: {link_metrics}"
    last_link=drawer.locator("a").last
    last_link.scroll_into_view_if_needed()
    assert last_link.is_visible(), "Last navigation link is not reachable inside a constrained mobile drawer"
