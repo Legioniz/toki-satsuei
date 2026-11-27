@@ -48,6 +48,7 @@ def duplicate_css_rules(css):
     quote = None
     escaped = False
     comment = False
+    skip_comment_closing_slash = False
 
     def active_body():
         for node in reversed(stack):
@@ -57,9 +58,13 @@ def duplicate_css_rules(css):
 
     for index, char in enumerate(css):
         next_char = css[index + 1] if index + 1 < len(css) else ""
+        if skip_comment_closing_slash:
+            skip_comment_closing_slash = False
+            continue
         if comment:
             if char == "*" and next_char == "/":
                 comment = False
+                skip_comment_closing_slash = True
             continue
         if quote:
             body = active_body()
@@ -128,6 +133,7 @@ def main():
         )
 
     missing = [path for path in REQUIRED_MODULES if not (ROOT / path).is_file()]
+    assert not missing, "Missing modular stylesheet source(s): " + ", ".join(missing)
 
     for module in REQUIRED_MODULES:
         duplicates = duplicate_css_rules((ROOT / module).read_text(encoding="utf-8"))
@@ -135,7 +141,6 @@ def main():
             f"{module} contains exact duplicate CSS rule blocks: "
             + "; ".join(f"{selector} ({count} copies)" for (_, selector, _), count in duplicates.items())
         )
-    assert not missing, "Missing modular stylesheet source(s): " + ", ".join(missing)
     assert not (ROOT / "design-system.css").exists(), "The monolithic design-system.css must stay retired."
     for retired in (
         "design-system.css", "policies.css", "availability.css", "pricing-calculator.css",
