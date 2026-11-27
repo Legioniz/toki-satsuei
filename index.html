@@ -418,14 +418,14 @@
               <span class="equipment-viewer-status" data-equipment-status aria-live="polite">3D INTERACTIVE VIEW</span>
             </div>
 
-            <div class="equipment-selector" role="group" aria-label="Select equipment component">
-              <button type="button" data-equipment-component="camera" aria-pressed="true">CAMERA BODY</button>
-              <button type="button" data-equipment-component="lens" aria-pressed="false">18–55MM LENS</button>
+            <div class="equipment-selector" role="tablist" aria-label="Select equipment component" aria-orientation="horizontal">
+              <button type="button" id="equipment-tab-camera" role="tab" aria-controls="equipment-spec-camera" data-equipment-component="camera" aria-selected="true" tabindex="0">CAMERA BODY</button>
+              <button type="button" id="equipment-tab-lens" role="tab" aria-controls="equipment-spec-lens" data-equipment-component="lens" aria-selected="false" tabindex="-1">18–55MM LENS</button>
             </div>
 
             <div class="equipment-stage" data-equipment-stage data-view="3d">
               <div class="equipment-stage-glow" aria-hidden="true"></div>
-              <div class="equipment-model-3d" data-camera-model tabindex="0" role="group" aria-label="Interactive three-dimensional study of the Canon EOS 3000D camera with an 18 to 55 millimetre lens. Use arrow keys to rotate and Home to reset.">
+              <div class="equipment-model-3d" data-camera-model tabindex="0" role="group" aria-describedby="equipment-interaction-help" aria-label="Interactive three-dimensional study of the Canon EOS 3000D camera with an 18 to 55 millimetre lens. Use arrow keys to rotate and Home to reset.">
                 <div class="equipment-camera" data-camera-object data-focus="camera" aria-hidden="true">
                   <div class="camera-chassis">
                     <div class="camera-face camera-face-front"></div>
@@ -524,7 +524,7 @@
           </div>
 
           <aside class="equipment-spec-panel" data-reveal="right" aria-label="Equipment specifications">
-            <div data-spec-panel="camera" role="tabpanel">
+            <div id="equipment-spec-camera" data-spec-panel="camera" role="tabpanel" aria-labelledby="equipment-tab-camera" tabindex="0">
               <p class="equipment-spec-kicker">01 / CAMERA BODY</p>
               <h3>Canon EOS<br>3000D</h3>
               <p class="equipment-spec-intro">An entry-level DSLR built around an 18-megapixel APS-C sensor and Canon’s DIGIC 4+ image processor. This is the primary camera body used for TOKI SATSUEI sessions.</p>
@@ -544,7 +544,7 @@
               <a class="equipment-source-link" href="https://asia.canon/en/consumer/eos-3000d-kit-ef-s18-55-iii/main/specification" target="_blank" rel="noopener noreferrer">CANON — OFFICIAL EOS 3000D SPECIFICATIONS ↗</a>
             </div>
 
-            <div data-spec-panel="lens" role="tabpanel" hidden>
+            <div id="equipment-spec-lens" data-spec-panel="lens" role="tabpanel" aria-labelledby="equipment-tab-lens" tabindex="0" hidden>
               <p class="equipment-spec-kicker">02 / STANDARD ZOOM</p>
               <h3>Canon EF-S<br>18–55mm</h3>
               <p class="equipment-spec-intro">A general-purpose standard zoom used for environmental portraits, group frames, and everyday framing. The precise lens revision has not yet been confirmed.</p>
