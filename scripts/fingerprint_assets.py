@@ -15,6 +15,21 @@ ASSET_SUFFIXES = {
 }
 TEXT_SUFFIXES = {".html", ".css", ".js", ".json", ".svg"}
 
+CSP_META = (
+    "default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; "
+    "script-src 'self' https://static.sketchfab.com https://challenges.cloudflare.com "
+    "https://*.challenges.cloudflare.com; "
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+    "font-src 'self' https://fonts.gstatic.com data:; "
+    "img-src 'self' data: blob: https:; "
+    "connect-src 'self' https://pjuwrngnrrvdiwqspkic.supabase.co "
+    "https://challenges.cloudflare.com https://*.challenges.cloudflare.com "
+    "https://*.cloudflareinsights.com; "
+    "frame-src 'self' https://sketchfab.com https://*.sketchfab.com "
+    "https://challenges.cloudflare.com https://*.challenges.cloudflare.com; "
+    "upgrade-insecure-requests"
+)
+
 
 def digest(path: Path) -> str:
     value = hashlib.sha256(path.read_bytes()).hexdigest()
@@ -106,11 +121,35 @@ def verify_references(root: Path) -> list[str]:
     return errors
 
 
+def normalize_csp_fallbacks(root: Path) -> int:
+    """Put one consistent CSP meta fallback near the start of every HTML head."""
+    replacement = f'<meta http-equiv="Content-Security-Policy" content="{CSP_META}">'
+    pattern = re.compile(
+        r'<meta\\s+http-equiv=["\\']Content-Security-Policy["\\'][^>]*>',
+        re.IGNORECASE,
+    )
+    changed = 0
+    for page in sorted(root.rglob("*.html")):
+        old = page.read_text(encoding="utf-8")
+        new, count = pattern.subn(replacement, old)
+        if count == 0:
+            head = re.search(r"<head(?:\\s[^>]*)?>", new, re.IGNORECASE)
+            if not head:
+                raise AssertionError(f"HTML document is missing a head element: {page}")
+            new = new[:head.end()] + "\\n  " + replacement + new[head.end():]
+            count = 1
+        if new != old:
+            page.write_text(new, encoding="utf-8", newline="\\n")
+            changed += count
+    return changed
+
+
 def fingerprint_assets(root: Path) -> tuple[int, int]:
     root = root.resolve()
     if not root.is_dir():
         raise FileNotFoundError(f"Asset directory does not exist: {root}")
 
+    normalize_csp_fallbacks(root)
     assets = sorted(
         item for item in root.rglob("*")
         if item.is_file() and item.suffix.lower() in ASSET_SUFFIXES
