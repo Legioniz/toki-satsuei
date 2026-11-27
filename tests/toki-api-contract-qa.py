@@ -25,7 +25,7 @@ for label, text in (("booking", booking), ("calendar", calendar)):
     assert "function trustedClientAddress(request: Request): string | null" in text, f"{label}: trusted IP resolver must have nullable return type"
     assert "cf-connecting-ip" in text, f"{label}: Cloudflare client IP header missing"
     assert "x-forwarded-for" not in text and "x-real-ip" not in text, f"{label}: untrusted proxy header accepted"
-assert booking.index("consumeQuota(bucket, 'portfolio_turnstile_verify', 20)") < booking.index("verifyTurnstile(token, expectedAction, secret, isTokiBooking)"), "a dedicated verification quota must protect the CAPTCHA provider"
+assert booking.index("consumeQuota(bucket, 'portfolio_turnstile_verify', 20)") < booking.index("verifyTurnstile(token, expectedAction, secret, isTokiBooking, hostnameForOrigin(origin))"), "a dedicated verification quota must protect the CAPTCHA provider"
 assert 'PORTFOLIO_ADDITIONAL_ALLOWED_ORIGINS' in booking
 assert 'https://toki-satsuei.pages.dev' in booking
 assert 'ALLOWED_ORIGINS.has(origin)' in booking
