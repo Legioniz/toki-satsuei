@@ -135,25 +135,53 @@ def main():
    header_box=home.locator(".site-header").bounding_box()
    assert header_box and -1<=header_box["y"]<=1, f"Header did not reveal after hero exit: {header_box}"
    menu=home.locator(".menu-toggle");menu.click()
-   assert menu.get_attribute("aria-expanded")=="true"
    home.wait_for_function("""() => {
      const header=document.querySelector(".site-header");
      const nav=document.querySelector(".primary-nav");
-     const first=nav?.querySelector("a");
-     if(!header||!nav||!first) return false;
-     const h=header.getBoundingClientRect(), n=nav.getBoundingClientRect(), a=first.getBoundingClientRect();
-     return n.top>=h.bottom-1 && a.top>=n.top-1 && a.bottom<=n.bottom+1;
+     return header && nav && nav.classList.contains("is-open") &&
+       getComputedStyle(nav).display!=="none" &&
+       document.querySelector(".menu-toggle")?.getAttribute("aria-expanded")==="true";
    }""")
-   home.wait_for_function("document.querySelector('.primary-nav').getAnimations().length > 0")
+   drawer=home.locator(".primary-nav")
+   drawer_state=drawer.evaluate("""nav => {
+     const header=document.querySelector(".site-header");
+     const h=header.getBoundingClientRect(), n=nav.getBoundingClientRect();
+     const first=nav.querySelector("a")?.getBoundingClientRect();
+     const style=getComputedStyle(nav);
+     return {
+       position:style.position, overflowY:style.overflowY,
+       top:n.top, bottom:n.bottom, left:n.left, right:n.right,
+       headerBottom:h.bottom, headerLeft:h.left, headerRight:h.right,
+       firstTop:first?.top, firstBottom:first?.bottom,
+       scrollHeight:nav.scrollHeight, clientHeight:nav.clientHeight
+     };
+   }""")
+   assert drawer_state["position"]=="absolute", f"Mobile drawer must be anchored to the header, got {drawer_state}"
+   assert drawer_state["overflowY"] in ("auto","scroll"), f"Mobile drawer must scroll within its viewport, got {drawer_state}"
+   assert drawer_state["top"]>=drawer_state["headerBottom"]-1, f"Mobile drawer overlaps the header: {drawer_state}"
+   assert drawer_state["left"]<=drawer_state["headerLeft"]+1 and drawer_state["right"]>=drawer_state["headerRight"]-1, f"Mobile drawer does not span the header: {drawer_state}"
+   assert drawer_state["firstTop"]>=drawer_state["top"]-1 and drawer_state["firstBottom"]<=drawer_state["bottom"]+1, f"First navigation link is clipped: {drawer_state}"
    icon_transform=home.locator(".menu-toggle span").first.evaluate("(el)=>getComputedStyle(el).transform")
-   assert icon_transform != "none", "Mobile menu icon did not animate into its open state"
+   assert icon_transform != "none", "Mobile menu icon did not enter its open state"
    home.keyboard.press("Escape")
    assert menu.get_attribute("aria-expanded")=="false"
-   assert home.locator(".primary-nav").evaluate("(el)=>el.getAnimations().some(animation=>animation.playState==='running')"),"Mobile menu exit transition did not start"
+   home.wait_for_function("!document.querySelector('.primary-nav').classList.contains('is-open')")
+   # A short phone viewport must keep the complete menu reachable through its own scroll region.
+   home.set_viewport_size({"width":390,"height":360})
+   menu.click()
+   home.wait_for_function("document.querySelector('.primary-nav')?.classList.contains('is-open')")
+   short_state=drawer.evaluate("nav=>({overflowY:getComputedStyle(nav).overflowY,scrollHeight:nav.scrollHeight,clientHeight:nav.clientHeight,maxHeight:getComputedStyle(nav).maxHeight})")
+   assert short_state["overflowY"] in ("auto","scroll"), f"Short-screen menu is not scrollable: {short_state}"
+   assert short_state["clientHeight"]>0, f"Short-screen menu has no visible scroll region: {short_state}"
+   last_link=drawer.locator("a").last
+   last_link.scroll_into_view_if_needed()
+   assert last_link.is_visible(), "Last navigation link is not reachable on a short mobile viewport"
+   home.keyboard.press("Escape")
    home.wait_for_function("!document.querySelector('.primary-nav').classList.contains('is-open')")
    menu.click()
    home.evaluate("document.querySelector('.hero-opening').dispatchEvent(new MouseEvent('click',{bubbles:true}))")
    assert menu.get_attribute("aria-expanded")=="false","Outside click did not close mobile navigation"
+   home.wait_for_function("!document.querySelector('.primary-nav').classList.contains('is-open')")
    passed+=1
 
    reduced=context.new_page();reduced.emulate_media(reduced_motion="reduce")
