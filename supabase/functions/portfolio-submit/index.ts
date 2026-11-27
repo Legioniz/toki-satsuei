@@ -46,7 +46,7 @@ const TOKI_TURNSTILE_SECRET = Deno.env.get('TOKI_TURNSTILE_SECRET_KEY') ?? ''
 // Emit configuration presence only; never include secret material in logs.
 console.info('TOKI Turnstile configuration', {
   secretConfigured: Boolean(TOKI_TURNSTILE_SECRET),
-  hostnameConfigured: Boolean(expectedHostname),
+  hostnameConfigured: ALLOWED_ORIGINS.size > 0,
 })
 
 const serviceKeyHeaders = {
