@@ -25,6 +25,13 @@ class QuietHandler(SimpleHTTPRequestHandler):
 
 def main() -> None:
     assert SPRITE.is_file() and SPRITE.stat().st_size > 5000, "Five-angle 2D WebP sprite is missing or incomplete."
+    headers = (ROOT / "_headers").read_text(encoding="utf-8")
+    csp = next((line for line in headers.splitlines() if "Content-Security-Policy:" in line), "")
+    frame_src = next((part.strip() for part in csp.split(";") if part.strip().startswith("frame-src ")), "")
+    assert "https://sketchfab.com" in frame_src, (
+        "The deployed Content Security Policy must allow the Sketchfab iframe host."
+    )
+    assert "https://sketchfab.com/models/7d57163f3bec464cbb213428e1c37cf7/embed" == SKETCHFAB_EMBED
     server = ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler))
     thread = Thread(target=server.serve_forever, daemon=True)
     thread.start()
