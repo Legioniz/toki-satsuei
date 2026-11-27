@@ -77,7 +77,6 @@ jobs:
           node --check library.js
           node --check admin.js
           node --check client-gallery.js
-          node --check equipment.js
 
       - name: Verify Python test and build syntax
         run: python -m compileall -q scripts tests
@@ -122,7 +121,7 @@ jobs:
       - name: Verify adaptive interactions
         run: python tests/toki-adaptive-interaction-qa.py
 
-      - name: Verify interactive equipment model and layout
+      - name: Verify equipment reference cards and responsive layout
         run: python tests/toki-equipment-qa.py
 
       - name: Verify scroll-linked motion and parallax
@@ -167,7 +166,7 @@ jobs:
           set -euo pipefail
           rm -rf dist
           mkdir -p dist
-          cp index.html booking.html library.html policies.html 404.html admin.html client-gallery.html toki-home.css toki-archive.css toki-policies.css toki-404.css toki-admin.css toki-client.css motion-system.js site.js availability.js library.js admin.js client-gallery.js equipment.js media-library.json robots.txt sitemap.xml _headers dist/
+          cp index.html booking.html library.html policies.html 404.html admin.html client-gallery.html toki-home.css toki-archive.css toki-policies.css toki-404.css toki-admin.css toki-client.css motion-system.js site.js availability.js library.js admin.js client-gallery.js media-library.json robots.txt sitemap.xml _headers dist/
           cp -R media-library dist/
           touch dist/.nojekyll
           test -s dist/index.html
@@ -192,7 +191,6 @@ jobs:
           test -s dist/library.js
           test -s dist/admin.js
           test -s dist/client-gallery.js
-          test -s dist/equipment.js
           test -s dist/media-library.json
 
       - name: Upload Pages artifact

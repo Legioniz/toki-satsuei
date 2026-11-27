@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Browser regression checks for the interactive equipment field study."""
+"""Browser regression checks for the static equipment reference section."""
 from __future__ import annotations
 
 from functools import partial
@@ -10,6 +10,8 @@ from threading import Thread
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
+CANON_CAMERA = "https://asia.canon/en/consumer/eos-3000d-kit-ef-s18-55-iii/main/specification"
+CANON_LENS = "https://www.usa.canon.com/support/p/ef-s-18-55mm-f-3-5-5-6-iii"
 
 
 class QuietHandler(SimpleHTTPRequestHandler):
@@ -31,48 +33,39 @@ def main() -> None:
             page = browser.new_page(viewport={"width": 1440, "height": 1000})
             page.on("pageerror", lambda error: errors.append(str(error)))
             page.goto(f"http://127.0.0.1:{server.server_port}/index.html", wait_until="domcontentloaded")
-            page.wait_for_function(
-                "document.querySelector('[data-equipment-root]')?.dataset.equipmentReady === 'true'",
-                timeout=10000,
+
+            section = page.locator("#equipment")
+            assert section.count() == 1, "Equipment section must appear once on the homepage"
+            assert page.locator('a[href="#equipment"]').count() == 1, "Equipment section anchor is missing"
+            assert section.locator("[data-equipment-card]").count() == 2, "Camera and lens must be separate cards"
+            assert section.locator("[data-camera-model], [data-camera-object], [data-equipment-mode], [data-blueprint-view]").count() == 0, (
+                "Retired interactive 3D/2D model controls must not remain"
             )
+            assert section.locator("svg, canvas").count() == 0, "Equipment section should not contain model drawings"
+            assert page.locator('script[src*="equipment.js"]').count() == 0, "Retired equipment controller is still loaded"
 
-            root = page.locator("[data-equipment-root]")
-            assert root.count() == 1, "Equipment section must appear once on the homepage"
-            assert page.locator('a[href="#equipment"]').count() == 1, "Equipment navigation anchor is missing"
+            camera = section.locator('[data-equipment-card="camera"]')
+            lens = section.locator('[data-equipment-card="lens"]')
+            assert camera.count() == lens.count() == 1
+            assert "Canon EOS 3000D" in camera.inner_text()
+            assert "18 MP" in camera.inner_text()
+            assert "DIGIC 4+" in camera.inner_text()
+            assert "9-point AF" in camera.inner_text()
+            assert "Canon EF-S 18–55mm" in lens.inner_text()
+            assert "Version-dependent" in lens.inner_text()
+            assert "revision printed on the lens barrel has not yet been confirmed" in lens.inner_text().lower()
 
-            camera_tab = root.locator('[data-equipment-component="camera"]')
-            lens_tab = root.locator('[data-equipment-component="lens"]')
-            assert camera_tab.get_attribute("aria-selected") == "true"
-            lens_tab.click()
-            assert lens_tab.get_attribute("aria-selected") == "true"
-            assert root.locator('[data-spec-panel="lens"]').is_visible(), "Lens details did not become visible"
-            assert root.locator('[data-spec-panel="camera"]').is_hidden(), "Camera details should be hidden while lens is selected"
-
-            root.locator('[data-equipment-mode="2d"]').click()
-            assert root.locator("[data-equipment-stage]").get_attribute("data-view") == "2d"
-            assert root.locator('[data-blueprint-panel="front"]').is_visible()
-            root.locator('[data-blueprint-view="rear"]').click()
-            assert root.locator('[data-blueprint-panel="rear"]').is_visible(), "Rear schematic did not activate"
-            assert root.locator('[data-blueprint-panel="front"]').is_hidden(), "Only one 2D view should be visible"
-            root.locator('[data-blueprint-view="side"]').click()
-            assert root.locator('[data-blueprint-panel="side"]').is_visible(), "Side schematic did not activate"
-
-            root.locator('[data-equipment-mode="3d"]').click()
-            assert root.locator("[data-camera-model]").is_visible()
-            before = root.locator("[data-camera-object]").evaluate("(node) => getComputedStyle(node).getPropertyValue('--camera-ry')")
-            root.locator("[data-rotate-right]").click()
-            page.wait_for_timeout(80)
-            after = root.locator("[data-camera-object]").evaluate("(node) => getComputedStyle(node).getPropertyValue('--camera-ry')")
-            assert before != after, "3D rotation control did not change the model orientation"
-
-            camera_tab.click()
-            assert root.locator('[data-spec-panel="camera"]').is_visible()
-            assert "18.0 MP" in root.locator('[data-spec-panel="camera"]').inner_text()
-            assert "Version-dependent" in root.locator('[data-spec-panel="lens"]').inner_text()
+            camera_link = camera.locator(".equipment-source-link")
+            lens_link = lens.locator(".equipment-source-link")
+            assert camera_link.get_attribute("href") == CANON_CAMERA
+            assert lens_link.get_attribute("href") == CANON_LENS
+            for link in (camera_link, lens_link):
+                assert link.get_attribute("target") == "_blank"
+                assert "noopener" in (link.get_attribute("rel") or "")
 
             for width in (320, 360, 390, 430, 600, 768, 900, 1024, 1440):
                 page.set_viewport_size({"width": width, "height": 900})
-                page.wait_for_timeout(30)
+                page.wait_for_timeout(25)
                 dimensions = page.evaluate(
                     """() => ({
                       viewport: document.documentElement.clientWidth,
@@ -92,8 +85,9 @@ def main() -> None:
             browser.close()
     finally:
         server.shutdown()
+        thread.join(timeout=2)
         server.server_close()
-    print("TOKI equipment model, controls, specifications, and responsive layout: PASS")
+    print("TOKI equipment cards, Canon source links, specifications, and responsive layout: PASS")
 
 
 if __name__ == "__main__":

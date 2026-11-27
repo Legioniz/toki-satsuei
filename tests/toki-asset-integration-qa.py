@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PAGES = ("index.html", "booking.html", "library.html", "policies.html", "404.html", "admin.html", "client-gallery.html")
 WORKFLOW = ROOT / ".github/workflows/deploy.yml"
 EXPECTED_CONSUMERS = {
-    "index.html": ("motion-system.js", "site.js", "equipment.js", "availability.js"),
+    "index.html": ("motion-system.js", "site.js", "availability.js"),
     "booking.html": ("motion-system.js", "site.js"),
     "library.html": ("motion-system.js", "site.js", "library.js"),
     "policies.html": ("motion-system.js", "site.js"),
@@ -26,7 +26,6 @@ EXPECTED_DATA = {
 
 EXPECTED_SCRIPT_VERSIONS = {
     "site.js": "20261127-v3-smart-header",
-    "equipment.js": "20261127-v2-svg-blueprint-tabs",
     "availability.js": "20261126-v15-interaction-fixes",
     "admin.js": "20261126-v16-admin-focus-fix",
     "client-gallery.js": "20261126-v15-interaction-fixes",
