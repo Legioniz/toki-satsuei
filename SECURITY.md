@@ -45,7 +45,7 @@ These checks are additional guardrails, not proof that the application is vulner
 
 ## Hosting response headers
 
-The site is deployed on GitHub Pages. The repository's `_headers` file is retained as configuration input for a hosting platform that supports that convention, but GitHub Pages does not apply it as HTTP response headers. Do not treat the listed CSP, frame, referrer, or permissions policies as active on the live Pages site. Enforcing those headers requires a hosting platform or proxy that supports response-header configuration, followed by verification against the live HTTP response.
+The current production site is deployed on GitHub Pages. GitHub Pages does not apply `_headers` as HTTP response headers, so HSTS, response CSP, X-Frame-Options, Permissions-Policy, and custom Cache-Control values are not active at the current github.io origin. The repository now contains a Cloudflare Pages-compatible _headers policy, consistent CSP meta fallbacks, content-hash asset URLs, and a post-deployment response verifier. The meta fallback cannot enforce HSTS or frame-ancestors and cannot set response cache policy. Treat response-level controls as pending until the site is served by a header-capable host and the strict live verifier passes.
 
 
 ## TOKI API and traffic enforcement
@@ -84,7 +84,7 @@ Booking caps: 12 participants, 50 additional photos, 120 additional minutes in 1
 14. Preserve Git history. Never force-push or rewrite history routinely. If a secret enters history, rotate it immediately; history rewriting is secondary and coordinated.
 15. Configure GitHub rulesets outside code: require PRs and successful verification, block force pushes and branch deletion, require conversation resolution, and restrict bypass. The connected GitHub integration cannot administer these settings.
 
-These rules reduce risk; they do not make a site invulnerable. GitHub Pages does not apply the repository _headers file as response headers. A header-capable host or trusted proxy is required for site-wide CSP/HSTS/frame policies.
+These rules reduce risk; they do not make a site invulnerable. The current GitHub Pages origin still cannot apply _headers. The post-deployment probe reports those missing controls, and must be run with TOKI_REQUIRE_SECURITY_HEADERS=1 against the replacement origin before the migration is treated as complete.
 
 
 ## Delivery-key storage and admin-session rules
@@ -99,7 +99,7 @@ Supabase Auth's leaked-password protection is currently disabled. Enable it in S
 
 No GitHub branch ruleset is currently configured. The GitHub integration used here can inspect rulesets but cannot create or edit them. Apply the repository ruleset described in `.github/SECURITY-RULESET.md` from GitHub Settings → Rules → Rulesets.
 
-The site remains hosted on GitHub Pages. Its `_headers` file is not enforced there; CSP, HSTS, frame restrictions, and WAF-level traffic controls still require a header-capable host or a trusted proxy.
+The site remains on GitHub Pages until a hosting cutover is completed. The _headers file is prepared for Cloudflare Pages, but remains inactive on the current origin. Do not describe response-level CSP, HSTS, frame restrictions, or immutable Cache-Control as live protections until the strict live-site check confirms them.
 
 
 
