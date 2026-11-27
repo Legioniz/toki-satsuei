@@ -36,6 +36,91 @@ REQUIRED_MODULES = (
     "styles/pages/gallery.css",
     "styles/pages/page-shells.css",
 )
+def duplicate_css_rules(css):
+    """Return exact duplicate CSS rules within the same at-rule context."""
+    grouping_at_rules = {
+        "@media", "@supports", "@container", "@layer", "@document",
+        "@scope", "@keyframes", "@-webkit-keyframes",
+    }
+    stack = []
+    prelude = []
+    duplicates = {}
+    quote = None
+    escaped = False
+    comment = False
+    skip_comment_closing_slash = False
+
+    def active_body():
+        for node in reversed(stack):
+            if node["kind"] in ("rule", "opaque"):
+                return node["body"]
+        return None
+
+    for index, char in enumerate(css):
+        next_char = css[index + 1] if index + 1 < len(css) else ""
+        if skip_comment_closing_slash:
+            skip_comment_closing_slash = False
+            continue
+        if comment:
+            if char == "*" and next_char == "/":
+                comment = False
+                skip_comment_closing_slash = True
+            continue
+        if quote:
+            body = active_body()
+            target = body if body is not None else prelude
+            target.append(char)
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = None
+            continue
+        if char == "/" and next_char == "*":
+            comment = True
+            continue
+        if char in ("'", '"'):
+            quote = char
+            target = active_body()
+            (target if target is not None else prelude).append(char)
+            continue
+        if char == "{":
+            selector = "".join(prelude).strip()
+            prelude.clear()
+            if selector.startswith("@"):
+                match = re.match(r"@[-\w]+", selector)
+                keyword = match.group(0).lower() if match else selector.lower()
+                kind = "group" if keyword in grouping_at_rules else "opaque"
+                stack.append({"kind": kind, "selector": re.sub(r"\s+", " ", selector), "body": []})
+            elif any(node["kind"] == "opaque" for node in stack):
+                stack.append({"kind": "opaque-nested", "body": []})
+            else:
+                context = tuple(node["selector"] for node in stack if node["kind"] == "group")
+                stack.append({
+                    "kind": "rule",
+                    "selector": re.sub(r"\s+", " ", selector),
+                    "context": context,
+                    "body": [],
+                })
+        elif char == "}":
+            if stack:
+                node = stack.pop()
+                if node["kind"] == "rule":
+                    body = re.sub(r"\s+", " ", "".join(node["body"])).strip()
+                    signature = (node["context"], node["selector"], body)
+                    duplicates[signature] = duplicates.get(signature, 0) + 1
+        elif char == ";" and active_body() is None:
+            prelude.clear()
+        else:
+            target = active_body()
+            (target if target is not None else prelude).append(char)
+
+    return {
+        signature: count
+        for signature, count in duplicates.items()
+        if count > 1
+    }
 
 def main():
     for page, bundle in EXPECTED.items():
@@ -49,6 +134,13 @@ def main():
 
     missing = [path for path in REQUIRED_MODULES if not (ROOT / path).is_file()]
     assert not missing, "Missing modular stylesheet source(s): " + ", ".join(missing)
+
+    for module in REQUIRED_MODULES:
+        duplicates = duplicate_css_rules((ROOT / module).read_text(encoding="utf-8"))
+        assert not duplicates, (
+            f"{module} contains exact duplicate CSS rule blocks: "
+            + "; ".join(f"{selector} ({count} copies)" for (_, selector, _), count in duplicates.items())
+        )
     assert not (ROOT / "design-system.css").exists(), "The monolithic design-system.css must stay retired."
     for retired in (
         "design-system.css", "policies.css", "availability.css", "pricing-calculator.css",
