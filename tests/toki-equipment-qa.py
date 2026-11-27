@@ -10,8 +10,8 @@ from threading import Thread
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
-CANON_CAMERA = "https://asia.canon/en/consumer/eos-3000d-kit-ef-s18-55-iii/main/specification"
-CANON_LENS = "https://www.usa.canon.com/support/p/ef-s-18-55mm-f-3-5-5-6-iii"
+CANON_CAMERA = "https://asia.canon/en/pro-imaging/eos-3000d-kit-ef-s18-55-iii/main/product"
+CANON_LENS = "https://global.canon/en/c-museum/product/ef410.html"
 
 
 class QuietHandler(SimpleHTTPRequestHandler):
