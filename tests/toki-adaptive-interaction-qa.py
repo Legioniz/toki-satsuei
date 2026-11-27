@@ -230,11 +230,14 @@ def main():
        navBox:(()=>{const r=nav.getBoundingClientRect();return {top:r.top,bottom:r.bottom,transform:style.transform,scrollTop:nav.scrollTop,scrollHeight:nav.scrollHeight,clientHeight:nav.clientHeight}})(),
        headerBox:(()=>{const h=document.querySelector(".site-header"),r=h.getBoundingClientRect(),s=getComputedStyle(h);return {top:r.top,bottom:r.bottom,transform:s.transform,className:h.className,ariaHidden:h.getAttribute("aria-hidden"),inert:h.inert}})(),
        overflowY:style.overflowY,
-       flexDirection:style.flexDirection
+       flexDirection:style.flexDirection,
+       justifyContent:style.justifyContent
      };
    }""")
    assert link_metrics["count"]==7, f"Mobile navigation must retain all seven destinations: {link_metrics}"
    assert link_metrics["flexDirection"]=="column", f"Mobile navigation must stack links vertically: {link_metrics}"
+   assert link_metrics["justifyContent"]=="flex-start", f"Mobile navigation must start at the top edge, not distribute overflow above the drawer: {link_metrics}"
+   assert link_metrics["tops"][0]>=drawer.evaluate("nav=>nav.getBoundingClientRect().top")-1, f"First mobile link begins above the drawer: {link_metrics}"
    assert all(height>=48 for height in link_metrics["heights"]), f"Mobile navigation links must retain 48px touch targets: {link_metrics}"
    assert all(link_metrics["tops"][i+1]>=link_metrics["tops"][i]+link_metrics["heights"][i]-1 for i in range(6)), f"Mobile navigation links overlap or are out of vertical order: {link_metrics}"
    assert link_metrics["overflowY"] in ("auto","scroll"), f"Short-screen menu is not scrollable: {link_metrics}"

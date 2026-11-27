@@ -9,6 +9,8 @@
     flex-direction: column !important;
     flex-wrap: nowrap !important;
     align-items: stretch !important;
+    justify-content: flex-start !important;
+    align-content: flex-start !important;
     gap: 4px;
     max-height: calc(100dvh - 110px - env(safe-area-inset-bottom, 0px));
     overflow-x: hidden;
