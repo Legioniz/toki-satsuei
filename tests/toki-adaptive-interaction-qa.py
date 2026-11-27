@@ -136,6 +136,14 @@ def main():
    assert header_box and -1<=header_box["y"]<=1, f"Header did not reveal after hero exit: {header_box}"
    menu=home.locator(".menu-toggle");menu.click()
    assert menu.get_attribute("aria-expanded")=="true"
+   home.wait_for_function("""() => {
+     const header=document.querySelector(".site-header");
+     const nav=document.querySelector(".primary-nav");
+     const first=nav?.querySelector("a");
+     if(!header||!nav||!first) return false;
+     const h=header.getBoundingClientRect(), n=nav.getBoundingClientRect(), a=first.getBoundingClientRect();
+     return n.top>=h.bottom-1 && a.top>=n.top-1 && a.bottom<=n.bottom+1;
+   }""")
    home.wait_for_function("document.querySelector('.primary-nav').getAnimations().length > 0")
    icon_transform=home.locator(".menu-toggle span").first.evaluate("(el)=>getComputedStyle(el).transform")
    assert icon_transform != "none", "Mobile menu icon did not animate into its open state"
