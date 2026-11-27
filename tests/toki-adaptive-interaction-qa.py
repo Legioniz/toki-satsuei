@@ -188,6 +188,8 @@ def main():
        scrollHeight:nav.scrollHeight, clientHeight:nav.clientHeight
      };
    }""")
+   header_overflow=home.locator(".site-header").evaluate("(node)=>getComputedStyle(node).overflowX+\",\"+getComputedStyle(node).overflowY")
+   assert header_overflow=="visible,visible", f"Mobile header must not clip its absolute navigation drawer: {header_overflow}"
    assert drawer_state["position"]=="absolute", f"Mobile drawer must be anchored to the header, got {drawer_state}"
    assert drawer_state["overflowY"] in ("auto","scroll"), f"Mobile drawer must scroll within its viewport, got {drawer_state}"
    assert drawer_state["top"]>=drawer_state["headerBottom"]-1, f"Mobile drawer overlaps the header after its entrance transition: {drawer_state}"
