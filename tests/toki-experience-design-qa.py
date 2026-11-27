@@ -69,7 +69,9 @@ def main() -> None:
     assert "script-src 'self' 'unsafe-inline' https://static.sketchfab.com" in headers.split("Content-Security-Policy:", 1)[1]
     assert "https://static.sketchfab.com" in home, "The page CSP must allow the official Sketchfab Viewer API script."
     assert "Canon EOS 3000D" in equipment and "Canon EF-S 18–55mm" in equipment
-    assert "lens revision" in equipment.lower(), "Lens revision caveat must stay visible."
+    assert equipment.count('class="equipment-spec-disclosure"') == 3, "Equipment specifications and references must be collapsible."
+    assert "lens revision" not in equipment.lower(), "The removed lens-revision paragraph must stay removed."
+    assert "The supplied 2D product views depict" not in equipment, "The removed equipment disclaimer must not return."
     assert "equipment-model-3d" not in equipment and "equipment-blueprint" not in equipment, "Retired CSS/2D schematic must stay removed."
     assert "data-camera-object" not in equipment, "Legacy CSS camera object must not return."
     assert 'equipment.js' not in home and 'equipment-viewer.js' in home

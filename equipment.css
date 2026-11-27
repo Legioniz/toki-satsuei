@@ -30,8 +30,18 @@
 .equipment-spec-kicker{margin:0 0 12px;color:#e8828d;font:10px/1.5 var(--c-mono,"Space Mono",monospace);letter-spacing:.17em}
 .equipment-spec-panel h3{margin:0 0 12px;color:#f4f1ea;font:500 clamp(29px,3vw,40px)/1.04 var(--font-display,var(--c-display,"Space Grotesk",sans-serif));letter-spacing:-.035em;overflow-wrap:anywhere}
 .equipment-spec-intro{margin:0 0 22px;color:#c7c1b6;font-size:13px;line-height:1.85}
-.equipment-spec-group{margin-top:22px}
-.equipment-spec-group h4{margin:0 0 10px;color:#e8e0d6;font:600 11px/1.5 var(--c-mono,"Space Mono",monospace);letter-spacing:.13em;text-transform:uppercase}
+.equipment-spec-group{margin-top:18px}
+.equipment-spec-disclosure{border-top:1px solid rgba(244,241,234,.17)}
+.equipment-spec-disclosure>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;color:#e8e0d6;font:600 11px/1.5 var(--c-mono,"Space Mono",monospace);letter-spacing:.13em;text-transform:uppercase;cursor:pointer;list-style:none;user-select:none}
+.equipment-spec-disclosure>summary::-webkit-details-marker{display:none}
+.equipment-spec-disclosure>summary::marker{content:""}
+.equipment-spec-disclosure>summary::after{content:"+";display:grid;place-items:center;flex:0 0 24px;width:24px;height:24px;border:1px solid rgba(244,241,234,.24);color:#e8828d;font:400 18px/1 var(--c-mono,"Space Mono",monospace)}
+.equipment-spec-disclosure[open]>summary::after{content:"−"}
+.equipment-spec-disclosure>summary:hover{color:#fff}
+.equipment-spec-disclosure>summary:focus-visible{outline:2px solid #e8828d;outline-offset:4px}
+.equipment-reference-disclosure{margin-top:10px}
+.equipment-reference-disclosure .equipment-spec-note{margin:4px 0 10px}
+.equipment-reference-disclosure .equipment-spec-source{margin-top:0;margin-bottom:12px}
 .equipment-spec-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 15px;margin:0;border-top:1px solid rgba(244,241,234,.17)}
 .equipment-spec{min-width:0;padding:12px 0;border-bottom:1px solid rgba(244,241,234,.14)}
 .equipment-spec dt{margin:0 0 6px;color:#a9a196;font:9px/1.4 var(--c-mono,"Space Mono",monospace);letter-spacing:.1em;text-transform:uppercase;overflow-wrap:anywhere}

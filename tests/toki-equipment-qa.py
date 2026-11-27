@@ -123,10 +123,24 @@ def main() -> None:
             assert root.locator('[data-equipment-mode="2d"]').get_attribute("aria-pressed") == "true"
             assert iframe.count() == 1, "Returning to 2D should reuse, not duplicate, the existing iframe"
 
+            disclosures = section.locator("details.equipment-spec-disclosure")
+            assert disclosures.count() == 3, "Camera, lens, and reference details must be collapsible."
+            assert all(not item.evaluate("(node) => node.open") for item in disclosures.all()), (
+                "Equipment disclosures should start closed to keep the portfolio compact."
+            )
+            disclosures.nth(0).locator("summary").click()
+            assert disclosures.nth(0).evaluate("(node) => node.open"), "Camera specifications did not expand."
+            disclosures.nth(0).locator("summary").click()
+            assert not disclosures.nth(0).evaluate("(node) => node.open"), "Camera specifications did not collapse."
+            for disclosure in disclosures.all():
+                disclosure.locator("summary").click()
+
             details = section.inner_text()
             for expected in ("Canon EOS 3000D", "18 MP", "DIGIC 4+", "9-point AF", "Canon EF-S 18–55mm",
-                             "Revision-dependent", "lens revision", "Canon EOS 3000"):
+                             "35mm equivalent", "Canon EOS 3000"):
                 assert expected.lower() in details.lower(), f"Equipment details missing {expected!r}"
+            assert "revision-dependent" not in details.lower(), "Unconfirmed lens-specific figures must not be shown."
+            assert "lens revision" not in details.lower(), "The removed lens-revision paragraph must not return."
             assert SKETCHFAB_MODEL in section.locator('a[href*="sketchfab.com"]').get_attribute("href")
 
             asset_responses = [(url, status) for url, status in responses if "/assets/equipment/camera/" in url]
