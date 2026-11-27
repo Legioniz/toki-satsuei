@@ -42,6 +42,15 @@ def main() -> None:
         assert asset.is_file() and asset.stat().st_size > 100_000, f"{angle} original camera PNG is missing or incomplete."
         assert png_dimensions(asset) == (362, 320), f"{angle} source dimensions unexpectedly changed."
     assert LOGO_ASSET.is_file() and LOGO_ASSET.stat().st_size > 800_000, "Submitted TOKI logo master is missing."
+    home_markup = (ROOT / "index.html").read_text(encoding="utf-8")
+    equipment_markup = home_markup.split('<section class="equipment-section"', 1)[1].split('<section class="faq-section"', 1)[0]
+    community_photo = equipment_markup.split('<figure class="equipment-community-photo">', 1)[1].split('</figure>', 1)[0]
+    assert "Canon_EOS_3000D_CNE.jpg" in community_photo, "High-resolution community reference photo is missing."
+    assert all(f"{width}px-Canon_EOS_3000D_CNE.jpg {width}w" in community_photo for width in (720, 1080, 1620, 2400)), "Community photo must provide responsive 2x/3x source candidates."
+    assert 'width="3353"' in community_photo and 'height="2434"' in community_photo, "Community source dimensions must be declared accurately."
+    assert "CNEcija12345" in community_photo and "CC BY-SA 4.0" in community_photo, "Community photo attribution and license must remain visible."
+    assert "NOT A PHOTOGRAPH OF TOKI'S SPECIFIC CAMERA" in community_photo, "Third-party reference must not be presented as TOKI's specific unit."
+    assert "creativecommons.org/licenses/by-sa/4.0/" in community_photo, "Community photo must link to its license."
     assert png_dimensions(LOGO_ASSET) == (1254, 1254), "Submitted TOKI logo master dimensions unexpectedly changed."
     index_head = (ROOT / "index.html").read_text(encoding="utf-8").split("</head>", 1)[0]
     assert "http-equiv=\"Content-Security-Policy\"" in index_head

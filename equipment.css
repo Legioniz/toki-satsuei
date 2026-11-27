@@ -55,3 +55,10 @@
 @media(max-width:600px){.equipment-section::before{background-size:36px 36px}.equipment-section>.section-wrap{width:calc(100% - 36px)}.equipment-viewer-top{padding-inline:12px;font-size:8px}.equipment-mode-switch{padding:12px}.equipment-mode-switch button{font-size:9px;padding-inline:7px}.equipment-stage{padding:9px}.equipment-photo-stage{width:100%}.equipment-embed,.equipment-embed iframe{min-height:260px}.equipment-angle-controls{gap:5px;padding:11px 9px}.equipment-angle-controls button{font-size:8px;min-height:44px}.equipment-viewer-foot{padding-inline:12px;display:grid}.equipment-spec-panel{padding:22px 18px}.equipment-spec-grid{gap:0 12px}.equipment-spec dd{font-size:13px}.equipment-caption{flex-direction:column;gap:4px}.equipment-caption span:last-child{text-align:left}}
 @media(max-width:360px){.equipment-viewer-top{letter-spacing:.07em}.equipment-angle-controls button{font-size:7px;letter-spacing:0}.equipment-spec dt{font-size:8px}.equipment-spec dd{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.equipment-mode-switch button,.equipment-angle-controls button{transition:none!important}}
+.equipment-community-photo{margin:24px 0 18px;padding:12px;border:1px solid rgba(244,241,234,.16);border-radius:5px;background:rgba(255,255,255,.025)}
+.equipment-community-photo__label{margin:0 0 10px;color:#e8828d;font:9px/1.6 var(--c-mono,"Space Mono",monospace);letter-spacing:.1em}
+.equipment-community-photo img{display:block;width:100%;max-width:none;height:auto;aspect-ratio:3353/2434;object-fit:contain;background:#e9e6df;border:1px solid rgba(244,241,234,.12)}
+.equipment-community-photo figcaption{display:grid;gap:5px;margin-top:10px;color:#bcb4a9;font:9px/1.65 var(--c-mono,"Space Mono",monospace);letter-spacing:.025em}
+.equipment-community-photo figcaption a{color:#f0d9d4;text-decoration:underline;text-underline-offset:3px}
+.equipment-community-photo figcaption a:hover{color:#fff}
+@media(max-width:600px){.equipment-community-photo{margin:18px 0 14px;padding:9px}.equipment-community-photo__label,.equipment-community-photo figcaption{font-size:8px}}
