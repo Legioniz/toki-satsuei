@@ -178,7 +178,7 @@ def main():
    assert menu.get_attribute("aria-expanded")=="false"
    home.wait_for_function("!document.querySelector('.primary-nav').classList.contains('is-open')")
    # A short phone viewport must keep the complete menu reachable through its own scroll region.
-   home.set_viewport_size({"width":390,"height":320})
+   home.set_viewport_size({"width":390,"height":360})
    menu.click()
    home.wait_for_function("document.querySelector('.primary-nav')?.classList.contains('is-open')")
    home.wait_for_function("""() => {
@@ -193,7 +193,9 @@ def main():
    short_state=drawer.evaluate("nav=>({overflowY:getComputedStyle(nav).overflowY,scrollHeight:nav.scrollHeight,clientHeight:nav.clientHeight,maxHeight:getComputedStyle(nav).maxHeight})")
    assert short_state["overflowY"] in ("auto","scroll"), f"Short-screen menu is not scrollable: {short_state}"
    assert short_state["clientHeight"]>0, f"Short-screen menu has no visible scroll region: {short_state}"
-   assert short_state["scrollHeight"]>short_state["clientHeight"], f"Short-screen menu did not overflow into its own scroll area: {short_state}"
+   link_heights=drawer.evaluate("nav=>Array.from(nav.querySelectorAll(\"a\")).map(a=>a.getBoundingClientRect().height)")
+   assert all(height>=48 for height in link_heights), f"Mobile navigation links must retain 48px touch targets: {link_heights}"
+   assert short_state["scrollHeight"]>short_state["clientHeight"], f"Short-screen menu did not overflow after preserving link touch targets: {short_state}"
    last_link=drawer.locator("a").last
    last_link.scroll_into_view_if_needed()
    assert last_link.is_visible(), "Last navigation link is not reachable on a short mobile viewport"

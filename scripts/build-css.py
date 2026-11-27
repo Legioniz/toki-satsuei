@@ -10,12 +10,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 BUNDLES = {
-    "toki-home.css": ["styles", "refinement", "policies", "availability", "motion-system", "cinematic", "experience", "fixes", "pricing-calculator", "design-system", "orientation", "global-motion", "site-enhancements", "motion-refinements"],
-    "toki-archive.css": ["styles", "library", "refinement", "motion-system", "cinematic", "experience", "pages", "design-system", "orientation", "global-motion", "motion-refinements"],
-    "toki-policies.css": ["styles", "refinement", "policies", "motion-system", "cinematic", "experience", "pages", "design-system", "orientation", "global-motion", "motion-refinements"],
-    "toki-404.css": ["styles", "refinement", "policies", "motion-system", "cinematic", "experience", "pages", "design-system", "orientation", "global-motion", "motion-refinements"],
-    "toki-admin.css": ["styles", "refinement", "motion-system", "admin", "design-system", "orientation", "global-motion", "motion-refinements"],
-    "toki-client.css": ["styles", "refinement", "motion-system", "client-gallery", "design-system", "orientation", "global-motion", "motion-refinements"],
+    "toki-home.css": ["styles", "refinement", "policies", "availability", "motion-system", "cinematic", "experience", "fixes", "pricing-calculator", "design-system", "orientation", "global-motion", "site-enhancements", "motion-refinements", "mobile-nav"],
+    "toki-archive.css": ["styles", "library", "refinement", "motion-system", "cinematic", "experience", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
+    "toki-policies.css": ["styles", "refinement", "policies", "motion-system", "cinematic", "experience", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
+    "toki-404.css": ["styles", "refinement", "policies", "motion-system", "cinematic", "experience", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
+    "toki-admin.css": ["styles", "refinement", "motion-system", "admin", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
+    "toki-client.css": ["styles", "refinement", "motion-system", "client-gallery", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
 }
 
 def minify(css: str) -> str:

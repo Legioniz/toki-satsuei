@@ -1,0 +1,10 @@
+/* Preserve mobile navigation touch targets; short viewports scroll the drawer instead of shrinking links. */
+@media (max-width: 820px) {
+  .site-header .primary-nav.is-open > a {
+    flex: 0 0 auto;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+  }
+}
