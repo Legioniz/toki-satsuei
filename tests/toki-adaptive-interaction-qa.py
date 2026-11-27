@@ -226,7 +226,7 @@ def main():
        count:links.length,
        heights:links.map(a=>a.getBoundingClientRect().height),
        tops:links.map(a=>a.getBoundingClientRect().top),
-       linkStyles:links.map(a=>({position:getComputedStyle(a).position,display:getComputedStyle(a).display,flex:getComputedStyle(a).flex,margin:getComputedStyle(a).margin,offsetTop:a.offsetTop,offsetHeight:a.offsetHeight,offsetParent:a.offsetParent?.tagName,parent:a.parentElement?.tagName})),
+       linkStyles:links.map(a=>({className:a.className,position:getComputedStyle(a).position,top:getComputedStyle(a).top,transform:getComputedStyle(a).transform,translate:getComputedStyle(a).translate,display:getComputedStyle(a).display,flex:getComputedStyle(a).flex,margin:getComputedStyle(a).margin,offsetTop:a.offsetTop,offsetHeight:a.offsetHeight,offsetParent:a.offsetParent?.tagName,parent:a.parentElement?.tagName,animations:a.getAnimations().map(x=>({state:x.playState,time:x.currentTime}))})),
        navBox:(()=>{const r=nav.getBoundingClientRect();return {top:r.top,bottom:r.bottom,transform:style.transform,scrollTop:nav.scrollTop,scrollHeight:nav.scrollHeight,clientHeight:nav.clientHeight}})(),
        headerBox:(()=>{const h=document.querySelector(".site-header"),r=h.getBoundingClientRect(),s=getComputedStyle(h);return {top:r.top,bottom:r.bottom,transform:s.transform,className:h.className,ariaHidden:h.getAttribute("aria-hidden"),inert:h.inert}})(),
        overflowY:style.overflowY,
