@@ -2,7 +2,7 @@
 
 The complete standalone TOKI SATSUEI website, kept separate from the Legioniz personal portfolio. A shared editorial design system keeps the homepage and archive visually consistent across screen sizes and orientations.
 
-- **Live site:** https://legioniz.github.io/toki-satsuei/
+- **Live site:** https://toki-satsuei.pages.dev/
 - **Design principles:** [DESIGN-PRINCIPLES.md](DESIGN-PRINCIPLES.md) documents the usability, accessibility, and booking-integrity rules behind the site.
 - **Facebook:** https://www.facebook.com/tokisatsuiephotography/
 - **Instagram:** https://www.instagram.com/tokisatsuiephotography/
@@ -16,21 +16,32 @@ The complete standalone TOKI SATSUEI website, kept separate from the Legioniz pe
 - Cinematic sketchbook art direction: darkroom imagery, contact-sheet galleries, pencil annotations, warm paper textures, and restrained motion
 - Shared responsive design system for layout, spacing, color grading, and visual consistency
 - Original TOKI SATSUEI brushstroke logo, upload-ready media folders, and automatic archive manifest generator
-- Dedicated GitHub Pages workflow and responsive browser regression tests
+- Dedicated Cloudflare Pages production deployment and responsive browser regression tests
 
-## Enable GitHub Pages (one-time setup)
+## Cloudflare Pages production deployment
 
-In this repository, open **Settings → Pages → Build and deployment** and set **Source** to **GitHub Actions**. GitHub does not allow this workflow connection to create the Pages site automatically for a new repository. After selecting GitHub Actions, rerun the latest workflow from the **Actions** tab. Future pushes to `main` will build and deploy the site automatically.
+The production workflow now deploys the already-tested `dist/` artifact to Cloudflare Pages using Wrangler Direct Upload. It creates the `toki-satsuei` Pages project on the first production run, deploys fresh `main` commits only, and no longer uses GitHub Pages deployment actions.
+
+Before the first production deployment, add these two values under GitHub **Settings → Secrets and variables → Actions → Repository secrets**:
+
+1. `CLOUDFLARE_API_TOKEN` — an account-scoped Cloudflare API token with **Cloudflare Pages: Edit/Write** permission.
+2. `CLOUDFLARE_ACCOUNT_ID` — the Cloudflare account ID that owns the Pages project.
+
+The workflow publishes to [https://toki-satsuei.pages.dev/](https://toki-satsuei.pages.dev/) by default. An optional repository variable named `TOKI_SITE_URL` can point the live verifier to a configured HTTPS custom domain. Do not set it to a preview URL.
+
+The previous `github.io/toki-satsuei` address is a legacy copy; this workflow no longer deploys to GitHub Pages. Keep it only as a temporary fallback until the Cloudflare Pages site is verified and the public links have been updated.
 
 ## HTTP security headers and cache integrity
 
-The build injects one consistent CSP meta fallback into every deployed HTML page, then fingerprints local CSS, JavaScript, JSON, fonts, and media URLs with a 32-character SHA-256 value. The workflow verifies that referenced assets match their fingerprints before publishing and fetches the deployed CSS/JavaScript again after deployment to verify the live response body.
+The build injects one consistent CSP meta fallback into all seven deployed HTML pages. It then fingerprints local CSS, JavaScript, JSON, fonts, images, and media URLs with a 32-hex-character SHA-256 prefix (128-bit cache key). Any content change automatically changes the asset URL; the build verifies every local reference before deployment.
 
-The root _headers file is prepared for Cloudflare Pages. It defines HSTS, response CSP, clickjacking protection, MIME sniffing protection, referrer and permissions policies, HTML revalidation, no-store for the admin and client-gallery pages, and one-year immutable caching for fingerprinted static assets. Narrow cache rules detach the inherited Cache-Control header before applying their own policy so directives do not conflict.
+The root `_headers` file is included at the Cloudflare Pages static output root. Cloudflare Pages parses it into actual HTTP response headers for the seven static pages and assets. The policy sets HSTS, response CSP with `frame-ancestors`, clickjacking and MIME-sniffing protection, referrer and permissions policies, HTML revalidation, `no-store` for the admin and client-gallery pages, and one-year immutable caching for fingerprinted assets. Narrow cache rules detach the inherited Cache-Control header before applying route-specific values.
 
-**Hosting limitation:** the public site is currently published on GitHub Pages. GitHub Pages does not let repository files configure custom HTTP response headers, so _headers is not active at the current github.io origin. The live workflow reports missing response headers as a warning by default while still requiring successful asset-hash checks. Header failures become blocking when TOKI_REQUIRE_SECURITY_HEADERS=1.
+After every production deployment, `tests/toki-live-site-security-qa.py` fetches all seven pages and checks the actual returned headers, HTML cache behavior, fingerprinted same-origin assets, and the SHA-256 prefix against the live response bodies. The workflow sets `TOKI_REQUIRE_SECURITY_HEADERS=1`; any missing or incorrect response header, cache policy, or asset hash fails deployment verification.
 
-To make response headers effective, deploy the same static dist/ output to Cloudflare Pages or another header-capable host. Set the repository variable TOKI_SITE_URL to that HTTPS production URL and set TOKI_REQUIRE_SECURITY_HEADERS=1. Before changing the canonical/public hostname, add the new hostname to the Cloudflare Turnstile widget and the Supabase Edge Function origin allowlist. Keep GitHub Pages as a fallback until the new origin passes the strict live check.
+### One-time origin verification
+
+Add `toki-satsuei.pages.dev` to the allowed hostnames for the Cloudflare Turnstile widget used by the booking form. The Supabase `portfolio-submit` and `toki-calendar` Edge Functions now allow the exact Pages origin alongside the legacy personal-portfolio origin; they do not use wildcard CORS. For a future custom domain, add its exact origin to the Supabase Edge Function secret `PORTFOLIO_ADDITIONAL_ALLOWED_ORIGINS` (comma-separated), add that hostname to Turnstile, and set `TOKI_SITE_URL` to the same HTTPS origin. Turnstile still verifies the token hostname against the actual allowlisted request origin.
 
 ## Add photos and videos
 
@@ -68,7 +79,7 @@ python tests/toki-live-http-security-qa.py
 
 ## Booking, privacy, and image consent
 
-The public [booking and photo policies](https://legioniz.github.io/toki-satsuei/policies.html) describe how requests are reviewed, how prices and payment terms are agreed, how schedule changes are handled, how files are delivered, and how client photographs may be shared. The standalone `booking.html` page sends the details you choose to provide to a Supabase Edge Function, which stores them in the private `public.toki_booking_requests` table. Anonymous visitors cannot read or insert directly into that table; the server-side intake is rate-limited and the owner dashboard reads requests under administrator-only Row Level Security. New requests are not reservations, do not hold a date, and do not request payment. Booking administration is handled directly in the Supabase Dashboard. Use the read-only `public.toki_booking_inbox` view to inspect requests and edit the underlying `public.toki_booking_requests` table. No personal-portfolio dashboard is used for TOKI bookings. Client photographs are not added to the public portfolio without permission from the people featured.
+The public [booking and photo policies](https://toki-satsuei.pages.dev/policies.html) describe how requests are reviewed, how prices and payment terms are agreed, how schedule changes are handled, how files are delivered, and how client photographs may be shared. The standalone `booking.html` page sends the details you choose to provide to a Supabase Edge Function, which stores them in the private `public.toki_booking_requests` table. Anonymous visitors cannot read or insert directly into that table; the server-side intake is rate-limited and the owner dashboard reads requests under administrator-only Row Level Security. New requests are not reservations, do not hold a date, and do not request payment. Booking administration is handled directly in the Supabase Dashboard. Use the read-only `public.toki_booking_inbox` view to inspect requests and edit the underlying `public.toki_booking_requests` table. No personal-portfolio dashboard is used for TOKI bookings. Client photographs are not added to the public portfolio without permission from the people featured.
 
 The site currently labels its existing gallery images as practice/detail studies. It does not claim to have a finished public cosplay or portrait client portfolio yet.
 
@@ -101,11 +112,11 @@ Scripts load with `defer` in dependency order: shared motion first, shared page 
 
 ## Booking form human verification
 
-The booking form uses Cloudflare Turnstile with the `toki_booking` action and the `legioniz.github.io` hostname. The browser sends the short-lived challenge token to the `portfolio-submit` Edge Function; Supabase verifies it with Cloudflare Siteverify before a booking is stored. Missing, invalid, expired, incorrectly scoped, or unverifiable booking tokens are rejected. TOKI booking verification fails closed when its dedicated server-side secret is not configured. The shared personal portfolio keeps its existing `TURNSTILE_SECRET_KEY` for inquiry and comment challenges.
+The booking form uses Cloudflare Turnstile with the `toki_booking` action and the `toki-satsuei.pages.dev` hostname (plus any explicitly configured custom domain). The browser sends the short-lived challenge token to the `portfolio-submit` Edge Function; Supabase verifies it with Cloudflare Siteverify before a booking is stored. Missing, invalid, expired, incorrectly scoped, or unverifiable booking tokens are rejected. TOKI booking verification fails closed when its dedicated server-side secret is not configured. The shared personal portfolio keeps its existing `TURNSTILE_SECRET_KEY` for inquiry and comment challenges.
 
 ### One-time owner setup
 
-1. Create a Cloudflare Turnstile widget restricted to `legioniz.github.io`.
+1. Create a Cloudflare Turnstile widget restricted to `toki-satsuei.pages.dev` and any explicitly configured production custom domain.
 2. Keep the site key in the public form markup in `booking.html`; it is designed to be public.
 3. In Supabase **Edge Functions → Secrets**, add `TOKI_TURNSTILE_SECRET_KEY` with the secret that matches the TOKI sitekey. Do not overwrite the existing `TURNSTILE_SECRET_KEY`; it is reserved for the personal portfolio's inquiry/comment widget.
 4. After the new secret is saved, deploy the updated `portfolio-submit` Edge Function.
