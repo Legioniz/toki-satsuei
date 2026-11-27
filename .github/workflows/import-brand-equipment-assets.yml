@@ -31,22 +31,22 @@ jobs:
           set -euo pipefail
           mkdir -p assets/equipment/camera assets/brand
           curl --fail --silent --show-error --location \
-            "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/7871079ba26be423af09db6104d8f2d1ff37142e8628e5237e3c5903e6dd0afc_263913.png" \
+            "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/62955466819cfba4bd40d70fc92d20a8_263913.png" \
             --output assets/equipment/camera/EOS-3000D-front.png
           curl --fail --silent --show-error --location \
-            "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/43802ff230f3fb82442d0fb16f8f5781ce0e408bf9045c35dd6d86864e18c722_263919.png" \
+            "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/4f1be3fd86c6d5f98cf77915b5903887_263919.png" \
             --output assets/equipment/camera/EOS-3000D-left-side.png
           curl --fail --silent --show-error --location \
-            "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/e5a9966b93dbbcbc4d87bd2f51e01c5bda5220d9aa88dd54c14f31b20c41a7f8_263925.png" \
+            "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/dc08728e4d0963a74e57567e20c675d7_263925.png" \
             --output assets/equipment/camera/EOS-3000D-top.png
           curl --fail --silent --show-error --location \
-            "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/584dd4df37044509d43d006a5d43bc16907074ce7ff3bd1747b0bee25e246437_263922.png" \
+            "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/5f4251b76e3db5bbb829cf0b1aadeca3_263922.png" \
             --output assets/equipment/camera/EOS-3000D-right-side.png
           curl --fail --silent --show-error --location \
-            "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/d2f1b5deaeaec0a78532665e7b51ff855cd44aba6b9aaafe4f65df042ab8b0ec_263916.png" \
+            "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/828ad26844891f5f884d701629655550_263916.png" \
             --output assets/equipment/camera/EOS-3000D-pop-up-flash.png
           curl --fail --silent --show-error --location \
-            "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/0dc7421ca9cb7542ca2b28a3cb907168219d41cb7de843f70fd1de3221ee3a06_Toki_Satsuei_Brushstroke_Emblem.png" \
+            "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/b450d51bbce4285f0c3bf987f5bc7798_Toki_Satsuei_Brushstroke_Emblem.png" \
             --output assets/brand/Toki-Satsuei-Brushstroke-Emblem.png
 
       - name: Verify every downloaded file is byte-identical to its submitted original
