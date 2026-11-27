@@ -320,7 +320,15 @@ if not live_probe.exists():
     problems.append("tests/toki-live-site-security-qa.py: live HTTP response verification is missing")
 else:
     live_text = live_probe.read_text(encoding="utf-8")
-    for marker in ("strict-transport-security", "content-security-policy", "immutable", "hashlib.sha256"):
+    for marker in (
+        "strict-transport-security",
+        "content-security-policy",
+        "immutable",
+        "hashlib.sha256",
+        '("404.html", False)',
+        '("admin.html", True)',
+        '("client-gallery.html", True)',
+    ):
         if marker not in live_text:
             problems.append(f"live site security probe: missing check {marker}")
 
