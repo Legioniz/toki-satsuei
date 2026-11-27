@@ -250,10 +250,8 @@ def main() -> None:
             booking_page.evaluate(
                 "() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))"
             )
-            booking_page.evaluate("""() => {
-              document.scrollingElement.scrollTop = Math.min(240,
-                document.documentElement.scrollHeight - window.innerHeight - 1);
-            }""")
+            booking_page.mouse.move(160, 350)
+            booking_page.mouse.wheel(0, 240)
             booking_page.wait_for_function("window.scrollY > 1")
             booking_page.wait_for_function("""() => {
               const header = document.querySelector(".site-header");
