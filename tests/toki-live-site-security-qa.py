@@ -12,9 +12,9 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import parse_qs, urljoin, urlsplit
 from urllib.request import Request, urlopen
 
-DEFAULT_SITE_URL = "https://legioniz.github.io/toki-satsuei/"
+DEFAULT_SITE_URL = "https://toki-satsuei.pages.dev/"
 SITE_URL = os.getenv("TOKI_SITE_URL", DEFAULT_SITE_URL).strip()
-REQUIRE_HEADERS = os.getenv("TOKI_REQUIRE_SECURITY_HEADERS", "0").strip().lower() in {
+REQUIRE_HEADERS = os.getenv("TOKI_REQUIRE_SECURITY_HEADERS", "1").strip().lower() in {
     "1", "true", "yes",
 }
 FINGERPRINT_PATTERN = re.compile(r"^[0-9a-f]{32}$")
@@ -202,9 +202,9 @@ def main() -> None:
             raise AssertionError(message)
         print("WARN " + message)
         print(
-            "The current GitHub Pages origin does not apply repository _headers rules. "
-            "Switch to a header-capable origin, set TOKI_SITE_URL to that HTTPS URL, "
-            "and enable TOKI_REQUIRE_SECURITY_HEADERS=1 to make header failures blocking."
+            "Live response headers or cache directives failed validation. "
+            "The production verifier must run against the Cloudflare Pages origin "
+            "with TOKI_REQUIRE_SECURITY_HEADERS=1."
         )
 
     print(
