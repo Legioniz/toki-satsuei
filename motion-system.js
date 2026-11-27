@@ -723,6 +723,16 @@
     setHeaderVisible(window.scrollY <= 1 && !heroOwnsViewport());
     updateHeaderVisibility();
     window.addEventListener("scroll", () => {
+      const currentY = Math.max(0, window.scrollY || 0);
+      // Restore the masthead synchronously at the document top. This keeps the
+      // header's visible, aria, and inert states aligned before the next paint.
+      // The homepage hero retains ownership of the viewport and stays locked.
+      if (currentY <= 1 && !heroOwnsViewport()) {
+        headerDirection = 0;
+        headerDirectionDistance = 0;
+        headerPreviousY = currentY;
+        setHeaderVisible(true);
+      }
       if (headerFrame) return;
       headerFrame = requestAnimationFrame(() => {
         headerFrame = 0;
