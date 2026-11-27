@@ -25,6 +25,9 @@ class QuietHandler(SimpleHTTPRequestHandler):
 
 def main() -> None:
     assert SPRITE.is_file() and SPRITE.stat().st_size > 5000, "Five-angle 2D WebP sprite is missing or incomplete."
+    index_head = (ROOT / "index.html").read_text(encoding="utf-8").split("</head>", 1)[0]
+    assert "http-equiv=\"Content-Security-Policy\"" in index_head
+    assert "https://sketchfab.com" in index_head, "GitHub Pages must permit the Sketchfab iframe through the page meta policy."
     headers = (ROOT / "_headers").read_text(encoding="utf-8")
     csp = next((line for line in headers.splitlines() if "Content-Security-Policy:" in line), "")
     frame_src = next((part.strip() for part in csp.split(";") if part.strip().startswith("frame-src ")), "")
