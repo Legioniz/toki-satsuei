@@ -73,7 +73,6 @@
     blueprint.dataset.focus = next;
     componentButtons.forEach(button => {
       const active = button.dataset.equipmentComponent === next;
-      button.setAttribute("aria-pressed", String(active));
       button.setAttribute("aria-selected", String(active));
       button.tabIndex = active ? 0 : -1;
     });
