@@ -16,6 +16,14 @@
   ! Cache-Control
   Cache-Control: no-store
 
+/admin
+  ! Cache-Control
+  Cache-Control: no-store
+
+/client-gallery
+  ! Cache-Control
+  Cache-Control: no-store
+
 /*.css
   ! Cache-Control
   Cache-Control: public, max-age=31536000, immutable
