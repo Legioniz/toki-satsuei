@@ -109,8 +109,14 @@ def main():
      scroller.scrollTop=0;
    }""")
    home.set_viewport_size({"width":390,"height":844})
-   home.wait_for_timeout(120)
-   assert home.locator(".site-header").evaluate("(node)=>node.classList.contains('is-auto-hidden')"), "Homepage masthead must stay hidden over the mobile hero"
+   home.wait_for_function("""() => {
+     const hero = document.querySelector(".hero-opening");
+     const header = document.querySelector(".site-header");
+     const bounds = hero?.getBoundingClientRect();
+     return Boolean(bounds && bounds.bottom > 1 && bounds.top < window.innerHeight &&
+       header?.classList.contains("is-auto-hidden") && header.inert &&
+       header.getAttribute("aria-hidden") === "true");
+   }""", timeout=5000)
    # A revealed masthead must remain visible when its menu opens, even while the hero lock is active.
    header=home.locator(".site-header")
    header.evaluate("""node=>{
