@@ -66,7 +66,7 @@ def main() -> None:
     assert "https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js" in viewer
     assert 'api.addEventListener("viewerready"' in viewer
     assert 'api.setTextureQuality("hd"' in viewer, "The Sketchfab model must request the highest supported texture quality."
-    assert "https://static.sketchfab.com" in headers.split("Content-Security-Policy:", 1)[1].split(";", 1)[0]
+    assert "script-src 'self' 'unsafe-inline' https://static.sketchfab.com" in headers.split("Content-Security-Policy:", 1)[1]
     assert "https://static.sketchfab.com" in home, "The page CSP must allow the official Sketchfab Viewer API script."
     assert "Canon EOS 3000D" in equipment and "Canon EF-S 18–55mm" in equipment
     assert "lens revision" in equipment.lower(), "Lens revision caveat must stay visible."
