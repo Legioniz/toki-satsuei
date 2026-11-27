@@ -276,6 +276,55 @@ else:
         if marker not in sql:
             problems.append(f"TOKI gallery selection JSON guard migration: missing {marker}")
 
+
+# Hosting and cache controls must remain wired to the production build.
+headers_path = ROOT / "_headers"
+if not headers_path.exists():
+    problems.append("_headers: response security policy is missing")
+else:
+    headers_text = headers_path.read_text(encoding="utf-8")
+    for marker in (
+        "Strict-Transport-Security: max-age=31536000",
+        "X-Frame-Options: SAMEORIGIN",
+        "X-Content-Type-Options: nosniff",
+        "Referrer-Policy: strict-origin-when-cross-origin",
+        "Permissions-Policy: camera=(), microphone=(), geolocation=()",
+        "frame-ancestors 'self'",
+        "Cache-Control: no-store",
+        "Cache-Control: public, max-age=31536000, immutable",
+        "must-revalidate",
+    ):
+        if marker not in headers_text:
+            problems.append(f"_headers: required response/cache rule is missing: {marker}")
+
+fingerprint_builder = ROOT / "scripts" / "fingerprint_assets.py"
+if not fingerprint_builder.exists():
+    problems.append("scripts/fingerprint_assets.py: deterministic cache fingerprint builder is missing")
+else:
+    fingerprint_text = fingerprint_builder.read_text(encoding="utf-8")
+    for marker in ("hashlib.sha256", "normalize_csp_fallbacks", "verify_references", "HASH_LENGTH = 32"):
+        if marker not in fingerprint_text:
+            problems.append(f"asset fingerprint builder: missing control {marker}")
+
+live_probe = ROOT / "tests" / "toki-live-site-security-qa.py"
+if not live_probe.exists():
+    problems.append("tests/toki-live-site-security-qa.py: live HTTP response verification is missing")
+else:
+    live_text = live_probe.read_text(encoding="utf-8")
+    for marker in ("strict-transport-security", "content-security-policy", "immutable", "hashlib.sha256"):
+        if marker not in live_text:
+            problems.append(f"live site security probe: missing check {marker}")
+
+if workflow.exists():
+    for marker in (
+        "python scripts/fingerprint_assets.py --self-test",
+        "python scripts/fingerprint_assets.py dist",
+        "python tests/toki-live-site-security-qa.py",
+        "TOKI_REQUIRE_SECURITY_HEADERS",
+    ):
+        if marker not in workflow_text:
+            problems.append(f"deploy workflow: missing runtime security verification: {marker}")
+
 if problems:
     print("FAIL TOKI static security audit:")
     for problem in problems:
