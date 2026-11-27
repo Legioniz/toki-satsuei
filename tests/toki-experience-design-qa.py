@@ -269,11 +269,13 @@ def main() -> None:
                 header.getAttribute("aria-hidden") === "true" && header.inert;
             }""")
             previous_scroll = booking_page.evaluate("window.scrollY")
-            booking_page.evaluate("() => { document.scrollingElement.scrollTop = 0; }")
+            # Exercise a real upward wheel gesture rather than assigning scrollTop.
+            # This drives the same direction-aware path used by visitors.
+            booking_page.mouse.wheel(0, -360)
             booking_page.wait_for_function(
                 "(previous) => window.scrollY < previous",
                 arg=previous_scroll,
-                timeout=1500,
+                timeout=2500,
             )
             # Confirm the controller has restored the accessible state, then move
             # keyboard focus to the menu control. The design intentionally reveals
