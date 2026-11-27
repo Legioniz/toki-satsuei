@@ -10,7 +10,7 @@
     flex-wrap: nowrap !important;
     align-items: stretch !important;
     gap: 4px;
-    max-height: calc(100dvh - 80px - env(safe-area-inset-bottom, 0px));
+    max-height: calc(100dvh - 110px - env(safe-area-inset-bottom, 0px));
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior: contain;
