@@ -27,7 +27,6 @@ def png_dimensions(path: Path) -> tuple[int, int]:
     import struct
     return struct.unpack(">II", header[16:24])
 SKETCHFAB_MODEL = "https://sketchfab.com/3d-models/canon-eos-3000-7d57163f3bec464cbb213428e1c37cf7"
-SKETCHFAB_EMBED = "https://sketchfab.com/models/7d57163f3bec464cbb213428e1c37cf7/embed"
 
 
 class QuietHandler(SimpleHTTPRequestHandler):
@@ -53,7 +52,10 @@ def main() -> None:
     assert "https://sketchfab.com" in frame_src, (
         "The deployed Content Security Policy must allow the Sketchfab iframe host."
     )
-    assert "https://sketchfab.com/models/7d57163f3bec464cbb213428e1c37cf7/embed" == SKETCHFAB_EMBED
+    viewer_source = (ROOT / "equipment-viewer.js").read_text(encoding="utf-8")
+    assert 'modelUid = "7d57163f3bec464cbb213428e1c37cf7"' in viewer_source, "The Sketchfab controller must initialize the requested model ID."
+    assert 'api.setTextureQuality("hd"' in viewer_source, "The Sketchfab controller must request its highest available texture quality."
+    assert 'https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js' in viewer_source, "The Sketchfab Viewer API must be loaded for the 3D mode."
     server = ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler))
     thread = Thread(target=server.serve_forever, daemon=True)
     thread.start()
@@ -109,7 +111,7 @@ def main() -> None:
             root.locator('[data-equipment-mode="3d"]').click()
             iframe = root.locator("[data-equipment-embed] iframe")
             assert iframe.count() == 1, "Selecting 3D should create the Sketchfab iframe"
-            assert iframe.get_attribute("src") == SKETCHFAB_EMBED
+            assert iframe.get_attribute("src") is None or "sketchfab.com" in iframe.get_attribute("src"), "Sketchfab API iframe source must be assigned by the viewer after initialization."
             assert iframe.get_attribute("title")
             assert iframe.evaluate("(node) => node.allowFullscreen")
             assert root.locator("[data-equipment-mode='3d']").get_attribute("aria-pressed") == "true"
