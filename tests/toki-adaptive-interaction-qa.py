@@ -143,6 +143,17 @@ def main():
        document.querySelector(".menu-toggle")?.getAttribute("aria-expanded")==="true";
    }""")
    drawer=home.locator(".primary-nav")
+   # The shared motion helper cancels finished WAAPI animations, so wait for
+   # the panel and its staggered links to settle instead of sampling mid-entry.
+   home.wait_for_function("""() => {
+     const nav=document.querySelector(".primary-nav");
+     if(!nav) return false;
+     const animations=[
+       ...nav.getAnimations(),
+       ...Array.from(nav.querySelectorAll("a")).flatMap(link=>link.getAnimations())
+     ];
+     return animations.every(animation=>animation.playState!=="running");
+   }""")
    drawer_state=drawer.evaluate("""nav => {
      const header=document.querySelector(".site-header");
      const h=header.getBoundingClientRect(), n=nav.getBoundingClientRect();
@@ -158,7 +169,7 @@ def main():
    }""")
    assert drawer_state["position"]=="absolute", f"Mobile drawer must be anchored to the header, got {drawer_state}"
    assert drawer_state["overflowY"] in ("auto","scroll"), f"Mobile drawer must scroll within its viewport, got {drawer_state}"
-   assert drawer_state["top"]>=drawer_state["headerBottom"]-1, f"Mobile drawer overlaps the header: {drawer_state}"
+   assert drawer_state["top"]>=drawer_state["headerBottom"]-1, f"Mobile drawer overlaps the header after its entrance transition: {drawer_state}"
    assert drawer_state["left"]<=drawer_state["headerLeft"]+1 and drawer_state["right"]>=drawer_state["headerRight"]-1, f"Mobile drawer does not span the header: {drawer_state}"
    assert drawer_state["firstTop"]>=drawer_state["top"]-1 and drawer_state["firstBottom"]<=drawer_state["bottom"]+1, f"First navigation link is clipped: {drawer_state}"
    icon_transform=home.locator(".menu-toggle span").first.evaluate("(el)=>getComputedStyle(el).transform")
@@ -170,9 +181,19 @@ def main():
    home.set_viewport_size({"width":390,"height":360})
    menu.click()
    home.wait_for_function("document.querySelector('.primary-nav')?.classList.contains('is-open')")
+   home.wait_for_function("""() => {
+     const nav=document.querySelector(".primary-nav");
+     if(!nav) return false;
+     const animations=[
+       ...nav.getAnimations(),
+       ...Array.from(nav.querySelectorAll("a")).flatMap(link=>link.getAnimations())
+     ];
+     return animations.every(animation=>animation.playState!=="running");
+   }""")
    short_state=drawer.evaluate("nav=>({overflowY:getComputedStyle(nav).overflowY,scrollHeight:nav.scrollHeight,clientHeight:nav.clientHeight,maxHeight:getComputedStyle(nav).maxHeight})")
    assert short_state["overflowY"] in ("auto","scroll"), f"Short-screen menu is not scrollable: {short_state}"
    assert short_state["clientHeight"]>0, f"Short-screen menu has no visible scroll region: {short_state}"
+   assert short_state["scrollHeight"]>short_state["clientHeight"], f"Short-screen menu did not overflow into its own scroll area: {short_state}"
    last_link=drawer.locator("a").last
    last_link.scroll_into_view_if_needed()
    assert last_link.is_visible(), "Last navigation link is not reachable on a short mobile viewport"
