@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://legioniz.github.io/toki-satsuei/sitemap.xml
+Sitemap: https://toki-satsuei.pages.dev/sitemap.xml
