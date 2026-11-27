@@ -56,6 +56,7 @@
   function setMode(mode) {
     const next = mode === "2d" ? "2d" : "3d";
     stage.dataset.view = next;
+    blueprint.hidden = next !== "2d";
     modeButtons.forEach(button => {
       button.setAttribute("aria-pressed", String(button.dataset.equipmentMode === next));
     });
