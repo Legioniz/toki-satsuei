@@ -206,15 +206,24 @@ def main():
    assert all(height>=48 for height in link_metrics["heights"]), f"Mobile navigation links must retain 48px touch targets: {link_metrics}"
    assert all(link_metrics["tops"][i+1]>=link_metrics["tops"][i]+link_metrics["heights"][i]-1 for i in range(6)), f"Mobile navigation links overlap or are out of vertical order: {link_metrics}"
    assert link_metrics["overflowY"] in ("auto","scroll"), f"Short-screen menu is not scrollable: {link_metrics}"
-   # The natural content is just under the short viewport cap; constrain it
-   # deliberately to prove the drawer itself, not the page, owns overflow.
-   drawer.evaluate("nav=>{nav.style.maxHeight='120px';nav.scrollTop=0}")
+   # Force an overflow state with a temporary spacer before the last real link.
+   # This tests the drawer's own scroll container without assuming the current
+   # menu content must exceed the available viewport height.
+   drawer.evaluate("""nav=>{
+     nav.style.maxHeight="120px";
+     nav.scrollTop=0;
+     const spacer=document.createElement("div");
+     spacer.setAttribute("aria-hidden","true");
+     spacer.style.cssText="flex:0 0 180px;height:180px;pointer-events:none";
+     nav.insertBefore(spacer,nav.lastElementChild);
+   }""")
    short_state=drawer.evaluate("nav=>({overflowY:getComputedStyle(nav).overflowY,scrollHeight:nav.scrollHeight,clientHeight:nav.clientHeight,maxHeight:getComputedStyle(nav).maxHeight})")
    assert short_state["scrollHeight"]>short_state["clientHeight"], f"Constrained mobile drawer must scroll internally: {short_state}"
    last_link=drawer.locator("a").last
    last_link.scroll_into_view_if_needed()
    assert last_link.is_visible(), "Last navigation link is not reachable inside a constrained mobile drawer"
    assert drawer.evaluate("nav=>nav.scrollTop>0"), "Navigation scroll did not stay inside the drawer"
+   drawer.evaluate("nav=>nav.querySelector('[aria-hidden=true]')?.remove()")
    home.keyboard.press("Escape")
    home.wait_for_function("!document.querySelector('.primary-nav').classList.contains('is-open')")
    menu.click()
