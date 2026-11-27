@@ -72,6 +72,11 @@ def main() -> None:
     assert config.get("assets", {}).get("directory") == "./worker-dist", (
         "Worker must deploy the curated worker-dist directory, never the repository root"
     )
+    assert config.get("main") == "./worker.mjs", "Worker must use the security-header wrapper"
+    assets_config = config.get("assets", {})
+    assert assets_config.get("binding") == "ASSETS", "Worker asset binding must be ASSETS"
+    assert assets_config.get("run_worker_first") is True, "Worker wrapper must run for static asset requests"
+    assert (ROOT / "worker.mjs").is_file(), "Worker runtime wrapper is missing"
 
     with tempfile.TemporaryDirectory(prefix="toki-static-output-") as temporary:
         root = Path(temporary)

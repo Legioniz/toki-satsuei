@@ -77,6 +77,10 @@ jobs:
           node --check library.js
           node --check admin.js
           node --check client-gallery.js
+          node --check worker.mjs
+
+      - name: Verify Worker response headers and cache policy
+        run: node tests/toki-worker-runtime-qa.mjs
 
       - name: Verify Python test and build syntax
         run: python -m compileall -q scripts tests
