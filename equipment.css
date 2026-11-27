@@ -91,8 +91,8 @@
 .equipment-source-link:hover{color:#fff}
 .equipment-caption{display:flex;justify-content:space-between;gap:16px;margin-top:18px;color:#a9a196;font:9px/1.7 var(--c-mono,monospace);letter-spacing:.11em}
 .equipment-caption span:last-child{text-align:right}
-.equipment-spec-panel [hidden],.equipment-model-controls[hidden],.equipment-blueprint-views[hidden]{display:none!important}
+.equipment-spec-panel [hidden],.equipment-model-controls[hidden],.equipment-blueprint-views[hidden],.equipment-blueprint[hidden]{display:none!important}
 @media(max-width:900px){.equipment-composition{grid-template-columns:minmax(0,1fr)}.equipment-spec-panel{padding:25px}.equipment-spec-grid{grid-template-columns:repeat(4,minmax(0,1fr));column-gap:13px}}
 @media(max-width:600px){.equipment-section::before{background-size:36px 36px}.equipment-viewer-top{padding-inline:13px;font-size:9px}.equipment-selector{padding-inline:12px}.equipment-selector button,.equipment-mode-switch button,.equipment-blueprint-views button{font-size:9px;padding-inline:9px}.equipment-stage,.equipment-model-3d{min-height:300px}.equipment-camera{transform:rotateX(var(--camera-rx)) rotateY(var(--camera-ry)) scale(.77)}.equipment-blueprint{padding:12px 8px}.equipment-mode-switch,.equipment-blueprint-views{padding-inline:12px}.equipment-spec-panel{padding:22px 18px}.equipment-spec-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.equipment-caption{flex-direction:column;gap:4px}.equipment-caption span:last-child{text-align:left}}
 @media(hover:none){.equipment-model-3d{cursor:default}}
-@media(prefers-reduced-motion:reduce){.equipment-selector button,.equipment-mode-switch button,.equipment-blueprint-views button,.equipment-model-controls button,.equipment-camera{transition:none!important}.equipment-camera{transform:rotateX(-12deg) rotateY(-28deg) scale(.9)!important}}
+@media(prefers-reduced-motion:reduce){.equipment-selector button,.equipment-mode-switch button,.equipment-blueprint-views button,.equipment-model-controls button,.equipment-camera{transition:none!important}}
