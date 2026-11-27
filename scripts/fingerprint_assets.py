@@ -199,10 +199,12 @@ def self_test() -> None:
             '.sample{background-image:url("./assets/sample.webp?v=manual")}', encoding="utf-8"
         )
         (root / "index.html").write_text(
+            '<!doctype html><html><head><meta charset="utf-8"></head><body>'
             '<link rel="stylesheet" href="./site.css?v=manual">'
             '<script src="./library.js?v=manual"></script>'
             '<img src="./assets/sample.webp?v=manual">'
-            '<script src="https://cdn.example/assets/sample.webp"></script>',
+            '<script src="https://cdn.example/assets/sample.webp"></script>'
+            '</body></html>',
             encoding="utf-8",
         )
 
