@@ -732,6 +732,14 @@
         headerDirectionDistance = 0;
         headerPreviousY = currentY;
         setHeaderVisible(true);
+      } else if (currentY < headerPreviousY && !heroOwnsViewport()) {
+        // Reveal on the first upward movement instead of waiting for the
+        // animation-frame callback. This keeps the masthead responsive even
+        // when a page is under browser load or scroll updates are coalesced.
+        headerDirection = -1;
+        headerDirectionDistance = 0;
+        headerPreviousY = currentY;
+        setHeaderVisible(true);
       }
       if (headerFrame) return;
       headerFrame = requestAnimationFrame(() => {
