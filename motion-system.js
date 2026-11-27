@@ -304,10 +304,10 @@
     const links = Array.from(nav.querySelectorAll("a"));
 
     if (open) {
-      // Reset internal drawer scrolling before showing the first destination.
+      nav.classList.add("is-open");
+      // Reset after display:flex takes effect so hidden drawers cannot retain stale scroll.
       nav.scrollTop = 0;
       nav.scrollLeft = 0;
-      nav.classList.add("is-open");
       links.forEach(link => link.classList.add("is-motion-visible"));
       const panel = animate(nav, [
         { opacity: 0, transform: "translateY(-10px) scaleY(0.985)", transformOrigin: "top" },
