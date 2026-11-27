@@ -25,14 +25,30 @@ class PageAssets(HTMLParser):
         super().__init__()
         self.stylesheets: list[str] = []
         self.scripts: list[str] = []
+        self.resources: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         values = dict(attrs)
-        if tag == "link" and "stylesheet" in (values.get("rel") or "").lower():
-            if values.get("href"):
+        if tag == "link" and values.get("href"):
+            rel = (values.get("rel") or "").lower()
+            if "stylesheet" in rel:
                 self.stylesheets.append(values["href"])
+            elif "icon" in rel or "manifest" in rel:
+                self.resources.append(values["href"])
         if tag == "script" and values.get("src"):
             self.scripts.append(values["src"])
+        if tag in {"img", "source", "video", "audio"}:
+            if values.get("src"):
+                self.resources.append(values["src"])
+            if values.get("poster"):
+                self.resources.append(values["poster"])
+            srcset = values.get("srcset")
+            if srcset:
+                self.resources.extend(
+                    candidate.strip().split()[0]
+                    for candidate in srcset.split(",")
+                    if candidate.strip()
+                )
 
 
 def fetch(url: str) -> tuple[int, str, dict[str, str], bytes]:
@@ -79,13 +95,20 @@ def missing_security_headers(headers: dict[str, str]) -> list[str]:
             token in value.lower()
             for token in ("camera=()", "microphone=()", "geolocation=()")
         ),
-        "content-security-policy": lambda value: all(
-            token in value.lower()
-            for token in (
-                "default-src 'self'",
-                "object-src 'none'",
-                "frame-ancestors 'self'",
-                "base-uri 'self'",
+        "content-security-policy": lambda value: (
+            all(
+                token in value.lower()
+                for token in (
+                    "default-src 'self'",
+                    "object-src 'none'",
+                    "frame-ancestors 'self'",
+                    "base-uri 'self'",
+                )
+            )
+            and not re.search(
+                r"(?:^|;)\s*script-src[^;]*'unsafe-(?:inline|eval)'",
+                value,
+                re.IGNORECASE,
             )
         ),
     }
@@ -120,6 +143,7 @@ def main() -> None:
         ("policies.html", False),
         ("admin.html", True),
         ("client-gallery.html", True),
+        ("404.html", False),
     )
     home_url = base
     home_body = b""
@@ -142,7 +166,7 @@ def main() -> None:
     parser = PageAssets()
     parser.feed(home_body.decode("utf-8", errors="replace"))
     local_assets: list[str] = []
-    for value in parser.stylesheets + parser.scripts:
+    for value in parser.stylesheets + parser.scripts + parser.resources:
         asset_url = urljoin(home_url, value)
         if urlsplit(asset_url).netloc == origin:
             local_assets.append(asset_url)
@@ -185,7 +209,7 @@ def main() -> None:
 
     print(
         f"PASS live TOKI asset verification: {home_url}; "
-        f"{len(checked_assets)} local CSS/JS assets fetched and matched to their SHA-256 URLs."
+        f"{len(checked_assets)} local CSS/JS/media assets fetched and matched to their SHA-256 URLs."
     )
     if not problems:
         print(
