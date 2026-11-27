@@ -197,6 +197,7 @@ def main():
        count:links.length,
        heights:links.map(a=>a.getBoundingClientRect().height),
        tops:links.map(a=>a.getBoundingClientRect().top),
+       linkStyles:links.map(a=>({position:getComputedStyle(a).position,display:getComputedStyle(a).display,flex:getComputedStyle(a).flex,margin:getComputedStyle(a).margin,offsetTop:a.offsetTop,offsetHeight:a.offsetHeight,parent:a.parentElement?.tagName})),
        overflowY:style.overflowY,
        flexDirection:style.flexDirection
      };
@@ -208,7 +209,7 @@ def main():
    assert link_metrics["overflowY"] in ("auto","scroll"), f"Short-screen menu is not scrollable: {link_metrics}"
    short_state=drawer.evaluate("nav=>({overflowY:getComputedStyle(nav).overflowY,scrollHeight:nav.scrollHeight,clientHeight:nav.clientHeight,maxHeight:getComputedStyle(nav).maxHeight})")
    assert short_state["overflowY"] in ("auto","scroll"), f"Short mobile drawer must own its scroll region: {short_state}"
-   assert short_state["scrollHeight"]>short_state["clientHeight"], f"Short mobile viewport must cause natural drawer overflow: {short_state}"
+   assert short_state["scrollHeight"]>short_state["clientHeight"], f"Short mobile viewport must cause natural drawer overflow: {short_state}; link_metrics={link_metrics}"
    last_link=drawer.locator("a").last
    last_link.scroll_into_view_if_needed()
    assert last_link.is_visible(), "Last navigation link is not reachable inside a short mobile drawer"
