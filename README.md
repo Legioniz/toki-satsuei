@@ -2,7 +2,7 @@
 
 The complete standalone TOKI SATSUEI website, kept separate from the Legioniz personal portfolio. A shared editorial design system keeps the homepage and archive visually consistent across screen sizes and orientations.
 
-- **Live site:** https://toki-satsuei.pages.dev/
+- **Production URL (after first Cloudflare Pages deployment):** https://toki-satsuei.pages.dev/
 - **Design principles:** [DESIGN-PRINCIPLES.md](DESIGN-PRINCIPLES.md) documents the usability, accessibility, and booking-integrity rules behind the site.
 - **Facebook:** https://www.facebook.com/tokisatsuiephotography/
 - **Instagram:** https://www.instagram.com/tokisatsuiephotography/
