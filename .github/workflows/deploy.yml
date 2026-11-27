@@ -168,6 +168,7 @@ jobs:
           mkdir -p dist
           cp index.html booking.html library.html policies.html 404.html admin.html client-gallery.html toki-home.css toki-archive.css toki-policies.css toki-404.css toki-admin.css toki-client.css motion-system.js site.js equipment-viewer.js availability.js library.js admin.js client-gallery.js media-library.json robots.txt sitemap.xml _headers dist/
           cp -R media-library dist/
+          cp -R assets dist/
           touch dist/.nojekyll
           test -s dist/index.html
           test -s dist/booking.html
@@ -193,6 +194,12 @@ jobs:
           test -s dist/client-gallery.js
           test -s dist/equipment-viewer.js
           test -s dist/media-library.json
+          test -s dist/assets/brand/Toki-Satsuei-Brushstroke-Emblem.png
+          test -s dist/assets/equipment/camera/EOS-3000D-front.png
+          test -s dist/assets/equipment/camera/EOS-3000D-pop-up-flash.png
+          test -s dist/assets/equipment/camera/EOS-3000D-left-side.png
+          test -s dist/assets/equipment/camera/EOS-3000D-right-side.png
+          test -s dist/assets/equipment/camera/EOS-3000D-top.png
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
