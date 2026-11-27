@@ -196,7 +196,7 @@ else:
 
     for marker in (
         "github.ref == 'refs/heads/main' && github.event_name != 'pull_request'",
-        "cloudflare/wrangler-action@953926a2e2182532811c01a25a53647d93bf07c0",
+        "cloudflare/wrangler-action@v4.1.3",
         "pages deploy dist --project-name=toki-satsuei --branch=main",
         "TOKI_REQUIRE_SECURITY_HEADERS: '1'",
         "https://toki-satsuei.pages.dev/",
