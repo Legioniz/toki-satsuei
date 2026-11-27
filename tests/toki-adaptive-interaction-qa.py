@@ -119,7 +119,7 @@ def main():
      node.inert=false;
    }""")
    menu=home.locator(".menu-toggle");menu.click()
-   home.wait_for_function("() => ""() => {
+   home.wait_for_function("""() => {
      const header=document.querySelector(".site-header");
      const nav=document.querySelector(".primary-nav");
      const h=header?.getBoundingClientRect(), n=nav?.getBoundingClientRect();
@@ -145,7 +145,7 @@ def main():
      const scroller=document.scrollingElement;
      scroller.scrollTop=Math.max(0,scroller.scrollTop-12);
    }""")
-   home.wait_for_function("() => ""() => {
+   home.wait_for_function("""() => {
      const header=document.querySelector(".site-header");
      const bounds=header?.getBoundingClientRect();
      return header && bounds && bounds.top>=-1 && bounds.top<=1 &&
@@ -156,7 +156,7 @@ def main():
    header_box=home.locator(".site-header").bounding_box()
    assert header_box and -1<=header_box["y"]<=1, f"Header did not reveal after hero exit: {header_box}"
    menu=home.locator(".menu-toggle");menu.click()
-   home.wait_for_function("() => ""() => {
+   home.wait_for_function("""() => {
      const header=document.querySelector(".site-header");
      const nav=document.querySelector(".primary-nav");
      return header && nav && nav.classList.contains("is-open") &&
@@ -166,7 +166,7 @@ def main():
    drawer=home.locator(".primary-nav")
    # The shared motion helper cancels finished WAAPI animations, so wait for
    # the panel and its staggered links to settle instead of sampling mid-entry.
-   home.wait_for_function("() => ""() => {
+   home.wait_for_function("""() => {
      const nav=document.querySelector(".primary-nav");
      if(!nav) return false;
      const animations=[
@@ -209,7 +209,7 @@ def main():
    # A short phone viewport must keep the complete menu reachable through its own scroll region.
    home.set_viewport_size({"width":390,"height":280})
    menu.click()
-   home.wait_for_function("() => ""() => {
+   home.wait_for_function("""() => {
      const header=document.querySelector(".site-header");
      const nav=document.querySelector(".primary-nav");
      const h=header?.getBoundingClientRect(), n=nav?.getBoundingClientRect();
@@ -218,7 +218,7 @@ def main():
        !header.classList.contains("is-auto-hidden") &&
        h && n && h.top>=-1 && h.top<=1 && n.top>=h.bottom-1;
    }""")
-   home.wait_for_function("() => ""() => {
+   home.wait_for_function("""() => {
      const nav=document.querySelector(".primary-nav");
      if(!nav) return false;
      const animations=[
@@ -311,7 +311,7 @@ def main():
        scroller.style.setProperty("scroll-behavior", "auto", "important");
        scroller.scrollTop = 0;
    }""")
-   archive.wait_for_function("() => ""() => {
+   archive.wait_for_function("""() => {
        const header = document.querySelector(".site-header");
        return window.scrollY <= 1 && header &&
            !header.classList.contains("is-auto-hidden") &&
