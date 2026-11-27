@@ -12,7 +12,7 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC = ROOT
-OFFICIAL_LOGO = "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/30515ce50_Toki_Satsuei_Brushstroke_Emblem.png"
+OFFICIAL_LOGO = "./assets/brand/Toki-Satsuei-Brushstroke-Emblem.png"
 TEST_IMAGE = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
 FIXTURE = {
     "schema_version": 1, "brand": "TOKI SATSUEI",

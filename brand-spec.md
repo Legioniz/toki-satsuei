@@ -2,12 +2,18 @@
 
 ## Brand assets
 
-- Official logo: `https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/30515ce50_Toki_Satsuei_Brushstroke_Emblem.png`
+- Official logo master: `assets/brand/Toki-Satsuei-Brushstroke-Emblem.png` (submitted 1254 × 1254 PNG; stored unchanged).
 - Hero / behind-the-camera image: `https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/3db8c3355_242599.jpg`
 - Field study images:
   - `https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/b21ff20c7_242600.jpg`
   - `https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/e03bfd350_242598.jpg`
   - `https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/52f603569_242601.jpg`
+
+## Equipment source assets
+
+- Camera angles: `assets/equipment/camera/` — five submitted PNG masters, each 362 × 320, retained byte-for-byte.
+- The equipment viewer renders these images at or below native width; it does not upscale low-resolution sources.
+- Client portfolio and private gallery photographs remain on their existing sources and are not modified by this asset update.
 
 ## Visual system
 

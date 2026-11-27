@@ -51,14 +51,14 @@ def main() -> None:
     assert "site-enhancements.css" in home_bundle.splitlines()[0]
     assert "global-motion.css" in home_bundle.splitlines()[0]
     assert ".toki-intro-logo" in global_motion
-    assert "30515ce50_Toki_Satsuei_Brushstroke_Emblem.png" in motion_js
+    assert "./assets/brand/Toki-Satsuei-Brushstroke-Emblem.png" in motion_js
     assert ".toki-booking-sheet .booking-fieldset .form-split > label" in motion_js
 
     home = (ROOT / "index.html").read_text(encoding="utf-8")
     equipment = home.split('<section class="equipment-section"', 1)[1].split('<section class="faq-section"', 1)[0]
     assert equipment.count('data-equipment-angle=') == 5, "Equipment viewer must expose all five supplied 2D camera angles."
     assert 'data-equipment-mode="2d"' in equipment and 'data-equipment-mode="3d"' in equipment
-    assert "eos-3000d-angle-sprite.webp" in (ROOT / "equipment.css").read_text(encoding="utf-8")
+    assert "assets/equipment/camera/EOS-3000D-front.png" in equipment and "eos-3000d-angle-sprite.webp" not in (ROOT / "equipment.css").read_text(encoding="utf-8")
     assert "https://sketchfab.com/3d-models/canon-eos-3000-7d57163f3bec464cbb213428e1c37cf7" in equipment
 
     viewer = (ROOT / "equipment-viewer.js").read_text(encoding="utf-8")
@@ -129,7 +129,7 @@ def main() -> None:
             page.goto(base + "/index.html", wait_until="domcontentloaded")
             intro = page.locator(".toki-intro-curtain")
             assert intro.count() == 1, "The logo intro should appear on a normal-motion page load."
-            assert intro.locator(".toki-intro-logo").get_attribute("src") == "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/30515ce50_Toki_Satsuei_Brushstroke_Emblem.png"
+            assert intro.locator(".toki-intro-logo").get_attribute("src") == "./assets/brand/Toki-Satsuei-Brushstroke-Emblem.png"
             assert page.locator("#inquiry-form").count() == 0, "Homepage should link out to booking instead of embedding the form."
             booking_page = context.new_page()
             booking_page.goto(base + "/booking.html", wait_until="domcontentloaded")

@@ -133,7 +133,7 @@
           </g>
         </svg>
         <div class="toki-intro-seal">
-          <img class="toki-intro-logo" src="https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/30515ce50_Toki_Satsuei_Brushstroke_Emblem.png" alt="" decoding="async" fetchpriority="high">
+          <img class="toki-intro-logo" src="./assets/brand/Toki-Satsuei-Brushstroke-Emblem.png" alt="" decoding="async" fetchpriority="high">
         </div>
         <span class="toki-intro-sweep"></span>
       </div>

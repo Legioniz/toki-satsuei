@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "purpose": "Original user-submitted TOKI SATSUEI camera and brand assets. Do not overwrite, recompress, or upscale these master files.",
+  "camera": {
+    "EOS-3000D-front.png": {
+      "path": "assets/equipment/camera/EOS-3000D-front.png",
+      "format": "PNG",
+      "width": 362,
+      "height": 320,
+      "sha256": "7871079ba26be423af09db6104d8f2d1ff37142e8628e5237e3c5903e6dd0afc"
+    },
+    "EOS-3000D-left-side.png": {
+      "path": "assets/equipment/camera/EOS-3000D-left-side.png",
+      "format": "PNG",
+      "width": 362,
+      "height": 320,
+      "sha256": "43802ff230f3fb82442d0fb16f8f5781ce0e408bf9045c35dd6d86864e18c722"
+    },
+    "EOS-3000D-top.png": {
+      "path": "assets/equipment/camera/EOS-3000D-top.png",
+      "format": "PNG",
+      "width": 362,
+      "height": 320,
+      "sha256": "e5a9966b93dbbcbc4d87bd2f51e01c5bda5220d9aa88dd54c14f31b20c41a7f8"
+    },
+    "EOS-3000D-right-side.png": {
+      "path": "assets/equipment/camera/EOS-3000D-right-side.png",
+      "format": "PNG",
+      "width": 362,
+      "height": 320,
+      "sha256": "584dd4df37044509d43d006a5d43bc16907074ce7ff3bd1747b0bee25e246437"
+    },
+    "EOS-3000D-pop-up-flash.png": {
+      "path": "assets/equipment/camera/EOS-3000D-pop-up-flash.png",
+      "format": "PNG",
+      "width": 362,
+      "height": 320,
+      "sha256": "d2f1b5deaeaec0a78532665e7b51ff855cd44aba6b9aaafe4f65df042ab8b0ec"
+    }
+  },
+  "logo": {
+    "path": "assets/brand/Toki-Satsuei-Brushstroke-Emblem.png",
+    "format": "PNG",
+    "width": 1254,
+    "height": 1254,
+    "sha256": "0dc7421ca9cb7542ca2b28a3cb907168219d41cb7de843f70fd1de3221ee3a06"
+  },
+  "client_photos": "Existing public and private client photo files and URLs are intentionally untouched."
+}

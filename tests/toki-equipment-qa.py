@@ -10,7 +10,22 @@ from threading import Thread
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
-SPRITE = ROOT / "media-library" / "equipment" / "eos-3000d-angle-sprite.webp"
+CAMERA_ASSETS = {
+    "front": ROOT / "assets" / "equipment" / "camera" / "EOS-3000D-front.png",
+    "flash": ROOT / "assets" / "equipment" / "camera" / "EOS-3000D-pop-up-flash.png",
+    "left": ROOT / "assets" / "equipment" / "camera" / "EOS-3000D-left-side.png",
+    "right": ROOT / "assets" / "equipment" / "camera" / "EOS-3000D-right-side.png",
+    "top": ROOT / "assets" / "equipment" / "camera" / "EOS-3000D-top.png",
+}
+LOGO_ASSET = ROOT / "assets" / "brand" / "Toki-Satsuei-Brushstroke-Emblem.png"
+
+
+def png_dimensions(path: Path) -> tuple[int, int]:
+    with path.open("rb") as source:
+        header = source.read(24)
+    assert header[:8] == b"\x89PNG\r\n\x1a\n", f"Not a PNG file: {path}"
+    import struct
+    return struct.unpack(">II", header[16:24])
 SKETCHFAB_MODEL = "https://sketchfab.com/3d-models/canon-eos-3000-7d57163f3bec464cbb213428e1c37cf7"
 SKETCHFAB_EMBED = "https://sketchfab.com/models/7d57163f3bec464cbb213428e1c37cf7/embed"
 
@@ -24,7 +39,11 @@ class QuietHandler(SimpleHTTPRequestHandler):
 
 
 def main() -> None:
-    assert SPRITE.is_file() and SPRITE.stat().st_size > 5000, "Five-angle 2D WebP sprite is missing or incomplete."
+    for angle, asset in CAMERA_ASSETS.items():
+        assert asset.is_file() and asset.stat().st_size > 100_000, f"{angle} original camera PNG is missing or incomplete."
+        assert png_dimensions(asset) == (362, 320), f"{angle} source dimensions unexpectedly changed."
+    assert LOGO_ASSET.is_file() and LOGO_ASSET.stat().st_size > 800_000, "Submitted TOKI logo master is missing."
+    assert png_dimensions(LOGO_ASSET) == (1254, 1254), "Submitted TOKI logo master dimensions unexpectedly changed."
     index_head = (ROOT / "index.html").read_text(encoding="utf-8").split("</head>", 1)[0]
     assert "http-equiv=\"Content-Security-Policy\"" in index_head
     assert "https://sketchfab.com" in index_head, "GitHub Pages must permit the Sketchfab iframe through the page meta policy."
@@ -61,18 +80,31 @@ def main() -> None:
             assert page.locator('script[src*="equipment.js"]').count() == 0, "Retired equipment controller is still loaded"
             assert page.locator('script[src*="equipment-viewer.js"]').count() == 1, "Equipment viewer controller is not loaded"
 
+            section.scroll_into_view_if_needed()
             photo = root.locator("[data-equipment-photo]")
-            assert photo.count() == 1 and photo.is_visible(), "2D product photo panel must be visible by default"
-            assert "eos-3000d-angle-sprite.webp" in photo.evaluate("(node) => getComputedStyle(node).backgroundImage")
+            assert photo.count() == 1 and photo.is_visible(), "2D product photo must be visible by default"
+            assert photo.evaluate("(node) => node.tagName === 'IMG'"), "Equipment view must use a real image element."
+            page.wait_for_function("() => { const image = document.querySelector('[data-equipment-photo]'); return image && image.complete && image.naturalWidth === 362 && image.naturalHeight === 320; }")
+            assert photo.get_attribute("src") == "./assets/equipment/camera/EOS-3000D-front.png"
+            assert photo.get_attribute("loading") == "lazy" and photo.get_attribute("decoding") == "async"
+            assert photo.evaluate("(node) => node.getBoundingClientRect().width <= 362.5"), "Camera PNG must not be enlarged beyond its native width."
             assert root.locator('[data-equipment-mode="2d"]').get_attribute("aria-pressed") == "true"
             assert root.locator('[data-equipment-angle="front"]').get_attribute("aria-pressed") == "true"
             assert root.locator("[data-equipment-embed] iframe").count() == 0, "3D iframe should load only on demand"
 
+            expected_assets = {
+                "flash": "EOS-3000D-pop-up-flash.png",
+                "left": "EOS-3000D-left-side.png",
+                "right": "EOS-3000D-right-side.png",
+                "top": "EOS-3000D-top.png",
+                "front": "EOS-3000D-front.png",
+            }
             for angle in ("flash", "left", "right", "top", "front"):
                 button = root.locator(f'[data-equipment-angle="{angle}"]')
                 button.click()
                 assert button.get_attribute("aria-pressed") == "true", f"{angle} angle state did not update"
                 assert photo.get_attribute("data-angle") == angle, f"{angle} photo angle did not update"
+                assert photo.get_attribute("src") == "./assets/equipment/camera/" + expected_assets[angle], f"{angle} original camera image did not update"
 
             root.locator('[data-equipment-mode="3d"]').click()
             iframe = root.locator("[data-equipment-embed] iframe")
@@ -95,8 +127,10 @@ def main() -> None:
                 assert expected.lower() in details.lower(), f"Equipment details missing {expected!r}"
             assert SKETCHFAB_MODEL in section.locator('a[href*="sketchfab.com"]').get_attribute("href")
 
-            asset_responses = [status for url, status in responses if "eos-3000d-angle-sprite.webp" in url]
-            assert asset_responses and asset_responses[0] == 200, f"2D image sprite failed to load: {asset_responses}"
+            asset_responses = [(url, status) for url, status in responses if "/assets/equipment/camera/" in url]
+            assert any(url.endswith("EOS-3000D-front.png") and status == 200 for url, status in asset_responses), (
+                f"Original camera PNG failed to load: {asset_responses}"
+            )
 
             for width in (320, 360, 390, 430, 600, 768, 900, 1024, 1440):
                 page.set_viewport_size({"width": width, "height": 900})

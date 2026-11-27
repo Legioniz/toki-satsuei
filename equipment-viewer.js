@@ -14,11 +14,11 @@
   const modelUid = "7d57163f3bec464cbb213428e1c37cf7";
   const viewerApiSource = "https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js";
   const angles = {
-    front: { position: "0%", label: "Front view of a Canon EOS 3000D camera with an EF-S 18–55mm kit lens." },
-    flash: { position: "25%", label: "Front view of the Canon EOS 3000D with its pop-up flash raised." },
-    left: { position: "50%", label: "Left-side profile of the EOS 3000D showing the side port covers and attached lens." },
-    right: { position: "75%", label: "Right-side profile of the EOS 3000D with the attached lens." },
-    top: { position: "100%", label: "Top view of the Canon EOS 3000D and attached EF-S 18–55mm kit lens." }
+    front: { src: "./assets/equipment/camera/EOS-3000D-front.png", label: "Front view of the submitted Canon EOS 3000D camera with an EF-S 18–55mm kit lens." },
+    flash: { src: "./assets/equipment/camera/EOS-3000D-pop-up-flash.png", label: "Front view of the submitted Canon EOS 3000D with its pop-up flash raised." },
+    left: { src: "./assets/equipment/camera/EOS-3000D-left-side.png", label: "Left-side profile of the submitted EOS 3000D showing the side port covers and attached lens." },
+    right: { src: "./assets/equipment/camera/EOS-3000D-right-side.png", label: "Right-side profile of the submitted EOS 3000D with the attached lens." },
+    top: { src: "./assets/equipment/camera/EOS-3000D-top.png", label: "Top view of the submitted Canon EOS 3000D and attached EF-S 18–55mm kit lens." }
   };
 
   if (!stage || !photo || !embedHost || !status || !modeButtons.length || !angleButtons.length) return;
@@ -35,8 +35,8 @@
     const selected = angles[name] ? name : "front";
     const angle = angles[selected];
     photo.dataset.angle = selected;
-    photo.style.backgroundPosition = angle.position + " 50%";
-    photo.setAttribute("aria-label", angle.label);
+    photo.src = angle.src;
+    photo.alt = angle.label;
     angleButtons.forEach(button => {
       const active = button.dataset.equipmentAngle === selected;
       button.setAttribute("aria-pressed", String(active));
