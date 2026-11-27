@@ -10,3 +10,50 @@
   .mobile-cta{left:auto !important;right:max(18px,env(safe-area-inset-right,0px)) !important;width:min(12rem,calc(100vw - 36px)) !important;max-width:calc(100vw - 36px) !important;justify-content:center;padding-inline:14px;box-sizing:border-box}
   body:has(.site-header .primary-nav.is-open) .mobile-cta,body:has(.site-header .primary-nav.is-open) .back-to-top{opacity:0 !important;visibility:hidden !important;pointer-events:none !important;transform:translateY(160%) !important}
 }
+
+/* Stable mobile drawer geometry: keep the header as the containing block and let only the drawer scroll. */
+@media (max-width: 820px) {
+  .site-header {
+    overflow: visible !important;
+    --toki-mobile-header-height: 82px;
+  }
+  .site-header .primary-nav {
+    position: absolute !important;
+    inset-block-start: 100% !important;
+    inset-inline: 0 !important;
+    z-index: 1001 !important;
+    display: none;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - var(--toki-mobile-header-height, 82px) - env(safe-area-inset-bottom, 0px)) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    align-content: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 4px;
+    box-sizing: border-box;
+  }
+  .site-header .primary-nav.is-open { display: flex !important; }
+  .site-header .primary-nav.is-open > a {
+    position: relative !important;
+    inset: auto !important;
+    flex: 0 0 48px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 48px !important;
+    height: 48px !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+    transform-origin: center;
+  }
+}
+@media (max-width: 680px) {
+  .site-header { --toki-mobile-header-height: 66px; }
+}
