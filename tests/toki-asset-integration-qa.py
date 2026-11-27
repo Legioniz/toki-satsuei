@@ -172,27 +172,23 @@ def main() -> None:
     for test_file in sorted((ROOT / "tests").glob("*.py")):
         if f"python tests/{test_file.name}" not in workflow:
             failures.append(f"QA script is not wired into GitHub Actions: {test_file.name}")
-    package_line = next(
-        (line for line in workflow.splitlines() if re.search(r"\bcp\s+index\.html\b", line) and "dist/" in line),
-        "",
-    )
-    if not package_line:
-        failures.append("Pages artifact copy command is missing")
-    else:
-        package_items = set(package_line.split()[1:-1])
-        required = {
-            "index.html", "library.html", "policies.html", "404.html",
-            *linked_styles, *linked_scripts, *EXPECTED_DATA, "robots.txt", "sitemap.xml",
-        }
-        missing = sorted(required - package_items)
-        if missing:
-            failures.append("Pages artifact omits required runtime files: " + ", ".join(missing))
-    if "cp -R media-library dist/" not in workflow:
-        failures.append("Pages artifact does not include the uploadable media-library shelves")
-    for asset in ("site.js", "library.js", "admin.js", "client-gallery.js", "toki-home.css", "toki-archive.css", "toki-policies.css", "toki-404.css", "toki-admin.css", "toki-client.css"):
-        if f"test -s dist/{asset}" not in workflow:
-            failures.append(f"Pages artifact does not assert that {asset} was packaged")
 
+    builder = ROOT / "scripts" / "build_static_site.py"
+    if not builder.is_file():
+        failures.append("Allowlisted static-site builder is missing")
+    if "python scripts/build_static_site.py --target pages" not in workflow:
+        failures.append("Pages workflow does not use the shared allowlisted static-site builder")
+
+    worker_config_path = ROOT / "wrangler.worker.jsonc"
+    try:
+        worker_config = json.loads(worker_config_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        failures.append(f"Worker Wrangler configuration is missing or invalid JSON: {error}")
+        worker_config = {}
+    if worker_config.get("name") != "toki-satsuei":
+        failures.append("Worker Wrangler config must target the toki-satsuei Worker")
+    if worker_config.get("assets", {}).get("directory") != "./worker-dist":
+        failures.append("Worker static assets must be served only from ./worker-dist")
     if failures:
         raise SystemExit("FAIL TOKI SATSUEI asset integration QA:\n- " + "\n- ".join(failures))
     print(
