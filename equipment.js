@@ -87,7 +87,7 @@
     const next = ["front", "rear", "side"].includes(view) ? view : "front";
     blueprint.dataset.view = next;
     blueprintPanels.forEach(panel => {
-      panel.hidden = panel.dataset.blueprintPanel !== next;
+      panel.toggleAttribute("hidden", panel.dataset.blueprintPanel !== next);
     });
     blueprintButtons.forEach(button => {
       button.setAttribute("aria-pressed", String(button.dataset.blueprintView === next));
