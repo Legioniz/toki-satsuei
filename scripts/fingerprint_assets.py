@@ -133,10 +133,19 @@ def normalize_csp_fallbacks(root: Path) -> int:
         old = page.read_text(encoding="utf-8")
         new, count = pattern.subn(replacement, old)
         if count == 0:
-            head = re.search(r"<head(?:\s[^>]*)?>", new, re.IGNORECASE)
-            if not head:
-                raise AssertionError(f"HTML document is missing a head element: {page}")
-            new = new[:head.end()] + "\n  " + replacement + new[head.end():]
+            charset = re.search(
+                r"""<meta\s+charset=["'][^"']+["'][^>]*>""",
+                new,
+                re.IGNORECASE,
+            )
+            if charset:
+                insertion_point = charset.end()
+            else:
+                head = re.search(r"<head(?:\s[^>]*)?>", new, re.IGNORECASE)
+                if not head:
+                    raise AssertionError(f"HTML document is missing a head element: {page}")
+                insertion_point = head.end()
+            new = new[:insertion_point] + "\n  " + replacement + new[insertion_point:]
             count = 1
         if new != old:
             page.write_text(new, encoding="utf-8", newline="\n")
