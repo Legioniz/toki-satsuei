@@ -80,7 +80,6 @@ def main() -> None:
     assert "site-header:not(.is-initial-hidden):hover" not in design_system_css, (
         "The masthead must not reveal itself from pointer hover while scroll logic intends to hide it."
     )
-    shared_asset_versions = set()
     for page_name in ["index.html", "booking.html", "library.html", "policies.html", "404.html", "admin.html", "client-gallery.html"]:
         page_source = (ROOT / page_name).read_text(encoding="utf-8")
         bundle = {
@@ -92,16 +91,16 @@ def main() -> None:
             "admin.html": "toki-admin.css",
             "client-gallery.html": "toki-client.css",
         }[page_name]
-        css_version = re.search(rf'href="./{re.escape(bundle)}\?v=([^"]+)"', page_source)
-        motion_version = re.search(r'src="./motion-system\.js\?v=([^"]+)"', page_source)
-        assert css_version and motion_version, f"{page_name}: shared motion asset cache key is missing"
-        assert css_version.group(1) == motion_version.group(1), (
-            f"{page_name}: stylesheet and motion controller cache keys are out of sync"
+        assert re.search(rf'href="./{re.escape(bundle)}"', page_source), (
+            f"{page_name}: expected page stylesheet is missing"
         )
-        shared_asset_versions.add(css_version.group(1))
-    assert len(shared_asset_versions) == 1, (
-        "Page bundles and the shared motion controller must use one coordinated cache version."
-    )
+        assert re.search(r'src="./motion-system\.js"', page_source), (
+            f"{page_name}: shared motion controller is missing"
+        )
+        assert not re.search(r'(?:href|src)="\./[^"]+\?v=', page_source), (
+            f"{page_name}: source HTML must not hard-code cache fingerprints; "
+            "the build generates them from asset contents"
+        )
 
     for token in ["headerElements", "heroOwnsViewport", "HEADER_DIRECTION_THRESHOLD", "setHeaderVisible"]:
         assert token in motion, f"Shared header controller is missing {token}"

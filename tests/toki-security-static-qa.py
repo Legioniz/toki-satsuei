@@ -338,6 +338,7 @@ if workflow.exists():
     for marker in (
         "python scripts/fingerprint_assets.py --self-test",
         "python scripts/fingerprint_assets.py dist",
+        "python scripts/fingerprint_assets.py dist --verify-only",
         "python tests/toki-live-site-security-qa.py",
         "TOKI_REQUIRE_SECURITY_HEADERS: '1'",
         "CLOUDFLARE_API_TOKEN",

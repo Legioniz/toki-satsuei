@@ -123,10 +123,11 @@ def main() -> None:
             failures.append(f"{page} has an incomplete or unexpected controller stack: {parser.scripts}")
         page_source = (ROOT / page).read_text(encoding="utf-8")
         for script in parser.scripts:
-            if not re.search(rf"""\./{re.escape(script)}\?v=[^"']+""", page_source):
-                failures.append(f"{page} is missing an automated cache fingerprint for {script}")
-        if parser.styles and not re.search(rf"""href=["']\./{re.escape(parser.styles[0])}\?v=[^"']+""", page_source):
-            failures.append(f"{page} is missing an automated cache fingerprint for {parser.styles[0]}")
+            if re.search(rf"""src=["']\./{re.escape(script)}\?v=[^"']+["']""", page_source):
+                failures.append(f"{page} must not manually pin a cache fingerprint for {script}")
+        for stylesheet in parser.styles:
+            if re.search(rf"""href=["']\./{re.escape(stylesheet)}\?v=[^"']+["']""", page_source):
+                failures.append(f"{page} must not manually pin a cache fingerprint for {stylesheet}")
         bundle_header = (ROOT / parser.styles[0]).read_text(encoding="utf-8").splitlines()[0] if len(parser.styles) == 1 else ""
         if len(parser.styles) != 1:
             failures.append(f"{page} should link exactly one bundled stylesheet, found {parser.styles}")

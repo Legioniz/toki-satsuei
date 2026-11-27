@@ -41,7 +41,7 @@ def main() -> None:
     assert "honest practice and detail studies, not a finished cosplay or portrait client portfolio" in index
     assert "only after the people featured give permission" in index.lower()
     assert 'href="./policies.html"' in index and 'href="./policies.html"' in archive
-    assert 'href="./toki-policies.css?' in policies
+    assert 'href="./toki-policies.css"' in policies
     assert 'id="consent"' in policies and 'id="pricing"' in policies and 'id="changes"' in policies
     assert "within 7 days after the session" in policies
     assert "20% of the final agreed package price" in policies

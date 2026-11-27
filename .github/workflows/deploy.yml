@@ -205,6 +205,9 @@ jobs:
           test -s dist/assets/equipment/camera/EOS-3000D-top.png
           python scripts/fingerprint_assets.py dist
 
+      - name: Verify generated asset fingerprints before publishing
+        run: python scripts/fingerprint_assets.py dist --verify-only
+
       - name: Upload verified static site artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:

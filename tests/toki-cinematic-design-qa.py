@@ -62,7 +62,7 @@ def main() -> None:
         page, bundle = bundles[label]
         bundle_header = (ROOT / bundle).read_text(encoding="utf-8").splitlines()[0]
         assert "cinematic.css" in bundle_header, f"{label}: cinematic stylesheet is not included in {bundle}"
-        assert f'./{bundle}?v=' in source, f"{label}: generated stylesheet bundle is not loaded"
+        assert f'href="./{bundle}"' in source, f"{label}: source stylesheet bundle reference is missing"
         assert "family=Caveat" in source, f"{label}: handwritten annotation font is not loaded"
         assert 'id="main-content"' in source, f"{label}: main content landmark is missing"
 

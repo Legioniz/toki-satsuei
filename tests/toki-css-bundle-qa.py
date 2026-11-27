@@ -15,7 +15,7 @@ EXPECTED = {
 
 def main():
     for page, bundle in EXPECTED.items():
-        links = re.findall(r'<link rel="stylesheet" href="\./([a-z0-9-]+\.css)\?v=[^"]+">', (ROOT / page).read_text(encoding="utf-8"))
+        links = re.findall(r'<link rel="stylesheet" href="\./([a-z0-9-]+\.css)">', (ROOT / page).read_text(encoding="utf-8"))
         assert links == [bundle], f"{page} should link only {bundle}, found {links}"
     result = subprocess.run([sys.executable, str(ROOT / "scripts" / "build-css.py"), "--check"], capture_output=True, text=True)
     assert result.returncode == 0, result.stdout + result.stderr
