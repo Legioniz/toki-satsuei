@@ -111,6 +111,27 @@ def main():
    home.set_viewport_size({"width":390,"height":844})
    home.wait_for_timeout(120)
    assert home.locator(".site-header").evaluate("(node)=>node.classList.contains('is-auto-hidden')"), "Homepage masthead must stay hidden over the mobile hero"
+   # A revealed masthead must remain visible when its menu opens, even while the hero lock is active.
+   header=home.locator(".site-header")
+   header.evaluate("""node=>{
+     node.classList.remove("is-auto-hidden","is-initial-hidden");
+     node.setAttribute("aria-hidden","false");
+     node.inert=false;
+   }""")
+   menu=home.locator(".menu-toggle");menu.click()
+   home.wait_for_function("""() => {
+     const header=document.querySelector(".site-header");
+     const nav=document.querySelector(".primary-nav");
+     const h=header?.getBoundingClientRect(), n=nav?.getBoundingClientRect();
+     return nav?.classList.contains("is-open") &&
+       header?.getAttribute("aria-hidden")==="false" && !header.inert &&
+       !header.classList.contains("is-auto-hidden") &&
+       h && n && h.top>=-1 && h.top<=1 && n.top>=h.bottom-1;
+   }""")
+   home.keyboard.press("Escape")
+   home.wait_for_function("!document.querySelector('.primary-nav').classList.contains('is-open')")
+   home.evaluate("document.activeElement?.blur(); window.TokiMotion.setHeaderVisible(false)")
+   home.wait_for_function("document.querySelector('.site-header').classList.contains('is-auto-hidden')")
    home.evaluate("""() => {
      const hero=document.querySelector(".hero-opening");
      const scroller=document.scrollingElement;
@@ -180,7 +201,15 @@ def main():
    # A short phone viewport must keep the complete menu reachable through its own scroll region.
    home.set_viewport_size({"width":390,"height":280})
    menu.click()
-   home.wait_for_function("document.querySelector('.primary-nav')?.classList.contains('is-open')")
+   home.wait_for_function("""() => {
+     const header=document.querySelector(".site-header");
+     const nav=document.querySelector(".primary-nav");
+     const h=header?.getBoundingClientRect(), n=nav?.getBoundingClientRect();
+     return nav?.classList.contains("is-open") &&
+       header?.getAttribute("aria-hidden")==="false" && !header.inert &&
+       !header.classList.contains("is-auto-hidden") &&
+       h && n && h.top>=-1 && h.top<=1 && n.top>=h.bottom-1;
+   }""")
    home.wait_for_function("""() => {
      const nav=document.querySelector(".primary-nav");
      if(!nav) return false;

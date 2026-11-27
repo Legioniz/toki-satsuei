@@ -671,7 +671,7 @@
     const heroLock = heroOwnsViewport();
     const navigationOpen = Boolean(headerNavigation?.classList.contains("is-open"));
     const focusWithinHeader = headerElements.some(header => header.matches(":focus-within"));
-    const shouldShow = (Boolean(visible) || navigationOpen || focusWithinHeader) && !heroLock;
+    const shouldShow = navigationOpen || focusWithinHeader || (Boolean(visible) && !heroLock);
     headerElements.forEach(header => {
       header.classList.toggle("is-auto-hidden", !shouldShow);
       if (heroLock && header.classList.contains("site-header")) header.classList.add("is-initial-hidden");
@@ -689,11 +689,15 @@
     const focusWithinHeader = headerElements.some(header => header.matches(":focus-within"));
     const navigationOpen = Boolean(headerNavigation?.classList.contains("is-open"));
 
-    if (heroLock) {
+    if (navigationOpen || focusWithinHeader) {
+      headerDirection = 0;
+      headerDirectionDistance = 0;
+      setHeaderVisible(true);
+    } else if (heroLock) {
       headerDirection = 0;
       headerDirectionDistance = 0;
       setHeaderVisible(false);
-    } else if (focusWithinHeader || navigationOpen || currentY <= 1) {
+    } else if (currentY <= 1) {
       headerDirection = 0;
       headerDirectionDistance = 0;
       setHeaderVisible(true);
