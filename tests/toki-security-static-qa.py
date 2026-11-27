@@ -194,8 +194,17 @@ else:
         if marker not in workflow_text:
             problems.append(f"deploy workflow: missing {label}")
 
-    if "if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.freshness.outputs.is_current == 'true'" not in workflow_text:
-        problems.append("deploy workflow: production deployment must be restricted to refs/heads/main")
+    for marker in (
+        "github.ref == 'refs/heads/main' && github.event_name != 'pull_request'",
+        "cloudflare/wrangler-action@953926a2e2182532811c01a25a53647d93bf07c0",
+        "pages deploy dist --project-name=toki-satsuei --branch=main",
+        "TOKI_REQUIRE_SECURITY_HEADERS: '1'",
+        "https://toki-satsuei.pages.dev/",
+    ):
+        if marker not in workflow_text:
+            problems.append(f"deploy workflow: missing strict Cloudflare Pages deployment control: {marker}")
+    if "actions/deploy-pages@" in workflow_text or "actions/upload-pages-artifact@" in workflow_text:
+        problems.append("deploy workflow: GitHub Pages deployment actions must be removed so _headers is enforced by Cloudflare Pages")
 
 dependabot = ROOT / ".github" / "dependabot.yml"
 if not dependabot.exists():
@@ -320,10 +329,30 @@ if workflow.exists():
         "python scripts/fingerprint_assets.py --self-test",
         "python scripts/fingerprint_assets.py dist",
         "python tests/toki-live-site-security-qa.py",
-        "TOKI_REQUIRE_SECURITY_HEADERS",
+        "TOKI_REQUIRE_SECURITY_HEADERS: '1'",
+        "CLOUDFLARE_API_TOKEN",
+        "CLOUDFLARE_ACCOUNT_ID",
     ):
         if marker not in workflow_text:
             problems.append(f"deploy workflow: missing runtime security verification: {marker}")
+
+for edge_path in (
+    "supabase/functions/portfolio-submit/index.ts",
+    "supabase/functions/toki-calendar/index.ts",
+):
+    edge_source = (ROOT / edge_path).read_text(encoding="utf-8")
+    for marker in (
+        "PORTFOLIO_ADDITIONAL_ALLOWED_ORIGINS",
+        "https://toki-satsuei.pages.dev",
+        "function isAllowedOrigin(origin: string | null)",
+        "ALLOWED_ORIGINS.has(origin)",
+    ):
+        if marker not in edge_source:
+            problems.append(f"{edge_path}: missing exact Cloudflare Pages origin allowlist control: {marker}")
+
+booking_edge = (ROOT / "supabase/functions/portfolio-submit/index.ts").read_text(encoding="utf-8")
+if "payload.hostname === expectedHostname" not in booking_edge or "hostnameForOrigin(origin)" not in booking_edge:
+    problems.append("portfolio-submit: Turnstile hostname must be verified against the allowlisted request origin")
 
 if problems:
     print("FAIL TOKI static security audit:")
