@@ -125,7 +125,7 @@ def normalize_csp_fallbacks(root: Path) -> int:
     """Put one consistent CSP meta fallback near the start of every HTML head."""
     replacement = f'<meta http-equiv="Content-Security-Policy" content="{CSP_META}">'
     pattern = re.compile(
-        r'<meta\\s+http-equiv=["\\']Content-Security-Policy["\\'][^>]*>',
+        r"""<meta\s+http-equiv=["']Content-Security-Policy["'][^>]*>""",
         re.IGNORECASE,
     )
     changed = 0
@@ -133,13 +133,13 @@ def normalize_csp_fallbacks(root: Path) -> int:
         old = page.read_text(encoding="utf-8")
         new, count = pattern.subn(replacement, old)
         if count == 0:
-            head = re.search(r"<head(?:\\s[^>]*)?>", new, re.IGNORECASE)
+            head = re.search(r"<head(?:\s[^>]*)?>", new, re.IGNORECASE)
             if not head:
                 raise AssertionError(f"HTML document is missing a head element: {page}")
-            new = new[:head.end()] + "\\n  " + replacement + new[head.end():]
+            new = new[:head.end()] + "\n  " + replacement + new[head.end():]
             count = 1
         if new != old:
-            page.write_text(new, encoding="utf-8", newline="\\n")
+            page.write_text(new, encoding="utf-8", newline="\n")
             changed += count
     return changed
 
