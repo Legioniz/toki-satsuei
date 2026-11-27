@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import os
+import socket
+import time
 from datetime import datetime
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -31,13 +33,23 @@ def request(url: str, method: str = "GET", origin: str | None = ALLOWED_ORIGIN,
     if extra_headers:
         headers.update(extra_headers)
     req = Request(url, data=raw, headers=headers, method=method)
-    try:
-        with urlopen(req, timeout=20) as response:
-            return response.status, dict(response.headers.items()), response.read()
-    except HTTPError as error:
-        return error.code, dict(error.headers.items()), error.read()
-    except URLError as error:
-        raise AssertionError(f"Live endpoint unavailable: {error.reason}") from error
+    for attempt in range(2):
+        try:
+            with urlopen(req, timeout=20) as response:
+                return response.status, dict(response.headers.items()), response.read()
+        except HTTPError as error:
+            return error.code, dict(error.headers.items()), error.read()
+        except (TimeoutError, socket.timeout) as error:
+            if attempt == 0:
+                time.sleep(1)
+                continue
+            raise AssertionError(f"Live endpoint timed out after one retry: {url}") from error
+        except URLError as error:
+            if isinstance(error.reason, (TimeoutError, socket.timeout)) and attempt == 0:
+                time.sleep(1)
+                continue
+            raise AssertionError(f"Live endpoint unavailable: {error.reason}") from error
+    raise AssertionError(f"Live endpoint request did not complete: {url}")
 
 
 def decode(body: bytes) -> dict:
