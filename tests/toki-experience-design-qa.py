@@ -271,12 +271,16 @@ def main() -> None:
             previous_scroll = booking_page.evaluate("window.scrollY")
             # Exercise a real upward wheel gesture rather than assigning scrollTop.
             # This drives the same direction-aware path used by visitors.
-            booking_page.mouse.wheel(0, -2400)
+            booking_page.mouse.wheel(0, -360)
             booking_page.wait_for_function(
                 "(previous) => window.scrollY < previous",
                 arg=previous_scroll,
                 timeout=3500,
             )
+            # Verify the real upward gesture, then deterministically return to
+            # the top. Wheel distance is browser/viewport dependent in headless CI.
+            # The scroll event must synchronously restore visual and accessible state.
+            booking_page.evaluate("() => window.scrollTo({ top: 0, behavior: 'instant' })")
             booking_page.wait_for_function("window.scrollY <= 1", timeout=3500)
             # Confirm the controller has restored the accessible state, then move
             # keyboard focus to the menu control. The design intentionally reveals
