@@ -12,7 +12,7 @@
 .equipment-viewer-status{color:#e8828d;text-align:right}
 .equipment-selector{display:flex;gap:8px;padding:14px 16px 0}
 .equipment-selector button,.equipment-mode-switch button,.equipment-blueprint-views button{min-height:44px;padding:9px 13px;border:1px solid rgba(244,241,234,.19);border-radius:3px;background:transparent;color:#d8d1c7;font:600 10px/1.3 var(--c-mono,"Space Mono",monospace);letter-spacing:.1em;cursor:pointer;transition:background-color var(--dur-2,220ms) var(--ease-out,ease),border-color var(--dur-2,220ms) var(--ease-out,ease),color var(--dur-2,220ms) var(--ease-out,ease),transform var(--dur-2,220ms) var(--ease-out,ease)}
-.equipment-selector button[aria-pressed="true"],.equipment-mode-switch button[aria-pressed="true"],.equipment-blueprint-views button[aria-pressed="true"]{color:#fff;border-color:#b02c3a;background:rgba(163,31,45,.28)}
+.equipment-selector button[aria-selected="true"],.equipment-mode-switch button[aria-pressed="true"],.equipment-blueprint-views button[aria-pressed="true"]{color:#fff;border-color:#b02c3a;background:rgba(163,31,45,.28)}
 .equipment-selector button:hover,.equipment-mode-switch button:hover,.equipment-blueprint-views button:hover{border-color:#e8828d;color:#fff}
 .equipment-stage{position:relative;min-height:370px;display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse at 50% 48%,rgba(173,151,126,.12),transparent 47%),linear-gradient(180deg,rgba(255,255,255,.018),transparent 72%)}
 .equipment-stage::after{content:"";position:absolute;z-index:0;left:12%;right:12%;bottom:38px;height:1px;background:linear-gradient(90deg,transparent,rgba(235,226,212,.25),transparent)}
