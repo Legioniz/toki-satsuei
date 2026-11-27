@@ -29,9 +29,9 @@ def main() -> None:
         bundle_name = {"index.html": "toki-home.css", "booking.html": "toki-home.css", "library.html": "toki-archive.css", "policies.html": "toki-policies.css", "404.html": "toki-404.css"}[filename]
         assert "experience.css" in (ROOT / bundle_name).read_text(encoding="utf-8").splitlines()[0], f"{filename}: experience layer is not bundled"
 
-    css = (ROOT / "experience.css").read_text(encoding="utf-8")
-    enhancements = (ROOT / "site-enhancements.css").read_text(encoding="utf-8")
-    global_motion = (ROOT / "global-motion.css").read_text(encoding="utf-8")
+    css = (ROOT / "styles/shared/booking-experience.css").read_text(encoding="utf-8")
+    enhancements = (ROOT / "styles/shared/site-enhancements.css").read_text(encoding="utf-8")
+    global_motion = (ROOT / "styles/shared/global-motion.css").read_text(encoding="utf-8")
     motion_js = (ROOT / "motion-system.js").read_text(encoding="utf-8")
     home_bundle = (ROOT / "toki-home.css").read_text(encoding="utf-8")
     for selector in [
@@ -43,7 +43,7 @@ def main() -> None:
         assert selector in css, f"Experience layer is missing {selector}"
 
     assert "grid-template-columns: minmax(0, 1fr)" in enhancements
-    motion_refinements = (ROOT / "motion-refinements.css").read_text(encoding="utf-8")
+    motion_refinements = (ROOT / "styles/shared/motion-refinements.css").read_text(encoding="utf-8")
     assert ".toki-booking-sheet .form-split" in enhancements
     assert ".booking-page .toki-assurance__grid" in motion_refinements
     assert ".booking-page .toki-booking-sheet .booking-fieldset" in motion_refinements
@@ -58,7 +58,7 @@ def main() -> None:
     equipment = home.split('<section class="equipment-section"', 1)[1].split('<section class="faq-section"', 1)[0]
     assert equipment.count('data-equipment-angle=') == 5, "Equipment viewer must expose all five supplied 2D camera angles."
     assert 'data-equipment-mode="2d"' in equipment and 'data-equipment-mode="3d"' in equipment
-    assert "assets/equipment/camera/EOS-3000D-front.png" in equipment and "eos-3000d-angle-sprite.webp" not in (ROOT / "equipment.css").read_text(encoding="utf-8")
+    assert "assets/equipment/camera/EOS-3000D-front.png" in equipment and "eos-3000d-angle-sprite.webp" not in (ROOT / "styles/pages/equipment.css").read_text(encoding="utf-8")
     assert "https://sketchfab.com/3d-models/canon-eos-3000-7d57163f3bec464cbb213428e1c37cf7" in equipment
 
     viewer = (ROOT / "equipment-viewer.js").read_text(encoding="utf-8")

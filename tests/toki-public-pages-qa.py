@@ -25,7 +25,7 @@ class QuietHandler(SimpleHTTPRequestHandler):
 
 
 def main() -> None:
-    for filename in [*PUBLIC_PAGES, "404.html", "policies.css", "robots.txt", "sitemap.xml"]:
+    for filename in [*PUBLIC_PAGES, "404.html", "styles/pages/policies.css", "robots.txt", "sitemap.xml"]:
         path = ROOT / filename
         assert path.is_file() and path.stat().st_size > 0, f"Missing public page asset: {filename}"
 

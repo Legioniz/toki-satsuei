@@ -701,7 +701,7 @@
   .archive-search { flex: 1 1 240px; }
 }
 
-@media (max-width: 680px) {
+@media (--toki-mobile) {
   .archive-head { padding-top: 44px; }
   .archive-signature { display: none; }
   .archive-lede { font-size: 14px; }
