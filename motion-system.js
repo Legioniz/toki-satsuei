@@ -304,6 +304,9 @@
     const links = Array.from(nav.querySelectorAll("a"));
 
     if (open) {
+      // Reset internal drawer scrolling before showing the first destination.
+      nav.scrollTop = 0;
+      nav.scrollLeft = 0;
       nav.classList.add("is-open");
       links.forEach(link => link.classList.add("is-motion-visible"));
       const panel = animate(nav, [
