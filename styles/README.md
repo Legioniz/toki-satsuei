@@ -32,10 +32,12 @@ client gallery, and the shared archive/policy/404 page shells.
 ## Migration and cascade policy
 
 The folder structure establishes ownership without pretending that every older
-rule has already been deduplicated. Some shared files still contain historical
-overrides and `!important` declarations. Do not remove them or reorder shared
-layers by filename alone. Migrate duplicate selectors into tokens/base/components
-only with computed-style and responsive/browser regression checks.
+rule has already been deduplicated. CSS bundle QA now rejects byte-equivalent
+rules repeated within the same source module and at-rule context. Non-identical
+repeated selectors and historical `!important` declarations remain a separate
+cascade-cleanup task: do not remove them or reorder shared layers by filename
+alone. Migrate those rules only with computed-style and responsive/browser
+regression checks.
 
 ## Build contract
 
