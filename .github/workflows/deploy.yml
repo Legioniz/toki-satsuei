@@ -171,7 +171,9 @@ jobs:
 
 
       - name: Assemble standalone Pages artifact
-        run: python scripts/build_static_site.py --target pages
+        run: |
+          python scripts/build_static_site.py --target pages
+          python scripts/fingerprint_assets.py dist
 
       - name: Verify generated asset fingerprints before publishing
         run: python scripts/fingerprint_assets.py dist --verify-only
