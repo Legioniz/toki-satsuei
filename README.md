@@ -22,6 +22,16 @@ The complete standalone TOKI SATSUEI website, kept separate from the Legioniz pe
 
 In this repository, open **Settings → Pages → Build and deployment** and set **Source** to **GitHub Actions**. GitHub does not allow this workflow connection to create the Pages site automatically for a new repository. After selecting GitHub Actions, rerun the latest workflow from the **Actions** tab. Future pushes to `main` will build and deploy the site automatically.
 
+## HTTP security headers and cache integrity
+
+The build injects one consistent CSP meta fallback into every deployed HTML page, then fingerprints local CSS, JavaScript, JSON, fonts, and media URLs with a 32-character SHA-256 value. The workflow verifies that referenced assets match their fingerprints before publishing and fetches the deployed CSS/JavaScript again after deployment to verify the live response body.
+
+The root _headers file is prepared for Cloudflare Pages. It defines HSTS, response CSP, clickjacking protection, MIME sniffing protection, referrer and permissions policies, HTML revalidation, no-store for the admin and client-gallery pages, and one-year immutable caching for fingerprinted static assets. Narrow cache rules detach the inherited Cache-Control header before applying their own policy so directives do not conflict.
+
+**Hosting limitation:** the public site is currently published on GitHub Pages. GitHub Pages does not let repository files configure custom HTTP response headers, so _headers is not active at the current github.io origin. The live workflow reports missing response headers as a warning by default while still requiring successful asset-hash checks. Header failures become blocking when TOKI_REQUIRE_SECURITY_HEADERS=1.
+
+To make response headers effective, deploy the same static dist/ output to Cloudflare Pages or another header-capable host. Set the repository variable TOKI_SITE_URL to that HTTPS production URL and set TOKI_REQUIRE_SECURITY_HEADERS=1. Before changing the canonical/public hostname, add the new hostname to the Cloudflare Turnstile widget and the Supabase Edge Function origin allowlist. Keep GitHub Pages as a fallback until the new origin passes the strict live check.
+
 ## Add photos and videos
 
 Upload web-ready JPG, JPEG, PNG, WEBP, AVIF, GIF, MP4, or WEBM files into an album folder under `media-library/`.
