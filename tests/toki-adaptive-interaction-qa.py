@@ -190,15 +190,19 @@ def main():
      ];
      return animations.every(animation=>animation.playState!=="running");
    }""")
+   link_metrics=drawer.evaluate("nav=>({count:nav.querySelectorAll(\"a\").length,heights:Array.from(nav.querySelectorAll(\"a\")).map(a=>a.getBoundingClientRect().height),overflowY:getComputedStyle(nav).overflowY})")
+   assert link_metrics["count"]==7, f"Mobile navigation must retain all seven destinations: {link_metrics}"
+   assert all(height>=48 for height in link_metrics["heights"]), f"Mobile navigation links must retain 48px touch targets: {link_metrics}"
+   assert link_metrics["overflowY"] in ("auto","scroll"), f"Short-screen menu is not scrollable: {link_metrics}"
+   # Force a constrained drawer in the browser test to prove overflow stays inside
+   # the nav itself; natural viewport height may still fit the menu by a few pixels.
+   drawer.evaluate("nav=>{nav.style.transition='none';nav.style.maxHeight='120px';nav.scrollTop=0}")
    short_state=drawer.evaluate("nav=>({overflowY:getComputedStyle(nav).overflowY,scrollHeight:nav.scrollHeight,clientHeight:nav.clientHeight,maxHeight:getComputedStyle(nav).maxHeight})")
-   assert short_state["overflowY"] in ("auto","scroll"), f"Short-screen menu is not scrollable: {short_state}"
-   assert short_state["clientHeight"]>0, f"Short-screen menu has no visible scroll region: {short_state}"
-   link_heights=drawer.evaluate("nav=>Array.from(nav.querySelectorAll(\"a\")).map(a=>a.getBoundingClientRect().height)")
-   assert all(height>=48 for height in link_heights), f"Mobile navigation links must retain 48px touch targets: {link_heights}"
-   assert short_state["scrollHeight"]>short_state["clientHeight"], f"Short-screen menu did not overflow after preserving link touch targets: {short_state}"
+   assert short_state["scrollHeight"]>short_state["clientHeight"], f"Constrained mobile drawer must scroll internally: {short_state}"
    last_link=drawer.locator("a").last
    last_link.scroll_into_view_if_needed()
-   assert last_link.is_visible(), "Last navigation link is not reachable on a short mobile viewport"
+   assert last_link.is_visible(), "Last navigation link is not reachable inside a constrained mobile drawer"
+   assert drawer.evaluate("nav=>nav.scrollTop>0"), "Navigation scroll did not stay inside the drawer"
    home.keyboard.press("Escape")
    home.wait_for_function("!document.querySelector('.primary-nav').classList.contains('is-open')")
    menu.click()
