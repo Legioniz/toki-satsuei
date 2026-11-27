@@ -112,7 +112,6 @@ def main() -> None:
     base = SITE_URL if SITE_URL.endswith("/") else SITE_URL + "/"
     origin = urlsplit(base).netloc
     problems: list[str] = []
-    all_html_headers: list[tuple[str, dict[str, str]]] = []
 
     routes = (
         ("", False),
@@ -122,7 +121,6 @@ def main() -> None:
         ("admin.html", True),
         ("client-gallery.html", True),
     )
-    home_status = 0
     home_url = base
     home_body = b""
     for route, private in routes:
@@ -131,14 +129,15 @@ def main() -> None:
             raise AssertionError(f"Live route {route or '/'} returned HTTP {status}: {final_url}")
         if urlsplit(final_url).netloc != origin:
             raise AssertionError(f"Unexpected host redirect for {route or '/'}: {final_url}")
-        all_html_headers.append((route or "/", headers))
+        if b'<meta http-equiv="Content-Security-Policy"' not in body:
+            problems.append(f"{route or '/'}:csp-meta-fallback")
         for name in missing_security_headers(headers):
             problems.append(f"{route or '/'}:{name}")
         cache_error = cache_policy_error(headers, private=private)
         if cache_error:
             problems.append(f"{route or '/'}:{cache_error}")
         if not route:
-            home_status, home_url, home_body = status, final_url, body
+            home_url, home_body = final_url, body
 
     parser = PageAssets()
     parser.feed(home_body.decode("utf-8", errors="replace"))
