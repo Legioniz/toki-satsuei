@@ -27,7 +27,7 @@ EXPECTED_DATA = {
 EXPECTED_SCRIPT_VERSIONS = {
     "site.js": "20261127-v3-smart-header",
     "availability.js": "20261126-v15-interaction-fixes",
-    "equipment-viewer.js": "20261127-v21-equipment-interactive",
+    "equipment-viewer.js": "20261127-v22-sketchfab-hd-textures",
     "admin.js": "20261126-v16-admin-focus-fix",
     "client-gallery.js": "20261126-v15-interaction-fixes",
     "library.js": "20261126-v15-interaction-fixes",
