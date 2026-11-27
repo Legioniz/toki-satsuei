@@ -21,7 +21,7 @@ SOURCE_PATHS = {
     "refinement": ["styles/shared/refinements.css"],
     "motion-system": ["styles/shared/motion-system.css"],
     "cinematic": ["styles/shared/cinematic.css"],
-    "experience": ["styles/shared/booking-experience.css"],
+    "experience": ["styles/pages/home-booking.css"],
     "fixes": ["styles/shared/compatibility-fixes.css"],
     "orientation": ["styles/shared/orientation.css"],
     "global-motion": ["styles/shared/global-motion.css"],
@@ -45,9 +45,9 @@ SOURCE_PATHS = {
 
 BUNDLES = {
     "toki-home.css": ["styles", "refinement", "policies", "availability", "motion-system", "cinematic", "experience", "fixes", "pricing-calculator", "design-system", "orientation", "global-motion", "site-enhancements", "motion-refinements", "mobile-nav", "equipment"],
-    "toki-archive.css": ["styles", "library", "refinement", "motion-system", "cinematic", "experience", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
-    "toki-policies.css": ["styles", "refinement", "policies", "motion-system", "cinematic", "experience", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
-    "toki-404.css": ["styles", "refinement", "policies", "motion-system", "cinematic", "experience", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
+    "toki-archive.css": ["styles", "library", "refinement", "motion-system", "cinematic", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
+    "toki-policies.css": ["styles", "refinement", "policies", "motion-system", "cinematic", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
+    "toki-404.css": ["styles", "refinement", "policies", "motion-system", "cinematic", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
     "toki-admin.css": ["styles", "refinement", "motion-system", "admin", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
     "toki-client.css": ["styles", "refinement", "motion-system", "client-gallery", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
 }

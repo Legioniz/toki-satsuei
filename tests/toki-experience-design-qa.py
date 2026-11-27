@@ -25,11 +25,14 @@ class QuietHandler(SimpleHTTPRequestHandler):
 def main() -> None:
     pages = ["index.html", "booking.html", "library.html", "policies.html", "404.html"]
     for filename in pages:
-        source = (ROOT / filename).read_text(encoding="utf-8")
         bundle_name = {"index.html": "toki-home.css", "booking.html": "toki-home.css", "library.html": "toki-archive.css", "policies.html": "toki-policies.css", "404.html": "toki-404.css"}[filename]
-        assert "experience.css" in (ROOT / bundle_name).read_text(encoding="utf-8").splitlines()[0], f"{filename}: experience layer is not bundled"
+        has_experience = "experience.css" in (ROOT / bundle_name).read_text(encoding="utf-8").splitlines()[0]
+        should_have_experience = filename in ("index.html", "booking.html")
+        assert has_experience == should_have_experience, (
+            f"{filename}: booking/home experience CSS should be page-scoped"
+        )
 
-    css = (ROOT / "styles/shared/booking-experience.css").read_text(encoding="utf-8")
+    css = (ROOT / "styles/pages/home-booking.css").read_text(encoding="utf-8")
     enhancements = (ROOT / "styles/shared/site-enhancements.css").read_text(encoding="utf-8")
     global_motion = (ROOT / "styles/shared/global-motion.css").read_text(encoding="utf-8")
     motion_js = (ROOT / "motion-system.js").read_text(encoding="utf-8")

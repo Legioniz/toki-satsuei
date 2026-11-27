@@ -16,18 +16,18 @@ committed `toki-*.css` bundles and preserves the established cascade order.
 
 ## Cross-page styles
 
-`styles/shared/` contains existing styles used across multiple page bundles:
-the original foundation, refinements, cinematic treatments, booking experience,
-motion system, orientation rules, compatibility fixes, and navigation. These
-layers remain separate because their relative order affects the current visual
-cascade. They are now grouped by shared ownership rather than mixed with
-page-owned styles.
+`styles/shared/` contains cross-page foundation, refinements, cinematic
+presentation, motion, orientation, compatibility, and navigation layers.
+Homepage and booking-only experience styling lives in
+`styles/pages/home-booking.css` and is emitted only in the shared home/booking
+bundle. Shared layers remain separate where their relative order affects the
+current cascade.
 
 ## Page styles
 
-`styles/pages/` owns page-specific and page-family styling: availability,
-policies, pricing calculator, equipment viewer, archive, admin, client gallery,
-and the shared archive/policy/404 page shells.
+`styles/pages/` owns page-specific and page-family styling: homepage/booking,
+availability, policies, pricing calculator, equipment viewer, archive, admin,
+client gallery, and the shared archive/policy/404 page shells.
 
 ## Migration and cascade policy
 

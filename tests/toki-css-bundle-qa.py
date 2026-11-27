@@ -20,7 +20,7 @@ REQUIRED_MODULES = (
     "styles/shared/refinements.css",
     "styles/shared/cinematic.css",
     "styles/shared/motion-system.css",
-    "styles/shared/booking-experience.css",
+    "styles/pages/home-booking.css",
     "styles/shared/compatibility-fixes.css",
     "styles/shared/orientation.css",
     "styles/shared/global-motion.css",
