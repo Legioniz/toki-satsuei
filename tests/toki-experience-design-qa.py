@@ -66,7 +66,12 @@ def main() -> None:
     assert "https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js" in viewer
     assert 'api.addEventListener("viewerready"' in viewer
     assert 'api.setTextureQuality("hd"' in viewer, "The Sketchfab model must request the highest supported texture quality."
-    assert "script-src 'self' 'unsafe-inline' https://static.sketchfab.com" in headers.split("Content-Security-Policy:", 1)[1]
+    csp_policy = headers.split("Content-Security-Policy:", 1)[1].splitlines()[0]
+    script_policy = csp_policy.split("script-src ", 1)[1].split(";", 1)[0]
+    assert script_policy.startswith("'self' https://static.sketchfab.com")
+    assert "'unsafe-inline'" not in script_policy and "'unsafe-eval'" not in script_policy, (
+        "The response CSP must not allow inline or eval scripts."
+    )
     assert "https://static.sketchfab.com" in home, "The page CSP must allow the official Sketchfab Viewer API script."
     assert "Canon EOS 3000D" in equipment and "Canon EF-S 18–55mm" in equipment
     assert equipment.count("equipment-spec-disclosure") == 3, "Equipment specifications and references must be collapsible."
