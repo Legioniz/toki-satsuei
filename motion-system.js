@@ -739,6 +739,20 @@
         updateHeaderVisibility();
       });
     }, { passive: true });
+    // Programmatic smooth-scroll and touch momentum can deliver their final
+    // position after the last directional frame. Reconcile the masthead once
+    // scrolling settles so visual and accessibility states cannot remain stale.
+    window.addEventListener("scrollend", () => {
+      const currentY = Math.max(0, window.scrollY || 0);
+      if (currentY <= 1 && !heroOwnsViewport()) {
+        headerDirection = 0;
+        headerDirectionDistance = 0;
+        headerPreviousY = currentY;
+        setHeaderVisible(true);
+      } else {
+        updateHeaderVisibility();
+      }
+    }, { passive: true });
     window.addEventListener("resize", updateHeaderVisibility, { passive: true });
     window.addEventListener("orientationchange", () => requestAnimationFrame(updateHeaderVisibility), { passive: true });
   }
