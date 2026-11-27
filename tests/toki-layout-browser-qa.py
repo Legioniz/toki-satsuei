@@ -150,7 +150,7 @@ def check_header(page, width, label):
         assert opened[1]["display"] != "none", f"{label}: navigation did not open at {width}px"
         assert opened[1]["x"] >= -1 and opened[1]["right"] <= width + 1, f"{label}: open navigation is clipped: {opened[1]}"
         page.keyboard.press("Escape")
-        page.wait_for_function("!document.querySelector('.primary-nav').classList.contains('is-open')", timeout=2000)
+        page.wait_for_function("() => !document.querySelector('.primary-nav').classList.contains('is-open')", timeout=2000)
         if page.locator(".hero-opening").count() > 0:
             page.evaluate("() => { document.scrollingElement.scrollTop = 0; }")
             page.wait_for_timeout(80)
