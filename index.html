@@ -23,6 +23,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./toki-home.css?v=20261127-v18-equipment-reference-cards">
+  <link rel="stylesheet" href="./equipment-viewer.css?v=20261127-v20-camera-angles">
   <link rel="icon" href="https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/30515ce50_Toki_Satsuei_Brushstroke_Emblem.png" type="image/png">
   <link rel="preload" as="image" href="https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/3db8c3355_242599.jpg">
   <style id="homepage-hero-critical-styles">
@@ -65,6 +66,7 @@
   </style>
   <script src="./motion-system.js?v=20261127-v19-scroll-settle" defer></script>
   <script src="./site.js?v=20261127-v3-smart-header" defer></script>
+  <script src="./equipment-viewer.js?v=20261127-v20-camera-angles" defer></script>
 
   <script src="./availability.js?v=20261126-v15-interaction-fixes" defer></script>
 </head>
@@ -408,24 +410,47 @@
             <p class="eyebrow">The field kit / 001</p>
             <h2 id="equipment-title">The tools<br>behind <em>the frame.</em></h2>
           </div>
-          <p class="section-aside">A factual look at the camera and lens currently used for TOKI SATSUEI sessions. Manufacturer references are linked below; the photographs and the people behind them remain the focus.</p>
+          <p class="section-aside">A closer look at the Canon EOS 3000D and its standard zoom lens. Switch between the supplied 2D product views or load a community-made interactive 3D reference.</p>
         </div>
 
-        <div class="equipment-grid">
-          <article class="equipment-card" data-equipment-card="camera" data-reveal="left" aria-labelledby="equipment-camera-title">
-            <div class="equipment-card-visual equipment-card-visual--camera">
-              <div class="equipment-visual-top"><span>CANON / EOS SERIES</span><span>FIELD KIT 001</span></div>
-              <div class="equipment-visual-main">
-                <span class="equipment-visual-kicker">PRIMARY CAMERA BODY</span>
-                <strong class="equipment-visual-title">EOS <em>3000D</em></strong>
-                <span class="equipment-visual-summary">18 MP · APS-C CMOS · DSLR</span>
-              </div>
-              <div class="equipment-visual-bottom"><span>CAMERA BODY</span><span>01 / 02</span></div>
+        <div class="equipment-composition" data-equipment-root data-equipment-ready="false">
+          <div class="equipment-viewer-panel" data-reveal="left">
+            <div class="equipment-viewer-top">
+              <span>FIELD OBJECT / EOS 3000D + EF-S 18–55MM</span>
+              <span class="equipment-viewer-status" data-equipment-status role="status" aria-live="polite">2D PHOTO VIEW / FRONT</span>
             </div>
-            <div class="equipment-card-content">
-              <p class="equipment-spec-kicker">01 / CAMERA BODY</p>
-              <h3 id="equipment-camera-title">Canon EOS 3000D</h3>
-              <p class="equipment-spec-intro">The primary camera body used for TOKI SATSUEI shoots. Its 18-megapixel APS-C sensor and optical viewfinder form a straightforward DSLR setup for planned portraits and outdoor sessions.</p>
+
+            <div class="equipment-mode-switch" role="group" aria-label="Choose equipment view">
+              <button type="button" data-equipment-mode="2d" aria-pressed="true">2D PRODUCT PHOTOS</button>
+              <button type="button" data-equipment-mode="3d" aria-pressed="false">3D INTERACTIVE MODEL</button>
+            </div>
+
+            <div class="equipment-stage" data-equipment-stage data-view="2d">
+              <div class="equipment-photo-stage" data-equipment-photo data-angle="front" role="img" aria-label="Front view of a Canon EOS 3000D camera with an EF-S 18–55mm kit lens."></div>
+              <div class="equipment-embed" data-equipment-embed hidden></div>
+            </div>
+
+            <div class="equipment-angle-controls" data-equipment-angles role="group" aria-label="Select a 2D camera angle">
+              <button type="button" data-equipment-angle="front" aria-pressed="true">FRONT</button>
+              <button type="button" data-equipment-angle="flash" aria-pressed="false">FLASH</button>
+              <button type="button" data-equipment-angle="left" aria-pressed="false">LEFT SIDE</button>
+              <button type="button" data-equipment-angle="right" aria-pressed="false">RIGHT SIDE</button>
+              <button type="button" data-equipment-angle="top" aria-pressed="false">TOP</button>
+            </div>
+
+            <div class="equipment-viewer-foot">
+              <span>2D VIEWS / PRODUCT REFERENCE PHOTOGRAPHS SUPPLIED FOR THIS PAGE</span>
+              <a href="https://sketchfab.com/3d-models/canon-eos-3000-7d57163f3bec464cbb213428e1c37cf7" target="_blank" rel="noopener noreferrer">OPEN 3D MODEL ON SKETCHFAB ↗</a>
+            </div>
+          </div>
+
+          <aside class="equipment-spec-panel" data-reveal="right" aria-label="Camera and lens specifications">
+            <p class="equipment-spec-kicker">01 / CURRENT CAMERA KIT</p>
+            <h3>Canon EOS 3000D<br>with EF-S 18–55mm</h3>
+            <p class="equipment-spec-intro">The camera body and standard zoom lens currently listed for TOKI SATSUEI sessions. The combination is suited to general outdoor photography, portraits, and everyday framing.</p>
+
+            <section class="equipment-spec-group" aria-labelledby="equipment-body-specs">
+              <h4 id="equipment-body-specs">Camera body / EOS 3000D</h4>
               <dl class="equipment-spec-grid">
                 <div class="equipment-spec"><dt>Effective resolution</dt><dd>18 MP</dd></div>
                 <div class="equipment-spec"><dt>Sensor</dt><dd>APS-C CMOS</dd></div>
@@ -434,41 +459,31 @@
                 <div class="equipment-spec"><dt>Expanded ISO</dt><dd>Up to 12,800</dd></div>
                 <div class="equipment-spec"><dt>Autofocus</dt><dd>9-point AF</dd></div>
                 <div class="equipment-spec"><dt>Continuous shooting</dt><dd>Up to 3 fps</dd></div>
-                <div class="equipment-spec"><dt>Video</dt><dd>Full HD</dd></div>
+                <div class="equipment-spec"><dt>Video</dt><dd>Full HD 1080p</dd></div>
               </dl>
-              <a class="equipment-source-link" href="https://asia.canon/en/pro-imaging/eos-3000d-kit-ef-s18-55-iii/main/product" target="_blank" rel="noopener noreferrer">VIEW CANON PRODUCT PHOTOS &amp; SPECIFICATIONS ↗</a>
-            </div>
-          </article>
+            </section>
 
-          <article class="equipment-card" data-equipment-card="lens" data-reveal="right" aria-labelledby="equipment-lens-title">
-            <div class="equipment-card-visual equipment-card-visual--lens">
-              <div class="equipment-visual-top"><span>CANON / EF-S MOUNT</span><span>FIELD KIT 002</span></div>
-              <div class="equipment-visual-main">
-                <span class="equipment-visual-kicker">STANDARD ZOOM LENS</span>
-                <strong class="equipment-visual-title">18–<em>55mm</em></strong>
-                <span class="equipment-visual-summary">EF-S · STANDARD ZOOM</span>
-              </div>
-              <div class="equipment-visual-bottom"><span>LENS REVISION UNCONFIRMED</span><span>02 / 02</span></div>
-            </div>
-            <div class="equipment-card-content">
-              <p class="equipment-spec-kicker">02 / STANDARD ZOOM</p>
-              <h3 id="equipment-lens-title">Canon EF-S 18–55mm</h3>
-              <p class="equipment-spec-intro">The current general-purpose zoom used for environmental portraits, group frames, and everyday framing. The exact revision printed on the lens barrel has not yet been confirmed.</p>
+            <section class="equipment-spec-group" aria-labelledby="equipment-lens-specs">
+              <h4 id="equipment-lens-specs">Standard zoom / EF-S 18–55mm</h4>
               <dl class="equipment-spec-grid">
-                <div class="equipment-spec"><dt>Lens mount</dt><dd>Canon EF-S</dd></div>
+                <div class="equipment-spec"><dt>Mount</dt><dd>Canon EF-S</dd></div>
                 <div class="equipment-spec"><dt>Focal length</dt><dd>18–55mm</dd></div>
                 <div class="equipment-spec"><dt>35mm equivalent</dt><dd>Approx. 28.8–88mm</dd></div>
-                <div class="equipment-spec"><dt>Lens category</dt><dd>Standard zoom</dd></div>
-                <div class="equipment-spec"><dt>Maximum aperture</dt><dd>Version-dependent</dd></div>
-                <div class="equipment-spec"><dt>Image stabilization</dt><dd>Version-dependent</dd></div>
+                <div class="equipment-spec"><dt>Lens type</dt><dd>Standard zoom</dd></div>
+                <div class="equipment-spec"><dt>Maximum aperture</dt><dd>Revision-dependent</dd></div>
+                <div class="equipment-spec"><dt>Stabilization</dt><dd>Revision-dependent</dd></div>
               </dl>
-              <p class="equipment-spec-note">Canon released multiple EF-S 18–55mm revisions. Aperture, stabilization, autofocus motor, minimum focusing distance, and dimensions vary. Those details will remain unpublished until the markings on the actual lens are checked.</p>
-              <a class="equipment-source-link" href="https://global.canon/en/c-museum/product/ef410.html" target="_blank" rel="noopener noreferrer">VIEW CANON LENS IMAGE &amp; EF-S 18–55MM III REFERENCE ↗</a>
-            </div>
-          </article>
+            </section>
+
+            <p class="equipment-spec-note">The supplied 2D product views depict an EOS 3000D kit with an EF-S 18–55mm III lens. They are visual references, not a photograph of your individual camera. Confirm the markings on your actual lens before publishing its exact aperture, stabilization, or revision.</p>
+            <a class="equipment-spec-source" href="https://asia.canon/en/consumer/eos-3000d-kit-ef-s18-55-iii/main/specification" target="_blank" rel="noopener noreferrer">CANON / EOS 3000D OFFICIAL SPECIFICATIONS ↗</a>
+          </aside>
         </div>
 
-        <p class="equipment-caption"><span>FIELD KIT / CAMERA BODY + STANDARD ZOOM</span><span>Canon product images open on Canon websites and are not reproduced here. Manufacturer references do not imply endorsement or partnership; the exact lens revision remains unverified.</span></p>
+        <p class="equipment-caption">
+          <span>FIELD KIT / CAMERA BODY + STANDARD ZOOM</span>
+          <span>The 3D model is titled “Canon EOS 3000” and is hosted by Sketchfab creator disariolorenzo00. It is a community reference, not a verified exact 3000D replica or a Canon-endorsed model.</span>
+        </p>
       </div>
     </section>
 
