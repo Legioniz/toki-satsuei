@@ -31,7 +31,7 @@ def main():
    home.on("pageerror",lambda error:errors.append(str(error)))
    home.goto(base+"/index.html",wait_until="domcontentloaded")
    home.wait_for_selector(".site-header",state="attached")
-   home.wait_for_function("document.documentElement.classList.contains('motion-system-ready') && window.TokiMotion && document.querySelector('.gallery-card.motion-item')")
+   home.wait_for_function("() => document.documentElement.classList.contains('motion-system-ready') && window.TokiMotion && document.querySelector('.gallery-card.motion-item')")
    assert home.locator(".site-header").evaluate("(node)=>node.classList.contains('is-auto-hidden') && node.inert"), "Homepage masthead must remain hidden and inert while the hero is in view"
    assert home.evaluate("typeof window.TokiMotion.closeDialog === 'function' && typeof window.TokiMotion.setMenuOpen === 'function'"), "Shared menu/dialog transition helpers are missing"
    assert home.locator(".motion-item").count() >= 10, "Shared motion system did not prepare enough homepage content"
@@ -39,7 +39,7 @@ def main():
    assert "0.46s" in gallery_transition, "Gallery cards are missing the shared interaction transition"
    hero=home.locator(".hero-opening").bounding_box()
    home.mouse.move(hero["x"]+hero["width"]*.78,hero["y"]+hero["height"]*.3)
-   home.wait_for_function("getComputedStyle(document.querySelector('.hero-photo')).translate !== 'none' && getComputedStyle(document.querySelector('.hero-photo')).translate !== '0px 0px'")
+   home.wait_for_function("() => getComputedStyle(document.querySelector('.hero-photo')).translate !== 'none' && getComputedStyle(document.querySelector('.hero-photo')).translate !== '0px 0px'")
    passed+=1
 
    first=home.locator(".gallery-card:visible").first
@@ -62,14 +62,14 @@ def main():
    assert home.locator(".lightbox-position").inner_text()=="01 / 04"
    home.locator(".lightbox-close").click()
    assert dialog.evaluate("(el)=>el.getAnimations().some(animation=>animation.playState==='running')"),"Lightbox exit transition did not start"
-   home.wait_for_function("!document.querySelector('#lightbox').open")
+   home.wait_for_function("() => !document.querySelector('#lightbox').open")
    assert not dialog.evaluate("(el)=>el.open")
    passed+=1
 
    home.locator('.filter-button[data-filter="behind"]').click()
-   home.wait_for_function("document.querySelectorAll('.gallery-card:not([hidden])').length===1")
+   home.wait_for_function("() => document.querySelectorAll('.gallery-card:not([hidden])').length===1")
    home.locator('.filter-button[data-filter="all"]').click()
-   home.wait_for_function("document.querySelectorAll('.gallery-card:not([hidden])').length===4")
+   home.wait_for_function("() => document.querySelectorAll('.gallery-card:not([hidden])').length===4")
    passed+=1
 
    assert home.locator(".facebook-section").count()==0,"Retired social embed rail remains on the homepage"
@@ -92,13 +92,13 @@ def main():
    launcher.goto(base+"/index.html#sessions",wait_until="domcontentloaded")
    duo_card=launcher.locator('.package-card[data-session="Duo Session"]')
    duo_card.locator(".package-link").click()
-   launcher.wait_for_function("location.pathname.endsWith('/booking.html')")
+   launcher.wait_for_function("() => location.pathname.endsWith('/booking.html')")
    assert launcher.locator('select[name="session"]').input_value()=="Duo Session","Duo package was not carried into booking"
    launcher.goto(base+"/index.html#sessions",wait_until="domcontentloaded")
    portrait_card=launcher.locator('.package-card[data-session="Toki Portraits"]')
    portrait_card.locator(".package-link").focus()
    launcher.keyboard.press("Enter")
-   launcher.wait_for_function("location.pathname.endsWith('/booking.html')")
+   launcher.wait_for_function("() => location.pathname.endsWith('/booking.html')")
    assert launcher.locator('select[name="session"]').input_value()=="Toki Portraits","Keyboard package selection did not prefill booking"
    launcher.close()
    passed+=1
@@ -119,7 +119,7 @@ def main():
      node.inert=false;
    }""")
    menu=home.locator(".menu-toggle");menu.click()
-   home.wait_for_function("""() => {
+   home.wait_for_function("() => ""() => {
      const header=document.querySelector(".site-header");
      const nav=document.querySelector(".primary-nav");
      const h=header?.getBoundingClientRect(), n=nav?.getBoundingClientRect();
@@ -129,9 +129,9 @@ def main():
        h && n && h.top>=-1 && h.top<=1 && n.top>=h.bottom-1;
    }""")
    home.keyboard.press("Escape")
-   home.wait_for_function("!document.querySelector('.primary-nav').classList.contains('is-open')")
+   home.wait_for_function("() => !document.querySelector('.primary-nav').classList.contains('is-open')")
    home.evaluate("document.activeElement?.blur(); window.TokiMotion.setHeaderVisible(false)")
-   home.wait_for_function("document.querySelector('.site-header').classList.contains('is-auto-hidden')")
+   home.wait_for_function("() => document.querySelector('.site-header').classList.contains('is-auto-hidden')")
    home.evaluate("""() => {
      const hero=document.querySelector(".hero-opening");
      const scroller=document.scrollingElement;
@@ -145,7 +145,7 @@ def main():
      const scroller=document.scrollingElement;
      scroller.scrollTop=Math.max(0,scroller.scrollTop-12);
    }""")
-   home.wait_for_function("""() => {
+   home.wait_for_function("() => ""() => {
      const header=document.querySelector(".site-header");
      const bounds=header?.getBoundingClientRect();
      return header && bounds && bounds.top>=-1 && bounds.top<=1 &&
@@ -156,7 +156,7 @@ def main():
    header_box=home.locator(".site-header").bounding_box()
    assert header_box and -1<=header_box["y"]<=1, f"Header did not reveal after hero exit: {header_box}"
    menu=home.locator(".menu-toggle");menu.click()
-   home.wait_for_function("""() => {
+   home.wait_for_function("() => ""() => {
      const header=document.querySelector(".site-header");
      const nav=document.querySelector(".primary-nav");
      return header && nav && nav.classList.contains("is-open") &&
@@ -166,7 +166,7 @@ def main():
    drawer=home.locator(".primary-nav")
    # The shared motion helper cancels finished WAAPI animations, so wait for
    # the panel and its staggered links to settle instead of sampling mid-entry.
-   home.wait_for_function("""() => {
+   home.wait_for_function("() => ""() => {
      const nav=document.querySelector(".primary-nav");
      if(!nav) return false;
      const animations=[
@@ -205,11 +205,11 @@ def main():
    assert icon_transform != "none", "Mobile menu icon did not enter its open state"
    home.keyboard.press("Escape")
    assert menu.get_attribute("aria-expanded")=="false"
-   home.wait_for_function("!document.querySelector('.primary-nav').classList.contains('is-open')")
+   home.wait_for_function("() => !document.querySelector('.primary-nav').classList.contains('is-open')")
    # A short phone viewport must keep the complete menu reachable through its own scroll region.
    home.set_viewport_size({"width":390,"height":280})
    menu.click()
-   home.wait_for_function("""() => {
+   home.wait_for_function("() => ""() => {
      const header=document.querySelector(".site-header");
      const nav=document.querySelector(".primary-nav");
      const h=header?.getBoundingClientRect(), n=nav?.getBoundingClientRect();
@@ -218,7 +218,7 @@ def main():
        !header.classList.contains("is-auto-hidden") &&
        h && n && h.top>=-1 && h.top<=1 && n.top>=h.bottom-1;
    }""")
-   home.wait_for_function("""() => {
+   home.wait_for_function("() => ""() => {
      const nav=document.querySelector(".primary-nav");
      if(!nav) return false;
      const animations=[
@@ -257,22 +257,22 @@ def main():
    assert last_link.is_visible(), "Last navigation link is not reachable inside a short mobile drawer"
    assert drawer.evaluate("nav=>nav.scrollTop>0"), "Navigation scroll did not stay inside the drawer"
    home.keyboard.press("Escape")
-   home.wait_for_function("!document.querySelector('.primary-nav').classList.contains('is-open')")
+   home.wait_for_function("() => !document.querySelector('.primary-nav').classList.contains('is-open')")
    menu.click()
-   home.wait_for_function("document.querySelector('.primary-nav').classList.contains('is-open')")
+   home.wait_for_function("() => document.querySelector('.primary-nav').classList.contains('is-open')")
    assert drawer.evaluate("nav=>nav.scrollTop===0"), "Reopened mobile navigation must reset to the first item"
 
    home.keyboard.press("Escape")
-   home.wait_for_function("!document.querySelector('.primary-nav').classList.contains('is-open')")
+   home.wait_for_function("() => !document.querySelector('.primary-nav').classList.contains('is-open')")
    menu.click()
    home.evaluate("document.querySelector('.hero-opening').dispatchEvent(new MouseEvent('click',{bubbles:true}))")
    assert menu.get_attribute("aria-expanded")=="false","Outside click did not close mobile navigation"
-   home.wait_for_function("!document.querySelector('.primary-nav').classList.contains('is-open')")
+   home.wait_for_function("() => !document.querySelector('.primary-nav').classList.contains('is-open')")
    passed+=1
 
    reduced=context.new_page();reduced.emulate_media(reduced_motion="reduce")
    reduced.goto(base+"/index.html",wait_until="domcontentloaded");reduced.wait_for_timeout(100)
-   reduced.wait_for_function("document.documentElement.classList.contains('motion-system-ready')")
+   reduced.wait_for_function("() => document.documentElement.classList.contains('motion-system-ready')")
    reduced_opacity=reduced.locator(".gallery-card").first.evaluate("(el)=>getComputedStyle(el).opacity")
    assert reduced_opacity == "1", "Reduced-motion mode left a content card hidden"
    reduced_state=reduced.locator(".hero-photo").evaluate("(el)=>getComputedStyle(el).transition")
@@ -284,7 +284,7 @@ def main():
    archive.route("**/media-library.json*",lambda route:route.fulfill(status=200,content_type="application/json",body=json.dumps(FIXTURE)))
    archive.goto(base+"/library.html",wait_until="domcontentloaded")
    archive.wait_for_selector(".album-card")
-   archive.wait_for_function("document.querySelector('.album-card')?.classList.contains('motion-item')")
+   archive.wait_for_function("() => document.querySelector('.album-card')?.classList.contains('motion-item')")
    assert archive.locator(".album-card.motion-item").count() >= 1, "Archive cards were not enrolled in shared motion"
    card=archive.locator(".album-card").first;card.click()
    album_dialog=archive.locator("#album-dialog")
@@ -295,12 +295,12 @@ def main():
    )
    assert album_dialog.evaluate("(el)=>el.open"),"Album dialog did not open"
    archive.keyboard.press("End")
-   archive.wait_for_function("document.querySelector('#album-dialog-position').textContent==='03 / 03'")
+   archive.wait_for_function("() => document.querySelector('#album-dialog-position').textContent==='03 / 03'")
    archive.keyboard.press("Home")
-   archive.wait_for_function("document.querySelector('#album-dialog-position').textContent==='01 / 03'")
+   archive.wait_for_function("() => document.querySelector('#album-dialog-position').textContent==='01 / 03'")
    archive.locator(".album-dialog-close").click()
    assert album_dialog.evaluate("(el)=>el.getAnimations().some(animation=>animation.playState==='running')"),"Album dialog exit transition did not start"
-   archive.wait_for_function("!document.querySelector('#album-dialog').open")
+   archive.wait_for_function("() => !document.querySelector('#album-dialog').open")
    assert not album_dialog.evaluate("(el)=>el.open")
    assert card.evaluate("(el)=>el===document.activeElement"),"Album dialog did not restore focus to its launch card"
    archive.set_viewport_size({"width":390,"height":844})
@@ -311,7 +311,7 @@ def main():
        scroller.style.setProperty("scroll-behavior", "auto", "important");
        scroller.scrollTop = 0;
    }""")
-   archive.wait_for_function("""() => {
+   archive.wait_for_function("() => ""() => {
        const header = document.querySelector(".site-header");
        return window.scrollY <= 1 && header &&
            !header.classList.contains("is-auto-hidden") &&
