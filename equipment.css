@@ -16,7 +16,7 @@
 .equipment-mode-switch button[aria-pressed=true],.equipment-angle-controls button[aria-pressed=true]{color:#fff;border-color:#b02c3a;background:rgba(163,31,45,.3)}
 .equipment-mode-switch button:hover,.equipment-angle-controls button:hover{border-color:#e8828d;color:#fff}
 .equipment-stage{width:100%;min-width:0;display:grid;place-items:center;padding:clamp(12px,2.2vw,22px);background:#e9e6df}
-.equipment-photo-stage{width:min(100%,560px);max-width:100%;aspect-ratio:362/320;background-color:#fff;background-image:url("./media-library/equipment/eos-3000d-angle-sprite.webp?v=20261127-v1");background-repeat:no-repeat;background-size:500% 100%;background-position:0% 50%;border:1px solid rgba(17,17,17,.08);box-shadow:0 12px 32px rgba(0,0,0,.08)}
+.equipment-photo-stage{display:block;width:min(100%,362px);max-width:362px;height:auto;aspect-ratio:362/320;object-fit:contain;object-position:center;background:#fff;border:1px solid rgba(17,17,17,.08);box-shadow:0 12px 32px rgba(0,0,0,.08)}
 .equipment-stage[data-view="3d"] .equipment-photo-stage{display:none}
 .equipment-embed{width:100%;min-width:0;aspect-ratio:16/9;min-height:300px;background:#080808}
 .equipment-embed[hidden],.equipment-angle-controls[hidden]{display:none!important}
