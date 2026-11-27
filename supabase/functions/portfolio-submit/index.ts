@@ -13,11 +13,32 @@ const modernSecretKey = secretKeys.default ?? ''
 const legacyServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 const SERVICE_ROLE_KEY = modernSecretKey || legacyServiceRoleKey
 const USE_MODERN_SECRET = Boolean(modernSecretKey)
-const ALLOWED_ORIGIN = Deno.env.get('PORTFOLIO_ALLOWED_ORIGIN') ?? 'https://legioniz.github.io'
-const ALLOWED_HOSTNAME = (() => {
-  try { return new URL(ALLOWED_ORIGIN).hostname }
+const PRIMARY_ALLOWED_ORIGIN = Deno.env.get('PORTFOLIO_ALLOWED_ORIGIN') ?? 'https://legioniz.github.io'
+const ADDITIONAL_ALLOWED_ORIGINS = [
+  'https://toki-satsuei.pages.dev',
+  ...(Deno.env.get('PORTFOLIO_ADDITIONAL_ALLOWED_ORIGINS') ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+]
+const ALLOWED_ORIGINS = new Set(
+  [PRIMARY_ALLOWED_ORIGIN, ...ADDITIONAL_ALLOWED_ORIGINS].filter((origin) => {
+    try {
+      const parsed = new URL(origin)
+      return parsed.protocol === 'https:' && parsed.origin === origin
+    } catch {
+      return false
+    }
+  }),
+)
+function isAllowedOrigin(origin: string | null): origin is string {
+  return Boolean(origin && ALLOWED_ORIGINS.has(origin))
+}
+function hostnameForOrigin(origin: string | null): string {
+  if (!isAllowedOrigin(origin)) return ''
+  try { return new URL(origin).hostname }
   catch { return '' }
-})()
+}
 const RATE_SECRET = Deno.env.get('PORTFOLIO_RATE_LIMIT_SECRET') ?? SERVICE_ROLE_KEY
 const TURNSTILE_SECRET = Deno.env.get('TURNSTILE_SECRET_KEY') ?? ''
 // Separate key for the TOKI widget so the shared personal-portfolio widget keeps its own secret.
@@ -25,7 +46,7 @@ const TOKI_TURNSTILE_SECRET = Deno.env.get('TOKI_TURNSTILE_SECRET_KEY') ?? ''
 // Emit configuration presence only; never include secret material in logs.
 console.info('TOKI Turnstile configuration', {
   secretConfigured: Boolean(TOKI_TURNSTILE_SECRET),
-  hostnameConfigured: Boolean(ALLOWED_HOSTNAME),
+  hostnameConfigured: Boolean(expectedHostname),
 })
 
 const serviceKeyHeaders = {
@@ -40,7 +61,7 @@ const jsonHeaders = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-
 class PublicError extends Error {}
 
 function response(body: unknown, status: number, origin: string | null, extraHeaders: Record<string, string> = {}) {
-  const corsOrigin = ALLOWED_ORIGIN && origin === ALLOWED_ORIGIN ? ALLOWED_ORIGIN : 'null'
+  const corsOrigin = isAllowedOrigin(origin) ? origin : 'null'
   return new Response(status === 204 ? null : JSON.stringify(body), {
     status,
     headers: {
@@ -75,6 +96,7 @@ async function verifyTurnstile(
   expectedAction: 'portfolio_inquiry' | 'portfolio_comment' | 'toki_booking',
   secret: string,
   failClosedWhenUnconfigured = false,
+  expectedHostname = '',
 ) {
   // Keep the personal portfolio's existing optional-secret behavior, but require
   // the TOKI booking secret. Any configured secret is always verified strictly.
@@ -84,11 +106,11 @@ async function verifyTurnstile(
     }
     return !failClosedWhenUnconfigured
   }
-  if (!token || token.length > 2048 || !ALLOWED_HOSTNAME) {
+  if (!token || token.length > 2048 || !expectedHostname) {
     console.warn('Turnstile verification blocked before provider call', {
       tokenPresent: Boolean(token),
       tokenLength: token.length,
-      hostnameConfigured: Boolean(ALLOWED_HOSTNAME),
+      hostnameConfigured: Boolean(expectedHostname),
       expectedAction,
     })
     return false
@@ -117,7 +139,7 @@ async function verifyTurnstile(
     const errorCodes = Array.isArray(payload['error-codes'])
       ? payload['error-codes'].filter((code): code is string => typeof code === 'string').slice(0, 8)
       : []
-    const hostnameMatches = payload.hostname === ALLOWED_HOSTNAME
+    const hostnameMatches = payload.hostname === expectedHostname
     const actionMatches = payload.action === expectedAction
     if (payload.success !== true || !hostnameMatches || !actionMatches) {
       // Never log the token or secret. Cloudflare error codes and match flags
@@ -263,15 +285,15 @@ Deno.serve(async (request) => {
 
   // Safe deployment probe: reports configuration state, never key material.
   if (request.method === 'GET') {
-    const ready = Boolean(SUPABASE_URL && SERVICE_ROLE_KEY && ALLOWED_ORIGIN && ALLOWED_HOSTNAME && RATE_SECRET && TOKI_TURNSTILE_SECRET)
+    const ready = Boolean(SUPABASE_URL && SERVICE_ROLE_KEY && ALLOWED_ORIGINS.size > 0 && RATE_SECRET && TOKI_TURNSTILE_SECRET)
     return response({ ok: ready, service: 'portfolio-submit', status: ready ? 'ready' : 'missing_server_credentials' }, ready ? 200 : 503, origin)
   }
   if (request.method === 'OPTIONS') return response({ ok: true }, 204, origin)
   if (request.method !== 'POST') return response({ ok: false, message: 'Method not allowed.' }, 405, origin)
-  if (!SUPABASE_URL || !SERVICE_ROLE_KEY || !ALLOWED_ORIGIN || !ALLOWED_HOSTNAME || !RATE_SECRET) {
+  if (!SUPABASE_URL || !SERVICE_ROLE_KEY || ALLOWED_ORIGINS.size === 0 || !RATE_SECRET) {
     return response({ ok: false, message: 'The portfolio submission service is not fully configured.' }, 503, origin)
   }
-  if (!origin || origin !== ALLOWED_ORIGIN) return response({ ok: false, message: 'Origin not allowed.' }, 403, origin)
+  if (!isAllowedOrigin(origin)) return response({ ok: false, message: 'Origin not allowed.' }, 403, origin)
   const contentType = (request.headers.get('content-type') ?? '').split(';', 1)[0].trim().toLowerCase()
   if (contentType !== 'application/json') return response({ ok: false, message: 'Content-Type must be application/json.' }, 415, origin)
   const contentLength = Number(request.headers.get('content-length') ?? '0')
@@ -321,7 +343,7 @@ Deno.serve(async (request) => {
         : 'toki_booking'
     const isTokiBooking = kind === 'toki_booking'
     const secret = isTokiBooking ? TOKI_TURNSTILE_SECRET : TURNSTILE_SECRET
-    if (!(await verifyTurnstile(token, expectedAction, secret, isTokiBooking))) return response({ ok: false, message: 'Human verification failed. Please retry the challenge.' }, 400, origin)
+    if (!(await verifyTurnstile(token, expectedAction, secret, isTokiBooking, hostnameForOrigin(origin)))) return response({ ok: false, message: 'Human verification failed. Please retry the challenge.' }, 400, origin)
   }
 
   // Charge the normal per-operation quota only after successful human verification.
