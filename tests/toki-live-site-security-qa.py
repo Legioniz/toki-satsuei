@@ -129,7 +129,7 @@ def cache_policy_error(headers: dict[str, str], *, private: bool) -> str | None:
     return None
 
 
-def main() -> None:
+def verify_live_site() -> None:
     if not SITE_URL or urlsplit(SITE_URL).scheme != "https":
         raise SystemExit("TOKI_SITE_URL must be a non-empty HTTPS URL")
     base = SITE_URL if SITE_URL.endswith("/") else SITE_URL + "/"
@@ -216,6 +216,34 @@ def main() -> None:
             "PASS live TOKI HTTP security: HSTS, CSP, framing, MIME, referrer, "
             "permissions, HTML revalidation, private no-store, and immutable assets."
         )
+
+
+def main() -> None:
+    """Retry a complete live snapshot when Pages edges briefly serve mixed revisions."""
+    attempts = 6
+    delay_seconds = 5
+    for attempt in range(1, attempts + 1):
+        try:
+            verify_live_site()
+            return
+        except AssertionError as error:
+            # A stale HTML document can briefly reference the previous fingerprint
+            # while the same deployment edge is already serving the replacement
+            # asset at that stable path. Refetch every page and asset together so
+            # the verifier validates one coherent snapshot, not mixed revisions.
+            if "Fingerprint mismatch" not in str(error):
+                raise
+            if attempt == attempts:
+                raise AssertionError(
+                    f"Live Pages content did not converge after {attempts} complete "
+                    f"verification attempts: {error}"
+                ) from error
+            print(
+                f"WARN transient Pages fingerprint mismatch on snapshot "
+                f"{attempt}/{attempts}; refetching all routes and assets in "
+                f"{delay_seconds}s: {error}"
+            )
+            time.sleep(delay_seconds)
 
 
 if __name__ == "__main__":
