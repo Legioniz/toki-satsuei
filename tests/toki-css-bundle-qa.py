@@ -67,7 +67,7 @@ def duplicate_css_rules(css):
             target.append(char)
             if escaped:
                 escaped = False
-            elif char == "\\\\":
+            elif char == "\\":
                 escaped = True
             elif char == quote:
                 quote = None
@@ -75,7 +75,7 @@ def duplicate_css_rules(css):
         if char == "/" and next_char == "*":
             comment = True
             continue
-        if char in ("\\\\'", '\\\"'):
+        if char in ("'", '"'):
             quote = char
             target = active_body()
             (target if target is not None else prelude).append(char)
@@ -84,17 +84,17 @@ def duplicate_css_rules(css):
             selector = "".join(prelude).strip()
             prelude.clear()
             if selector.startswith("@"):
-                match = re.match(r"@[-\\w]+", selector)
+                match = re.match(r"@[-\w]+", selector)
                 keyword = match.group(0).lower() if match else selector.lower()
                 kind = "group" if keyword in grouping_at_rules else "opaque"
-                stack.append({"kind": kind, "selector": re.sub(r"\\s+", " ", selector), "body": []})
+                stack.append({"kind": kind, "selector": re.sub(r"\s+", " ", selector), "body": []})
             elif any(node["kind"] == "opaque" for node in stack):
                 stack.append({"kind": "opaque-nested", "body": []})
             else:
                 context = tuple(node["selector"] for node in stack if node["kind"] == "group")
                 stack.append({
                     "kind": "rule",
-                    "selector": re.sub(r"\\s+", " ", selector),
+                    "selector": re.sub(r"\s+", " ", selector),
                     "context": context,
                     "body": [],
                 })
@@ -102,7 +102,7 @@ def duplicate_css_rules(css):
             if stack:
                 node = stack.pop()
                 if node["kind"] == "rule":
-                    body = re.sub(r"\\s+", " ", "".join(node["body"])).strip()
+                    body = re.sub(r"\s+", " ", "".join(node["body"])).strip()
                     signature = (node["context"], node["selector"], body)
                     duplicates[signature] = duplicates.get(signature, 0) + 1
         elif char == ";" and active_body() is None:
@@ -116,7 +116,6 @@ def duplicate_css_rules(css):
         for signature, count in duplicates.items()
         if count > 1
     }
-
 
 def main():
     for page, bundle in EXPECTED.items():
