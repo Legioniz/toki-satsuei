@@ -156,9 +156,24 @@ def main() -> None:
             assert booking_page.locator('input[name="booking_terms_consent"]').evaluate("(node) => node.required")
             assert booking_page.locator('input[name="privacy_consent"]').evaluate("(node) => node.required")
             assert page.locator(".package-duration").count() == 4
-            duration_cards = [" ".join(value.split()) for value in page.locator(".package-duration").all_inner_texts()]
-            assert ["15 minutes" in duration_cards[0], "30 minutes" in duration_cards[1],
-                    "60 minutes" in duration_cards[2], "30 minutes" in duration_cards[3]] == [True] * 4
+            # Session cards are intentionally below the fold and use content-visibility:auto.
+            # Read their authored text rather than innerText, which is layout-dependent
+            # and may return empty strings for sections skipped by the rendering optimization.
+            duration_cards = {
+                card.get_attribute("data-session"): " ".join(
+                    (card.locator(".package-duration strong").text_content() or "").split()
+                )
+                for card in page.locator(".package-card[data-session]").all()
+            }
+            expected_durations = {
+                "Quick Snap": "15 minutes",
+                "Toki Portraits": "30 minutes",
+                "Signature Session": "60 minutes",
+                "Duo Session": "30 minutes",
+            }
+            assert duration_cards == expected_durations, (
+                f"Session duration labels do not match the published packages: {duration_cards}"
+            )
             session_select = booking_page.locator('select[name="session"]')
             duration_note = booking_page.locator("#session-duration-note")
             session_select.select_option("Quick Snap")
