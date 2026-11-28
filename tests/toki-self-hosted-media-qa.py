@@ -303,6 +303,16 @@ def verify_pages_and_loading() -> None:
         for reference in collector.urls:
             if is_disallowed_visual_asset_url(reference):
                 raise AssertionError(f"{page} still references a retired visual asset origin: {reference}")
+            parsed_reference = urlsplit(reference.strip())
+            if (
+                not parsed_reference.scheme
+                and not parsed_reference.netloc
+                and parsed_reference.path.startswith("/")
+            ):
+                raise AssertionError(
+                    f"{page} uses a root-absolute URL that escapes the GitHub Pages "
+                    f"repository subpath: {reference}"
+                )
         expected_bundle = {
             "index.html": "toki-home.css",
             "booking.html": "toki-home.css",
@@ -315,6 +325,36 @@ def verify_pages_and_loading() -> None:
         stylesheets = re.findall(r'<link rel="stylesheet" href="([^"]+)">', content)
         if stylesheets != [f"./{expected_bundle}"]:
             raise AssertionError(f"{page} must load exactly one page-scoped CSS bundle, found {stylesheets}")
+
+    # GitHub Pages project sites are hosted below /<repository>/.
+    # Any root-absolute CSS URL would jump to the domain root and break assets.
+    for bundle_name in (
+        "toki-home.css",
+        "toki-archive.css",
+        "toki-policies.css",
+        "toki-404.css",
+        "toki-admin.css",
+        "toki-client.css",
+    ):
+        bundle = (ROOT / bundle_name).read_text(encoding="utf-8")
+        for reference in css_url_values(bundle):
+            parsed_reference = urlsplit(reference.strip())
+            if (
+                not parsed_reference.scheme
+                and not parsed_reference.netloc
+                and parsed_reference.path.startswith("/")
+            ):
+                raise AssertionError(
+                    f"{bundle_name} contains a root-absolute CSS asset URL: {reference}"
+                )
+
+    for manifest_path in ("assets/fonts/manifest.json", "assets/photography/manifest.json"):
+        manifest = json.loads((ROOT / manifest_path).read_text(encoding="utf-8"))
+        serialized = json.dumps(manifest)
+        if re.search(r'(?<!:)"/assets/', serialized):
+            raise AssertionError(
+                f"{manifest_path} contains a root-absolute asset path that breaks GitHub Pages subpath hosting"
+            )
 
     home = pages["index.html"]
     hero_picture = re.search(
