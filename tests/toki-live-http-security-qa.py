@@ -164,7 +164,23 @@ def main() -> None:
             + repr([payload for _, payload in booking_responses])
         )
 
-    print("PASS live TOKI HTTP security QA: CORS, origin and method restrictions, invalid/oversized payloads, private REST authorization, gallery quota isolation, calendar field minimization, and pre-quota Turnstile rejection.")
+        # A non-empty malformed token must reach Cloudflare Siteverify. This
+        # distinguishes a real server-side provider call from the early
+        # missing-token rejection above. It must fail closed and never create
+        # a booking or consume the normal booking quota.
+        status, _, body = request(
+            INTAKE,
+            "POST",
+            ALLOWED_ORIGIN,
+            {"kind": "toki_booking", "website": "", "turnstileToken": "toki-invalid-siteverify-smoke-token"},
+        )
+        payload = decode(body)
+        assert status == 400 and "human verification failed" in payload.get("message", "").lower(), (
+            "A malformed non-empty token did not fail closed through the Siteverify path: "
+            + repr({"status": status, "payload": payload})
+        )
+
+    print("PASS live TOKI HTTP security QA: CORS, origin and method restrictions, invalid/oversized payloads, private REST authorization, gallery quota isolation, calendar field minimization, missing-token rejection, and non-empty-token Siteverify smoke path.")
 
 
 if __name__ == "__main__":
