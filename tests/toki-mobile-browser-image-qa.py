@@ -73,9 +73,45 @@ def verify_route(browser, label: str, base_url: str, route: str, context_options
                               Math.max(a.right - window.innerWidth, a.width - window.innerWidth))
               .slice(0, 30)"""
         )
+        stylesheet_state = page.evaluate(
+            """() => {
+                const brand = document.querySelector(".brand-mark");
+                const card = document.querySelector(".gallery-card");
+                const grid = document.querySelector(".gallery-grid");
+                const describe = element => {
+                    if (!element) return null;
+                    const style = getComputedStyle(element);
+                    const rect = element.getBoundingClientRect();
+                    return {
+                        rectWidth: Math.round(rect.width * 10) / 10,
+                        cssWidth: style.width,
+                        maxWidth: style.maxWidth,
+                        minWidth: style.minWidth,
+                        display: style.display,
+                        boxSizing: style.boxSizing,
+                        overflowX: style.overflowX
+                    };
+                };
+                return {
+                    styleSheetCount: document.styleSheets.length,
+                    styleSheets: Array.from(document.styleSheets).map(sheet => ({
+                        href: sheet.href,
+                        disabled: sheet.disabled
+                    })),
+                    brand: describe(brand),
+                    grid: describe(grid),
+                    card: describe(card),
+                    root: {
+                        width: getComputedStyle(document.documentElement).width,
+                        boxSizing: getComputedStyle(document.documentElement).boxSizing
+                    }
+                };
+            }"""
+        )
         raise AssertionError(
             f"{label} {route}: horizontal document overflow: {dimensions}; "
-            f"largest overflowing elements: {offenders}"
+            f"largest overflowing elements: {offenders}; "
+            f"stylesheet/computed-style diagnostics: {stylesheet_state}"
         )
     assert dimensions["body"] <= dimensions["viewport"] + 1, (
         f"{label} {route}: horizontal body overflow: {dimensions}"
