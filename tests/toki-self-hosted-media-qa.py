@@ -331,7 +331,7 @@ def verify_pages_and_loading() -> None:
             "client-gallery.html": "toki-client.css",
         }[page]
         stylesheets = re.findall(r'<link rel="stylesheet" href="([^"]+)">', content)
-        if stylesheets != [f"./{expected_bundle}"]:
+        if stylesheets != [f"./assets/css/{expected_bundle}"]:
             raise AssertionError(f"{page} must load exactly one page-scoped CSS bundle, found {stylesheets}")
 
     # GitHub Pages project sites are hosted below /<repository>/.
