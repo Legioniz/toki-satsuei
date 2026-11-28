@@ -77,7 +77,8 @@ def main() -> None:
     assert "if (reduced" not in preload_observer, (
         "Upcoming image preloading must remain active when reduced motion is enabled."
     )
-    reduced_motion_branch = motion.split('if (reduced) {', 1)[1].split('} else {', 1)[0]
+    reduced_motion_handler = motion.split('preference.addEventListener?.("change", event => {', 1)[1]
+    reduced_motion_branch = reduced_motion_handler.split('if (reduced) {', 1)[1].split('} else {', 1)[0]
     assert "preloadObserver = createPreloadObserver()" in reduced_motion_branch and "observeLazyImages(document)" in reduced_motion_branch, (
         "Reduced-motion visitors must retain advance image loading without running animations."
     )
