@@ -156,7 +156,6 @@ def verify_route(browser, label: str, base_url: str, route: str, context_options
     checked_images = 0
     forced_eager_images = 0
     external_images_skipped = 0
-    skipped_external_images: list[str] = []
     for index in range(image_count):
         image = page.locator("img").nth(index)
         if not image.is_visible():
@@ -290,14 +289,9 @@ def verify_route(browser, label: str, base_url: str, route: str, context_options
     print(
         f"PASS {label} {route}: {dimensions['viewport']}px viewport, "
         f"no horizontal overflow, {checked_images} same-origin images decoded; "
-        f"{len(skipped_external_images)} off-origin image(s) reported separately; "
+        f"{external_images_skipped} allowlisted external reference image(s) skipped; "
         f"{forced_eager_images} WebKit lazy-load fallbacks in test context."
     )
-    if skipped_external_images:
-        print(
-            f"INFO {label} {route}: off-origin images not fetched by the isolated test policy: "
-            f"{skipped_external_images}"
-        )
     page.close()
     context.close()
 
