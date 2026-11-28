@@ -149,10 +149,10 @@ def main() -> None:
 
             page.goto(base + "/index.html", wait_until="domcontentloaded")
             page.wait_for_function("() => document.querySelector('#availability-updated')?.textContent?.startsWith('UPDATED ')")
-            previous_month = page.locator("#availability-month").inner_text()
+            previous_month = " ".join((page.locator("#availability-month").text_content() or "").split())
             page.locator("#availability-next").click()
             page.wait_for_function(
-                "(month) => document.querySelector('#availability-month')?.textContent !== month",
+                "(month) => (document.querySelector('#availability-month')?.textContent || '').replace(/\\s+/g, ' ').trim() !== month",
                 arg=previous_month,
             )
             page.wait_for_function("() => document.querySelector('#availability-days')?.getAttribute('aria-busy') === 'false'")
@@ -184,7 +184,7 @@ def main() -> None:
             previous_button.click()
             try:
                 page.wait_for_function(
-                    "(month) => document.querySelector('#availability-month')?.textContent === month",
+                    "(month) => (document.querySelector('#availability-month')?.textContent || '').replace(/\\s+/g, ' ').trim() === month",
                     arg=previous_month,
                     timeout=5000,
                 )
@@ -201,17 +201,17 @@ def main() -> None:
                 })""")
                 raise AssertionError(
                     "Previous-month navigation did not restore the starting month. "
-                    f"Before click: {previous_state_before}; after click: {state_after}; "
+                    f"Expected month: {previous_month!r}; before click: {previous_state_before}; after click: {state_after}; "
                     f"requests: {requests}; page errors: {page_errors}"
                 ) from error
             page.locator("#availability-next").click()
             page.wait_for_function(
-                "(month) => document.querySelector('#availability-month')?.textContent !== month",
+                "(month) => (document.querySelector('#availability-month')?.textContent || '').replace(/\\s+/g, ' ').trim() !== month",
                 arg=previous_month,
             )
             page.locator("#availability-today").click()
             page.wait_for_function(
-                "(month) => document.querySelector('#availability-month')?.textContent === month",
+                "(month) => (document.querySelector('#availability-month')?.textContent || '').replace(/\\s+/g, ' ').trim() === month",
                 arg=previous_month,
             )
 
