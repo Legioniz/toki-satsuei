@@ -178,8 +178,18 @@ def main():
     components_css = (ROOT / "styles/components.css").read_text(encoding="utf-8")
     home_booking_css = (ROOT / "styles/pages/home-booking.css").read_text(encoding="utf-8")
     home_bundle = (ROOT / "toki-home.css").read_text(encoding="utf-8")
+    calculator_hover = pricing_css.split(".calculator-wrap .calc-apply-btn:hover", 1)[1].split("}", 1)[0]
+    assert "background-color: var(--toki-button-surface)" in calculator_hover, (
+        "Calculator hover surface must be owned by the page-scoped rule."
+    )
+    assert "transform:" not in calculator_hover, (
+        "Calculator hover must honor the shared no-translation interaction policy."
+    )
     assert ".calculator-wrap .calc-apply-btn:hover" in pricing_css, (
-        "Pricing calculator hover must remain more specific than the shared button hover layer."
+        "Pricing calculator hover must remain page-scoped."
+    )
+    assert ".calc-apply-btn:hover," not in components_css, (
+        "The generic important button hover layer must not override the calculator's page-scoped surface."
     )
     assert "--toki-button-surface:#b82837" in home_bundle, (
         "Generated homepage bundle is missing the calculator's crimson hover surface token."
