@@ -414,7 +414,7 @@ def verify_assets() -> None:
     manifest = json.loads((PHOTOGRAPHY_ROOT / "manifest.json").read_text(encoding="utf-8"))
     if len(manifest.get("photographs", [])) != len(PHOTOGRAPHS):
         raise ValueError("Photography manifest is incomplete")
-    print("PASS self-hosted media: 4 untouched JPEG masters, 24 responsive derivatives, 18 WOFF2 faces, and 4 OFL licenses.")
+    print(f"PASS self-hosted media: 4 untouched JPEG masters, 24 responsive derivatives, {sum(len(spec['faces']) for spec in FONT_SPECS.values())} WOFF2 faces, and 4 OFL licenses.")
 
 
 def main() -> None:
