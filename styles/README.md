@@ -61,3 +61,7 @@ body/interface copy, and Space Mono for technical labels. Caveat is reserved for
 the handwritten homepage annotations and 404 art. It is only requested on the
 homepage and 404 route. Space Grotesk has been retired in favor of the
 already-loaded DM Sans.
+
+## Self-hosted typography
+
+The CSS build includes `assets/fonts/fonts.css` in every page-scoped bundle and `assets/fonts/fonts-caveat.css` only in the homepage/404 bundles. The browser still requests exactly one stylesheet per page. These bundles declare same-origin Latin WOFF2 faces with `font-display: swap`; Caveat is declared only in the homepage bundle (shared with booking) and the 404 bundle, and is downloaded only on pages where it is actually used. SIL Open Font License files are retained under `assets/fonts/licenses/`. No page requests Google Fonts CSS or font binaries at runtime.
