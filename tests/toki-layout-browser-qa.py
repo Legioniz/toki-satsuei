@@ -11,7 +11,7 @@ import json
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
-PUBLIC = ROOT
+PUBLIC = ROOT / "dist"
 OFFICIAL_LOGO = "./assets/brand/Toki-Satsuei-Brushstroke-Emblem.png"
 TEST_IMAGE = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
 FIXTURE = {
@@ -331,7 +331,7 @@ def main():
             def serve_archive_fixture(route):
                 archive_route_hits.append(route.request.url)
                 route.fulfill(status=200, content_type="application/json", body=json.dumps(FIXTURE))
-            context.route("**/media-library.json*", serve_archive_fixture)
+            context.route("**/data/media-library.json*", serve_archive_fixture)
             archive = context.new_page()
             archive_errors = []
             archive.on("pageerror", lambda error: archive_errors.append(str(error)))
@@ -427,7 +427,7 @@ def main():
                 ]
             }
             empty_archive = context.new_page()
-            empty_archive.route("**/media-library.json*", lambda route: route.fulfill(
+            empty_archive.route("**/data/media-library.json*", lambda route: route.fulfill(
                 status=200, content_type="application/json", body=json.dumps(empty_manifest)
             ))
             empty_archive.goto(base + "/library.html", wait_until="domcontentloaded")

@@ -16,7 +16,7 @@ SUPABASE_URL = "https://pjuwrngnrrvdiwqspkic.supabase.co"
 
 class QuietHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=str(ROOT), **kwargs)
+        super().__init__(*args, directory=str(ROOT / "dist"), **kwargs)
 
     def log_message(self, *args):
         pass
@@ -34,14 +34,14 @@ def main() -> None:
     assert 'id="client-submit-selection-btn"' in client_html
     assert 'id="client-delivery-link"' not in client_html
     assert "Google Drive" not in client_html
-    client_script = (ROOT / "client-gallery.js").read_text(encoding="utf-8")
+    client_script = (ROOT / "src" / "js" / "client-gallery.js").read_text(encoding="utf-8")
     assert "drive.google.com" not in client_script
     assert "deliveryLink" not in client_script
     assert "deliveryHref" not in client_script
     assert "Selections recorded locally" not in client_script
     assert "Your selections were not saved" in client_script
-    assert 'toki-client.css' in client_html
-    assert 'client-gallery.js' in client_html
+    assert 'assets/css/toki-client.css' in client_html
+    assert 'assets/js/client-gallery.js' in client_html
 
     # 2. Browser interaction test with mocked Supabase RPC
     server = ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler))

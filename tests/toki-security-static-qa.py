@@ -25,7 +25,7 @@ SECRET_PATTERNS = [
 # Contact details must not be embedded in the browser-facing website or public Edge Function source.
 PUBLIC_SOURCE_FILES = [
     "index.html", "booking.html", "library.html", "policies.html", "404.html", "client-gallery.html",
-    "site.js", "availability.js", "library.js", "client-gallery.js",
+    "src/js/site.js", "src/js/availability.js", "src/js/library.js", "src/js/client-gallery.js",
     "supabase/functions/portfolio-submit/index.ts",
     "supabase/functions/toki-calendar/index.ts",
 ]
@@ -96,7 +96,7 @@ else:
     if 'USING (true)' in migration or 'WITH CHECK (true)' in migration:
         problems.append("platform migration: unrestricted authenticated journal write policy detected")
 
-client_gallery = ROOT / "client-gallery.js"
+client_gallery = ROOT / "src" / "js" / "client-gallery.js"
 if client_gallery.exists():
     gallery_source = client_gallery.read_text(encoding="utf-8")
     if "DEFAULT_PHOTOS" in gallery_source:
@@ -104,7 +104,7 @@ if client_gallery.exists():
     if "new URLSearchParams(window.location.search)" in gallery_source:
         problems.append("client-gallery.js: bearer access keys must not be accepted from query strings")
 
-admin_source = (ROOT / "admin.js").read_text(encoding="utf-8")
+admin_source = (ROOT / "src" / "js" / "admin.js").read_text(encoding="utf-8")
 if "Math.random().toString(36)" in admin_source:
     problems.append("admin.js: delivery access keys must use a cryptographically secure random generator")
 if "crypto.getRandomValues" not in admin_source:
@@ -171,7 +171,7 @@ if "redirect: 'error'" not in booking_function:
 if "&& TOKI_TURNSTILE_SECRET)" not in booking_function:
     problems.append("Booking service health probe: required TOKI Turnstile secret must be included in readiness")
 
-admin_source = (ROOT / "admin.js").read_text(encoding="utf-8")
+admin_source = (ROOT / "src" / "js" / "admin.js").read_text(encoding="utf-8")
 if "delivery_token:" in admin_source or "b.delivery_token ||" in admin_source:
     problems.append("admin.js: raw delivery token must never be read from or written to the database")
 if "delivery_token_hash" not in admin_source or "sha256Hex" not in admin_source:
