@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify deployed TOKI security response headers and content-addressed asset URLs."""
+"""Verify the official GitHub Pages content and the Cloudflare mirror response-header contract."""
 from __future__ import annotations
 
 import hashlib
