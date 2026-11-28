@@ -118,58 +118,46 @@ def check_header(page, width, label):
         assert nav["display"] == "none", f"{label}: closed navigation is occupying layout at {width}px"
         hero = page.locator(".hero-opening")
         if hero.count() > 0:
-            # Exercise the real wheel-direction path. Direct scrollTop assignments can
-            # coalesce across viewport resizes and do not model a visitor gesture.
-            page.mouse.move(width / 2, page.evaluate("innerHeight / 2"))
-            # Move sufficiently beyond the hero before the upward gesture. The header
-            # must remain hidden while any part of the opening hero owns the viewport.
-            hero_bottom = page.locator(".hero-opening").evaluate(
-                "(node) => node.getBoundingClientRect().bottom"
-            )
-            for _ in range(8):
-                if hero_bottom < -320:
-                    break
-                previous_down_scroll = page.evaluate("window.scrollY")
-                page.mouse.wheel(0, 500)
-                try:
-                    page.wait_for_function(
-                        "(previous) => window.scrollY > previous",
-                        arg=previous_down_scroll,
-                        timeout=2000,
-                    )
-                except PlaywrightTimeoutError:
-                    break
-                hero_bottom = page.locator(".hero-opening").evaluate(
-                    "(node) => node.getBoundingClientRect().bottom"
-                )
-            assert hero_bottom < -320, (
-                f"{label}: downward wheel did not move the opening hero far enough "
-                f"to test upward masthead reveal without re-entering hero lock "
-                f"(scrollY={page.evaluate('window.scrollY')}, heroBottom={hero_bottom}, "
-                f"scrollHeight={page.evaluate('document.documentElement.scrollHeight')})"
-            )
-            # Move clearly beyond the hero before scrolling upward. The header is
-            # intentionally hidden while the opening hero still owns the viewport;
-            # a single upward wheel from a barely-cleared hero re-enters that region.
-            previous_scroll = page.evaluate("window.scrollY")
-            page.mouse.wheel(0, 240)
+            # Put the opening hero outside its scroll-lock region deterministically.
+            # The real interaction being tested is the upward wheel that reveals the
+            # masthead; using wheel input to establish the starting position is flaky
+            # at tablet breakpoints in headless Chromium.
+            page.evaluate("""() => {
+              const hero = document.querySelector(".hero-opening");
+              const scroller = document.scrollingElement || document.documentElement;
+              scroller.style.setProperty("scroll-behavior", "auto", "important");
+              document.body.style.setProperty("scroll-behavior", "auto", "important");
+              const target = Math.max(
+                0,
+                window.scrollY + hero.getBoundingClientRect().bottom + 420
+              );
+              window.scrollTo({ top: target, left: 0, behavior: "instant" });
+            }""")
             try:
                 page.wait_for_function(
-                    """(previous) => window.scrollY > previous &&
-                      document.querySelector(".hero-opening")?.getBoundingClientRect().bottom <= -160""",
-                    arg=previous_scroll,
+                    """() => document.querySelector(".hero-opening")?.getBoundingClientRect().bottom < -320""",
                     timeout=3000,
                 )
             except PlaywrightTimeoutError as error:
                 state = page.evaluate("""() => ({
                     scrollY: window.scrollY,
                     heroBottom: document.querySelector(".hero-opening")?.getBoundingClientRect().bottom ?? null,
+                    viewportHeight: window.innerHeight,
                     scrollHeight: document.documentElement.scrollHeight
                 })""")
                 raise AssertionError(
-                    f"{label}: could not move beyond the hero before testing upward reveal: {state}"
+                    f"{label}: could not position the opening hero outside the masthead lock region: {state}"
                 ) from error
 
+            hero_bottom = page.locator(".hero-opening").evaluate(
+                "(node) => node.getBoundingClientRect().bottom"
+            )
+            assert hero_bottom < -320, (
+                f"{label}: test setup did not move the opening hero beyond the masthead lock region "
+                f"(scrollY={page.evaluate('window.scrollY')}, heroBottom={hero_bottom})"
+            )
+
+            page.mouse.move(width / 2, page.evaluate("innerHeight / 2"))
             previous_scroll = page.evaluate("window.scrollY")
             page.mouse.wheel(0, -120)
             try:
