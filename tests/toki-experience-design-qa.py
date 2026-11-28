@@ -58,14 +58,14 @@ def main() -> None:
     assert ".toki-booking-sheet .booking-fieldset .form-split > label" in motion_js
 
     home = (ROOT / "index.html").read_text(encoding="utf-8")
-    sessions = home.split('<section class="sessions-section"', 1)[1].split('<section class="availability-section"', 1)[0]
+    sessions = home.split('<section class="sessions-section', 1)[1].split('<section class="availability-section', 1)[0]
     assert '<p class="eyebrow eyebrow--signal">Session guide</p>' in sessions, (
         "The session guide should use its explicit high-contrast signal label."
     )
     session_refinements = (ROOT / "styles/shared/refinements.css").read_text(encoding="utf-8")
     assert ".sessions-section > .section-heading > div > .eyebrow--signal" in session_refinements
     assert "color: #a31f2d" in session_refinements and "font-weight: 900" in session_refinements
-    equipment = home.split('<section class="equipment-section"', 1)[1].split('<section class="faq-section"', 1)[0]
+    equipment = home.split('<section class="equipment-section', 1)[1].split('<section class="faq-section', 1)[0]
     assert equipment.count('data-equipment-angle=') == 5, "Equipment viewer must expose all five supplied 2D camera angles."
     assert 'data-equipment-mode="2d"' in equipment and 'data-equipment-mode="3d"' in equipment
     assert "assets/equipment/camera/EOS-3000D-front.png" in equipment and "eos-3000d-angle-sprite.webp" not in (ROOT / "styles/pages/equipment.css").read_text(encoding="utf-8")
