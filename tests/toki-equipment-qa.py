@@ -99,7 +99,7 @@ def main() -> None:
             assert photo.evaluate("(node) => node.tagName === 'IMG'"), "Equipment view must use a real image element."
             page.wait_for_function("() => { const image = document.querySelector('[data-equipment-photo]'); return image && image.complete && image.naturalWidth === 362 && image.naturalHeight === 320; }")
             assert photo.get_attribute("src") == "./assets/equipment/camera/EOS-3000D-front.png"
-            assert photo.get_attribute("loading") == "lazy" and photo.get_attribute("decoding") == "async"
+            assert photo.get_attribute("loading") == "eager" and photo.get_attribute("decoding") == "async", "The camera image must be promoted and decoded before the equipment section is displayed."
             assert photo.evaluate("(node) => node.getBoundingClientRect().width <= 362.5"), "Camera PNG must not be enlarged beyond its native width."
             assert root.locator('[data-equipment-mode="2d"]').get_attribute("aria-pressed") == "true"
             assert root.locator('[data-equipment-angle="front"]').get_attribute("aria-pressed") == "true"
