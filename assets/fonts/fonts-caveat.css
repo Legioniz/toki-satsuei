@@ -5,5 +5,5 @@
   font-style: normal;
   font-weight: 400 700;
   font-display: swap;
-  src: url("/assets/fonts/caveat-variable-normal.woff2") format("woff2");
+  src: url("./assets/fonts/caveat-variable-normal.woff2") format("woff2");
 }
