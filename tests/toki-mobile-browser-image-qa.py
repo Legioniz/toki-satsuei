@@ -44,15 +44,29 @@ def verify_route(browser, label: str, base_url: str, route: str, context_options
     )
     page = context.new_page()
     page.set_default_timeout(8_000)
+    image_requests: list[str] = []
+    image_responses: list[str] = []
     failed_image_requests: list[str] = []
+
+    def is_image_url(url: str) -> bool:
+        return any(
+            url.lower().split("?", 1)[0].endswith(extension)
+            for extension in (".jpg", ".jpeg", ".png", ".webp", ".avif", ".gif")
+        )
+
+    page.on(
+        "request",
+        lambda request: image_requests.append(request.url) if is_image_url(request.url) else None,
+    )
+    page.on(
+        "response",
+        lambda response: image_responses.append(f"{response.status} {response.url}")
+        if is_image_url(response.url) else None,
+    )
     page.on(
         "requestfailed",
         lambda request: failed_image_requests.append(request.url)
-        if any(
-            request.url.lower().split("?", 1)[0].endswith(extension)
-            for extension in (".jpg", ".jpeg", ".png", ".webp", ".avif", ".gif")
-        )
-        else None,
+        if is_image_url(request.url) else None,
     )
     response = page.goto(base_url + route, wait_until="domcontentloaded")
     assert response is not None and response.status == 200, (
@@ -142,14 +156,23 @@ def verify_route(browser, label: str, base_url: str, route: str, context_options
         image = page.locator("img").nth(index)
         if not image.is_visible():
             continue
-        image.scroll_into_view_if_needed(timeout=3_000)
+        # Center the image, rather than accepting a one-pixel intersection at the
+        # viewport edge. WebKit can otherwise leave loading="lazy" pending even
+        # though Playwright considers the image visible.
+        image.evaluate(
+            """img => img.scrollIntoView({
+                block: "center",
+                inline: "nearest",
+                behavior: "instant"
+            })"""
+        )
         handle = image.element_handle()
         assert handle is not None
         try:
             page.wait_for_function(
                 "(img) => img.complete",
                 arg=handle,
-                timeout=15_000,
+                timeout=20_000,
             )
         except PlaywrightTimeoutError as error:
             stalled = image.evaluate(
@@ -165,8 +188,8 @@ def verify_route(browser, label: str, base_url: str, route: str, context_options
             )
             raise AssertionError(
                 f"{label} {route}: image {index + 1}/{image_count} did not finish "
-                f"loading within 15s: {stalled}; failed image requests: "
-                f"{failed_image_requests}"
+                f"loading within 20s: {stalled}; image requests: {image_requests}; "
+                f"responses: {image_responses}; failed requests: {failed_image_requests}"
             ) from error
         metrics = image.evaluate(
             """img => ({
