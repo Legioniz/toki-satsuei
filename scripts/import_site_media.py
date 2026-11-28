@@ -14,7 +14,7 @@ import re
 import tempfile
 from pathlib import Path
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlsplit
 from urllib.request import Request, urlopen
 
 from PIL import Image, ImageOps
@@ -430,7 +430,7 @@ def verify_assets() -> None:
         css = (FONT_ROOT / bundle).read_text(encoding="utf-8")
         if "font-display: swap" not in css:
             raise ValueError(f"Generated {bundle} lacks font-display: swap")
-        for match in re.finditer(r"""url\\(\\s*(['"]?)(.*?)\\1\\s*\\)""", css, re.IGNORECASE):
+        for match in re.finditer(r"""url\(\s*(['"]?)(.*?)\1\s*\)""", css, re.IGNORECASE):
             reference = match.group(2).strip()
             parsed = urlsplit(reference)
             if parsed.scheme or parsed.netloc or not parsed.path.startswith("/assets/fonts/"):
