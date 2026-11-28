@@ -14,7 +14,7 @@
 - Approved public photography masters are retained byte-for-byte under `assets/photography/originals/`.
 - Responsive JPEG and WebP derivatives are generated at 480px, 960px, and source width (1536px) without cropping or upscaling.
 - `assets/photography/manifest.json` records dimensions, aspect ratio, alternative text, file sizes, and SHA-256 checksums for originals and variants.
-- Site delivery uses the same-origin Cloudflare Pages asset path. Below-the-fold gallery thumbnails are lazy-loaded; the homepage hero is eagerly loaded with high fetch priority.
+- Site delivery uses repository-subpath-safe relative asset paths on the official GitHub Pages site and the secured Cloudflare Pages mirror. Below-the-fold gallery thumbnails are lazy-loaded; the homepage hero is eagerly loaded with high fetch priority.
 
 ## Equipment source assets
 
