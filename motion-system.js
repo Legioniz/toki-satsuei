@@ -147,6 +147,12 @@
       : value;
   }
 
+  function shortenMotionDelay(value) {
+    return typeof value === "number" && Number.isFinite(value) && value > 0
+      ? Math.round(value * MOTION_DURATION_FACTOR)
+      : value;
+  }
+
   /* Resolve profile name for an element, respecting explicit markup attributes. */
   function resolveProfile(element) {
     if (element.dataset.motion) return element.dataset.motion;
@@ -272,7 +278,7 @@
       duration: shortenMotionTime(options.duration ?? 220),
       easing: options.easing ?? "cubic-bezier(0.2, 0.7, 0.2, 1)",
       fill: options.fill ?? "both",
-      delay: shortenMotionTime(options.delay ?? 0)
+      delay: shortenMotionDelay(options.delay ?? 0)
     });
     activeAnimations.set(element, animation);
     return animation.finished.catch(() => {}).then(() => {
