@@ -45,8 +45,11 @@ These checks are additional guardrails, not proof that the application is vulner
 
 ## Hosting response headers
 
-The production workflow has been moved to Cloudflare Pages Direct Upload. Once the GitHub Actions deployment completes, Cloudflare Pages parses the root `_headers` file and applies HSTS, response CSP (including `frame-ancestors`), X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, and the route-specific Cache-Control policies to static responses. The CSP meta fallback is defense in depth only; it cannot enforce HSTS, `frame-ancestors`, or response cache policies. The former `github.io/toki-satsuei` URL remains a legacy origin and does not apply this repository's `_headers` rules. Do not describe that legacy origin as protected.
+The canonical website is https://legioniz.github.io/toki-satsuei/. GitHub Pages does not interpret the repository's Cloudflare `_headers` file and does not allow the repository to configure arbitrary response headers or per-route cache policy. The build adds a CSP meta fallback and a `strict-origin-when-cross-origin` referrer meta tag to all seven HTML pages and verifies content-addressed asset URLs. These are browser-level fallbacks; they do not provide HSTS, response CSP `frame-ancestors`, X-Frame-Options, X-Content-Type-Options, Permissions-Policy, `no-store`, or immutable response caching.
 
+The workflow also deploys the same verified artifact to https://toki-satsuei.pages.dev/ as a secured Cloudflare Pages mirror. Cloudflare Pages parses `_headers` and enforces HSTS, response CSP (including `frame-ancestors`), X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, and route-specific Cache-Control rules. The live verifier checks the official GitHub Pages site for meta policy fallbacks and SHA-256 asset integrity, then separately checks the Cloudflare mirror for the complete response-header/cache contract. Do not describe Cloudflare's response headers as present on the GitHub Pages origin.
+
+Full response-level security headers on the canonical host require a custom domain controlled by the project and a Cloudflare proxy or Cloudflare Pages origin. A Worker cannot be routed onto GitHub's shared `github.io` domain from this repository.
 
 ## TOKI API and traffic enforcement
 
