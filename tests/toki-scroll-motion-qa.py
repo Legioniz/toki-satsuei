@@ -69,6 +69,7 @@ def main() -> None:
     assert "CSS_MOTION_PLAYBACK_RATE = 2" in motion, "CSS animations should play at double speed."
     assert "Math.min(index, 4) * 18 + \"ms\"" in motion, "Stagger delays should be capped at 72ms."
     assert "preloadObserver?.observe(element)" in motion, "Motion targets must register with the preloader observer."
+    assert "preloadObserver?.observe(scene)" in motion, "Upcoming content sections must warm their descendant assets."
     assert 'rootMargin: "1100px 0px 1100px 0px"' in motion, "Motion assets should warm one viewport ahead."
     assert 'node.querySelectorAll("img[loading=\'lazy\']")' in motion and "observeLazyImages(node)" in motion, (
         "All lazy images, including images outside motion targets, must be scheduled for early preload."
