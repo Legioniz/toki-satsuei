@@ -1,12 +1,4 @@
-/* Self-hosted Latin WOFF2 variable faces and static technical weights. */
-
-@font-face {
-  font-family: "Caveat";
-  font-style: normal;
-  font-weight: 400 700;
-  font-display: swap;
-  src: url("/assets/fonts/caveat-variable-normal.woff2") format("woff2");
-}
+/* Shared self-hosted Latin WOFF2 faces for all page bundles. */
 
 @font-face {
   font-family: "Cormorant Garamond";
