@@ -63,16 +63,18 @@ def main() -> None:
     }
     for label, source in [("home", home), ("booking", (ROOT / "booking.html").read_text(encoding="utf-8")), ("archive", archive), ("policies", policy), ("404", not_found)]:
         page, bundle = bundles[label]
-        bundle_header = (ROOT / bundle).read_text(encoding="utf-8").splitlines()[0]
+        bundle_css = (ROOT / bundle).read_text(encoding="utf-8")
+        bundle_header = bundle_css.splitlines()[0]
         assert "cinematic.css" in bundle_header, f"{label}: cinematic stylesheet is not included in {bundle}"
         assert f'href="./{bundle}"' in source, f"{label}: source stylesheet bundle reference is missing"
-        assert "family=Cormorant+Garamond" in source, f"{label}: editorial font is not loaded"
-        assert "family=DM+Sans" in source, f"{label}: body font is not loaded"
-        assert "family=Space+Mono" in source, f"{label}: technical font is not loaded"
+        assert 'font-family:"Cormorant Garamond"' in bundle_css, f"{label}: editorial font is not bundled locally"
+        assert 'font-family:"DM Sans"' in bundle_css, f"{label}: body font is not bundled locally"
+        assert 'font-family:"Space Mono"' in bundle_css, f"{label}: technical font is not bundled locally"
         if label in ("home", "404"):
-            assert "family=Caveat" in source, "404 handwritten annotation font is not loaded"
+            assert 'font-family:"Caveat"' in bundle_css, f"{label}: handwritten annotation font is not bundled"
         else:
-            assert "family=Caveat" not in source, f"{label}: unused handwritten font should not be requested"
+            assert 'font-family:"Caveat"' not in bundle_css, f"{label}: unused handwritten font should not be bundled"
+        assert "fonts.googleapis.com" not in source and "fonts.gstatic.com" not in source, f"{label}: remote font dependency remains"
         assert 'id="main-content"' in source, f"{label}: main content landmark is missing"
 
     assert "Stay with<br>the <em>feeling.</em>" in home
