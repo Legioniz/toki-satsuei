@@ -38,3 +38,8 @@ token.json
 Thumbs.db
 .vscode/
 .idea/
+
+# Local npm and accessibility/performance audit output
+node_modules/
+.lighthouseci/
+axe-accessibility-report.json
