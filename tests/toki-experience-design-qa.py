@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class QuietHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=str(ROOT), **kwargs)
+        super().__init__(*args, directory=str(ROOT / "dist"), **kwargs)
 
     def log_message(self, *args):
         pass
@@ -25,18 +25,18 @@ class QuietHandler(SimpleHTTPRequestHandler):
 def main() -> None:
     pages = ["index.html", "booking.html", "library.html", "policies.html", "404.html"]
     for filename in pages:
-        bundle_name = {"index.html": "toki-home.css", "booking.html": "toki-home.css", "library.html": "toki-archive.css", "policies.html": "toki-policies.css", "404.html": "toki-404.css"}[filename]
-        has_experience = "experience.css" in (ROOT / bundle_name).read_text(encoding="utf-8").splitlines()[0]
+        bundle_name = {"index.html": "assets/css/toki-home.css", "booking.html": "assets/css/toki-home.css", "library.html": "assets/css/toki-archive.css", "policies.html": "assets/css/toki-policies.css", "404.html": "assets/css/toki-404.css"}[filename]
+        has_experience = "experience.css" in (ROOT / "assets" / "css" / bundle_name).read_text(encoding="utf-8").splitlines()[0]
         should_have_experience = filename in ("index.html", "booking.html")
         assert has_experience == should_have_experience, (
             f"{filename}: booking/home experience CSS should be page-scoped"
         )
 
-    css = (ROOT / "styles/pages/home-booking.css").read_text(encoding="utf-8")
-    enhancements = (ROOT / "styles/shared/site-enhancements.css").read_text(encoding="utf-8")
-    global_motion = (ROOT / "styles/shared/global-motion.css").read_text(encoding="utf-8")
-    motion_js = (ROOT / "motion-system.js").read_text(encoding="utf-8")
-    home_bundle = (ROOT / "toki-home.css").read_text(encoding="utf-8")
+    css = (ROOT / "src" / "src/styles/pages/home-booking.css").read_text(encoding="utf-8")
+    enhancements = (ROOT / "src" / "src/styles/shared/site-enhancements.css").read_text(encoding="utf-8")
+    global_motion = (ROOT / "src" / "src/styles/shared/global-motion.css").read_text(encoding="utf-8")
+    motion_js = (ROOT / "src" / "js" / "motion-system.js").read_text(encoding="utf-8")
+    home_bundle = (ROOT / "assets/css/toki-home.css").read_text(encoding="utf-8")
     for selector in [
         ".booking-form-intro", ".booking-fieldset", ".booking-expectation",
         ".booking-terms-summary", ".toki-assurance", ".toki-booking-sheet__layout", ".package-duration", ".session-flexible-duration",
@@ -46,7 +46,7 @@ def main() -> None:
         assert selector in css, f"Experience layer is missing {selector}"
 
     assert "grid-template-columns: minmax(0, 1fr)" in enhancements
-    motion_refinements = (ROOT / "styles/shared/motion-refinements.css").read_text(encoding="utf-8")
+    motion_refinements = (ROOT / "src" / "src/styles/shared/motion-refinements.css").read_text(encoding="utf-8")
     assert ".toki-booking-sheet .form-split" in enhancements
     assert ".booking-page .toki-assurance__grid" in motion_refinements
     assert ".booking-page .toki-booking-sheet .booking-fieldset" in motion_refinements
@@ -64,16 +64,16 @@ def main() -> None:
     assert '<p class="eyebrow eyebrow--signal">Session guide</p>' in sessions, (
         "The session guide should use its explicit high-contrast signal label."
     )
-    session_refinements = (ROOT / "styles/shared/refinements.css").read_text(encoding="utf-8")
+    session_refinements = (ROOT / "src" / "src/styles/shared/refinements.css").read_text(encoding="utf-8")
     assert ".sessions-section > .section-heading > div > .eyebrow--signal" in session_refinements
     assert "color: #a31f2d" in session_refinements and "font-weight: 900" in session_refinements
     equipment = home.split('<section class="equipment-section', 1)[1].split('<section class="faq-section', 1)[0]
     assert equipment.count('data-equipment-angle=') == 5, "Equipment viewer must expose all five supplied 2D camera angles."
     assert 'data-equipment-mode="2d"' in equipment and 'data-equipment-mode="3d"' in equipment
-    assert "assets/equipment/camera/EOS-3000D-front.png" in equipment and "eos-3000d-angle-sprite.webp" not in (ROOT / "styles/pages/equipment.css").read_text(encoding="utf-8")
+    assert "assets/equipment/camera/EOS-3000D-front.png" in equipment and "eos-3000d-angle-sprite.webp" not in (ROOT / "src" / "src/styles/pages/equipment.css").read_text(encoding="utf-8")
     assert "https://sketchfab.com/3d-models/canon-eos-3000-7d57163f3bec464cbb213428e1c37cf7" in equipment
 
-    viewer = (ROOT / "equipment-viewer.js").read_text(encoding="utf-8")
+    viewer = (ROOT / "src" / "js" / "equipment-viewer.js").read_text(encoding="utf-8")
     headers = (ROOT / "_headers").read_text(encoding="utf-8")
     assert "https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js" in viewer
     assert 'api.addEventListener("viewerready"' in viewer
@@ -91,7 +91,7 @@ def main() -> None:
     assert "The supplied 2D product views depict" not in equipment, "The removed equipment disclaimer must not return."
     assert "equipment-model-3d" not in equipment and "equipment-blueprint" not in equipment, "Retired CSS/2D schematic must stay removed."
     assert "data-camera-object" not in equipment, "Legacy CSS camera object must not return."
-    assert 'equipment.js' not in home and 'equipment-viewer.js' in home
+    assert 'equipment.js' not in home and 'assets/js/equipment-viewer.js' in home
     booking = (ROOT / "booking.html").read_text(encoding="utf-8")
     policy = (ROOT / "policies.html").read_text(encoding="utf-8")
     assert 'id="inquiry-form"' not in home and 'href="./booking.html"' in home
@@ -115,7 +115,7 @@ def main() -> None:
     assert "at the scheduled start time" in policy.lower()
     assert "after the agreed start time" in policy.lower()
 
-    site = (ROOT / "site.js").read_text(encoding="utf-8")
+    site = (ROOT / "src" / "js" / "site.js").read_text(encoding="utf-8")
     edge = (ROOT / "supabase/functions/portfolio-submit/index.ts").read_text(encoding="utf-8")
     terms_migration = (ROOT / "supabase/migrations/20261116104119_toki_booking_terms_acknowledgement.sql").read_text(encoding="utf-8")
     inbox_migration = (ROOT / "supabase/migrations/20261116104834_toki_booking_inbox_terms_acceptance.sql").read_text(encoding="utf-8")

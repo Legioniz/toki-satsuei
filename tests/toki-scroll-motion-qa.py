@@ -24,23 +24,23 @@ PAGES = {
 
 class QuietHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=str(ROOT), **kwargs)
+        super().__init__(*args, directory=str(ROOT / "dist"), **kwargs)
 
     def log_message(self, *args):
         pass
 
 
 def main() -> None:
-    motion = (ROOT / "motion-system.js").read_text(encoding="utf-8")
-    global_css = (ROOT / "styles/shared/global-motion.css").read_text(encoding="utf-8")
-    shared_motion_css = (ROOT / "styles/shared/motion-refinements.css").read_text(encoding="utf-8")
+    motion = (ROOT / "src" / "js" / "motion-system.js").read_text(encoding="utf-8")
+    global_css = (ROOT / "src" / "src/styles/shared/global-motion.css").read_text(encoding="utf-8")
+    shared_motion_css = (ROOT / "src" / "src/styles/shared/motion-refinements.css").read_text(encoding="utf-8")
     design_system_css = "\\n".join(
         (ROOT / path).read_text(encoding="utf-8")
-        for path in ("styles/tokens.css", "styles/base.css", "styles/components.css")
+        for path in ("src/styles/tokens.css", "src/styles/base.css", "src/styles/components.css")
     )
-    intro_css = (ROOT / "styles/shared/motion-system.css").read_text(encoding="utf-8")
+    intro_css = (ROOT / "src" / "src/styles/shared/motion-system.css").read_text(encoding="utf-8")
     workflow = (ROOT / ".github/workflows/deploy.yml").read_text(encoding="utf-8")
-    archive_script = (ROOT / "library.js").read_text(encoding="utf-8")
+    archive_script = (ROOT / "src" / "js" / "library.js").read_text(encoding="utf-8")
 
     intro_timing = re.search(
         r"animation:\s*tokiIntroCurtainOut\s+([0-9.]+)s\s+var\(--ease-quart-in-out\)\s+([0-9.]+)s\s+forwards",
@@ -145,13 +145,13 @@ def main() -> None:
     for page_name in ["index.html", "booking.html", "library.html", "policies.html", "404.html", "admin.html", "client-gallery.html"]:
         page_source = (ROOT / page_name).read_text(encoding="utf-8")
         bundle = {
-            "index.html": "toki-home.css",
-            "booking.html": "toki-home.css",
-            "library.html": "toki-archive.css",
-            "policies.html": "toki-policies.css",
-            "404.html": "toki-404.css",
-            "admin.html": "toki-admin.css",
-            "client-gallery.html": "toki-client.css",
+            "index.html": "assets/css/toki-home.css",
+            "booking.html": "assets/css/toki-home.css",
+            "library.html": "assets/css/toki-archive.css",
+            "policies.html": "assets/css/toki-policies.css",
+            "404.html": "assets/css/toki-404.css",
+            "admin.html": "assets/css/toki-admin.css",
+            "client-gallery.html": "assets/css/toki-client.css",
         }[page_name]
         assert re.search(rf'href="./{re.escape(bundle)}"', page_source), (
             f"{page_name}: expected page stylesheet is missing"
