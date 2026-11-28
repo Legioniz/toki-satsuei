@@ -54,6 +54,8 @@ def main() -> None:
     assert "site-enhancements.css" in home_bundle.splitlines()[0]
     assert "global-motion.css" in home_bundle.splitlines()[0]
     assert ".toki-intro-logo" in global_motion
+    assert 'img[src*="Toki-Satsuei-Brushstroke-Emblem.png"]' in global_motion
+    assert "clip-path: circle(50%)" in global_motion
     assert "./assets/brand/Toki-Satsuei-Brushstroke-Emblem.png" in motion_js
     assert ".toki-booking-sheet .booking-fieldset .form-split > label" in motion_js
 
@@ -146,7 +148,26 @@ def main() -> None:
             page.goto(base + "/index.html", wait_until="domcontentloaded")
             intro = page.locator(".toki-intro-curtain")
             assert intro.count() == 1, "The logo intro should appear on a normal-motion page load."
-            assert intro.locator(".toki-intro-logo").get_attribute("src") == "./assets/brand/Toki-Satsuei-Brushstroke-Emblem.png"
+            intro_logo = intro.locator(".toki-intro-logo")
+            assert intro_logo.get_attribute("src") == "./assets/brand/Toki-Satsuei-Brushstroke-Emblem.png"
+            intro_logo_shape = intro_logo.evaluate(
+                """node => {
+                    const style = getComputedStyle(node);
+                    const rect = node.getBoundingClientRect();
+                    return {
+                        clipPath: style.clipPath,
+                        borderRadius: style.borderRadius,
+                        width: rect.width,
+                        height: rect.height
+                    };
+                }"""
+            )
+            assert intro_logo_shape["clipPath"].startswith("circle("), (
+                f"The startup logo must be circular: {intro_logo_shape}"
+            )
+            assert abs(intro_logo_shape["width"] - intro_logo_shape["height"]) <= 1, (
+                f"The startup logo must stay square before clipping: {intro_logo_shape}"
+            )
             assert page.locator("#inquiry-form").count() == 0, "Homepage should link out to booking instead of embedding the form."
             booking_page = context.new_page()
             booking_page.goto(base + "/booking.html", wait_until="domcontentloaded")

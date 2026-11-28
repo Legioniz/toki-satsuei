@@ -152,6 +152,53 @@ def verify_route(browser, label: str, base_url: str, route: str, context_options
         f"{label} {route}: horizontal body overflow: {dimensions}"
     )
 
+    logo_shapes = page.locator(
+        'img[src*="Toki-Satsuei-Brushstroke-Emblem.png"]'
+    ).evaluate_all(
+        """nodes => nodes.map(node => {
+            const style = getComputedStyle(node);
+            return {
+                clipPath: style.clipPath,
+                borderRadius: style.borderRadius,
+                width: node.getBoundingClientRect().width,
+                height: node.getBoundingClientRect().height
+            };
+        })"""
+    )
+    assert logo_shapes, f"{label} {route}: no official logo image was found."
+    for shape in logo_shapes:
+        assert shape["clipPath"].startswith("circle("), (
+            f"{label} {route}: official logo is not circular: {shape}"
+        )
+        assert abs(shape["width"] - shape["height"]) <= 1, (
+            f"{label} {route}: official logo is not square before circular clipping: {shape}"
+        )
+
+    if route == "/policies.html":
+        heading = page.locator(".policy-hero h1").evaluate(
+            """node => {
+                const headingStyle = getComputedStyle(node);
+                const em = node.querySelector("em");
+                const emStyle = getComputedStyle(em);
+                const rect = em.getBoundingClientRect();
+                return {
+                    viewport: window.innerWidth,
+                    right: rect.right,
+                    headingWidth: node.getBoundingClientRect().width,
+                    emDisplay: emStyle.display,
+                    emWhiteSpace: emStyle.whiteSpace,
+                    fontSize: headingStyle.fontSize,
+                    text: em.textContent
+                };
+            }"""
+        )
+        assert heading["right"] <= heading["viewport"] + 1, (
+            f"{label} {route}: policy hero heading overflows on mobile: {heading}"
+        )
+        assert heading["emDisplay"] == "block" and heading["emWhiteSpace"] == "normal", (
+            f"{label} {route}: italic policy heading must wrap as a block on mobile: {heading}"
+        )
+
     image_count = page.locator("img").count()
     checked_images = 0
     forced_eager_images = 0

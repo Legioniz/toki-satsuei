@@ -124,3 +124,12 @@
   .toki-scroll-scene > .toki-scene-track { display: none !important; }
   .toki-scroll-parallax { translate: none !important; will-change: auto !important; }
 }
+
+
+/* Circular crop for every rendered instance of the official mark, including the intro, footers, and compact account headers. */
+img[src*="Toki-Satsuei-Brushstroke-Emblem.png"] {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  clip-path: circle(50%);
+  -webkit-clip-path: circle(50%);
+}
