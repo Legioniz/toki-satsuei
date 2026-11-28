@@ -9,7 +9,9 @@
   const fineHover = window.matchMedia("(hover: hover) and (pointer: fine)");
   let reduced = preference.matches;
   let observer = null;
+  let preloadObserver = null;
   let mutationObserver = null;
+  const prewarmedImages = new WeakSet();
 
   /* Map each selector group to its motion profile and reveal timing role. */
   const MOTION_PROFILES = [
@@ -101,8 +103,8 @@
   root.classList.add("motion-system-ready", "motion-ready");
 
   /* Shorten site motion without changing the official startup logo sequence. */
-  const MOTION_DURATION_FACTOR = 0.624;
-  const CSS_MOTION_PLAYBACK_RATE = 1.6;
+  const MOTION_DURATION_FACTOR = 0.42;
+  const CSS_MOTION_PLAYBACK_RATE = 2;
   const STARTUP_LOGO_SELECTOR = ".toki-intro-curtain, .toki-intro-curtain *, .toki-intro-logo";
 
   function isStartupLogoAnimation(animation) {
@@ -201,7 +203,7 @@
     curtain.addEventListener("animationend", event => {
       if (event.target === curtain) cleanup();
     });
-    window.setTimeout(cleanup, 1100);
+    window.setTimeout(cleanup, 800);
   }
 
   function ensureDarkroomOverlays() {
@@ -464,6 +466,25 @@
   }
 
   /* Unified intersection & scroll visibility management for [data-reveal] + .motion-item. */
+  function preloadMotionContent(element) {
+    if (!(element instanceof Element)) return;
+    const images = [];
+    if (element instanceof HTMLImageElement) images.push(element);
+    if (typeof element.querySelectorAll === "function") {
+      images.push(...element.querySelectorAll("img[loading='lazy']"));
+    }
+    images.forEach(image => {
+      if (prewarmedImages.has(image)) return;
+      prewarmedImages.add(image);
+      if (image.loading === "lazy") image.loading = "eager";
+      image.decoding = "async";
+      if ("fetchPriority" in image && image.fetchPriority !== "high") image.fetchPriority = "low";
+      if (typeof image.decode === "function") {
+        try { void image.decode().catch(() => {}); } catch {}
+      }
+    });
+  }
+
   function markVisible(element) {
     if (element.hasAttribute("data-reveal")) element.classList.add("is-visible");
     if (element.classList.contains("motion-item")) element.classList.add("is-motion-visible");
@@ -519,7 +540,7 @@
         ? Array.from(element.parentElement.children).filter(child => child.matches(ALL_SELECTOR))
         : [];
       const index = Math.max(0, siblings.indexOf(element));
-      element.style.setProperty("--motion-delay", Math.min(index, 7) * 62 + "ms");
+      element.style.setProperty("--motion-delay", Math.min(index, 4) * 18 + "ms");
     }
 
     if (!element.dataset.motion) {
@@ -530,6 +551,7 @@
       markVisible(element);
     } else {
       observer.observe(element);
+      preloadObserver?.observe(element);
     }
   }
 
@@ -557,7 +579,22 @@
     });
   }
 
+  function createPreloadObserver() {
+    if (reduced || !("IntersectionObserver" in window)) return null;
+    return new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        preloadMotionContent(entry.target);
+        preloadObserver?.unobserve(entry.target);
+      });
+    }, {
+      threshold: 0,
+      rootMargin: "1100px 0px 1100px 0px"
+    });
+  }
+
   observer = createObserver();
+  preloadObserver = createPreloadObserver();
 
   /* Interactive pointer parallax & 3D tilt for optical cards. */
   const interactiveCards = ".toki-card, .package-card, .gallery-card, .process-step, .calculator-wrap, .toki-pillar, .album-card";
@@ -901,6 +938,8 @@
     if (reduced) {
       observer?.disconnect();
       observer = null;
+      preloadObserver?.disconnect();
+      preloadObserver = null;
       document.querySelectorAll(".motion-item, [data-reveal]").forEach(element => {
         markVisible(element);
         element.style.removeProperty("--motion-delay");
@@ -922,9 +961,11 @@
       });
     } else {
       observer = createObserver();
+      preloadObserver = createPreloadObserver();
       if (observer) {
         document.querySelectorAll(".motion-item, [data-reveal]").forEach(element => {
           observer.observe(element);
+          preloadObserver?.observe(element);
         });
       }
       scan(document);
@@ -934,6 +975,7 @@
 
   window.addEventListener("pagehide", () => {
     observer?.disconnect();
+    preloadObserver?.disconnect();
     mutationObserver?.disconnect();
     if (scrollFrame) cancelAnimationFrame(scrollFrame);
     if (decayFrame) cancelAnimationFrame(decayFrame);
