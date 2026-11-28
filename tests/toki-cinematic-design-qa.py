@@ -74,9 +74,9 @@ def main() -> None:
         ):
             assert f'font-family:"{family}"' in bundle_css, f"{label}: local {role} font is not bundled"
             assert "fonts.googleapis.com" not in bundle_css and "fonts.gstatic.com" not in bundle_css
-        if filename in ("index.html", "404.html"):
+        if bundle in ("toki-home.css", "toki-404.css"):
             assert 'font-family:"Caveat"' in bundle_css, f"{label}: local handwritten font is not bundled"
-        elif filename not in ("booking.html",):
+        else:
             assert 'font-family:"Caveat"' not in bundle_css, f"{label}: unused handwritten font should not be in this bundle"
         assert 'id="main-content"' in source, f"{label}: main content landmark is missing"
 
