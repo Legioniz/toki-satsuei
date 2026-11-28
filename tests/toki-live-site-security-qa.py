@@ -200,6 +200,7 @@ def verify_live_site() -> None:
             and b"base-uri 'self'" in body_lower
             and b"form-action 'self'" in body_lower
             and b"script-src" in body_lower
+            and b'<meta name="referrer" content="strict-origin-when-cross-origin">' in body_lower
         )
         if not required_meta_csp:
             problems.append(f"{route or '/'}:csp-meta-fallback")
