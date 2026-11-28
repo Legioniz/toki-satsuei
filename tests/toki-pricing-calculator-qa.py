@@ -96,7 +96,7 @@ def main() -> None:
                 (".calc-select", "background-color", "rgb(20, 19, 20)"),
                 (".calc-btn-step", "color", "rgb(255, 255, 255)"),
                 (".calc-input-qty", "color", "rgb(255, 255, 255)"),
-                (".calc-summary-card h4", "color", "rgb(255, 255, 255)"),
+                (".calc-summary-card h3", "color", "rgb(255, 255, 255)"),
                 (".calc-breakdown-list li", "color", "rgb(229, 222, 212)"),
                 (".calc-total-label", "color", "rgb(255, 255, 255)"),
                 (".calc-total-val", "color", "rgb(245, 242, 235)"),

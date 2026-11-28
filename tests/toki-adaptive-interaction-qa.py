@@ -132,8 +132,10 @@ def main():
      const header=document.querySelector(".site-header");
      const toggle=document.querySelector(".menu-toggle");
      const h=header?.getBoundingClientRect();
+     const style=toggle ? getComputedStyle(toggle) : null;
      return document.activeElement===toggle && h && h.top>=-1 && h.top<=1 &&
-       getComputedStyle(toggle).display!=="none" &&
+       style && style.display!=="none" && style.visibility==="visible" &&
+       Number(style.opacity)>0 && toggle.getClientRects().length>0 &&
        header?.getAttribute("aria-hidden")==="false" && !header.inert;
    }""")
    menu.click()
@@ -173,7 +175,15 @@ def main():
    }""")
    header_box=home.locator(".site-header").bounding_box()
    assert header_box and -1<=header_box["y"]<=1, f"Header did not reveal after hero exit: {header_box}"
-   menu=home.locator(".menu-toggle");menu.click()
+   menu=home.locator(".menu-toggle")
+   home.wait_for_function("""() => {
+     const toggle=document.querySelector(".menu-toggle");
+     const style=toggle && getComputedStyle(toggle);
+     return toggle && style && style.display!=="none" &&
+       style.visibility==="visible" && Number(style.opacity)>0 &&
+       toggle.getClientRects().length>0;
+   }""")
+   menu.click()
    home.wait_for_function("""() => {
      const header=document.querySelector(".site-header");
      const nav=document.querySelector(".primary-nav");

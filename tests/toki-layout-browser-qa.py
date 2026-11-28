@@ -8,7 +8,7 @@ from pathlib import Path
 from threading import Thread
 import json
 
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC = ROOT
@@ -116,35 +116,101 @@ def check_header(page, width, label):
     if width <= 820:
         assert toggle["display"] != "none", f"{label}: tablet/mobile menu toggle is hidden at {width}px"
         assert nav["display"] == "none", f"{label}: closed navigation is occupying layout at {width}px"
-        if page.locator(".hero-opening").count() > 0:
+        hero = page.locator(".hero-opening")
+        if hero.count() > 0:
+            # Put the opening hero outside its scroll-lock region deterministically.
+            # The real interaction being tested is the upward wheel that reveals the
+            # masthead; using wheel input to establish the starting position is flaky
+            # at tablet breakpoints in headless Chromium.
             page.evaluate("""() => {
               const hero = document.querySelector(".hero-opening");
-              const scroller = document.scrollingElement;
+              const scroller = document.scrollingElement || document.documentElement;
               scroller.style.setProperty("scroll-behavior", "auto", "important");
-              scroller.scrollTop = Math.max(0, window.scrollY + hero.getBoundingClientRect().bottom + 80);
+              document.body.style.setProperty("scroll-behavior", "auto", "important");
+              const target = Math.max(
+                0,
+                window.scrollY + hero.getBoundingClientRect().bottom + 420
+              );
+              window.scrollTo({ top: target, left: 0, behavior: "instant" });
             }""")
-            page.wait_for_timeout(100)
-            assert page.locator(".hero-opening").evaluate("(node) => node.getBoundingClientRect().bottom < 0"), f"{label}: test setup did not move the hero fully out of the viewport"
-            # A short upward scroll is the real interaction that reveals the header
-            # after the homepage hero has left the viewport.
-            page.evaluate("""() => {
-              const scroller = document.scrollingElement;
-              scroller.scrollTop = Math.max(0, scroller.scrollTop - 12);
-            }""")
+            try:
+                page.wait_for_function(
+                    """() => document.querySelector(".hero-opening")?.getBoundingClientRect().bottom < -320""",
+                    timeout=3000,
+                )
+            except PlaywrightTimeoutError as error:
+                state = page.evaluate("""() => ({
+                    scrollY: window.scrollY,
+                    heroBottom: document.querySelector(".hero-opening")?.getBoundingClientRect().bottom ?? null,
+                    viewportHeight: window.innerHeight,
+                    scrollHeight: document.documentElement.scrollHeight
+                })""")
+                raise AssertionError(
+                    f"{label}: could not position the opening hero outside the masthead lock region: {state}"
+                ) from error
+
+            hero_bottom = page.locator(".hero-opening").evaluate(
+                "(node) => node.getBoundingClientRect().bottom"
+            )
+            assert hero_bottom < -320, (
+                f"{label}: test setup did not move the opening hero beyond the masthead lock region "
+                f"(scrollY={page.evaluate('window.scrollY')}, heroBottom={hero_bottom})"
+            )
+
+            # ArrowUp is a real browser scroll gesture and avoids wheel hit-target
+            # ambiguity when a mobile/tablet overlay occupies the pointer position.
+            page.evaluate("() => document.activeElement?.blur()")
+            previous_scroll = page.evaluate("window.scrollY")
+            page.keyboard.press("ArrowUp")
+            try:
+                page.wait_for_function(
+                    "(previous) => window.scrollY < previous",
+                    arg=previous_scroll,
+                    timeout=3000,
+                )
+            except PlaywrightTimeoutError as error:
+                raise AssertionError(
+                    f"{label}: ArrowUp did not change the document scroll position "
+                    f"(previousY={previous_scroll}, currentY={page.evaluate('window.scrollY')})"
+                ) from error
+            hero_bottom_after_up = page.locator(".hero-opening").evaluate(
+                "(node) => node.getBoundingClientRect().bottom"
+            )
+            assert hero_bottom_after_up < 0, (
+                f"{label}: upward gesture unexpectedly re-entered hero lock before "
+                f"the masthead reveal check (heroBottom={hero_bottom_after_up})"
+            )
         else:
-            # Interior pages reveal their header naturally when returned to the top.
-            page.evaluate("""() => {
-              const scroller = document.scrollingElement;
-              scroller.style.setProperty("scroll-behavior", "auto", "important");
-              scroller.scrollTop = 0;
+            # Interior pages should expose the masthead at the document top.
+            page.evaluate("() => window.scrollTo({top: 0, left: 0, behavior: 'instant'})")
+
+        try:
+            page.wait_for_function("""() => {
+              const header = document.querySelector(".site-header");
+              return header && !header.classList.contains("is-auto-hidden") &&
+                !header.classList.contains("is-initial-hidden") &&
+                header.getAttribute("aria-hidden") === "false" && !header.inert &&
+                !header.getAnimations().some(animation => animation.playState === "running");
+            }""", timeout=5000)
+        except PlaywrightTimeoutError as error:
+            state = page.evaluate("""() => {
+              const header = document.querySelector('.site-header');
+              return {
+                scrollY: window.scrollY,
+                classes: header?.className || null,
+                ariaHidden: header?.getAttribute('aria-hidden'),
+                inert: header?.inert ?? null,
+                animations: header?.getAnimations().map(animation => ({
+                  playState: animation.playState,
+                  currentTime: animation.currentTime
+                })) || [],
+                hero: (() => {
+                  const rect = document.querySelector('.hero-opening')?.getBoundingClientRect();
+                  return rect ? {top: rect.top, bottom: rect.bottom} : null;
+                })()
+              };
             }""")
-        page.wait_for_function("""() => {
-          const header = document.querySelector(".site-header");
-          return header && !header.classList.contains("is-auto-hidden") &&
-            !header.classList.contains("is-initial-hidden") &&
-            header.getAttribute("aria-hidden") === "false" && !header.inert &&
-            !header.getAnimations().some(animation => animation.playState === "running");
-        }""")
+            raise AssertionError(f"{label}: masthead did not reach its visible accessible state: {state}") from error
         page.locator(".menu-toggle").click()
         opened = boxes(page, [".site-header", ".primary-nav"])
         assert opened[1]["display"] != "none", f"{label}: navigation did not open at {width}px"
