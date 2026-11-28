@@ -81,3 +81,18 @@ html, body{ overflow-x:clip; }
 
 /* Large booking headline accent meets WCAG AA large-text contrast on the dark panel. */
 .booking-page .contact-copy h1 em{color:#d95b67;}
+
+/* Defer off-screen homepage section rendering on mobile and desktop.
+   Intrinsic sizes reserve space until each section approaches the viewport. */
+@supports (content-visibility: auto) {
+  .home-page .intro-band { content-visibility: auto; contain-intrinsic-size: auto 300px; }
+  .home-page .work-section { content-visibility: auto; contain-intrinsic-size: auto 820px; }
+  .home-page .services-section { content-visibility: auto; contain-intrinsic-size: auto 760px; }
+  .home-page .sessions-section { content-visibility: auto; contain-intrinsic-size: auto 1000px; }
+  .home-page .availability-section { content-visibility: auto; contain-intrinsic-size: auto 760px; }
+  .home-page .process-section { content-visibility: auto; contain-intrinsic-size: auto 620px; }
+  .home-page .about-section { content-visibility: auto; contain-intrinsic-size: auto 620px; }
+  .home-page .equipment-section { content-visibility: auto; contain-intrinsic-size: auto 760px; }
+  .home-page .contact-section { content-visibility: auto; contain-intrinsic-size: auto 650px; }
+  .home-page .toki-assurance { content-visibility: auto; contain-intrinsic-size: auto 280px; }
+}
