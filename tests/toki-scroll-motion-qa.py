@@ -48,8 +48,8 @@ def main() -> None:
     )
     assert intro_timing, "Page intro curtain is missing its explicit timing."
     intro_total = sum(float(value) for value in intro_timing.groups())
-    assert abs(intro_total - 2.00) < 0.001, (
-        f"Page intro curtain should clear in exactly 2 seconds, found {intro_total:.3f}s."
+    assert abs(intro_total - 1.50) < 0.001, (
+        f"Page intro curtain should clear in exactly 1.5 seconds, found {intro_total:.3f}s."
     )
     logo_timing = re.search(
         r"animation:\s*tokiIntroSealPop\s+([0-9.]+)s\s+var\(--ease-spring-overshoot\)\s+([0-9.]+)s\s+both",
@@ -61,8 +61,8 @@ def main() -> None:
         f"Startup logo should animate for 660ms, found {logo_total:.3f}s."
     )
     intro_fallback = re.search(r"window\.setTimeout\(cleanup,\s*(\d+)\)", motion)
-    assert intro_fallback and 2100 <= int(intro_fallback.group(1)) <= 2300, (
-        "Page intro fallback cleanup must allow the full two-second logo sequence."
+    assert intro_fallback and 1600 <= int(intro_fallback.group(1)) <= 1800, (
+        "Page intro fallback cleanup must allow the full 1.5-second logo sequence."
     )
 
     assert "MOTION_DURATION_FACTOR = 0.5" in motion, "WAAPI choreography should use exactly half-duration timing."
@@ -218,8 +218,8 @@ def main() -> None:
             # The startup mark stays at normal speed for a two-second intro;
             # unrelated CSS and WAAPI effects are each reduced to half duration.
             intro_page = context.new_page()
-            intro_page.goto(base + "/index.html", wait_until="domcontentloaded")
-            intro_page.wait_for_selector(".toki-intro-curtain")
+            intro_page.goto(base + "/index.html", wait_until="commit")
+            intro_page.wait_for_selector(".toki-intro-curtain", state="attached")
             intro_page.wait_for_function("""() => {
               const grain = document.querySelector(".toki-film-grain");
               return grain && grain.getAnimations().some(
@@ -244,8 +244,8 @@ def main() -> None:
                 grainRate: grainAnimation?.playbackRate
               };
             }""")
-            assert intro_runtime["curtainRate"] == 1 and abs(intro_runtime["curtainEndTime"] - 2000) < 1, (
-                f"Startup curtain must run unaccelerated for two seconds: {intro_runtime}"
+            assert intro_runtime["curtainRate"] == 1 and abs(intro_runtime["curtainEndTime"] - 1500) < 1, (
+                f"Startup curtain must run unaccelerated for 1.5 seconds: {intro_runtime}"
             )
             assert intro_runtime["logoRate"] == 1, (
                 f"Startup logo must remain excluded from global acceleration: {intro_runtime}"

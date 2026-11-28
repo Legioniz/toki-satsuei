@@ -119,11 +119,7 @@
     if (reduced || !animation || isStartupLogoAnimation(animation)) return;
     if (Math.abs(animation.playbackRate - CSS_MOTION_PLAYBACK_RATE) < 0.001) return;
     try {
-      if (typeof animation.updatePlaybackRate === "function") {
-        animation.updatePlaybackRate(CSS_MOTION_PLAYBACK_RATE);
-      } else {
-        animation.playbackRate = CSS_MOTION_PLAYBACK_RATE;
-      }
+      animation.playbackRate = CSS_MOTION_PLAYBACK_RATE;
     } catch {
       /* Keep the original effect if a browser rejects a playback-rate update. */
     }
@@ -191,14 +187,14 @@
           <img class="toki-intro-logo" src="./assets/brand/Toki-Satsuei-Brushstroke-Emblem.png" alt="" decoding="async" fetchpriority="high">
         </div>
         <span class="toki-intro-sweep"></span>
-        <div class="toki-intro-telemetry">
-          <div class="toki-intro-readout">
-            <span class="toki-intro-status">CALIBRATING OPTICS · f/2.8 · 1/250s</span>
-            <span class="toki-intro-pct">00%</span>
-          </div>
-          <div class="toki-intro-bar"><span class="toki-intro-bar-fill"></span></div>
-          <span class="toki-intro-skip">TAP TO ENTER</span>
+      </div>
+      <div class="toki-intro-telemetry">
+        <div class="toki-intro-readout">
+          <span class="toki-intro-status">CALIBRATING OPTICS · f/2.8 · 1/250s</span>
+          <span class="toki-intro-pct">00%</span>
         </div>
+        <div class="toki-intro-bar"><span class="toki-intro-bar-fill"></span></div>
+        <span class="toki-intro-skip">TOKI SATSUEI · TAP TO ENTER</span>
       </div>
     `;
     document.body.prepend(curtain);
@@ -228,11 +224,11 @@
     } else {
       window.addEventListener("load", () => { targetPct = 100; }, { once: true });
     }
-    window.setTimeout(() => { targetPct = 100; }, 900);
+    window.setTimeout(() => { targetPct = 100; }, 550);
 
     const stepTelemetry = () => {
       if (cleaned) return;
-      currentPct += (targetPct - currentPct) * 0.18;
+      currentPct += (targetPct - currentPct) * 0.24;
       if (targetPct === 100 && currentPct > 98.5) currentPct = 100;
       const rounded = Math.min(100, Math.round(currentPct));
       if (pctEl) pctEl.textContent = String(rounded).padStart(2, "0") + "%";
@@ -258,7 +254,7 @@
     curtain.addEventListener("animationend", event => {
       if (event.target === curtain) cleanup();
     });
-    window.setTimeout(cleanup, 2200);
+    window.setTimeout(cleanup, 1650);
   }
 
   function ensureDarkroomOverlays() {
@@ -321,6 +317,7 @@
   }
 
   ensureDarkroomOverlays();
+  requestAnimationFrame(accelerateRunningAnimations);
   const shutterCurtain = document.querySelector(".toki-shutter-curtain");
 
   /* WAAPI helpers kept under clean weak-map lifecycle control. */

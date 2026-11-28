@@ -35,8 +35,8 @@
   display: grid;
   place-items: center;
   background:
-    radial-gradient(circle at 50% 48%, rgba(163, 31, 45, 0.22), rgba(9, 9, 11, 0.98) 62%, #050506 100%);
-  animation: tokiIntroCurtainOut 1.96s var(--ease-quart-in-out) 0.04s forwards;
+    radial-gradient(circle at 50% 50%, rgba(163, 31, 45, 0.22), rgba(9, 9, 11, 0.98) 62%, #050506 100%);
+  animation: tokiIntroCurtainOut 1.46s var(--ease-quart-in-out) 0.04s forwards;
 }
 .toki-intro-stage {
   position: relative;
@@ -137,8 +137,8 @@
 }
 @keyframes tokiIntroCurtainOut {
   0% { opacity: 1; clip-path: circle(100% at 50% 50%); transform: scale(1); }
-  45% { opacity: 0.94; }
-  100% { opacity: 0; clip-path: circle(0% at 50% 42%); transform: scale(1.04); visibility: hidden; }
+  66% { opacity: 0.96; clip-path: circle(100% at 50% 50%); transform: scale(1); }
+  100% { opacity: 0; clip-path: circle(0% at 50% 50%); transform: scale(1.04); visibility: hidden; }
 }
 
 /* Base interactive transitions */
