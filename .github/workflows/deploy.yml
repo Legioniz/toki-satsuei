@@ -5,6 +5,10 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_run:
+    workflows: ["Import TOKI self-hosted visual assets"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -21,6 +25,7 @@ concurrency:
 jobs:
   freshness:
     name: Skip stale queued snapshots
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-24.04
     outputs:
       is_current: ${{ steps.check.outputs.is_current }}
@@ -30,7 +35,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [[ "$GITHUB_EVENT_NAME" != "push" ]]; then
+          if [[ "$GITHUB_EVENT_NAME" != "push" && "$GITHUB_EVENT_NAME" != "workflow_run" ]]; then
             echo "is_current=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
