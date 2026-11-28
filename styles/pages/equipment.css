@@ -13,7 +13,7 @@
 .equipment-viewer-top{min-height:48px;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;border-bottom:1px solid rgba(244,241,234,.12);color:#c9c1b7;font:9px/1.5 var(--c-mono,"Space Mono",monospace);letter-spacing:.13em}
 .equipment-viewer-status{color:#e8828d;text-align:right}
 .equipment-mode-switch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:14px 16px}
-.equipment-mode-switch button,.equipment-angle-controls button{min-width:0;min-height:44px;padding:9px 12px;border:1px solid rgba(244,241,234,.2);border-radius:3px;background:rgba(255,255,255,.025);color:#d8d1c7;font:600 10px/1.35 var(--c-mono,"Space Mono",monospace);letter-spacing:.09em;cursor:pointer;transition:background-color .2s,border-color .2s,color .2s}
+.equipment-mode-switch button,.equipment-angle-controls button{min-width:0;min-height:44px;padding:9px 12px;border:1px solid rgba(244,241,234,.2);border-radius:3px;background:rgba(255,255,255,.025);color:#d8d1c7;font:600 10px/1.35 var(--c-mono,"Space Mono",monospace);letter-spacing:.09em;cursor:pointer;transition:background-color 0.136s,border-color 0.136s,color 0.136s}
 .equipment-mode-switch button[aria-pressed=true],.equipment-angle-controls button[aria-pressed=true]{color:#fff;border-color:#b02c3a;background:rgba(163,31,45,.3)}
 .equipment-mode-switch button:hover,.equipment-angle-controls button:hover{border-color:#e8828d;color:#fff}
 .equipment-stage{width:100%;min-width:0;display:grid;place-items:center;padding:clamp(12px,2.2vw,22px);background:#e9e6df}
