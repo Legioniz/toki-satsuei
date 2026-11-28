@@ -59,6 +59,7 @@ The build scans those folders and generates `media-library.json` automatically. 
 python -m pip install -r requirements-test.txt
 python -m playwright install --with-deps chromium
 python scripts/build-toki-media-library.py
+python scripts/build-css.py
 python scripts/build-css.py --check
 python tests/toki-layout-browser-qa.py
 python tests/toki-adaptive-interaction-qa.py
@@ -85,9 +86,11 @@ The public [booking and photo policies](https://toki-satsuei.pages.dev/policies.
 
 The site currently labels its existing gallery images as practice/detail studies. It does not claim to have a finished public cosplay or portrait client portfolio yet.
 
-## Media note
+## Media and typography hosting
 
-The official TOKI SATSUEI brushstroke logo and the current hero/sample gallery photographs are referenced directly from their original hosted media CDN assets. The logo is used unchanged: the site does not redraw, recolor, or generate a replacement. The website source and upload-ready archive structure remain independent in this repository; those original hosted image files have not been copied into Git because the available GitHub file-transfer connection cannot retrieve the binary media. New archive uploads can be stored directly in this repository under `media-library/`.
+The official TOKI SATSUEI brushstroke logo remains an unchanged local master under `assets/brand/`. The four approved public practice photographs are now hosted from this repository under `assets/photography/originals/`; their JPEG and WebP derivatives are served from the same origin at 480px, 960px, and source width. `assets/photography/manifest.json` records image dimensions, aspect ratios, alternative text, byte sizes, and SHA-256 checksums. The build and QA preserve the original JPEG masters byte-for-byte, keep the homepage hero eager-loaded with high fetch priority, and lazy-load below-the-fold gallery images. The gallery lightbox continues to open the untouched originals.
+
+Typography is self-hosted as local WOFF2 files under `assets/fonts/`, with SIL Open Font License files retained in `assets/fonts/licenses/`. The shared Cormorant Garamond, DM Sans, and Space Mono faces are included in each page bundle; Caveat is included only in the homepage/booking and 404 bundles. Production pages do not rely on `media.base44.com` or Google Fonts for these visual assets. Private client delivery photographs remain outside the public asset set.
 
 ## Public monthly availability calendar
 
