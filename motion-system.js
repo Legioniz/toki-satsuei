@@ -191,15 +191,70 @@
           <img class="toki-intro-logo" src="./assets/brand/Toki-Satsuei-Brushstroke-Emblem.png" alt="" decoding="async" fetchpriority="high">
         </div>
         <span class="toki-intro-sweep"></span>
+        <div class="toki-intro-telemetry">
+          <div class="toki-intro-readout">
+            <span class="toki-intro-status">CALIBRATING OPTICS · f/2.8 · 1/250s</span>
+            <span class="toki-intro-pct">00%</span>
+          </div>
+          <div class="toki-intro-bar"><span class="toki-intro-bar-fill"></span></div>
+          <span class="toki-intro-skip">TAP TO ENTER</span>
+        </div>
       </div>
     `;
     document.body.prepend(curtain);
+
+    const pctEl = curtain.querySelector(".toki-intro-pct");
+    const statusEl = curtain.querySelector(".toki-intro-status");
+    const barFill = curtain.querySelector(".toki-intro-bar-fill");
     let cleaned = false;
+    let targetPct = 35;
+    let currentPct = 12;
+    let rafId = 0;
+
+    if (document.readyState === "interactive") targetPct = Math.max(targetPct, 65);
+    if (document.readyState === "complete") targetPct = 100;
+
+    document.fonts?.ready?.then(() => {
+      targetPct = Math.max(targetPct, 82);
+    }).catch(() => {});
+
+    const heroImg = document.querySelector(".hero-photo");
+    if (heroImg && typeof heroImg.decode === "function") {
+      heroImg.decode().then(() => {
+        targetPct = 100;
+      }).catch(() => {
+        targetPct = 100;
+      });
+    } else {
+      window.addEventListener("load", () => { targetPct = 100; }, { once: true });
+    }
+    window.setTimeout(() => { targetPct = 100; }, 900);
+
+    const stepTelemetry = () => {
+      if (cleaned) return;
+      currentPct += (targetPct - currentPct) * 0.18;
+      if (targetPct === 100 && currentPct > 98.5) currentPct = 100;
+      const rounded = Math.min(100, Math.round(currentPct));
+      if (pctEl) pctEl.textContent = String(rounded).padStart(2, "0") + "%";
+      if (barFill) barFill.style.transform = `scaleX(${(rounded / 100).toFixed(3)})`;
+      if (statusEl && rounded >= 95) statusEl.textContent = "SHUTTER READY · QUEZON CITY";
+      if (rounded < 100) rafId = requestAnimationFrame(stepTelemetry);
+    };
+    rafId = requestAnimationFrame(stepTelemetry);
+
     const cleanup = () => {
       if (cleaned) return;
       cleaned = true;
+      if (rafId) cancelAnimationFrame(rafId);
       curtain.remove();
     };
+    curtain.addEventListener("pointerdown", () => {
+      window.TokiSFX?.playApertureOpen?.();
+      curtain.style.transition = "opacity 220ms ease-out";
+      curtain.style.opacity = "0";
+      curtain.style.pointerEvents = "none";
+      window.setTimeout(() => cleanup(), 230);
+    }, { once: true, passive: true });
     curtain.addEventListener("animationend", event => {
       if (event.target === curtain) cleanup();
     });
@@ -1024,6 +1079,177 @@
       stepScrollMetrics();
     }
   });
+
+  /* Kinetic word-by-word typography, optical text decode, and numeric counters. */
+  const KINETIC_SELECTOR = ".hero-opening h1, .section-heading h2, .frame-intention-quote, .about-copy h2, .contact-copy h2, .archive-head h1, .policy-hero h1";
+  const DECODE_SELECTOR = ".eyebrow, .hero-index, .hero-bottom-rule span, .gallery-meta small, .hero-annotation span, .hero-proof span";
+  const DECODE_GLYPHS = "0123456789/·+−";
+
+  function splitElementWords(element) {
+    if (!element || element.dataset.tokiKinetic === "1") return;
+    const plainText = (element.textContent || "").replace(/\s+/g, " ").trim();
+    if (!plainText) return;
+    element.dataset.tokiKinetic = "1";
+    element.setAttribute("aria-label", plainText);
+    let wordIndex = 0;
+
+    const wrapNode = node => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const frag = document.createDocumentFragment();
+        const tokens = node.textContent.split(/(\s+)/);
+        tokens.forEach(token => {
+          if (!token) return;
+          if (/^\s+$/.test(token)) {
+            frag.appendChild(document.createTextNode(token));
+          } else {
+            const outer = document.createElement("span");
+            outer.className = "toki-word";
+            outer.setAttribute("aria-hidden", "true");
+            outer.style.setProperty("--word-index", String(Math.min(wordIndex++, 16)));
+            const inner = document.createElement("span");
+            inner.className = "toki-word-inner";
+            inner.textContent = token;
+            outer.appendChild(inner);
+            frag.appendChild(outer);
+          }
+        });
+        return frag;
+      }
+      if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== "BR") {
+        const clone = node.cloneNode(false);
+        Array.from(node.childNodes).forEach(child => clone.appendChild(wrapNode(child)));
+        return clone;
+      }
+      return node.cloneNode(true);
+    };
+
+    const nextNodes = Array.from(element.childNodes).map(wrapNode);
+    element.replaceChildren(...nextNodes);
+    element.classList.add("toki-kinetic-text");
+  }
+
+  function runOpticalDecode(el) {
+    if (reduced || !el || el.dataset.tokiDecoding === "1") return;
+    const target = el.dataset.tokiText || el.textContent || "";
+    if (!target || target.length > 48) return;
+    el.dataset.tokiText = target;
+    el.dataset.tokiDecoding = "1";
+    const start = performance.now();
+    const duration = 260;
+
+    const tick = now => {
+      const progress = Math.min(1, (now - start) / duration);
+      const lockedCount = Math.floor(progress * target.length);
+      let out = "";
+      for (let i = 0; i < target.length; i++) {
+        const ch = target[i];
+        if (i < lockedCount || ch === " " || ch === "·" || ch === "/") {
+          out += ch;
+        } else {
+          out += DECODE_GLYPHS[(i + Math.floor(now / 28)) % DECODE_GLYPHS.length];
+        }
+      }
+      el.textContent = out;
+      if (progress < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        el.textContent = target;
+        delete el.dataset.tokiDecoding;
+      }
+    };
+    requestAnimationFrame(tick);
+  }
+
+  function animateNumericValue(el) {
+    if (reduced || !el || el.dataset.tokiCounted === "1") return;
+    const raw = (el.textContent || "").trim();
+    const match = raw.match(/^([^0-9]*)(\d+(?:,\d{3})*)(.*)$/);
+    if (!match) return;
+    const [, prefix, numStr, suffix] = match;
+    const targetVal = Number(numStr.replace(/,/g, ""));
+    if (!Number.isFinite(targetVal) || targetVal <= 0) return;
+    el.dataset.tokiCounted = "1";
+    const start = performance.now();
+    const duration = 380;
+
+    const step = now => {
+      const p = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      const val = Math.round(targetVal * eased);
+      el.textContent = `${prefix}${val.toLocaleString("en-US")}${suffix}`;
+      if (p < 1) requestAnimationFrame(step);
+      else el.textContent = raw;
+    };
+    requestAnimationFrame(step);
+  }
+
+  function initInteractiveTypography() {
+    if (reduced) return;
+    const headings = Array.from(document.querySelectorAll(KINETIC_SELECTOR));
+    headings.forEach(el => splitElementWords(el));
+
+    const kineticObserver = "IntersectionObserver" in window ? new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-kinetic-visible");
+        kineticObserver.unobserve(entry.target);
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.1 }) : null;
+
+    headings.forEach(el => {
+      if (el.closest(".hero-opening") || !kineticObserver) {
+        el.classList.add("is-kinetic-visible");
+      } else {
+        kineticObserver.observe(el);
+      }
+    });
+
+    const decodeTargets = Array.from(document.querySelectorAll(DECODE_SELECTOR));
+    const decodeObserver = "IntersectionObserver" in window ? new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        runOpticalDecode(entry.target);
+        decodeObserver.unobserve(entry.target);
+      });
+    }, { threshold: 0.25 }) : null;
+
+    decodeTargets.forEach(el => {
+      el.classList.add("toki-decode-text");
+      if (decodeObserver) decodeObserver.observe(el);
+      if (fineHover.matches) {
+        el.addEventListener("pointerenter", () => {
+          runOpticalDecode(el);
+          window.TokiSFX?.playTextTick?.();
+        }, { passive: true });
+      }
+    });
+
+    const countTargets = Array.from(document.querySelectorAll(".package-price"));
+    if ("IntersectionObserver" in window && countTargets.length) {
+      const countObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          animateNumericValue(entry.target);
+          countObserver.unobserve(entry.target);
+        });
+      }, { threshold: 0.3 });
+      countTargets.forEach(el => countObserver.observe(el));
+    }
+
+    if (fineHover.matches) {
+      document.addEventListener("pointerover", event => {
+        if (reduced) return;
+        const word = event.target instanceof Element ? event.target.closest(".toki-word") : null;
+        if (word) window.TokiSFX?.playTextTick?.();
+      }, { passive: true });
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => requestAnimationFrame(initInteractiveTypography), { once: true });
+  } else {
+    requestAnimationFrame(initInteractiveTypography);
+  }
 
   window.addEventListener("pagehide", () => {
     observer?.disconnect();

@@ -145,13 +145,86 @@ const TokiSFX = (() => {
     playTone(1180, 0.016, "sine", 0.012);
   }
 
-  function setEnabled() {
-    enabled = true;
+  function setEnabled(next) {
+    enabled = Boolean(next);
+    try {
+      localStorage.setItem("toki_sfx_enabled", enabled ? "1" : "0");
+    } catch {}
+    syncToggleUI();
+  }
+
+  function playFilmWind() {
+    if (!enabled || reducedMotion) return;
+    try {
+      const audioCtx = getAudioContext();
+      if (!audioCtx || audioCtx.state !== "running") return;
+      const t = audioCtx.currentTime;
+      [0, 0.032, 0.064].forEach((offset, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(520 + idx * 110, t + offset);
+        osc.frequency.exponentialRampToValueAtTime(240, t + offset + 0.024);
+        gain.gain.setValueAtTime(0.02, t + offset);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + offset + 0.025);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(t + offset);
+        osc.stop(t + offset + 0.026);
+      });
+    } catch {}
+  }
+
+  let lastTextTickAt = 0;
+  function playTextTick() {
+    if (!enabled || reducedMotion || !ctx || ctx.state !== "running") return;
+    const now = performance.now();
+    if (now - lastTextTickAt < 75) return;
+    lastTextTickAt = now;
+    playTone(1480, 0.012, "sine", 0.008);
+  }
+
+  function playApertureOpen() {
+    if (!enabled || reducedMotion) return;
+    playShutter();
+    setTimeout(() => playTone(523.25, 0.09, "sine", 0.022), 35);
+    setTimeout(() => playTone(783.99, 0.14, "sine", 0.018), 90);
+  }
+
+  function syncToggleUI() {
+    const pill = document.querySelector(".toki-sound-pill");
+    if (!pill) return;
+    pill.setAttribute("aria-pressed", String(enabled));
+    pill.setAttribute("aria-label", enabled ? "Mute camera sound effects" : "Enable camera sound effects");
+    pill.classList.toggle("is-muted", !enabled);
+    const label = pill.querySelector(".toki-sound-label");
+    if (label) label.textContent = enabled ? "SFX ON" : "SFX OFF";
+  }
+
+  function mountSoundPill() {
+    if (!document.body || document.querySelector(".toki-sound-pill")) return;
+    const pill = document.createElement("button");
+    pill.type = "button";
+    pill.className = "toki-sound-pill";
+    pill.innerHTML = '<span class="toki-sound-bars" aria-hidden="true"><i></i><i></i><i></i></span><span class="toki-sound-label">SFX ON</span>';
+    pill.addEventListener("click", () => {
+      getAudioContext();
+      setEnabled(!enabled);
+      if (enabled) playFocus();
+    });
+    document.body.appendChild(pill);
+    syncToggleUI();
   }
 
   function init() {
-    enabled = true;
+    try {
+      const saved = localStorage.getItem("toki_sfx_enabled");
+      enabled = saved !== "0";
+    } catch {
+      enabled = true;
+    }
     document.querySelectorAll(".sound-toggle").forEach(btn => btn.remove());
+    mountSoundPill();
     const unlock = () => {
       getAudioContext();
       window.removeEventListener("pointerdown", unlock);
@@ -163,7 +236,22 @@ const TokiSFX = (() => {
     window.addEventListener("touchstart", unlock, { passive: true });
   }
 
-  return { init, playShutter, playFocus, playSelect, playDialTick, playChime, playHoverDetent, setEnabled, isEnabled: () => true };
+  const api = {
+    init,
+    playShutter,
+    playFocus,
+    playSelect,
+    playDialTick,
+    playChime,
+    playHoverDetent,
+    playFilmWind,
+    playTextTick,
+    playApertureOpen,
+    setEnabled,
+    isEnabled: () => enabled
+  };
+  window.TokiSFX = api;
+  return api;
 })();
 
 if (document.readyState === "loading") {
@@ -207,15 +295,19 @@ backToTop?.addEventListener("click",()=>window.scrollTo({top:0,behavior:reducedM
 
 const hero=document.querySelector(".hero-opening"),heroPhoto=hero?.querySelector(".hero-photo");
 if(hero&&heroPhoto&&hoverPointer&&!reducedMotion){
-  let pointerFrame=0,pointerX=0,pointerY=0;
+  let pointerFrame=0,pointerX=0,pointerY=0,clientXNorm=0,clientYNorm=0;
   hero.addEventListener("pointermove",event=>{
     if(event.pointerType==="touch")return;
     const rect=hero.getBoundingClientRect();
-    pointerX=((event.clientX-rect.left)/Math.max(1,rect.width)-.5)*-12;
-    pointerY=((event.clientY-rect.top)/Math.max(1,rect.height)-.5)*-9;
+    clientXNorm=((event.clientX-rect.left)/Math.max(1,rect.width)-.5);
+    clientYNorm=((event.clientY-rect.top)/Math.max(1,rect.height)-.5);
+    pointerX=clientXNorm*-12;
+    pointerY=clientYNorm*-9;
     if(!pointerFrame)pointerFrame=requestAnimationFrame(()=>{
       heroPhoto.style.setProperty("--hero-pan-x",pointerX.toFixed(1)+"px");
       heroPhoto.style.setProperty("--hero-pan-y",pointerY.toFixed(1)+"px");
+      hero.style.setProperty("--hero-px",(clientXNorm*18).toFixed(1)+"px");
+      hero.style.setProperty("--hero-py",(clientYNorm*14).toFixed(1)+"px");
       const pointerRect=hero.getBoundingClientRect();
       hero.style.setProperty("--hero-pointer-x",(((event.clientX-pointerRect.left)/Math.max(1,pointerRect.width))*100).toFixed(1)+"%");
       hero.style.setProperty("--hero-pointer-y",(((event.clientY-pointerRect.top)/Math.max(1,pointerRect.height))*100).toFixed(1)+"%");
@@ -225,6 +317,8 @@ if(hero&&heroPhoto&&hoverPointer&&!reducedMotion){
   hero.addEventListener("pointerleave",()=>{
     heroPhoto.style.setProperty("--hero-pan-x","0px");
     heroPhoto.style.setProperty("--hero-pan-y","0px");
+    hero.style.setProperty("--hero-px","0px");
+    hero.style.setProperty("--hero-py","0px");
     hero.style.setProperty("--hero-pointer-x","72%");
     hero.style.setProperty("--hero-pointer-y","42%");
   });
@@ -291,6 +385,91 @@ document.querySelectorAll(".gallery-card").forEach(card=>{
 if(hoverPointer){
   document.querySelectorAll(".gallery-card, .package-card").forEach(card=>{
     card.addEventListener("pointerenter",()=>TokiSFX.playHoverDetent(),{passive:true});
+  });
+  document.querySelectorAll(".service-row, .faq-list summary, .primary-nav a").forEach(item=>{
+    item.addEventListener("pointerenter",()=>TokiSFX.playTextTick(),{passive:true});
+  });
+}
+
+// Interactive camera viewfinder reticle, click shutter ripples, and page transitions
+if(!reducedMotion&&document.body){
+  if(hoverPointer){
+    const reticle=document.createElement("div");
+    reticle.className="toki-cursor-reticle";
+    reticle.setAttribute("aria-hidden","true");
+    reticle.innerHTML='<span class="toki-reticle-brackets"></span><span class="toki-reticle-pip"></span><span class="toki-reticle-label"></span>';
+    document.body.appendChild(reticle);
+
+    const labelEl=reticle.querySelector(".toki-reticle-label");
+    let targetX=-100,targetY=-100,curX=-100,curY=-100,rafId=0,visible=false;
+
+    const tickReticle=()=>{
+      curX+=(targetX-curX)*0.24;
+      curY+=(targetY-curY)*0.24;
+      reticle.style.transform=`translate3d(${curX.toFixed(1)}px, ${curY.toFixed(1)}px, 0)`;
+      if(Math.abs(targetX-curX)>0.2||Math.abs(targetY-curY)>0.2){
+        rafId=requestAnimationFrame(tickReticle);
+      }else{
+        rafId=0;
+      }
+    };
+
+    const setReticleState=(state,labelText)=>{
+      reticle.dataset.state=state;
+      if(labelEl&&labelEl.textContent!==labelText)labelEl.textContent=labelText;
+    };
+
+    document.addEventListener("pointermove",event=>{
+      if(event.pointerType==="touch")return;
+      targetX=event.clientX;
+      targetY=event.clientY;
+      if(!visible){
+        visible=true;
+        curX=targetX;
+        curY=targetY;
+        reticle.classList.add("is-visible");
+      }
+      const el=event.target instanceof Element?event.target:null;
+      if(el?.closest(".gallery-card, .album-card"))setReticleState("focus","AF-S");
+      else if(el?.closest(".equipment-stage"))setReticleState("orbit","3D");
+      else if(el?.closest(".button, .package-card, .calc-apply-btn, .nav-contact"))setReticleState("action","SNAP");
+      else if(el?.closest(".frame-intention-quote, .service-row, .faq-list summary"))setReticleState("text","READ");
+      else setReticleState("idle","");
+      if(!rafId)rafId=requestAnimationFrame(tickReticle);
+    },{passive:true});
+
+    document.addEventListener("pointerleave",()=>{
+      visible=false;
+      reticle.classList.remove("is-visible");
+    },{passive:true});
+  }
+
+  document.addEventListener("pointerdown",event=>{
+    if(event.button&&event.button!==0)return;
+    const ripple=document.createElement("span");
+    ripple.className="toki-click-ripple";
+    ripple.setAttribute("aria-hidden","true");
+    ripple.style.left=event.clientX+"px";
+    ripple.style.top=event.clientY+"px";
+    ripple.addEventListener("animationend",()=>ripple.remove(),{once:true});
+    document.body.appendChild(ripple);
+    window.setTimeout(()=>ripple.remove(),480);
+  },{passive:true});
+
+  document.addEventListener("click",event=>{
+    if(event.defaultPrevented||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+    const link=event.target instanceof Element?event.target.closest("a[href]"):null;
+    if(!link||link.target==="_blank"||link.hasAttribute("download"))return;
+    const href=link.getAttribute("href")||"";
+    if(!href||href.startsWith("#")||href.startsWith("mailto:")||href.startsWith("tel:"))return;
+    let url;
+    try{url=new URL(link.href,window.location.href);}catch{return;}
+    if(url.origin!==window.location.origin)return;
+    if(url.pathname===window.location.pathname&&url.search===window.location.search)return;
+    event.preventDefault();
+    TokiSFX.playFilmWind();
+    document.documentElement.classList.add("toki-page-leaving");
+    window.setTimeout(()=>{window.location.href=url.href;},150);
   });
 }
 
