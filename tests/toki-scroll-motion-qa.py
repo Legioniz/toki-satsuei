@@ -83,6 +83,9 @@ def main() -> None:
     assert "preloadObserver = createPreloadObserver()" in reduced_motion_branch and "observeLazyImages(document)" in reduced_motion_branch, (
         "Reduced-motion visitors must retain advance image loading without running animations."
     )
+    assert "matchingElements(document, SCROLL_SCENE_SELECTOR)" in reduced_motion_branch, (
+        "Reduced-motion visitors must retain section-level image preloading."
+    )
     assert 'image.loading = "eager"' in motion and "image.decode()" in motion, (
         "Images inside upcoming content should be fetched and decoded before reveal."
     )
