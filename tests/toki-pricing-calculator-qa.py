@@ -116,15 +116,25 @@ def main() -> None:
             page.wait_for_function(
                 """() => {
                     const button = document.querySelector(".calc-apply-btn");
-                    if (!button || !button.matches(":hover")) return false;
-                    const style = getComputedStyle(button);
-                    return style.backgroundColor === "rgb(184, 40, 55)" &&
-                           style.borderTopColor === "rgb(163, 31, 45)";
+                    return Boolean(button && button.matches(":hover"));
                 }""",
-                timeout=1500,
+                timeout=4000,
             )
-            assert computed(".calc-apply-btn", "background-color") == "rgb(184, 40, 55)"
-            assert computed(".calc-apply-btn", "border-top-color") == "rgb(163, 31, 45)"
+            hover_style = apply_button.evaluate("""button => {
+                const style = getComputedStyle(button);
+                return {
+                    backgroundColor: style.backgroundColor,
+                    borderTopColor: style.borderTopColor,
+                    surfaceToken: style.getPropertyValue("--toki-button-surface").trim(),
+                    transform: style.transform
+                };
+            }""")
+            assert hover_style["backgroundColor"] == "rgb(184, 40, 55)", (
+                f"Calculator hover surface must use its crimson hover token: {hover_style}"
+            )
+            assert hover_style["borderTopColor"] == "rgb(163, 31, 45)", (
+                f"Calculator hover border must preserve the darker TOKI outline: {hover_style}"
+            )
 
             # Verify initial default state (Toki Portraits)
             assert "₱350" in page.locator("#calc-total-display").inner_text()
