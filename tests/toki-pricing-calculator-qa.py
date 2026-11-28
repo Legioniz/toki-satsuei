@@ -113,20 +113,8 @@ def main() -> None:
 
             apply_button = page.locator("#calc-apply-to-booking")
             apply_button.hover()
-            # Wait for the cascade and any declared background transition to settle.
-            # A :hover match alone is not proof that the final computed style has landed.
-            page.wait_for_function(
-                """() => {
-                    const button = document.querySelector(".calc-apply-btn");
-                    if (!button || !button.matches(":hover")) return false;
-                    const style = getComputedStyle(button);
-                    return style.backgroundColor === "rgb(184, 40, 55)" &&
-                           style.borderTopColor === "rgb(163, 31, 45)";
-                }""",
-                timeout=4000,
-            )
-            # The hover styling intentionally transitions. Wait for the visual
-            # state to settle instead of sampling the first frame of the transition.
+            # Wait until the full hover transition has settled before asserting
+            # the final color, outline, and lift. :hover alone is only the first frame.
             page.wait_for_function(
                 """() => {
                     const button = document.querySelector("#calc-apply-to-booking");
@@ -136,7 +124,7 @@ def main() -> None:
                         style.borderTopColor === "rgb(163, 31, 45)" &&
                         style.transform !== "none";
                 }""",
-                timeout=2000,
+                timeout=4000,
             )
             hover_style = apply_button.evaluate("""button => {
                 const style = getComputedStyle(button);
