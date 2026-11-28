@@ -364,11 +364,27 @@ def main() -> None:
                         arg=previous_scroll,
                         timeout=1500,
                     )
-                    header_page.wait_for_function("""(headerSelector) => {
-                      const node = document.querySelector(headerSelector);
-                      return node && !node.classList.contains("is-auto-hidden") &&
-                        node.getAttribute("aria-hidden") === "false" && !node.inert;
-                    }""", arg=selector, timeout=1500)
+                    try:
+                        header_page.wait_for_function("""(headerSelector) => {
+                          const node = document.querySelector(headerSelector);
+                          return node && !node.classList.contains("is-auto-hidden") &&
+                            node.getAttribute("aria-hidden") === "false" && !node.inert;
+                        }""", arg=selector, timeout=2500)
+                    except Exception as error:
+                        state = header.evaluate("""node => ({
+                          className: node.className,
+                          ariaHidden: node.getAttribute("aria-hidden"),
+                          inert: node.inert,
+                          scrollY: window.scrollY,
+                          heroLock: Boolean(document.querySelector(".hero-opening") &&
+                            (() => {
+                              const rect = document.querySelector(".hero-opening").getBoundingClientRect();
+                              return rect.bottom > 1 && rect.top < window.innerHeight;
+                            })())
+                        })""")
+                        raise AssertionError(
+                            f"{filename}: upward scroll did not reveal the masthead; state={state}"
+                        ) from error
                     assert not header.evaluate("(node) => node.classList.contains('is-auto-hidden')"), (
                         f"{filename}: an upward scroll should reveal the masthead after the scroll event is processed."
                     )

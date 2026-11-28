@@ -764,6 +764,10 @@
   const headerHero = document.querySelector(".hero-opening");
   const headerNavigation = document.querySelector(".primary-nav");
   let headerPreviousY = Math.max(0, window.scrollY || 0);
+  // Keep a native-event baseline separate from animation-frame reconciliation.
+  // A frame can observe the new scroll position before its scroll event fires;
+  // sharing one baseline can then swallow the first upward-direction event.
+  let headerLastEventY = Math.max(0, window.scrollY || 0);
   let headerDirection = 0;
   let headerDirectionDistance = 0;
   let headerFrame = 0;
@@ -858,6 +862,12 @@
     updateHeaderVisibility();
     window.addEventListener("scroll", () => {
       const currentY = Math.max(0, window.scrollY || 0);
+      const previousEventY = headerLastEventY;
+      // Advance the event baseline only here. updateHeaderVisibility() also
+      // samples scrollY, but must not consume a direction change before the
+      // browser dispatches its native scroll event.
+      headerLastEventY = currentY;
+
       // Restore the masthead synchronously at the document top. This keeps the
       // header's visible, aria, and inert states aligned before the next paint.
       // The homepage hero retains ownership of the viewport and stays locked.
@@ -866,10 +876,10 @@
         headerDirectionDistance = 0;
         headerPreviousY = currentY;
         setHeaderVisible(true);
-      } else if (currentY < headerPreviousY && !heroOwnsViewport()) {
-        // Reveal on the first upward movement instead of waiting for the
-        // animation-frame callback. This keeps the masthead responsive even
-        // when a page is under browser load or scroll updates are coalesced.
+      } else if (currentY < previousEventY && !heroOwnsViewport()) {
+        // Reveal on the first upward movement using the last native scroll
+        // event, not the animation-frame sample. This remains reliable when
+        // frames are coalesced or delayed under browser load.
         headerDirection = -1;
         headerDirectionDistance = 0;
         headerPreviousY = currentY;
