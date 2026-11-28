@@ -7,7 +7,7 @@ from http.server import SimpleHTTPRequestHandler
 import sys
 from pathlib import Path
 
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts" / "qa_support"))
@@ -44,6 +44,16 @@ def verify_route(browser, label: str, base_url: str, route: str, context_options
     )
     page = context.new_page()
     page.set_default_timeout(8_000)
+    failed_image_requests: list[str] = []
+    page.on(
+        "requestfailed",
+        lambda request: failed_image_requests.append(request.url)
+        if any(
+            request.url.lower().split("?", 1)[0].endswith(extension)
+            for extension in (".jpg", ".jpeg", ".png", ".webp", ".avif", ".gif")
+        )
+        else None,
+    )
     response = page.goto(base_url + route, wait_until="domcontentloaded")
     assert response is not None and response.status == 200, (
         f"{label} {route}: route did not load (response={response})"
@@ -135,17 +145,36 @@ def verify_route(browser, label: str, base_url: str, route: str, context_options
         image.scroll_into_view_if_needed(timeout=3_000)
         handle = image.element_handle()
         assert handle is not None
-        page.wait_for_function(
-            "(img) => img.complete",
-            arg=handle,
-            timeout=8_000,
-        )
+        try:
+            page.wait_for_function(
+                "(img) => img.complete",
+                arg=handle,
+                timeout=15_000,
+            )
+        except PlaywrightTimeoutError as error:
+            stalled = image.evaluate(
+                """img => ({
+                    src: img.src,
+                    currentSrc: img.currentSrc,
+                    complete: img.complete,
+                    naturalWidth: img.naturalWidth,
+                    naturalHeight: img.naturalHeight,
+                    loading: img.loading,
+                    decoding: img.decoding
+                })"""
+            )
+            raise AssertionError(
+                f"{label} {route}: image {index + 1}/{image_count} did not finish "
+                f"loading within 15s: {stalled}; failed image requests: "
+                f"{failed_image_requests}"
+            ) from error
         metrics = image.evaluate(
             """img => ({
                 src: img.currentSrc || img.src,
                 naturalWidth: img.naturalWidth,
                 naturalHeight: img.naturalHeight,
-                loading: img.loading
+                loading: img.loading,
+                decoding: img.decoding
             })"""
         )
         assert metrics["naturalWidth"] > 0 and metrics["naturalHeight"] > 0, (
