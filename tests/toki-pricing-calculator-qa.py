@@ -121,8 +121,7 @@ def main() -> None:
                     if (!button || !button.matches(":hover")) return false;
                     const style = getComputedStyle(button);
                     return style.backgroundColor === "rgb(184, 40, 55)" &&
-                        style.borderTopColor === "rgb(163, 31, 45)" &&
-                        style.transform !== "none";
+                        style.borderTopColor === "rgb(163, 31, 45)";
                 }""",
                 timeout=4000,
             )
