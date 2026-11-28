@@ -23,7 +23,8 @@
   color: #d8757d;
   font-weight: 600;
 }
-.calculator-wrap .section-aside {
+/* Match the shared heading-selector specificity without an important override. */
+.calculator-wrap .section-heading .section-aside {
   color: #d4ccc1;
   font-size: 13.5px;
   line-height: 1.85;
