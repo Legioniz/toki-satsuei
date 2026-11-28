@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CUSTOM_MEDIA = dict(re.findall(
     r"@custom-media\s+(--[\w-]+)\s+([^;]+);",
-    (ROOT / "src" / "styles" / "tokens.css).read_text(encoding="utf-8"),
+    (ROOT / "src" / "styles" / "tokens.css").read_text(encoding="utf-8"),
 ))
 
 # Logical legacy names are retained in the manifest/header for compatibility

@@ -26,7 +26,7 @@ The complete standalone TOKI SATSUEI website, kept separate from the Legioniz pe
 - `assets/` contains image, brand, equipment, and font assets. `assets/css/` contains generated page-scoped CSS bundles. The deployment builder copies browser JavaScript from `src/js/` into `dist/assets/js/`.
 - `data/media-library/` contains public archive uploads, and `data/media-library.json` is generated from those folders.
 - `scripts/` contains build, import, fingerprint, and deployment utilities. `tests/` contains QA suites and `tests/support/` contains their local HTTPS helpers.
-- `docs/` contains design and brand documentation. The `supabase/` directory remains at the repository root for the conventional Supabase CLI layout.
+- `docs/` contains design, brand, asset, data, and copyright documentation. The `supabase/` directory remains at the repository root for the conventional Supabase CLI layout.
 - `dist/` and `worker-dist/` are generated deployment outputs and are not committed.
 
 ## Official GitHub Pages deployment and Cloudflare security mirror

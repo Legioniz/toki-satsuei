@@ -124,7 +124,7 @@ def duplicate_css_rules(css):
 
 def main():
     for page, bundle in EXPECTED.items():
-        links = re.findall(r'<link rel="stylesheet" href="\./([a-z0-9-]+\.css)">',
+        links = re.findall(r'<link rel="stylesheet" href="\./(assets/css/[a-z0-9-]+\.css)">',
                            (ROOT / page).read_text(encoding="utf-8"))
         assert links == [bundle], f"{page} should link only {bundle}, found {links}"
         source = (ROOT / page).read_text(encoding="utf-8")
