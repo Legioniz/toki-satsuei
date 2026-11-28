@@ -104,7 +104,7 @@ Supabase Auth's leaked-password protection is currently disabled. Enable it in S
 
 No GitHub branch ruleset is currently configured. The GitHub integration used here can inspect rulesets but cannot create or edit them. Apply the repository ruleset described in `.github/SECURITY-RULESET.md` from GitHub Settings → Rules → Rulesets.
 
-The active deployment target is Cloudflare Pages project `toki-satsuei`. Production cutover is not complete until the GitHub Actions run succeeds and its strict live HTTP response test passes. The previous GitHub Pages URL is not updated by the new workflow and must be treated as an unprotected legacy copy.
+The canonical deployment target is the GitHub Pages site at https://legioniz.github.io/toki-satsuei/. The production workflow also maintains the Cloudflare Pages project `toki-satsuei` as a secured mirror. Production cutover is not complete until the GitHub Pages deployment, official-host content/fingerprint verification, Cloudflare mirror deployment, and strict mirror HTTP response-header verification all pass.
 
 
 
