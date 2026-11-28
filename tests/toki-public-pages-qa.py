@@ -78,6 +78,12 @@ def main() -> None:
     locations = [node.text for node in tree.findall(".//sm:loc", ns)]
     expected = [BASE_URL + "/", BASE_URL + "/library.html", BASE_URL + "/policies.html", BASE_URL + "/booking.html"]
     assert locations == expected, f"Unexpected sitemap URLs: {locations}"
+    for page_name in ("index.html", "booking.html", "library.html", "policies.html"):
+        page_source = (ROOT / page_name).read_text(encoding="utf-8")
+        expected_path = "/" if page_name == "index.html" else "/" + page_name
+        assert f'<link rel="canonical" href="{BASE_URL}{expected_path}">' in page_source, (
+            f"{page_name}: canonical URL must point to the official GitHub Pages site"
+        )
 
     server = ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler))
     thread = Thread(target=server.serve_forever, daemon=True)
