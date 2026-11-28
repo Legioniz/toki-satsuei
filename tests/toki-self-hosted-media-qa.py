@@ -373,8 +373,8 @@ def verify_pages_and_loading() -> None:
 def verify_security_policy() -> None:
     headers = (ROOT / "_headers").read_text(encoding="utf-8")
     worker = (ROOT / "worker.mjs").read_text(encoding="utf-8")
-    header_policy = re.search(r"(?im)^\\s*Content-Security-Policy:\\s*(.+)$", headers)
-    worker_policy = re.search(r'"Content-Security-Policy"\\s*:\\s*"([^"]+)"', worker)
+    header_policy = re.search(r"(?im)^\s*Content-Security-Policy:\s*(.+)$", headers)
+    worker_policy = re.search(r'"Content-Security-Policy"\s*:\s*"([^"]+)"', worker)
     if not header_policy or not worker_policy:
         raise AssertionError("Pages and Worker CSP policies must both be present")
     fingerprint_source = (ROOT / "scripts/fingerprint_assets.py").read_text(encoding="utf-8")
