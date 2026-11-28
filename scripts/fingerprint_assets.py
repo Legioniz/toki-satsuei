@@ -122,10 +122,15 @@ def verify_references(root: Path) -> list[str]:
 
 
 def normalize_csp_fallbacks(root: Path) -> int:
-    """Put one consistent CSP meta fallback near the start of every HTML head."""
+    """Put consistent CSP and referrer-policy meta fallbacks in every HTML head."""
     replacement = f'<meta http-equiv="Content-Security-Policy" content="{CSP_META}">'
+    referrer_meta = '<meta name="referrer" content="strict-origin-when-cross-origin">'
     pattern = re.compile(
         r"""<meta\s+http-equiv=["']Content-Security-Policy["'][^>]*>""",
+        re.IGNORECASE,
+    )
+    referrer_pattern = re.compile(
+        r"""<meta\s+name=["']referrer["'][^>]*>""",
         re.IGNORECASE,
     )
     changed = 0
@@ -147,6 +152,15 @@ def normalize_csp_fallbacks(root: Path) -> int:
                 insertion_point = head.end()
             new = new[:insertion_point] + "\n  " + replacement + new[insertion_point:]
             count = 1
+
+        if not referrer_pattern.search(new):
+            csp_match = pattern.search(new)
+            if not csp_match:
+                raise AssertionError(f"CSP meta fallback insertion failed: {page}")
+            insertion_point = csp_match.end()
+            new = new[:insertion_point] + "\n  " + referrer_meta + new[insertion_point:]
+            count += 1
+
         if new != old:
             page.write_text(new, encoding="utf-8", newline="\n")
             changed += count

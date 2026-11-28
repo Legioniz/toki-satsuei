@@ -45,8 +45,13 @@ These checks are additional guardrails, not proof that the application is vulner
 
 ## Hosting response headers
 
-The production workflow has been moved to Cloudflare Pages Direct Upload. Once the GitHub Actions deployment completes, Cloudflare Pages parses the root `_headers` file and applies HSTS, response CSP (including `frame-ancestors`), X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, and the route-specific Cache-Control policies to static responses. The CSP meta fallback is defense in depth only; it cannot enforce HSTS, `frame-ancestors`, or response cache policies. The former `github.io/toki-satsuei` URL remains a legacy origin and does not apply this repository's `_headers` rules. Do not describe that legacy origin as protected.
+The canonical website is https://legioniz.github.io/toki-satsuei/. GitHub Pages does not interpret the repository's Cloudflare `_headers` file and does not allow the repository to configure arbitrary response headers or per-route cache policy. The build adds a CSP meta fallback and a `strict-origin-when-cross-origin` referrer meta tag to all seven HTML pages and verifies content-addressed asset URLs. These are browser-level fallbacks; they do not provide HSTS, response CSP `frame-ancestors`, X-Frame-Options, X-Content-Type-Options, Permissions-Policy, `no-store`, or immutable response caching.
 
+The workflow also deploys the same verified artifact to https://toki-satsuei.pages.dev/ as a secured Cloudflare Pages mirror. Cloudflare Pages parses `_headers` and enforces HSTS, response CSP (including `frame-ancestors`), X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, and route-specific Cache-Control rules. The live verifier checks the official GitHub Pages site for meta policy fallbacks and SHA-256 asset integrity, then separately checks the Cloudflare mirror for the complete response-header/cache contract. Do not describe Cloudflare's response headers as present on the GitHub Pages origin.
+
+Before the first GitHub Pages Actions deployment, set repository **Settings → Pages → Build and deployment → Source** to **GitHub Actions**. The production workflow checks `build_type=workflow` before publishing and stops with a clear instruction when the repository is still configured for branch-based publishing. Changing this setting requires the repository administration permission; it is not silently attempted with the workflow's limited deployment token.
+
+Full response-level security headers on the canonical host require a custom domain controlled by the project and a Cloudflare proxy or Cloudflare Pages origin. A Worker cannot be routed onto GitHub's shared `github.io` domain from this repository.
 
 ## TOKI API and traffic enforcement
 
@@ -99,7 +104,7 @@ Supabase Auth's leaked-password protection is currently disabled. Enable it in S
 
 No GitHub branch ruleset is currently configured. The GitHub integration used here can inspect rulesets but cannot create or edit them. Apply the repository ruleset described in `.github/SECURITY-RULESET.md` from GitHub Settings → Rules → Rulesets.
 
-The active deployment target is Cloudflare Pages project `toki-satsuei`. Production cutover is not complete until the GitHub Actions run succeeds and its strict live HTTP response test passes. The previous GitHub Pages URL is not updated by the new workflow and must be treated as an unprotected legacy copy.
+The canonical deployment target is the GitHub Pages site at https://legioniz.github.io/toki-satsuei/. The production workflow also maintains the Cloudflare Pages project `toki-satsuei` as a secured mirror. Production cutover is not complete until the GitHub Pages deployment, official-host content/fingerprint verification, Cloudflare mirror deployment, and strict mirror HTTP response-header verification all pass.
 
 
 

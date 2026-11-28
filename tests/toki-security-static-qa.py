@@ -196,17 +196,25 @@ else:
 
     for marker in (
         "github.ref == 'refs/heads/main' && github.event_name != 'pull_request'",
+        "actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b",
+        "actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa",
+        "actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e",
+        "Verify GitHub Pages publishing source is set to GitHub Actions",
+        "build_type",
+        "pages: write",
+        "id-token: write",
         "cloudflare/wrangler-action@v4.1.3",
         "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
         "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093",
         "pages deploy dist --project-name=toki-satsuei --branch=main",
+        "TOKI_SITE_URL: 'https://legioniz.github.io/toki-satsuei/'",
+        "TOKI_SITE_URL: 'https://toki-satsuei.pages.dev/'",
         "TOKI_REQUIRE_SECURITY_HEADERS: '1'",
-        "https://toki-satsuei.pages.dev/",
     ):
         if marker not in workflow_text:
-            problems.append(f"deploy workflow: missing strict Cloudflare Pages deployment control: {marker}")
-    if "actions/deploy-pages@" in workflow_text or "actions/upload-pages-artifact@" in workflow_text:
-        problems.append("deploy workflow: GitHub Pages deployment actions must be removed so _headers is enforced by Cloudflare Pages")
+            problems.append(f"deploy workflow: missing official GitHub Pages / secured Cloudflare mirror control: {marker}")
+    if "actions/deploy-pages@" not in workflow_text or "actions/upload-pages-artifact@" not in workflow_text:
+        problems.append("deploy workflow: official GitHub Pages deployment actions are missing")
 
 dependabot = ROOT / ".github" / "dependabot.yml"
 if not dependabot.exists():

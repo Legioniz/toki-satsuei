@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify deployed TOKI security response headers and content-addressed asset URLs."""
+"""Verify the official GitHub Pages content and the Cloudflare mirror response-header contract."""
 from __future__ import annotations
 
 import hashlib
@@ -12,12 +12,15 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import parse_qs, urljoin, urlsplit
 from urllib.request import Request, urlopen
 
-DEFAULT_SITE_URL = "https://toki-satsuei.pages.dev/"
+DEFAULT_SITE_URL = "https://legioniz.github.io/toki-satsuei/"
 SITE_URL = os.getenv("TOKI_SITE_URL", DEFAULT_SITE_URL).strip()
 REQUIRE_HEADERS = os.getenv("TOKI_REQUIRE_SECURITY_HEADERS", "1").strip().lower() in {
     "1", "true", "yes",
 }
 FINGERPRINT_PATTERN = re.compile(r"^[0-9a-f]{32}$")
+GITHUB_PAGES_HOST = "legioniz.github.io"
+GITHUB_PAGES_PATH = "/toki-satsuei"
+
 
 
 class PageAssets(HTMLParser):
@@ -160,7 +163,16 @@ def verify_live_site() -> None:
     if not SITE_URL or urlsplit(SITE_URL).scheme != "https":
         raise SystemExit("TOKI_SITE_URL must be a non-empty HTTPS URL")
     base = SITE_URL if SITE_URL.endswith("/") else SITE_URL + "/"
-    origin = urlsplit(base).netloc
+    parsed_base = urlsplit(base)
+    origin = parsed_base.netloc
+    github_pages = (
+        parsed_base.hostname == GITHUB_PAGES_HOST
+        and parsed_base.path.rstrip("/") == GITHUB_PAGES_PATH
+    )
+    if parsed_base.hostname == GITHUB_PAGES_HOST and not github_pages:
+        raise SystemExit(
+            f"GitHub Pages verification must use https://{GITHUB_PAGES_HOST}{GITHUB_PAGES_PATH}/"
+        )
     problems: list[str] = []
 
     routes = (
@@ -180,13 +192,29 @@ def verify_live_site() -> None:
             raise AssertionError(f"Live route {route or '/'} returned HTTP {status}: {final_url}")
         if urlsplit(final_url).netloc != origin:
             raise AssertionError(f"Unexpected host redirect for {route or '/'}: {final_url}")
-        if b'<meta http-equiv="Content-Security-Policy"' not in body:
+        body_lower = body.lower()
+        required_meta_csp = (
+            b'<meta http-equiv="content-security-policy"' in body_lower
+            and b"default-src 'self'" in body_lower
+            and b"object-src 'none'" in body_lower
+            and b"base-uri 'self'" in body_lower
+            and b"form-action 'self'" in body_lower
+            and b"script-src" in body_lower
+            and b'<meta name="referrer" content="strict-origin-when-cross-origin">' in body_lower
+        )
+        if not required_meta_csp:
             problems.append(f"{route or '/'}:csp-meta-fallback")
-        for name in missing_security_headers(headers):
-            problems.append(f"{route or '/'}:{name}")
-        cache_error = cache_policy_error(headers, private=private)
-        if cache_error:
-            problems.append(f"{route or '/'}:{cache_error}")
+
+        # GitHub Pages is the canonical public address, but it does not support
+        # per-path response headers or Cache-Control rules from a repository
+        # _headers file. Verify its HTML CSP fallback and content fingerprints;
+        # enforce the complete response-header contract on the Cloudflare mirror.
+        if not github_pages:
+            for name in missing_security_headers(headers):
+                problems.append(f"{route or '/'}:{name}")
+            cache_error = cache_policy_error(headers, private=private)
+            if cache_error:
+                problems.append(f"{route or '/'}:{cache_error}")
         if not route:
             home_url, home_body = final_url, body
 
@@ -215,9 +243,10 @@ def verify_live_site() -> None:
             raise AssertionError(
                 f"Fingerprint mismatch for {asset_url}: URL={versions[0]}, response={actual}"
             )
-        cache = headers.get("cache-control", "").lower()
-        if "immutable" not in cache or "max-age=31536000" not in cache:
-            problems.append(f"{parsed.path}:immutable-cache-control")
+        if not github_pages:
+            cache = headers.get("cache-control", "").lower()
+            if "immutable" not in cache or "max-age=31536000" not in cache:
+                problems.append(f"{parsed.path}:immutable-cache-control")
         checked_assets.append(parsed.path)
 
     problems = sorted(set(problems))
@@ -238,10 +267,22 @@ def verify_live_site() -> None:
         f"PASS live TOKI asset verification: {home_url}; "
         f"{len(checked_assets)} local CSS/JS/media assets fetched and matched to their SHA-256 URLs."
     )
-    if not problems:
+    if github_pages:
         print(
-            "PASS live TOKI HTTP security: HSTS, CSP, framing, MIME, referrer, "
-            "permissions, HTML revalidation, private no-store, and immutable assets."
+            "PASS official GitHub Pages verification: all seven routes include the CSP meta "
+            "fallback and every same-origin asset matches its SHA-256 URL."
+        )
+        print(
+            "LIMITATION: GitHub Pages does not apply repository _headers files or allow "
+            "per-route response-header/cache configuration. The Cloudflare Pages mirror "
+            "is separately checked for the complete HSTS/CSP/X-Frame-Options/"
+            "X-Content-Type-Options/Referrer-Policy/Permissions-Policy/cache contract."
+        )
+    elif not problems:
+        print(
+            "PASS Cloudflare Pages HTTP security: HSTS, response CSP with frame-ancestors, "
+            "framing, MIME, referrer, permissions, HTML revalidation, private no-store, "
+            "and immutable assets."
         )
 
 
