@@ -268,18 +268,21 @@ def main() -> None:
                 "() => document.documentElement.scrollHeight - window.innerHeight"
             )
             assert scroll_range > 96, "Booking page must be scrollable for masthead interaction QA."
-            booking_page.evaluate("""() => {
-              const root = document.documentElement;
-              const body = document.body;
-              root.style.setProperty("scroll-behavior", "auto", "important");
-              body.style.setProperty("scroll-behavior", "auto", "important");
-              root.scrollTop = 0;
-              body.scrollTop = 0;
+            normalized_scroll_y = booking_page.evaluate("""() => {
+              // Defocus form controls before normalizing document scroll. A focused
+              // input can retain scroll anchoring while the viewport is resized.
+              if (document.activeElement instanceof HTMLElement) {
+                document.activeElement.blur();
+              }
+              const scroller = document.scrollingElement || document.documentElement;
+              scroller.style.setProperty("scroll-behavior", "auto", "important");
+              document.body.style.setProperty("scroll-behavior", "auto", "important");
               window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+              return window.scrollY;
             }""")
-            booking_page.wait_for_function(
-                "window.scrollY <= 1",
-                timeout=3500,
+            assert normalized_scroll_y <= 1, (
+                f"Could not normalize booking page to the top before masthead QA: "
+                f"scrollY={normalized_scroll_y}, viewport={booking_page.evaluate('innerHeight')}"
             )
             # Let the scroll listener's queued animation-frame update finish before
             # issuing the next direction, so consecutive scrolls cannot coalesce.
