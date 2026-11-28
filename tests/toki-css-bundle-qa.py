@@ -141,6 +141,27 @@ def main():
             f"{module} contains exact duplicate CSS rule blocks: "
             + "; ".join(f"{selector} ({count} copies)" for (_, selector, _), count in duplicates.items())
         )
+
+    mobile_navigation = (ROOT / "styles/shared/mobile-navigation.css").read_text(encoding="utf-8")
+    assert mobile_navigation.count("@media (max-width: 820px)") == 1, (
+        "Mobile navigation must use one consolidated 820px layout block"
+    )
+    assert mobile_navigation.count(".site-header .primary-nav {") == 1, (
+        "Mobile drawer base selector must not be split across duplicate blocks"
+    )
+    sticky_guard = re.search(
+        r"body:has\(\.site-header \.primary-nav\.is-open\) \.mobile-cta,\s*"
+        r"body:has\(\.site-header \.primary-nav\.is-open\) \.back-to-top\s*\{([^{}]*)\}",
+        mobile_navigation,
+        flags=re.S,
+    )
+    assert sticky_guard, "Mobile navigation must retain its sticky-control collision guard"
+    assert sticky_guard.group(1).count("!important") == 4, (
+        "Only the four animation-conflict declarations may remain important in mobile navigation"
+    )
+    assert "!important" not in mobile_navigation.replace(sticky_guard.group(0), ""), (
+        "Remove redundant !important declarations from the mobile drawer layout rules"
+    )
     assert not (ROOT / "design-system.css").exists(), "The monolithic design-system.css must stay retired."
     for retired in (
         "design-system.css", "policies.css", "availability.css", "pricing-calculator.css",
@@ -162,6 +183,37 @@ def main():
 
     builder = (ROOT / "scripts" / "build-css.py").read_text(encoding="utf-8")
     assert "CUSTOM_MEDIA" in builder and "@media" in builder, "The builder must expand custom media tokens before deployment"
+
+    pricing_css = (ROOT / "styles/pages/pricing-calculator.css").read_text(encoding="utf-8")
+    components_css = (ROOT / "styles/components.css").read_text(encoding="utf-8")
+    home_booking_css = (ROOT / "styles/pages/home-booking.css").read_text(encoding="utf-8")
+    assert "!important" not in pricing_css, (
+        "Pricing calculator styling must rely on bundle order and scoped selector specificity"
+    )
+    assert ".calculator-wrap .section-heading .section-aside" in pricing_css, (
+        "Pricing calculator aside must use a scoped page selector"
+    )
+    assert ".calculator-wrap .section-aside" not in components_css, (
+        "Shared components must not force an important color onto calculator copy"
+    )
+    assert ".sessions-section .section-aside" not in components_css, (
+        "Session heading styles must not cascade into the nested pricing calculator"
+    )
+    assert ".sessions-section > .section-heading .section-aside" in components_css, (
+        "Component session heading styling must be scoped to its outer heading"
+    )
+    assert ".sessions-section .section-aside" not in home_booking_css, (
+        "Home booking sizing must not target nested pricing calculator copy"
+    )
+    assert ".sessions-section > .section-heading .section-aside" in home_booking_css, (
+        "Home booking width must target the outer session heading"
+    )
+    home_bundle_match = re.search(r'"toki-home\.css": \[([\s\S]*?)\],\s*"toki-archive\.css"', builder)
+    assert home_bundle_match, "Cannot locate the TOKI home stylesheet bundle manifest"
+    home_bundle = home_bundle_match.group(1)
+    assert home_bundle.index('"design-system"') < home_bundle.index('"pricing-calculator"'), (
+        "The pricing calculator page layer must load after the shared design-system components"
+    )
     for module in REQUIRED_MODULES:
         assert f'"{module}"' in builder, f"{module} is not mapped into the generated bundle manifest."
 
