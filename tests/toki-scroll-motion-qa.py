@@ -56,6 +56,18 @@ def main() -> None:
         "Page intro fallback cleanup must not hold the overlay longer than 900ms."
     )
 
+    shutter_motion = motion.split("function triggerShutterFlash", 1)[1].split("function pulseMetric", 1)[0]
+    assert "animate(iris," in shutter_motion and "animate(streak," in shutter_motion, (
+        "Shutter flash effects must use the shared animator so rapid replays cancel stale effects."
+    )
+    assert "iris?.animate(" not in shutter_motion and "streak?.animate(" not in shutter_motion, (
+        "Shutter flash effects must not bypass active-animation cleanup."
+    )
+    metric_motion = motion.split("function pulseMetric", 1)[1].split("/* Unified intersection", 1)[0]
+    assert "animate(element," in metric_motion and "element.animate(" not in metric_motion, (
+        "Metric pulses must use the shared animator so repeated updates do not stack animations."
+    )
+
     for token in [
         "SCROLL_SCENE_SELECTOR", "SCROLL_PARALLAX_SELECTOR",
         "--toki-scene-progress", "--toki-scene-position",
