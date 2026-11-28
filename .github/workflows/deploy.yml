@@ -310,6 +310,24 @@ jobs:
             echo "Skipping stale deployment for $GITHUB_SHA; main is $current_sha."
           fi
 
+      - name: Verify GitHub Pages publishing source is set to GitHub Actions
+        if: steps.production_freshness.outputs.is_current == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(curl --fail --silent --show-error \
+            --header "Accept: application/vnd.github+json" \
+            --header "Authorization: Bearer ${GH_TOKEN}" \
+            --header "X-GitHub-Api-Version: 2026-03-10" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages")"
+          build_type="$(jq -r '.build_type // empty' <<< "$response")"
+          if [[ "$build_type" != "workflow" ]]; then
+            echo "::error::GitHub Pages is not configured for GitHub Actions (build_type=${build_type:-unknown}). In repository Settings → Pages → Build and deployment → Source, select GitHub Actions, then rerun this workflow."
+            exit 1
+          fi
+
       - name: Configure GitHub Pages deployment
         if: steps.production_freshness.outputs.is_current == 'true'
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b
