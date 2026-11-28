@@ -220,6 +220,12 @@ jobs:
       - name: Test mobile WebKit, Android Chrome emulation, and rendered images
         run: python tests/toki-mobile-browser-image-qa.py
 
+      - name: Expose Playwright Chromium binary to Lighthouse
+        shell: bash
+        run: |
+          browser_path="$(python -c 'from playwright.sync_api import sync_playwright; p=sync_playwright().start(); print(p.chromium.executable_path); p.stop()')"
+          echo "CHROME_PATH=$browser_path" >> "$GITHUB_ENV"
+
       - name: Run Lighthouse mobile audits across all seven packaged pages
         run: ./node_modules/.bin/lhci autorun
 
