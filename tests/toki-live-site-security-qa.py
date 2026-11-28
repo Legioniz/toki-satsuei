@@ -51,6 +51,15 @@ class PageAssets(HTMLParser):
                 )
 
 
+RETRYABLE_HTTP_STATUSES = frozenset({404, 429, 500, 502, 503, 504})
+MAX_FETCH_ATTEMPTS = 8
+
+
+def retry_delay(attempt: int) -> int:
+    """Bounded backoff for Pages CDN alias propagation immediately after deploy."""
+    return min(2 * (attempt + 1), 10)
+
+
 def fetch(url: str) -> tuple[int, str, dict[str, str], bytes]:
     request = Request(
         url,
@@ -60,7 +69,8 @@ def fetch(url: str) -> tuple[int, str, dict[str, str], bytes]:
             "Accept-Encoding": "identity",
         },
     )
-    for attempt in range(3):
+    last_error: Exception | None = None
+    for attempt in range(MAX_FETCH_ATTEMPTS):
         try:
             with urlopen(request, timeout=25) as response:
                 return (
@@ -70,6 +80,15 @@ def fetch(url: str) -> tuple[int, str, dict[str, str], bytes]:
                     response.read(),
                 )
         except HTTPError as error:
+            if error.code in RETRYABLE_HTTP_STATUSES and attempt < MAX_FETCH_ATTEMPTS - 1:
+                delay = retry_delay(attempt)
+                print(
+                    f"Retrying transient HTTP {error.code} for {error.geturl()} "
+                    f"after {delay}s (attempt {attempt + 1}/{MAX_FETCH_ATTEMPTS})."
+                )
+                error.close()
+                time.sleep(delay)
+                continue
             return (
                 error.code,
                 error.geturl(),
@@ -77,10 +96,18 @@ def fetch(url: str) -> tuple[int, str, dict[str, str], bytes]:
                 error.read(),
             )
         except (URLError, TimeoutError, socket.timeout) as error:
-            if attempt == 2:
-                raise AssertionError(f"Live site request failed after retries: {error}") from error
-            time.sleep(2)
-    raise AssertionError("Live site request did not complete")
+            last_error = error
+            if attempt == MAX_FETCH_ATTEMPTS - 1:
+                break
+            delay = retry_delay(attempt)
+            print(
+                f"Retrying live site request after network error: {error} "
+                f"({delay}s; attempt {attempt + 1}/{MAX_FETCH_ATTEMPTS})."
+            )
+            time.sleep(delay)
+    raise AssertionError(
+        f"Live site request failed after {MAX_FETCH_ATTEMPTS} attempts: {last_error}"
+    ) from last_error
 
 
 def missing_security_headers(headers: dict[str, str]) -> list[str]:
