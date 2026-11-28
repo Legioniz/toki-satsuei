@@ -18,6 +18,7 @@ CUSTOM_MEDIA = dict(re.findall(
 # with QA and release notes. The paths below are the actual editable sources.
 SOURCE_PATHS = {
     "self-hosted-fonts": ["assets/fonts/fonts.css"],
+    "handwritten-font": ["assets/fonts/fonts-caveat.css"],
     "styles": ["styles/shared/foundation.css"],
     "refinement": ["styles/shared/refinements.css"],
     "motion-system": ["styles/shared/motion-system.css"],
@@ -45,10 +46,10 @@ SOURCE_PATHS = {
 }
 
 BUNDLES = {
-    "toki-home.css": ["self-hosted-fonts", "styles", "refinement", "policies", "availability", "motion-system", "cinematic", "experience", "fixes", "pricing-calculator", "design-system", "orientation", "global-motion", "site-enhancements", "motion-refinements", "mobile-nav", "equipment"],
+    "toki-home.css": ["self-hosted-fonts", "handwritten-font", "styles", "refinement", "policies", "availability", "motion-system", "cinematic", "experience", "fixes", "pricing-calculator", "design-system", "orientation", "global-motion", "site-enhancements", "motion-refinements", "mobile-nav", "equipment"],
     "toki-archive.css": ["self-hosted-fonts", "styles", "library", "refinement", "motion-system", "cinematic", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
     "toki-policies.css": ["self-hosted-fonts", "styles", "refinement", "policies", "motion-system", "cinematic", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
-    "toki-404.css": ["self-hosted-fonts", "styles", "refinement", "policies", "motion-system", "cinematic", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
+    "toki-404.css": ["self-hosted-fonts", "handwritten-font", "styles", "refinement", "policies", "motion-system", "cinematic", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
     "toki-admin.css": ["self-hosted-fonts", "styles", "refinement", "motion-system", "admin", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
     "toki-client.css": ["self-hosted-fonts", "styles", "refinement", "motion-system", "client-gallery", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
 }
