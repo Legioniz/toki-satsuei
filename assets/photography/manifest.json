@@ -6,7 +6,7 @@
       "slug": "behind-the-camera",
       "title": "Behind the camera",
       "alt": "Photographer holding a Canon camera, ready to capture a moment",
-      "original": "/assets/photography/originals/behind-the-camera.jpg",
+      "original": "./assets/photography/originals/behind-the-camera.jpg",
       "width": 1536,
       "height": 1159,
       "aspect_ratio": 1.32528,
@@ -17,21 +17,21 @@
           {
             "width": 480,
             "height": 362,
-            "path": "/assets/photography/behind-the-camera-480.jpg",
+            "path": "./assets/photography/behind-the-camera-480.jpg",
             "bytes": 36612,
             "sha256": "73d352ac98d938d74875338dfcc98f3af3ab0a17f3ebb31488668b48cc3e0a97"
           },
           {
             "width": 960,
             "height": 724,
-            "path": "/assets/photography/behind-the-camera-960.jpg",
+            "path": "./assets/photography/behind-the-camera-960.jpg",
             "bytes": 111744,
             "sha256": "543fbdbc817f5acbb3e8319b0ffa5c2e5ef4d6acafe6b299c41a8299142e2c72"
           },
           {
             "width": 1536,
             "height": 1159,
-            "path": "/assets/photography/behind-the-camera-1536.jpg",
+            "path": "./assets/photography/behind-the-camera-1536.jpg",
             "bytes": 256560,
             "sha256": "82793a5ec061f563b0fbfc6892d3f43807dd1b52da27e9e326293b1b97c61c90"
           }
@@ -40,21 +40,21 @@
           {
             "width": 480,
             "height": 362,
-            "path": "/assets/photography/behind-the-camera-480.webp",
+            "path": "./assets/photography/behind-the-camera-480.webp",
             "bytes": 16160,
             "sha256": "28b0c01cf0b57a92f56d9a7a684e067dc6c3e362f7a1e68afaa1d0d90ff653c2"
           },
           {
             "width": 960,
             "height": 724,
-            "path": "/assets/photography/behind-the-camera-960.webp",
+            "path": "./assets/photography/behind-the-camera-960.webp",
             "bytes": 39098,
             "sha256": "3e8d22f0d40e9ee3a9e62640a675a63a7f35d3f98f73d8673f731f3d3137e717"
           },
           {
             "width": 1536,
             "height": 1159,
-            "path": "/assets/photography/behind-the-camera-1536.webp",
+            "path": "./assets/photography/behind-the-camera-1536.webp",
             "bytes": 82206,
             "sha256": "236689906d26cff729fc95b1ae0f872e19468efbe613666fa485cdb65c805946"
           }
@@ -65,7 +65,7 @@
       "slug": "between-turns",
       "title": "Between turns",
       "alt": "Pool table detail with a cue and billiard balls",
-      "original": "/assets/photography/originals/between-turns.jpg",
+      "original": "./assets/photography/originals/between-turns.jpg",
       "width": 1536,
       "height": 1024,
       "aspect_ratio": 1.5,
@@ -76,21 +76,21 @@
           {
             "width": 480,
             "height": 320,
-            "path": "/assets/photography/between-turns-480.jpg",
+            "path": "./assets/photography/between-turns-480.jpg",
             "bytes": 42333,
             "sha256": "d59b4aef40faf802df9a4c2949a463fd7e3a16cc7cc40be4bf05e1dbf1cacfc9"
           },
           {
             "width": 960,
             "height": 640,
-            "path": "/assets/photography/between-turns-960.jpg",
+            "path": "./assets/photography/between-turns-960.jpg",
             "bytes": 124931,
             "sha256": "d2e40585119d4a545d9680e9b2caa6db176d35e2f04fcce1c19347401d57c2d7"
           },
           {
             "width": 1536,
             "height": 1024,
-            "path": "/assets/photography/between-turns-1536.jpg",
+            "path": "./assets/photography/between-turns-1536.jpg",
             "bytes": 273940,
             "sha256": "eb88ecdb6bbe9f26bd49a843fd956835aeab94d81501a2512fef329883845862"
           }
@@ -99,21 +99,21 @@
           {
             "width": 480,
             "height": 320,
-            "path": "/assets/photography/between-turns-480.webp",
+            "path": "./assets/photography/between-turns-480.webp",
             "bytes": 22976,
             "sha256": "975ebebcb23a6479ba9306ecec36e0cd1c5a57af792d6884297283e31c778312"
           },
           {
             "width": 960,
             "height": 640,
-            "path": "/assets/photography/between-turns-960.webp",
+            "path": "./assets/photography/between-turns-960.webp",
             "bytes": 56422,
             "sha256": "c97645a5410f91d0a8ea3eda947b31c412c1e1090261c3f68b6a3d9e0d0c4c97"
           },
           {
             "width": 1536,
             "height": 1024,
-            "path": "/assets/photography/between-turns-1536.webp",
+            "path": "./assets/photography/between-turns-1536.webp",
             "bytes": 112342,
             "sha256": "aa319cd92ad5c8ba97f000ec420830465f0d650fb65d6ba590cbd41d98a22371"
           }
@@ -124,7 +124,7 @@
       "slug": "colour-in-the-quiet",
       "title": "Colour in the quiet",
       "alt": "Close detail of a billiards table, showing the felt texture and colour",
-      "original": "/assets/photography/originals/colour-in-the-quiet.jpg",
+      "original": "./assets/photography/originals/colour-in-the-quiet.jpg",
       "width": 1536,
       "height": 1024,
       "aspect_ratio": 1.5,
@@ -135,21 +135,21 @@
           {
             "width": 480,
             "height": 320,
-            "path": "/assets/photography/colour-in-the-quiet-480.jpg",
+            "path": "./assets/photography/colour-in-the-quiet-480.jpg",
             "bytes": 29272,
             "sha256": "7af2aa39a30a08d31aca279e4eabc966c2f26bb569aa35aa0c64c0b5bc51ea96"
           },
           {
             "width": 960,
             "height": 640,
-            "path": "/assets/photography/colour-in-the-quiet-960.jpg",
+            "path": "./assets/photography/colour-in-the-quiet-960.jpg",
             "bytes": 88973,
             "sha256": "10e968361ea9968133a9af64ab605985ded5716f796ef51d039ce764c428ee0b"
           },
           {
             "width": 1536,
             "height": 1024,
-            "path": "/assets/photography/colour-in-the-quiet-1536.jpg",
+            "path": "./assets/photography/colour-in-the-quiet-1536.jpg",
             "bytes": 220245,
             "sha256": "c2af70eacbbac64d637d8035c7bba4aab206586bf88406c986d4a328126bc90d"
           }
@@ -158,21 +158,21 @@
           {
             "width": 480,
             "height": 320,
-            "path": "/assets/photography/colour-in-the-quiet-480.webp",
+            "path": "./assets/photography/colour-in-the-quiet-480.webp",
             "bytes": 13694,
             "sha256": "42fd820652b8c013fd1efd756d2a0387ef4c5408e8997e67d68d6b16f6abbda2"
           },
           {
             "width": 960,
             "height": 640,
-            "path": "/assets/photography/colour-in-the-quiet-960.webp",
+            "path": "./assets/photography/colour-in-the-quiet-960.webp",
             "bytes": 34760,
             "sha256": "770e65a799a87dc4121d2fadf17c3740e87d0ddecae0358aa4e89d5db96c2782"
           },
           {
             "width": 1536,
             "height": 1024,
-            "path": "/assets/photography/colour-in-the-quiet-1536.webp",
+            "path": "./assets/photography/colour-in-the-quiet-1536.webp",
             "bytes": 84620,
             "sha256": "1fa78465604c0e70dc26c8b45f65432e7928b4adef02bda4509c87cda6d023eb"
           }
@@ -183,7 +183,7 @@
       "slug": "before-the-next-shot",
       "title": "Before the next shot",
       "alt": "Billiard balls arranged on a table before the next shot",
-      "original": "/assets/photography/originals/before-the-next-shot.jpg",
+      "original": "./assets/photography/originals/before-the-next-shot.jpg",
       "width": 1536,
       "height": 1024,
       "aspect_ratio": 1.5,
@@ -194,21 +194,21 @@
           {
             "width": 480,
             "height": 320,
-            "path": "/assets/photography/before-the-next-shot-480.jpg",
+            "path": "./assets/photography/before-the-next-shot-480.jpg",
             "bytes": 41948,
             "sha256": "515dcd103f3cc4674115c52b1eb289854e229390ca6763aa020c55c86ddb3040"
           },
           {
             "width": 960,
             "height": 640,
-            "path": "/assets/photography/before-the-next-shot-960.jpg",
+            "path": "./assets/photography/before-the-next-shot-960.jpg",
             "bytes": 127375,
             "sha256": "e0df74ab9e828f1bb2c240874f154efcb4e0f5076a49652b7b017cc083d98cd9"
           },
           {
             "width": 1536,
             "height": 1024,
-            "path": "/assets/photography/before-the-next-shot-1536.jpg",
+            "path": "./assets/photography/before-the-next-shot-1536.jpg",
             "bytes": 315331,
             "sha256": "5ffe935d0c755e53d18524a551367334d8dc553136938fc4fa2af74620b15014"
           }
@@ -217,21 +217,21 @@
           {
             "width": 480,
             "height": 320,
-            "path": "/assets/photography/before-the-next-shot-480.webp",
+            "path": "./assets/photography/before-the-next-shot-480.webp",
             "bytes": 23108,
             "sha256": "163504ea1139ba97bcbf92fcaf795529002767d78e715adbde26e2475501440c"
           },
           {
             "width": 960,
             "height": 640,
-            "path": "/assets/photography/before-the-next-shot-960.webp",
+            "path": "./assets/photography/before-the-next-shot-960.webp",
             "bytes": 58562,
             "sha256": "3feb9356e1665d216116559b3ace1d9baaa65bd3aae34d23a66bc8ef8d022165"
           },
           {
             "width": 1536,
             "height": 1024,
-            "path": "/assets/photography/before-the-next-shot-1536.webp",
+            "path": "./assets/photography/before-the-next-shot-1536.webp",
             "bytes": 151474,
             "sha256": "ec208fb95e9d5d7ba1b6d278c38864e0c309db90a9479772249849ad18279120"
           }
