@@ -203,8 +203,8 @@
 }
 .calculator-wrap .calc-apply-btn:hover {
   --toki-button-surface: #b82837;
+  background-color: var(--toki-button-surface);
   border-color: #a31f2d;
-  transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(163, 31, 45, 0.5);
 }
 @media(max-width: 820px) {
@@ -217,8 +217,3 @@
   }
 }
 
-#pricing-calculator #calc-apply-to-booking.calc-apply-btn:hover {
-  background-color: var(--toki-button-surface, #b82837) !important;
-  border-color: #a31f2d !important;
-  transform: translateY(-2px);
-}
