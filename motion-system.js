@@ -732,7 +732,9 @@
     const shouldShow = navigationOpen || focusWithinHeader || (Boolean(visible) && !heroLock);
     headerElements.forEach(header => {
       header.classList.toggle("is-auto-hidden", !shouldShow);
-      if (heroLock && header.classList.contains("site-header")) header.classList.add("is-initial-hidden");
+      // The initial hero lock must not re-hide a masthead that is being
+      // intentionally exposed for keyboard focus or an open navigation drawer.
+      if (heroLock && !shouldShow && header.classList.contains("site-header")) header.classList.add("is-initial-hidden");
       else header.classList.remove("is-initial-hidden");
       header.setAttribute("aria-hidden", String(!shouldShow));
       if ("inert" in header) header.inert = !shouldShow;

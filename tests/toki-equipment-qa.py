@@ -44,13 +44,15 @@ def main() -> None:
     assert LOGO_ASSET.is_file() and LOGO_ASSET.stat().st_size > 800_000, "Submitted TOKI logo master is missing."
     home_markup = (ROOT / "index.html").read_text(encoding="utf-8")
     equipment_markup = home_markup.split('<section class="equipment-section"', 1)[1].split('<section class="faq-section"', 1)[0]
-    community_photo = equipment_markup.split('<figure class="equipment-community-photo">', 1)[1].split('</figure>', 1)[0]
-    assert "Canon_EOS_3000D_CNE.jpg" in community_photo, "High-resolution community reference photo is missing."
-    assert all(f"{width}px-Canon_EOS_3000D_CNE.jpg {width}w" in community_photo for width in (720, 1080, 1620, 2400)), "Community photo must provide responsive 2x/3x source candidates."
-    assert 'width="3353"' in community_photo and 'height="2434"' in community_photo, "Community source dimensions must be declared accurately."
-    assert "CNEcija12345" in community_photo and "CC BY-SA 4.0" in community_photo, "Community photo attribution and license must remain visible."
-    assert "NOT A PHOTOGRAPH OF TOKI'S SPECIFIC CAMERA" in community_photo, "Third-party reference must not be presented as TOKI's specific unit."
-    assert "creativecommons.org/licenses/by-sa/4.0/" in community_photo, "Community photo must link to its license."
+    assert 'id="equipment"' in equipment_markup, "Homepage equipment section is missing its navigation target."
+    assert 'data-equipment-root' in equipment_markup, "Current equipment viewer root is missing."
+    assert 'equipment-composition--viewer-only' in equipment_markup, "The compact viewer-only equipment layout was not retained."
+    assert equipment_markup.count('data-equipment-angle="') == 5, "All five supplied 2D camera angles must remain in the current viewer."
+    assert 'data-equipment-mode="2d"' in equipment_markup and 'data-equipment-mode="3d"' in equipment_markup, "The 2D/3D view selector is incomplete."
+    assert "Canon EOS 3000D" in equipment_markup and "EF-S 18–55MM" in equipment_markup, "The camera body and standard zoom identification must remain visible."
+    assert SKETCHFAB_MODEL in equipment_markup, "The current viewer must retain its linked Sketchfab reference."
+    assert "equipment-community-photo" not in equipment_markup, "The retired community-photo panel must not return."
+    assert "equipment-spec-panel" not in equipment_markup and "equipment-spec-disclosure" not in equipment_markup, "The retired equipment specification panel must not return."
     assert png_dimensions(LOGO_ASSET) == (1254, 1254), "Submitted TOKI logo master dimensions unexpectedly changed."
     index_head = (ROOT / "index.html").read_text(encoding="utf-8").split("</head>", 1)[0]
     assert "http-equiv=\"Content-Security-Policy\"" in index_head
@@ -132,24 +134,12 @@ def main() -> None:
             assert root.locator('[data-equipment-mode="2d"]').get_attribute("aria-pressed") == "true"
             assert iframe.count() == 1, "Returning to 2D should reuse, not duplicate, the existing iframe"
 
-            disclosures = section.locator("details.equipment-spec-disclosure")
-            assert disclosures.count() == 3, "Camera, lens, and reference details must be collapsible."
-            assert all(not item.evaluate("(node) => node.open") for item in disclosures.all()), (
-                "Equipment disclosures should start closed to keep the portfolio compact."
+            assert section.locator(".equipment-spec-panel, .equipment-spec-disclosure").count() == 0, (
+                "The retired specification panel must remain removed from the compact equipment section."
             )
-            disclosures.nth(0).locator("summary").click()
-            assert disclosures.nth(0).evaluate("(node) => node.open"), "Camera specifications did not expand."
-            disclosures.nth(0).locator("summary").click()
-            assert not disclosures.nth(0).evaluate("(node) => node.open"), "Camera specifications did not collapse."
-            for disclosure in disclosures.all():
-                disclosure.locator("summary").click()
-
             details = section.inner_text()
-            for expected in ("Canon EOS 3000D", "18 MP", "DIGIC 4+", "9-point AF", "Canon EF-S 18–55mm",
-                             "35mm equivalent", "Canon EOS 3000"):
-                assert expected.lower() in details.lower(), f"Equipment details missing {expected!r}"
-            assert "revision-dependent" not in details.lower(), "Unconfirmed lens-specific figures must not be shown."
-            assert "lens revision" not in details.lower(), "The removed lens-revision paragraph must not return."
+            for expected in ("Canon EOS 3000D", "EF-S 18–55MM", "2D PRODUCT PHOTOS", "3D INTERACTIVE MODEL"):
+                assert expected.lower() in details.lower(), f"Current equipment viewer is missing {expected!r}"
             assert SKETCHFAB_MODEL in section.locator('a[href*="sketchfab.com"]').get_attribute("href")
 
             asset_responses = [(url, status) for url, status in responses if "/assets/equipment/camera/" in url]
