@@ -485,6 +485,18 @@
     });
   }
 
+  function observeLazyImages(node = document) {
+    if (!preloadObserver || !node) return;
+    if (node instanceof HTMLImageElement && node.loading === "lazy") {
+      preloadObserver.observe(node);
+    }
+    if (typeof node.querySelectorAll === "function") {
+      node.querySelectorAll("img[loading='lazy']").forEach(image => {
+        preloadObserver.observe(image);
+      });
+    }
+  }
+
   function markVisible(element) {
     if (element.hasAttribute("data-reveal")) element.classList.add("is-visible");
     if (element.classList.contains("motion-item")) element.classList.add("is-motion-visible");
@@ -547,11 +559,11 @@
       element.dataset.motion = resolveProfile(element);
     }
 
+    preloadObserver?.observe(element);
     if (reduced || !observer) {
       markVisible(element);
     } else {
       observer.observe(element);
-      preloadObserver?.observe(element);
     }
   }
 
@@ -564,6 +576,7 @@
     if (typeof node.querySelectorAll === "function") {
       node.querySelectorAll(`${ALL_SELECTOR}, [data-reveal]`).forEach(prepare);
     }
+    observeLazyImages(node);
   }
 
   function createObserver() {
@@ -580,7 +593,7 @@
   }
 
   function createPreloadObserver() {
-    if (reduced || !("IntersectionObserver" in window)) return null;
+    if (!("IntersectionObserver" in window)) return null;
     return new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) return;
@@ -939,11 +952,13 @@
       observer?.disconnect();
       observer = null;
       preloadObserver?.disconnect();
-      preloadObserver = null;
+      preloadObserver = createPreloadObserver();
       document.querySelectorAll(".motion-item, [data-reveal]").forEach(element => {
         markVisible(element);
+        preloadObserver?.observe(element);
         element.style.removeProperty("--motion-delay");
       });
+      observeLazyImages(document);
       root.style.removeProperty("--scroll-y");
       root.style.removeProperty("--scroll-pct");
       root.style.removeProperty("--scroll-deg");
