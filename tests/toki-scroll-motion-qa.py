@@ -218,32 +218,41 @@ def main() -> None:
             # The startup mark stays at normal speed for a two-second intro;
             # unrelated CSS and WAAPI effects are each reduced to half duration.
             intro_page = context.new_page()
-            intro_page.goto(base + "/index.html", wait_until="commit")
-            intro_page.wait_for_selector(".toki-intro-curtain", state="attached")
-            intro_page.wait_for_function("""() => {
-              const grain = document.querySelector(".toki-film-grain");
-              return grain && grain.getAnimations().some(
-                animation => animation.animationName === "tokiGrainDrift" &&
-                  Math.abs(animation.playbackRate - 2) < 0.001
-              );
-            }""", timeout=1500)
-            intro_runtime = intro_page.locator(".toki-intro-curtain").evaluate("""curtain => {
-              const curtainAnimation = curtain.getAnimations().find(
-                animation => animation.animationName === "tokiIntroCurtainOut"
-              );
-              const logoAnimation = curtain.querySelector(".toki-intro-logo")?.getAnimations().find(
-                animation => animation.animationName === "tokiIntroSealPop"
-              );
-              const grainAnimation = document.querySelector(".toki-film-grain")?.getAnimations().find(
-                animation => animation.animationName === "tokiGrainDrift"
-              );
-              return {
-                curtainRate: curtainAnimation?.playbackRate,
-                curtainEndTime: curtainAnimation?.effect?.getComputedTiming().endTime,
-                logoRate: logoAnimation?.playbackRate,
-                grainRate: grainAnimation?.playbackRate
-              };
-            }""")
+            intro_page.add_init_script("""
+              window.__tokiIntroPromise = new Promise(resolve => {
+                const check = () => {
+                  const curtain = document.querySelector(".toki-intro-curtain");
+                  const grain = document.querySelector(".toki-film-grain");
+                  if (!curtain || !grain) return false;
+                  const curtainAnimation = curtain.getAnimations().find(
+                    animation => animation.animationName === "tokiIntroCurtainOut"
+                  );
+                  const logoAnimation = curtain.querySelector(".toki-intro-logo")?.getAnimations().find(
+                    animation => animation.animationName === "tokiIntroSealPop"
+                  );
+                  const grainAnimation = grain.getAnimations().find(
+                    animation => animation.animationName === "tokiGrainDrift"
+                  );
+                  if (curtainAnimation && logoAnimation && grainAnimation && Math.abs(grainAnimation.playbackRate - 2) < 0.001) {
+                    resolve({
+                      curtainRate: curtainAnimation.playbackRate,
+                      curtainEndTime: curtainAnimation.effect?.getComputedTiming().endTime,
+                      logoRate: logoAnimation.playbackRate,
+                      grainRate: grainAnimation.playbackRate
+                    });
+                    return true;
+                  }
+                  return false;
+                };
+                const obs = new MutationObserver(() => {
+                  if (check()) obs.disconnect();
+                  else requestAnimationFrame(() => { if (check()) obs.disconnect(); });
+                });
+                obs.observe(document, { childList: true, subtree: true });
+              });
+            """)
+            intro_page.goto(base + "/index.html", wait_until="domcontentloaded")
+            intro_runtime = intro_page.evaluate("() => window.__tokiIntroPromise")
             assert intro_runtime["curtainRate"] == 1 and abs(intro_runtime["curtainEndTime"] - 1500) < 1, (
                 f"Startup curtain must run unaccelerated for 1.5 seconds: {intro_runtime}"
             )

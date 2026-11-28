@@ -1148,7 +1148,7 @@
     el.dataset.tokiText = target;
     el.dataset.tokiDecoding = "1";
     const start = performance.now();
-    const duration = 260;
+    const duration = 160;
 
     const tick = now => {
       const progress = Math.min(1, (now - start) / duration);
@@ -1183,7 +1183,7 @@
     if (!Number.isFinite(targetVal) || targetVal <= 0) return;
     el.dataset.tokiCounted = "1";
     const start = performance.now();
-    const duration = 380;
+    const duration = 180;
 
     const step = now => {
       const p = Math.min(1, (now - start) / duration);
@@ -1263,10 +1263,141 @@
     }
   }
 
+  /* Bespoke section-tailored darkroom & optical SVG graphic artifacts in non-overlapping slots. */
+  function createArtifactEl(className, svgMarkup) {
+    const wrap = document.createElement("div");
+    wrap.className = className;
+    wrap.setAttribute("aria-hidden", "true");
+    wrap.innerHTML = svgMarkup;
+    return wrap;
+  }
+
+  function injectSectionArtifacts() {
+    if (!document.body) return;
+
+    const workGrid = document.querySelector(".work-section .gallery-grid");
+    if (workGrid && !document.querySelector(".toki-artifact-filmstrip")) {
+      workGrid.before(createArtifactEl(
+        "toki-artifact-bar toki-artifact-filmstrip",
+        `<svg viewBox="0 0 640 24" preserveAspectRatio="none" focusable="false">
+          <line x1="0" y1="12" x2="640" y2="12" stroke="currentColor" stroke-opacity="0.18" stroke-width="1"/>
+          <g fill="currentColor" fill-opacity="0.26">
+            <rect x="16" y="7" width="10" height="10" rx="1.5"/>
+            <rect x="64" y="7" width="10" height="10" rx="1.5"/>
+            <rect x="112" y="7" width="10" height="10" rx="1.5"/>
+            <rect x="518" y="7" width="10" height="10" rx="1.5"/>
+            <rect x="566" y="7" width="10" height="10" rx="1.5"/>
+            <rect x="614" y="7" width="10" height="10" rx="1.5"/>
+          </g>
+          <circle cx="320" cy="12" r="3.5" fill="#a31f2d"/>
+          <line x1="288" y1="12" x2="310" y2="12" stroke="#a31f2d" stroke-width="1.4"/>
+          <line x1="330" y1="12" x2="352" y2="12" stroke="#a31f2d" stroke-width="1.4"/>
+        </svg><span>35MM · CONTACT SHEET</span>`
+      ));
+    }
+
+    const servicesList = document.querySelector(".services-section .services-list, .services-section .service-list");
+    const servicesSection = document.querySelector(".services-section");
+    const servicesAnchor = servicesList || servicesSection?.querySelector(".section-heading");
+    if (servicesAnchor && !document.querySelector(".toki-artifact-rangefinder")) {
+      const rf = createArtifactEl(
+        "toki-artifact-bar toki-artifact-bar--dark toki-artifact-rangefinder",
+        `<svg viewBox="0 0 480 24" preserveAspectRatio="xMidYMid meet" focusable="false">
+          <line x1="20" y1="14" x2="460" y2="14" stroke="currentColor" stroke-opacity="0.28" stroke-width="1"/>
+          <g stroke="currentColor" stroke-opacity="0.45" stroke-width="1">
+            <line x1="40" y1="8" x2="40" y2="14"/><line x1="80" y1="10" x2="80" y2="14"/>
+            <line x1="120" y1="8" x2="120" y2="14"/><line x1="160" y1="10" x2="160" y2="14"/>
+            <line x1="200" y1="8" x2="200" y2="14"/><line x1="240" y1="5" x2="240" y2="16"/>
+            <line x1="280" y1="8" x2="280" y2="14"/><line x1="320" y1="10" x2="320" y2="14"/>
+            <line x1="360" y1="8" x2="360" y2="14"/><line x1="400" y1="10" x2="400" y2="14"/>
+            <line x1="440" y1="8" x2="440" y2="14"/>
+          </g>
+          <polygon class="toki-rf-needle" points="240,2 245,9 235,9" fill="#eb7a84"/>
+        </svg><span>RANGEFINDER · 0.5M — ∞</span>`
+      );
+      if (servicesList) servicesList.before(rf);
+      else servicesAnchor.after(rf);
+    }
+
+    const sessionsHeading = document.querySelector(".sessions-section > .section-heading");
+    if (sessionsHeading && !document.querySelector(".toki-artifact-aperture")) {
+      sessionsHeading.after(createArtifactEl(
+        "toki-artifact-badge toki-artifact-aperture",
+        `<svg viewBox="0 0 44 44" focusable="false">
+          <circle cx="22" cy="22" r="20" fill="none" stroke="currentColor" stroke-opacity="0.28" stroke-width="1"/>
+          <circle cx="22" cy="22" r="14" fill="none" stroke="#a31f2d" stroke-opacity="0.72" stroke-width="1.2" stroke-dasharray="10 4"/>
+          <g class="toki-iris-blades" stroke="currentColor" stroke-opacity="0.55" stroke-width="1.1">
+            <line x1="22" y1="6" x2="28" y2="18"/><line x1="36" y1="14" x2="26" y2="24"/>
+            <line x1="36" y1="30" x2="22" y2="28"/><line x1="22" y1="38" x2="16" y2="26"/>
+            <line x1="8" y1="30" x2="18" y2="20"/><line x1="8" y1="14" x2="22" y2="16"/>
+          </g>
+          <circle cx="22" cy="22" r="3" fill="#a31f2d"/>
+        </svg><span>f/2.8 · SESSION RATES &amp; CALCULATOR</span>`
+      ));
+    }
+
+    const availPanel = document.querySelector(".availability-section .availability-panel");
+    if (availPanel && !document.querySelector(".toki-artifact-gate")) {
+      availPanel.before(createArtifactEl(
+        "toki-artifact-bar toki-artifact-gate",
+        `<svg viewBox="0 0 480 20" preserveAspectRatio="xMidYMid meet" focusable="false">
+          <path d="M12 16 V4 H36 M468 16 V4 H444" fill="none" stroke="#a31f2d" stroke-width="1.4"/>
+          <line x1="54" y1="10" x2="426" y2="10" stroke="currentColor" stroke-opacity="0.2" stroke-width="1" stroke-dasharray="4 6"/>
+          <circle cx="240" cy="10" r="3" fill="currentColor" fill-opacity="0.45"/>
+        </svg><span>SHUTTER GATE · LIVE DATES</span>`
+      ));
+    }
+
+    const processGrid = document.querySelector(".process-section .process-grid");
+    if (processGrid && !document.querySelector(".toki-artifact-timeline")) {
+      processGrid.before(createArtifactEl(
+        "toki-artifact-bar toki-artifact-timeline",
+        `<svg viewBox="0 0 480 20" preserveAspectRatio="xMidYMid meet" focusable="false">
+          <line x1="24" y1="10" x2="456" y2="10" stroke="currentColor" stroke-opacity="0.22" stroke-width="1"/>
+          <circle cx="24" cy="10" r="3.5" fill="#a31f2d"/><circle cx="168" cy="10" r="3" fill="currentColor" fill-opacity="0.4"/>
+          <circle cx="312" cy="10" r="3" fill="currentColor" fill-opacity="0.4"/><circle cx="456" cy="10" r="3.5" fill="#a31f2d"/>
+        </svg><span>FRAME SEQUENCE · 01 → 04</span>`
+      ));
+    }
+
+    const equipHeading = document.querySelector(".equipment-section .section-heading, .equipment-section h2");
+    if (equipHeading && !document.querySelector(".toki-artifact-optics")) {
+      equipHeading.after(createArtifactEl(
+        "toki-artifact-badge toki-artifact-optics",
+        `<svg viewBox="0 0 64 32" focusable="false">
+          <line x1="2" y1="16" x2="62" y2="16" stroke="currentColor" stroke-opacity="0.28" stroke-width="1" stroke-dasharray="2 3"/>
+          <ellipse cx="18" cy="16" rx="4" ry="11" fill="none" stroke="currentColor" stroke-opacity="0.6" stroke-width="1.2"/>
+          <ellipse cx="30" cy="16" rx="3" ry="9" fill="none" stroke="#a31f2d" stroke-opacity="0.85" stroke-width="1.2"/>
+          <ellipse cx="44" cy="16" rx="5" ry="12" fill="none" stroke="currentColor" stroke-opacity="0.6" stroke-width="1.2"/>
+        </svg><span>OPTICAL PATH · 18–55MM</span>`
+      ));
+    }
+
+    [".faq-section", ".contact-section"].forEach(sel => {
+      const sec = document.querySelector(sel);
+      if (sec && !sec.querySelector(".toki-artifact-crosshair")) {
+        sec.prepend(createArtifactEl(
+          "toki-artifact-bar toki-artifact-crosshair",
+          `<svg viewBox="0 0 320 20" preserveAspectRatio="xMidYMid meet" focusable="false">
+            <line x1="16" y1="10" x2="140" y2="10" stroke="currentColor" stroke-opacity="0.18" stroke-width="1"/>
+            <circle cx="160" cy="10" r="5" fill="none" stroke="#a31f2d" stroke-width="1.2"/>
+            <line x1="160" y1="2" x2="160" y2="18" stroke="#a31f2d" stroke-width="1"/>
+            <line x1="180" y1="10" x2="304" y2="10" stroke="currentColor" stroke-opacity="0.18" stroke-width="1"/>
+          </svg>`
+        ));
+      }
+    });
+  }
+
+  function initEnhancedExperience() {
+    injectSectionArtifacts();
+    initInteractiveTypography();
+  }
+
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => requestAnimationFrame(initInteractiveTypography), { once: true });
+    document.addEventListener("DOMContentLoaded", () => requestAnimationFrame(initEnhancedExperience), { once: true });
   } else {
-    requestAnimationFrame(initInteractiveTypography);
+    requestAnimationFrame(initEnhancedExperience);
   }
 
   window.addEventListener("pagehide", () => {

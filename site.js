@@ -394,6 +394,10 @@ if(hoverPointer){
   document.querySelectorAll(".service-row, .faq-list summary, .primary-nav a").forEach(item=>{
     item.addEventListener("pointerenter",()=>TokiSFX.playTextTick(),{passive:true});
   });
+  document.addEventListener("pointerover",event=>{
+    const artifact=event.target instanceof Element?event.target.closest(".toki-artifact-badge, .toki-artifact-bar"):null;
+    if(artifact)TokiSFX.playDialTick();
+  },{passive:true});
 }
 
 // Tactile FAQ & control audio feedback, shutter click ripples, and smooth internal page transitions
@@ -414,7 +418,7 @@ if(!reducedMotion&&document.body){
     ripple.style.top=event.clientY+"px";
     ripple.addEventListener("animationend",()=>ripple.remove(),{once:true});
     document.body.appendChild(ripple);
-    window.setTimeout(()=>ripple.remove(),480);
+    window.setTimeout(()=>ripple.remove(),280);
   },{passive:true});
 
   document.addEventListener("click",event=>{
@@ -430,7 +434,7 @@ if(!reducedMotion&&document.body){
     event.preventDefault();
     TokiSFX.playFilmWind();
     document.documentElement.classList.add("toki-page-leaving");
-    window.setTimeout(()=>{window.location.href=url.href;},150);
+    window.setTimeout(()=>{window.location.href=url.href;},105);
   });
 }
 

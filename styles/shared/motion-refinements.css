@@ -491,9 +491,9 @@ html.motion-system-ready :is(.hero-lead, .about-copy p, .faq-answer, .service-ro
   transform: translate3d(0, calc(var(--toki-enter-dir, 1) * 104%), 0);
   opacity: 0;
   transition:
-    transform 220ms var(--ease-expo-out, cubic-bezier(.16,1,.3,1)) calc(var(--word-index, 0) * 24ms),
-    opacity 200ms ease-out calc(var(--word-index, 0) * 24ms),
-    color 160ms ease;
+    transform 150ms var(--ease-expo-out, cubic-bezier(.16,1,.3,1)) calc(var(--word-index, 0) * 12ms),
+    opacity 130ms ease-out calc(var(--word-index, 0) * 12ms),
+    color 120ms ease;
 }
 .toki-kinetic-text.is-kinetic-visible .toki-word-inner {
   transform: translate3d(0, 0, 0);
@@ -647,11 +647,110 @@ html.motion-system-ready :is(.hero-lead, .about-copy p, .faq-answer, .service-ro
   border-radius: 50%;
   border: 1.5px solid rgba(195, 42, 57, 0.85);
   pointer-events: none;
-  animation: tokiClickRipple 360ms var(--ease-expo-out, ease-out) forwards;
+  animation: tokiClickRipple 240ms var(--ease-expo-out, ease-out) forwards;
 }
 @keyframes tokiClickRipple {
   0% { transform: scale(0.5); opacity: 0.9; }
-  100% { transform: scale(3.4); opacity: 0; }
+  100% { transform: scale(3.2); opacity: 0; }
+}
+
+/* Section-tailored graphic artifacts with dedicated non-overlapping flow spacing */
+.toki-artifact-bar,
+.toki-artifact-badge {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  max-width: min(1220px, 100%);
+  margin: clamp(12px, 2vw, 22px) auto;
+  padding: 6px 0;
+  color: rgba(17, 17, 16, 0.72);
+  font-family: var(--font-mono, "Space Mono", monospace);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  pointer-events: auto;
+  overflow: hidden;
+  transition: color 140ms ease, transform 140ms var(--ease-expo-out, ease-out);
+}
+.toki-artifact-bar svg {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 20px;
+  display: block;
+}
+.toki-artifact-bar span,
+.toki-artifact-badge span {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+.toki-artifact-bar--dark {
+  color: rgba(244, 241, 234, 0.74);
+}
+.toki-artifact-badge {
+  justify-content: flex-start;
+  width: fit-content;
+  margin-inline: 0;
+  padding: 8px 14px;
+  border: 1px solid rgba(17, 17, 16, 0.14);
+  border-radius: 4px;
+  background: rgba(233, 228, 218, 0.55);
+}
+.toki-artifact-badge svg {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+}
+.toki-artifact-optics svg {
+  width: 56px;
+  height: 28px;
+}
+.toki-iris-blades,
+.toki-rf-needle {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 150ms var(--ease-expo-out, ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .toki-artifact-aperture:hover .toki-iris-blades {
+    transform: rotate(30deg) scale(0.92);
+  }
+  .toki-artifact-rangefinder:hover .toki-rf-needle {
+    transform: translateX(28px);
+  }
+  .toki-artifact-badge:hover {
+    border-color: rgba(163, 31, 45, 0.48);
+    color: #a31f2d;
+  }
+}
+
+/* Tighten non-startup reveal & transition timings so the site feels immediate */
+html.motion-system-ready .motion-item.is-motion-visible,
+html.motion-system-ready [data-reveal].is-visible {
+  transition-duration: 150ms !important;
+}
+html.motion-system-ready .gallery-card,
+html.motion-system-ready .package-card,
+html.motion-system-ready .process-step,
+html.motion-system-ready .service-row {
+  transition-duration: 140ms;
+}
+
+@media (max-width: 680px) {
+  .toki-artifact-bar {
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-block: 10px;
+  }
+  .toki-artifact-bar span,
+  .toki-artifact-badge span {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    white-space: normal;
+  }
 }
 
 /* Floating Sound HUD pill */
@@ -719,7 +818,7 @@ html.motion-system-ready :is(.hero-lead, .about-copy p, .faq-answer, .service-ro
 html.toki-page-leaving body {
   opacity: 0;
   transform: scale(0.996);
-  transition: opacity 145ms ease-out, transform 145ms ease-out;
+  transition: opacity 100ms ease-out, transform 100ms ease-out;
 }
 
 @media (max-width: 680px) {
