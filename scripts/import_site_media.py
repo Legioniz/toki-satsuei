@@ -428,8 +428,13 @@ def verify_assets() -> None:
         ("fonts-caveat.css", expected_by_bundle["handwritten"]),
     ):
         css = (FONT_ROOT / bundle).read_text(encoding="utf-8")
-        if "fonts.gstatic.com" in css or "https://" in css or "font-display: swap" not in css:
-            raise ValueError(f"Generated {bundle} contains a remote source or lacks font-display: swap")
+        if "font-display: swap" not in css:
+            raise ValueError(f"Generated {bundle} lacks font-display: swap")
+        for match in re.finditer(r"""url\\(\\s*(['"]?)(.*?)\\1\\s*\\)""", css, re.IGNORECASE):
+            reference = match.group(2).strip()
+            parsed = urlsplit(reference)
+            if parsed.scheme or parsed.netloc or not parsed.path.startswith("/assets/fonts/"):
+                raise ValueError(f"Generated {bundle} contains a non-local font reference: {reference}")
         if css.count("@font-face") != len(filenames):
             raise ValueError(f"Generated {bundle} has an unexpected number of font faces")
         for filename in filenames:
