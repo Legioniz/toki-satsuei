@@ -148,6 +148,28 @@ def check_header(page, width, label):
                 f"(scrollY={page.evaluate('window.scrollY')}, heroBottom={hero_bottom}, "
                 f"scrollHeight={page.evaluate('document.documentElement.scrollHeight')})"
             )
+            # Move clearly beyond the hero before scrolling upward. The header is
+            # intentionally hidden while the opening hero still owns the viewport;
+            # a single upward wheel from a barely-cleared hero re-enters that region.
+            previous_scroll = page.evaluate("window.scrollY")
+            page.mouse.wheel(0, 240)
+            try:
+                page.wait_for_function(
+                    """(previous) => window.scrollY > previous &&
+                      document.querySelector(".hero-opening")?.getBoundingClientRect().bottom <= -160""",
+                    arg=previous_scroll,
+                    timeout=3000,
+                )
+            except PlaywrightTimeoutError as error:
+                state = page.evaluate("""() => ({
+                    scrollY: window.scrollY,
+                    heroBottom: document.querySelector(".hero-opening")?.getBoundingClientRect().bottom ?? null,
+                    scrollHeight: document.documentElement.scrollHeight
+                })""")
+                raise AssertionError(
+                    f"{label}: could not move beyond the hero before testing upward reveal: {state}"
+                ) from error
+
             previous_scroll = page.evaluate("window.scrollY")
             page.mouse.wheel(0, -120)
             try:
