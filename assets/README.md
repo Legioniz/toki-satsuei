@@ -14,6 +14,7 @@ Client portfolio and private gallery photographs are separate and were not modif
 
 - `photography/originals/` holds the untouched approved JPEG masters for the four public practice photographs.
 - `photography/` also holds responsive JPEG and WebP derivatives at 480px, 960px, and 1536px, plus a manifest with dimensions, aspect ratios, descriptive alt text, byte sizes, and SHA-256 hashes.
-- `fonts/` holds self-hosted Latin WOFF2 faces, a font manifest, and the four SIL Open Font License files for Caveat, Cormorant Garamond, DM Sans, and Space Mono.
-- The per-page generated CSS bundles declare the local font faces with `font-display: swap`; the HTML does not load Google Fonts at runtime.
+- `fonts/` holds six self-hosted Latin WOFF2 faces, a manifest, and four SIL Open Font License files for Caveat, Cormorant Garamond, DM Sans, and Space Mono.
+- `fonts.css` contains the five shared faces used across public pages; `fonts-caveat.css` isolates the handwritten Caveat face to the homepage and 404 page bundles.
+- Every generated CSS face uses `font-display: swap` and same-origin `/assets/fonts/` URLs. Public HTML does not load Google Fonts at runtime.
 - Do not replace master files with resized or recompressed derivatives. Private client gallery delivery remains outside this public asset set.
