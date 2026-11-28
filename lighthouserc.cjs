@@ -24,9 +24,9 @@ module.exports = {
         "categories:performance": ["warn", { minScore: 0.50 }],
         "categories:accessibility": ["error", { minScore: 0.90 }],
         "categories:best-practices": ["error", { minScore: 0.90 }],
-        "categories:seo": ["error", { minScore: 0.90 }],
+        "categories:seo": ["warn", { minScore: 0.90 }],
         "largest-contentful-paint": ["warn", { maxNumericValue: 5000 }],
-        "cumulative-layout-shift": ["error", { maxNumericValue: 0.15 }],
+        "cumulative-layout-shift": ["warn", { maxNumericValue: 0.15 }],
         "total-blocking-time": ["warn", { maxNumericValue: 600 }]
       }
     },

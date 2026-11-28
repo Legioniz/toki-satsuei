@@ -5,24 +5,19 @@ from __future__ import annotations
 import argparse
 import hashlib
 import re
-import sys
 import tempfile
 from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
-from scripts.sync_security_policy import build_csp_meta  # noqa: E402
 
 HASH_LENGTH = 32
 ASSET_SUFFIXES = {
     ".css", ".js", ".json", ".png", ".jpg", ".jpeg", ".webp", ".avif",
-    ".svg", ".gif", ".mp4", ".webm", ".woff", ".woff2", ".ttf", ".otf", ".ico",
+    ".svg", ".gif", ".mp4", ".webm", ".woff2", ".woff", ".ttf", ".otf", ".ico",
 }
 TEXT_SUFFIXES = {".html", ".css", ".js", ".json", ".svg"}
 
-CSP_META = build_csp_meta()
+# BEGIN_CSP_META
+CSP_META = "default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://static.sketchfab.com https://challenges.cloudflare.com https://*.challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https:; connect-src 'self' https://pjuwrngnrrvdiwqspkic.supabase.co https://challenges.cloudflare.com https://*.challenges.cloudflare.com https://*.cloudflareinsights.com; frame-src 'self' https://sketchfab.com https://*.sketchfab.com https://challenges.cloudflare.com https://*.challenges.cloudflare.com; upgrade-insecure-requests"
+# END_CSP_META
 
 
 def digest(path: Path) -> str:

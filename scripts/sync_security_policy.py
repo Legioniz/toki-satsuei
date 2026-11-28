@@ -11,9 +11,14 @@ ROOT = Path(__file__).resolve().parents[1]
 POLICY_PATH = ROOT / "security-policy.json"
 HEADERS_PATH = ROOT / "_headers"
 WORKER_PATH = ROOT / "worker.mjs"
+FINGERPRINT_PATH = ROOT / "scripts" / "fingerprint_assets.py"
 
 WORKER_BLOCK_RE = re.compile(
     r"// BEGIN_SECURITY_POLICY\n.*?// END_SECURITY_POLICY",
+    re.DOTALL,
+)
+FINGERPRINT_BLOCK_RE = re.compile(
+    r"# BEGIN_CSP_META\n.*?# END_CSP_META",
     re.DOTALL,
 )
 
@@ -102,6 +107,17 @@ def sync_all(*, check: bool = False) -> list[str]:
         stale.append("worker.mjs")
         if not check:
             WORKER_PATH.write_text(expected_worker, encoding="utf-8", newline="\n")
+
+    fingerprint_text = FINGERPRINT_PATH.read_text(encoding="utf-8")
+    if not FINGERPRINT_BLOCK_RE.search(fingerprint_text):
+        raise RuntimeError("scripts/fingerprint_assets.py is missing # BEGIN_CSP_META ... # END_CSP_META markers")
+    csp_meta = format_csp(policy["csp"], include_frame_ancestors=False)
+    expected_csp_block = f"# BEGIN_CSP_META\nCSP_META = {json.dumps(csp_meta)}\n# END_CSP_META"
+    expected_fingerprint = FINGERPRINT_BLOCK_RE.sub(lambda _: expected_csp_block, fingerprint_text, count=1)
+    if fingerprint_text != expected_fingerprint:
+        stale.append("scripts/fingerprint_assets.py")
+        if not check:
+            FINGERPRINT_PATH.write_text(expected_fingerprint, encoding="utf-8", newline="\n")
 
     return stale
 

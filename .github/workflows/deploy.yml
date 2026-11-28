@@ -219,6 +219,11 @@ jobs:
       - name: Verify cinematic field-journal design
         run: python tests/toki-cinematic-design-qa.py
 
+      - name: Assemble standalone Pages artifact for mobile image QA
+        run: |
+          python scripts/build_static_site.py --target pages
+          python scripts/fingerprint_assets.py dist
+
       - name: Test mobile WebKit, Android Chrome emulation, and rendered images
         run: python tests/toki-mobile-browser-image-qa.py
 
