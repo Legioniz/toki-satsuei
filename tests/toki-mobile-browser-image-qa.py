@@ -48,9 +48,35 @@ def verify_route(browser, label: str, base_url: str, route: str, context_options
             body: document.body.scrollWidth
         })"""
     )
-    assert dimensions["document"] <= dimensions["viewport"] + 1, (
-        f"{label} {route}: horizontal document overflow: {dimensions}"
-    )
+    if dimensions["document"] > dimensions["viewport"] + 1:
+        offenders = page.evaluate(
+            """() => Array.from(document.querySelectorAll("body *")).map((element) => {
+                const rect = element.getBoundingClientRect();
+                const style = getComputedStyle(element);
+                return {
+                    tag: element.tagName.toLowerCase(),
+                    id: element.id || "",
+                    className: typeof element.className === "string" ? element.className : "",
+                    left: Math.round(rect.left * 10) / 10,
+                    right: Math.round(rect.right * 10) / 10,
+                    width: Math.round(rect.width * 10) / 10,
+                    scrollWidth: element.scrollWidth,
+                    position: style.position,
+                    transform: style.transform,
+                    overflowX: style.overflowX,
+                    display: style.display
+                };
+            }).filter(item => item.width > window.innerWidth + 1 ||
+                              item.right > window.innerWidth + 1 ||
+                              item.left < -window.innerWidth)
+              .sort((a, b) => Math.max(b.right - window.innerWidth, b.width - window.innerWidth) -
+                              Math.max(a.right - window.innerWidth, a.width - window.innerWidth))
+              .slice(0, 30)"""
+        )
+        raise AssertionError(
+            f"{label} {route}: horizontal document overflow: {dimensions}; "
+            f"largest overflowing elements: {offenders}"
+        )
     assert dimensions["body"] <= dimensions["viewport"] + 1, (
         f"{label} {route}: horizontal body overflow: {dimensions}"
     )
