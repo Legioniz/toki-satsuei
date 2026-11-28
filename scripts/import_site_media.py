@@ -346,7 +346,7 @@ def build_fonts() -> dict:
                 f"  font-style: {style};",
                 f"  font-weight: {weight};",
                 "  font-display: swap;",
-                f'  src: url("./{filename}") format("woff2");',
+                f'  src: url("/assets/fonts/{filename}") format("woff2");',
                 "}",
                 "",
             ]
