@@ -40,13 +40,16 @@ jobs:
       - name: Verify originals, dimensions, responsive variants, fonts, and licenses
         run: python scripts/import_site_media.py --verify-only
 
+      - name: Rebuild page-scoped CSS bundles with self-hosted fonts
+        run: python scripts/build-css.py
+
       - name: Commit imported assets to the repository
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/photography assets/fonts
+          git add assets/photography assets/fonts toki-*.css
           if git diff --cached --quiet; then
             echo "Self-hosted assets are already up to date."
             exit 0
