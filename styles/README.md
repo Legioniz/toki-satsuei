@@ -64,4 +64,4 @@ already-loaded DM Sans.
 
 ## Self-hosted typography
 
-Public pages load `assets/fonts/fonts.css` from the same Cloudflare Pages origin. The stylesheet declares local Latin WOFF2 faces with `font-display: swap`; the corresponding SIL Open Font License files are retained under `assets/fonts/licenses/`. Pages do not request Google Fonts CSS or font binaries at runtime.
+The CSS build includes `assets/fonts/fonts.css` as a source module in each page-scoped `toki-*.css` bundle. The browser still requests exactly one stylesheet per page; that bundle declares same-origin Latin WOFF2 faces with `font-display: swap`. SIL Open Font License files are retained under `assets/fonts/licenses/`. No page requests Google Fonts CSS or font binaries at runtime.
