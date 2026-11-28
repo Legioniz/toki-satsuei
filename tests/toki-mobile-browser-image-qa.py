@@ -153,6 +153,7 @@ def verify_route(browser, label: str, base_url: str, route: str, context_options
     image_count = page.locator("img").count()
     checked_images = 0
     forced_eager_images = 0
+    skipped_external_images: list[str] = []
     for index in range(image_count):
         image = page.locator("img").nth(index)
         if not image.is_visible():
@@ -169,6 +170,13 @@ def verify_route(browser, label: str, base_url: str, route: str, context_options
         )
         handle = image.element_handle()
         assert handle is not None
+        candidate_url = image.evaluate("(img) => img.currentSrc || img.src")
+        if not candidate_url.startswith(base_url + "/"):
+            # This deterministic test context deliberately aborts all off-origin
+            # HTTPS requests. Report those references separately instead of treating
+            # an intentionally blocked third-party image as a failed local asset.
+            skipped_external_images.append(candidate_url)
+            continue
         declared_loading = image.get_attribute("loading") or "auto"
         forced_eager_for_decode = False
         try:
@@ -262,8 +270,13 @@ def verify_route(browser, label: str, base_url: str, route: str, context_options
 
     print(
         f"PASS {label} {route}: {dimensions['viewport']}px viewport, "
-        f"no horizontal overflow, {checked_images}/{image_count} visible images decoded "
-        f"({forced_eager_images} WebKit lazy-load fallbacks in test context)."
+        f"no horizontal overflow, {checked_images} same-origin images decoded; "
+        f"{len(skipped_external_images)} off-origin image(s) reported separately; "
+        f"{forced_eager_images} WebKit lazy-load fallbacks in test context."
+    )
+    if skipped_external_images:
+        print(f"INFO {label} {route}: off-origin images not fetched by the isolated test policy: "
+              f"{skipped_external_images}")
     )
     page.close()
     context.close()
