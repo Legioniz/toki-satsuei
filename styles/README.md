@@ -34,7 +34,7 @@ client gallery, and the shared archive/policy/404 page shells.
 CSS bundle QA rejects byte-equivalent rules repeated within the same source
 module and at-rule context. The mobile drawer now uses one consolidated layout
 block, and the pricing calculator loads after shared components so both rely
-on source order and scoped selector specificity instead of broad \`!important\`
+on source order and scoped selector specificity instead of broad `!important`
 overrides. The mobile drawer retains important priority only for suppressing
 animated sticky controls while its menu is open. Remaining legacy overrides
 still require computed-style and responsive/browser regression checks.
