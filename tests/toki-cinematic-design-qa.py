@@ -66,13 +66,18 @@ def main() -> None:
         bundle_header = (ROOT / bundle).read_text(encoding="utf-8").splitlines()[0]
         assert "cinematic.css" in bundle_header, f"{label}: cinematic stylesheet is not included in {bundle}"
         assert f'href="./{bundle}"' in source, f"{label}: source stylesheet bundle reference is missing"
-        assert "family=Cormorant+Garamond" in source, f"{label}: editorial font is not loaded"
-        assert "family=DM+Sans" in source, f"{label}: body font is not loaded"
-        assert "family=Space+Mono" in source, f"{label}: technical font is not loaded"
-        if label in ("home", "404"):
-            assert "family=Caveat" in source, "404 handwritten annotation font is not loaded"
+        bundle_css = (ROOT / bundle).read_text(encoding="utf-8")
+        for family, role in (
+            ("Cormorant Garamond", "editorial"),
+            ("DM Sans", "body"),
+            ("Space Mono", "technical"),
+        ):
+            assert f'font-family:"{family}"' in bundle_css, f"{label}: local {role} font is not bundled"
+            assert "fonts.googleapis.com" not in bundle_css and "fonts.gstatic.com" not in bundle_css
+        if bundle in ("toki-home.css", "toki-404.css"):
+            assert 'font-family:"Caveat"' in bundle_css, f"{label}: local handwritten font is not bundled"
         else:
-            assert "family=Caveat" not in source, f"{label}: unused handwritten font should not be requested"
+            assert 'font-family:"Caveat"' not in bundle_css, f"{label}: unused handwritten font should not be in this bundle"
         assert 'id="main-content"' in source, f"{label}: main content landmark is missing"
 
     assert "Stay with<br>the <em>feeling.</em>" in home
@@ -103,8 +108,13 @@ def main() -> None:
 
             for filename in PAGES:
                 page = context.new_page()
+                font_requests = []
+                page.on("request", lambda request: font_requests.append(request.url) if ".woff2" in request.url and "caveat-" in request.url else None)
                 page.goto(base + "/" + filename, wait_until="domcontentloaded")
                 page.wait_for_selector("main#main-content")
+                page.wait_for_timeout(120)
+                if filename in ("booking.html", "library.html", "policies.html"):
+                    assert not any("caveat-" in url for url in font_requests), f"{filename}: unused Caveat font was downloaded"
                 expected_bundle = {
                     "index.html": "toki-home.css",
                     "booking.html": "toki-home.css",
