@@ -61,9 +61,7 @@ def verify_route(browser, label: str, base_url: str, route: str, context_options
         image = page.locator("img").nth(index)
         if not image.is_visible():
             continue
-        awaitable = image.scroll_into_view_if_needed(timeout=3_000)
-        # Playwright's synchronous API completes the scroll before this line returns.
-        del awaitable
+        image.scroll_into_view_if_needed(timeout=3_000)
         handle = image.element_handle()
         assert handle is not None
         page.wait_for_function(
