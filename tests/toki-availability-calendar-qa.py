@@ -107,6 +107,8 @@ def main() -> None:
 
             context.route(SUPABASE_HOST + "/functions/v1/toki-calendar**", calendar_response)
             page = context.new_page()
+            page_errors: list[str] = []
+            page.on("pageerror", lambda error: page_errors.append(str(error)))
             page.goto(base + "/index.html", wait_until="domcontentloaded")
             page.wait_for_function("() => document.querySelector('#availability-retry')?.hidden === false")
             assert page.locator("#availability-retry").is_visible()
@@ -161,11 +163,47 @@ def main() -> None:
             assert next_booked_button.locator(".calendar-booking-count").inner_text() == "1"
             assert requests[0]["headers"].get("apikey") == PUBLISHABLE_KEY
 
-            page.locator("#availability-previous").click()
-            page.wait_for_function(
-                "(month) => document.querySelector('#availability-month')?.textContent === month",
-                arg=previous_month,
+            page.evaluate("""() => {
+                window.__availabilityPreviousClicks = 0;
+                document.addEventListener("click", event => {
+                    if (event.target instanceof Element &&
+                        event.target.closest("#availability-previous")) {
+                        window.__availabilityPreviousClicks += 1;
+                    }
+                }, true);
+            }""")
+            previous_button = page.locator("#availability-previous")
+            previous_state_before = previous_button.evaluate("""button => ({
+                disabled: button.disabled,
+                month: document.querySelector("#availability-month")?.textContent ?? null,
+                busy: document.querySelector("#availability-days")?.getAttribute("aria-busy") ?? null
+            })""")
+            assert not previous_state_before["disabled"], (
+                f"Previous-month navigation should be enabled after moving forward: {previous_state_before}"
             )
+            previous_button.click()
+            try:
+                page.wait_for_function(
+                    "(month) => document.querySelector('#availability-month')?.textContent === month",
+                    arg=previous_month,
+                    timeout=5000,
+                )
+            except Exception as error:
+                state_after = page.evaluate("""() => ({
+                    month: document.querySelector("#availability-month")?.textContent ?? null,
+                    previousDisabled: document.querySelector("#availability-previous")?.disabled ?? null,
+                    nextDisabled: document.querySelector("#availability-next")?.disabled ?? null,
+                    busy: document.querySelector("#availability-days")?.getAttribute("aria-busy") ?? null,
+                    status: document.querySelector("#availability-status")?.textContent ?? null,
+                    updated: document.querySelector("#availability-updated")?.textContent ?? null,
+                    previousClicks: window.__availabilityPreviousClicks ?? 0,
+                    pathname: location.pathname
+                })""")
+                raise AssertionError(
+                    "Previous-month navigation did not restore the starting month. "
+                    f"Before click: {previous_state_before}; after click: {state_after}; "
+                    f"requests: {requests}; page errors: {page_errors}"
+                ) from error
             page.locator("#availability-next").click()
             page.wait_for_function(
                 "(month) => document.querySelector('#availability-month')?.textContent !== month",
