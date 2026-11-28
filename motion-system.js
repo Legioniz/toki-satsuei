@@ -101,8 +101,8 @@
   root.classList.add("motion-system-ready", "motion-ready");
 
   /* Shorten site motion without changing the official startup logo sequence. */
-  const MOTION_DURATION_FACTOR = 0.78;
-  const CSS_MOTION_PLAYBACK_RATE = 1.28;
+  const MOTION_DURATION_FACTOR = 0.624;
+  const CSS_MOTION_PLAYBACK_RATE = 1.6;
   const STARTUP_LOGO_SELECTOR = ".toki-intro-curtain, .toki-intro-curtain *, .toki-intro-logo";
 
   function isStartupLogoAnimation(animation) {
@@ -143,7 +143,7 @@
 
   function shortenMotionTime(value) {
     return typeof value === "number" && Number.isFinite(value) && value > 0
-      ? Math.max(80, Math.round(value * MOTION_DURATION_FACTOR))
+      ? Math.max(64, Math.round(value * MOTION_DURATION_FACTOR))
       : value;
   }
 
