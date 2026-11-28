@@ -24,14 +24,6 @@
 /* Dark sections keep their own light eyebrow colour. */
 .services-section .eyebrow, .process-heading .eyebrow{ color: #b9ada0; }
 
-/* Session guide: strong TOKI crimson on the warm paper surface. */
-.sessions-section > .section-heading .eyebrow{
-  color: #a31f2d;
-  font-weight: 800;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-}
-
 /* Contact label: one line on wide screens, in normal flow on small ones. */
 .contact-panel::before{ white-space: nowrap; }
 @media (max-width: 760px){
