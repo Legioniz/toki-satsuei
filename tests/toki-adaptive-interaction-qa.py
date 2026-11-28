@@ -36,7 +36,7 @@ def main():
    assert home.evaluate("typeof window.TokiMotion.closeDialog === 'function' && typeof window.TokiMotion.setMenuOpen === 'function'"), "Shared menu/dialog transition helpers are missing"
    assert home.locator(".motion-item").count() >= 10, "Shared motion system did not prepare enough homepage content"
    gallery_transition=home.locator(".gallery-card").first.evaluate("(el)=>getComputedStyle(el).transitionDuration")
-   assert "0.46s" in gallery_transition, "Gallery cards are missing the shared interaction transition"
+   assert "0.313s" in gallery_transition, "Gallery cards are missing the current reduced-duration interaction transition"
    hero=home.locator(".hero-opening").bounding_box()
    home.mouse.move(hero["x"]+hero["width"]*.78,hero["y"]+hero["height"]*.3)
    home.wait_for_function("() => getComputedStyle(document.querySelector('.hero-photo')).translate !== 'none' && getComputedStyle(document.querySelector('.hero-photo')).translate !== '0px 0px'")
