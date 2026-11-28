@@ -110,6 +110,41 @@ const TokiSFX = (() => {
     playTone(840, 0.03, "triangle", 0.035);
   }
 
+  function playDialTick() {
+    if (!enabled || reducedMotion) return;
+    try {
+      const audioCtx = getAudioContext();
+      if (!audioCtx || audioCtx.state !== "running") return;
+      const t = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(1620, t);
+      osc.frequency.exponentialRampToValueAtTime(640, t + 0.022);
+      gain.gain.setValueAtTime(0.03, t);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.024);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(t);
+      osc.stop(t + 0.026);
+    } catch {}
+  }
+
+  function playChime() {
+    if (!enabled || reducedMotion) return;
+    playTone(660, 0.07, "sine", 0.03);
+    setTimeout(() => playTone(990, 0.11, "sine", 0.025), 55);
+  }
+
+  let lastHoverAt = 0;
+  function playHoverDetent() {
+    if (!enabled || reducedMotion || !ctx || ctx.state !== "running") return;
+    const now = performance.now();
+    if (now - lastHoverAt < 100) return;
+    lastHoverAt = now;
+    playTone(1180, 0.016, "sine", 0.012);
+  }
+
   function setEnabled() {
     enabled = true;
   }
@@ -128,7 +163,7 @@ const TokiSFX = (() => {
     window.addEventListener("touchstart", unlock, { passive: true });
   }
 
-  return { init, playShutter, playFocus, playSelect, setEnabled, isEnabled: () => true };
+  return { init, playShutter, playFocus, playSelect, playDialTick, playChime, playHoverDetent, setEnabled, isEnabled: () => true };
 })();
 
 if (document.readyState === "loading") {
@@ -240,13 +275,24 @@ document.querySelectorAll('a[href^="#"]').forEach(link=>{
   });
 });
 
-// Tactile audio feedback on primary controls and darkroom cards
-document.querySelectorAll(".button, .filter-button, .calendar-controls button, .calc-apply-btn, .package-link, .menu-toggle, .lightbox-nav, .lightbox-close").forEach(btn=>{
+// Tactile audio feedback on primary controls, steppers, and darkroom cards
+document.querySelectorAll(".button, .menu-toggle, .lightbox-nav, .lightbox-close").forEach(btn=>{
   btn.addEventListener("click",()=>TokiSFX.playSelect(),{passive:true});
+});
+document.querySelectorAll(".calc-btn-step, [data-equipment-angle], [data-equipment-mode], #availability-previous, #availability-next, #availability-today").forEach(btn=>{
+  btn.addEventListener("click",()=>TokiSFX.playDialTick(),{passive:true});
+});
+document.querySelectorAll(".package-link, #calc-apply-to-booking, #btn-copy-reference").forEach(btn=>{
+  btn.addEventListener("click",()=>TokiSFX.playChime(),{passive:true});
 });
 document.querySelectorAll(".gallery-card").forEach(card=>{
   card.addEventListener("click",()=>TokiSFX.playShutter(),{passive:true});
 });
+if(hoverPointer){
+  document.querySelectorAll(".gallery-card, .package-card").forEach(card=>{
+    card.addEventListener("pointerenter",()=>TokiSFX.playHoverDetent(),{passive:true});
+  });
+}
 
 let galleryFilterRevision=0;
 const galleryCards=[...document.querySelectorAll(".gallery-card")];

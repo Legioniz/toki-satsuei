@@ -96,7 +96,52 @@ html.motion-system-ready :where(
   outline-offset: 4px;
 }
 
+@media (hover: hover) and (pointer: fine) {
+  html.motion-system-ready :where(.button-primary, .button-red, .calc-apply-btn, .availability-use-date):hover:not(:disabled) {
+    transform: translate3d(var(--btn-x, 0px), var(--btn-y, 0px), 0);
+  }
+  html.motion-system-ready :where(.package-card, .process-step, .toki-pillar) {
+    position: relative;
+  }
+  html.motion-system-ready :where(.package-card, .process-step, .toki-pillar)::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(240px circle at var(--pointer-x, 50%) var(--pointer-y, 50%), rgba(216, 164, 72, 0.11), transparent 70%);
+    transition: opacity 180ms var(--ease-expo-out);
+  }
+  html.motion-system-ready :where(.package-card, .process-step, .toki-pillar):hover::after {
+    opacity: 1;
+  }
+}
+
+html.motion-system-ready #page-progress-bar {
+  box-shadow: 0 0 calc(6px + min(12px, var(--toki-scroll-vel, 0) * 14px)) rgba(195, 42, 57, 0.55);
+}
+
+html.motion-system-ready .faq-list details[open] .faq-answer {
+  animation: tokiFaqReveal 180ms var(--ease-expo-out) both;
+}
+@keyframes tokiFaqReveal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  html.motion-system-ready :where(.package-card, .process-step, .toki-pillar)::after {
+    display: none;
+  }
+  html.motion-system-ready .faq-list details[open] .faq-answer {
+    animation: none;
+  }
   :where(.site-header, .admin-header, .client-header) {
     view-transition-name: none;
   }

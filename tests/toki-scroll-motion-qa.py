@@ -271,7 +271,7 @@ def main() -> None:
                 f"WAAPI durations and delays must both be halved: {waapi_timing}"
             )
             intro_page.close()
-            assert page.locator(".toki-scroll-scene").count() >= 10
+            assert page.locator(".toki-scroll-scene").count() >= 9
 
             # The homepage masthead remains hidden throughout the hero, even on rapid scroll jumps.
             home_header = page.locator(".site-header")

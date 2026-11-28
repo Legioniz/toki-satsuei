@@ -610,9 +610,11 @@
   observer = createObserver();
   preloadObserver = createPreloadObserver();
 
-  /* Interactive pointer parallax & 3D tilt for optical cards. */
+  /* Interactive pointer parallax, 3D tilt, and subtle magnetic CTA pull. */
   const interactiveCards = ".toki-card, .package-card, .gallery-card, .process-step, .calculator-wrap, .toki-pillar, .album-card";
+  const magneticButtons = ".button-primary, .button-red, .calc-apply-btn, .availability-use-date";
   let activeTiltCard = null;
+  let activeMagneticBtn = null;
   if (fineHover.matches) {
     document.addEventListener("pointermove", event => {
       if (reduced || event.pointerType === "touch") return;
@@ -620,6 +622,22 @@
       root.style.setProperty("--aura-y", event.clientY.toFixed(0) + "px");
 
       const target = event.target instanceof Element ? event.target : null;
+      const btn = target?.closest(magneticButtons);
+      if (activeMagneticBtn && activeMagneticBtn !== btn) {
+        activeMagneticBtn.style.removeProperty("--btn-x");
+        activeMagneticBtn.style.removeProperty("--btn-y");
+      }
+      if (btn && !btn.disabled) {
+        activeMagneticBtn = btn;
+        const bRect = btn.getBoundingClientRect();
+        const bx = (((event.clientX - bRect.left) / Math.max(1, bRect.width)) - 0.5) * 5;
+        const by = (((event.clientY - bRect.top) / Math.max(1, bRect.height)) - 0.5) * 5;
+        btn.style.setProperty("--btn-x", Math.max(-2.5, Math.min(2.5, bx)).toFixed(2) + "px");
+        btn.style.setProperty("--btn-y", Math.max(-2.5, Math.min(2.5, by)).toFixed(2) + "px");
+      } else {
+        activeMagneticBtn = null;
+      }
+
       const card = target?.closest(interactiveCards);
       if (activeTiltCard && activeTiltCard !== card) {
         activeTiltCard.style.removeProperty("--tilt-x");
@@ -648,6 +666,11 @@
         activeTiltCard.style.removeProperty("--tilt-x");
         activeTiltCard.style.removeProperty("--tilt-y");
         activeTiltCard = null;
+      }
+      if (activeMagneticBtn) {
+        activeMagneticBtn.style.removeProperty("--btn-x");
+        activeMagneticBtn.style.removeProperty("--btn-y");
+        activeMagneticBtn = null;
       }
     }, { passive: true });
   }
