@@ -76,8 +76,8 @@ def main() -> None:
         "The response CSP must not allow inline or eval scripts."
     )
     assert "https://static.sketchfab.com" in home, "The page CSP must allow the official Sketchfab Viewer API script."
-    assert "Canon EOS 3000D" in equipment and "Canon EF-S 18–55mm" in equipment
-    assert equipment.count("equipment-spec-disclosure") == 3, "Equipment specifications and references must be collapsible."
+    assert "Canon EOS 3000D" in equipment and "EF-S 18–55MM" in equipment, "Current equipment viewer must identify the camera body and kit lens."
+    assert equipment.count("equipment-spec-disclosure") == 0, "The intentionally removed equipment specification disclosure panel must stay removed."
     assert "lens revision" not in equipment.lower(), "The removed lens-revision paragraph must stay removed."
     assert "The supplied 2D product views depict" not in equipment, "The removed equipment disclaimer must not return."
     assert "equipment-model-3d" not in equipment and "equipment-blueprint" not in equipment, "Retired CSS/2D schematic must stay removed."
