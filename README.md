@@ -4,7 +4,7 @@ The complete standalone TOKI SATSUEI website, kept separate from the Legioniz pe
 
 - **Official website:** https://legioniz.github.io/toki-satsuei/
 - **Secured Cloudflare Pages mirror:** https://toki-satsuei.pages.dev/
-- **Design principles:** [DESIGN-PRINCIPLES.md](DESIGN-PRINCIPLES.md) documents the usability, accessibility, and booking-integrity rules behind the site.
+- **Design principles:** [docs/DESIGN-PRINCIPLES.md](docs/DESIGN-PRINCIPLES.md) documents the usability, accessibility, and booking-integrity rules behind the site.
 - **Facebook:** https://www.facebook.com/tokisatsuiephotography/
 - **Instagram:** https://www.instagram.com/tokisatsuiephotography/
 
