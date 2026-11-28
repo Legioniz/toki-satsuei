@@ -84,13 +84,13 @@ jobs:
 
       - name: Verify JavaScript syntax
         run: |
-          node --check motion-system.js
-          node --check site.js
-          node --check availability.js
-          node --check library.js
-          node --check admin.js
-          node --check client-gallery.js
-          node --check worker.mjs
+          node --check src/js/motion-system.js
+          node --check src/js/site.js
+          node --check src/js/availability.js
+          node --check src/js/library.js
+          node --check src/js/admin.js
+          node --check src/js/client-gallery.js
+          node --check src/worker/worker.mjs
 
       - name: Verify Worker response headers and cache policy
         run: node tests/toki-worker-runtime-qa.mjs
@@ -126,6 +126,9 @@ jobs:
 
       - name: Build media archive manifest
         run: python scripts/build-toki-media-library.py
+
+      - name: Assemble local Pages preview for browser QA
+        run: python scripts/build_static_site.py --target pages
 
       - name: Verify page and asset integration
         run: python tests/toki-asset-integration-qa.py
