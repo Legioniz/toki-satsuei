@@ -75,6 +75,7 @@ FONT_SPECS = {
     "Caveat": {
         "slug": "caveat",
         "license_dir": "caveat",
+        "bundle": "handwritten",
         "faces": [("normal", "400 700")],
     },
     "Cormorant Garamond": {
@@ -334,12 +335,19 @@ def build_fonts() -> dict:
                 raise ValueError(f"Font license is not SIL OFL: {license_path}")
             atomic_write(license_path, license_payload)
 
-    css_lines = [
-        "/* Self-hosted Latin WOFF2 variable faces and static technical weights. */",
-        "",
-    ]
+    css_groups = {
+        "shared": [
+            "/* Shared self-hosted Latin WOFF2 faces for all page bundles. */",
+            "",
+        ],
+        "handwritten": [
+            "/* Homepage and 404 handwritten Caveat face only. */",
+            "",
+        ],
+    }
     for family, style, weight, filename in expected_files:
-        css_lines.extend(
+        bundle = FONT_SPECS[family].get("bundle", "shared")
+        css_groups[bundle].extend(
             [
                 "@font-face {",
                 f'  font-family: "{family}";',
@@ -351,7 +359,8 @@ def build_fonts() -> dict:
                 "",
             ]
         )
-    atomic_write(FONT_ROOT / "fonts.css", "\n".join(css_lines).encode("utf-8"))
+    atomic_write(FONT_ROOT / "fonts.css", "\n".join(css_groups["shared"]).encode("utf-8"))
+    atomic_write(FONT_ROOT / "fonts-caveat.css", "\n".join(css_groups["handwritten"]).encode("utf-8"))
 
     # Remove stale per-weight duplicates from the previous static-face importer.
     expected_names = {item[3] for item in expected_files}
@@ -360,7 +369,7 @@ def build_fonts() -> dict:
             stale.unlink()
 
     manifest = {
-        "version": 2,
+        "version": 3,
         "source": "Google Fonts CSS2 API, imported for self-hosting",
         "format": "WOFF2",
         "font_display": "swap",
@@ -392,30 +401,48 @@ def verify_assets() -> None:
                 with Image.open(variant) as image:
                     if image.format != expected_format or image.size != (width, height):
                         raise ValueError(f"Invalid image variant: {variant}")
+
     expected_font_names = set()
+    expected_by_bundle = {"shared": [], "handwritten": []}
     for family, spec in FONT_SPECS.items():
+        license_path = FONT_ROOT / "licenses" / f'{spec["slug"]}-OFL.txt'
+        if not license_path.is_file() or b"SIL OPEN FONT LICENSE" not in license_path.read_bytes().upper():
+            raise ValueError(f"Missing SIL Open Font License: {license_path}")
         for style, weight in spec["faces"]:
-            font = FONT_ROOT / font_filename(spec, style, weight)
+            filename = font_filename(spec, style, weight)
+            font = FONT_ROOT / filename
             expected_font_names.add(font.name)
+            expected_by_bundle[spec.get("bundle", "shared")].append(filename)
             if not font.is_file() or not font.read_bytes().startswith(b"wOF2"):
                 raise ValueError(f"Missing or invalid self-hosted font: {font}")
+
     actual_font_names = {font.name for font in FONT_ROOT.glob("*.woff2")}
     if actual_font_names != expected_font_names:
         raise ValueError(
             f"Self-hosted font set contains unexpected files: "
             f"{sorted(actual_font_names ^ expected_font_names)}"
         )
-        license_path = FONT_ROOT / "licenses" / f'{spec["slug"]}-OFL.txt'
-        if not license_path.is_file() or b"SIL OPEN FONT LICENSE" not in license_path.read_bytes().upper():
-            raise ValueError(f"Missing SIL Open Font License: {license_path}")
-    css = (FONT_ROOT / "fonts.css").read_text(encoding="utf-8")
-    if "fonts.gstatic.com" in css or "https://" in css or "font-display: swap" not in css:
-        raise ValueError("Generated font CSS contains a remote source or lacks font-display: swap")
+
+    for bundle, filenames in (
+        ("fonts.css", expected_by_bundle["shared"]),
+        ("fonts-caveat.css", expected_by_bundle["handwritten"]),
+    ):
+        css = (FONT_ROOT / bundle).read_text(encoding="utf-8")
+        if "fonts.gstatic.com" in css or "https://" in css or "font-display: swap" not in css:
+            raise ValueError(f"Generated {bundle} contains a remote source or lacks font-display: swap")
+        if css.count("@font-face") != len(filenames):
+            raise ValueError(f"Generated {bundle} has an unexpected number of font faces")
+        for filename in filenames:
+            if f'url("/assets/fonts/{filename}")' not in css:
+                raise ValueError(f"Generated {bundle} does not declare local font: {filename}")
+
     manifest = json.loads((PHOTOGRAPHY_ROOT / "manifest.json").read_text(encoding="utf-8"))
     if len(manifest.get("photographs", [])) != len(PHOTOGRAPHS):
         raise ValueError("Photography manifest is incomplete")
-    print(f"PASS self-hosted media: 4 untouched JPEG masters, 24 responsive derivatives, {sum(len(spec['faces']) for spec in FONT_SPECS.values())} WOFF2 faces, and 4 OFL licenses.")
-
+    print(
+        f"PASS self-hosted media: 4 untouched JPEG masters, 24 responsive derivatives, "
+        f"{sum(len(spec['faces']) for spec in FONT_SPECS.values())} WOFF2 faces, and 4 OFL licenses."
+    )
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
