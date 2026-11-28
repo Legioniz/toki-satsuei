@@ -170,7 +170,24 @@ def verify_fonts() -> None:
     for item in fonts:
         filename = Path(item["path"]).name
         if f'url("/assets/fonts/{filename}")' not in css:
-            raise AssertionError(f"Font CSS does not declare local face: {filename}")
+            raise AssertionError(f"Font CSS source does not declare local face: {filename}")
+
+    bundles = (
+        "toki-home.css",
+        "toki-archive.css",
+        "toki-policies.css",
+        "toki-404.css",
+        "toki-admin.css",
+        "toki-client.css",
+    )
+    for bundle_name in bundles:
+        bundle = (ROOT / bundle_name).read_text(encoding="utf-8")
+        if bundle.count("@font-face") != EXPECTED_FONT_FACES or "font-display:swap" not in bundle:
+            raise AssertionError(f"{bundle_name} does not bundle every local font face")
+        for item in fonts:
+            filename = Path(item["path"]).name
+            if f'url("/assets/fonts/{filename}")' not in bundle:
+                raise AssertionError(f"{bundle_name} is missing the local font resource: {filename}")
 
 
 def verify_pages_and_loading() -> None:
@@ -181,8 +198,18 @@ def verify_pages_and_loading() -> None:
         for host in REMOTE_ASSET_HOSTS:
             if host in content:
                 raise AssertionError(f"{page} still references external visual asset host {host}")
-        if not re.search(r'<link rel="stylesheet" href="\./assets/fonts/fonts\.css(?:\?[^"]*)?">', content):
-            raise AssertionError(f"{page} does not load the local font stylesheet")
+        expected_bundle = {
+            "index.html": "toki-home.css",
+            "booking.html": "toki-home.css",
+            "library.html": "toki-archive.css",
+            "policies.html": "toki-policies.css",
+            "404.html": "toki-404.css",
+            "admin.html": "toki-admin.css",
+            "client-gallery.html": "toki-client.css",
+        }[page]
+        stylesheets = re.findall(r'<link rel="stylesheet" href="([^"]+)">', content)
+        if stylesheets != [f"./{expected_bundle}"]:
+            raise AssertionError(f"{page} must load exactly one page-scoped CSS bundle, found {stylesheets}")
 
     home = pages["index.html"]
     hero_picture = re.search(
