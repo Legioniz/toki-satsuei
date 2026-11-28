@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import worker from "../worker.mjs";
+import worker from "../src/worker/worker.mjs";
 
 async function request(path, assetResponse = new Response("ok")) {
   return worker.fetch(
@@ -24,7 +24,7 @@ assert.equal(admin.headers.get("cache-control"), "no-store");
 const clientGallery = await request("/client-gallery");
 assert.equal(clientGallery.headers.get("cache-control"), "no-store");
 
-const fingerprinted = await request("/toki-home.css?v=0123456789abcdef0123456789abcdef");
+const fingerprinted = await request("/assets/css/toki-home.css?v=0123456789abcdef0123456789abcdef");
 assert.equal(fingerprinted.headers.get("cache-control"), "public, max-age=31536000, immutable");
 
 const unversioned = await request("/assets/logo.png");
