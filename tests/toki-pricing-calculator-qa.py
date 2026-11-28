@@ -125,6 +125,19 @@ def main() -> None:
                 }""",
                 timeout=4000,
             )
+            # The hover styling intentionally transitions. Wait for the visual
+            # state to settle instead of sampling the first frame of the transition.
+            page.wait_for_function(
+                """() => {
+                    const button = document.querySelector("#calc-apply-to-booking");
+                    if (!button || !button.matches(":hover")) return false;
+                    const style = getComputedStyle(button);
+                    return style.backgroundColor === "rgb(184, 40, 55)" &&
+                        style.borderTopColor === "rgb(163, 31, 45)" &&
+                        style.transform !== "none";
+                }""",
+                timeout=2000,
+            )
             hover_style = apply_button.evaluate("""button => {
                 const style = getComputedStyle(button);
                 return {
