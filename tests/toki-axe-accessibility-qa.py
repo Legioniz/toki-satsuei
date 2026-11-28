@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import json
 from functools import partial
-from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from http.server import SimpleHTTPRequestHandler
 from pathlib import Path
-from threading import Thread
+from toki_local_https_server import start_https_server
 
 from playwright.sync_api import sync_playwright
 
@@ -64,10 +64,7 @@ def main() -> None:
         target = SITE / route.lstrip("/") if route != "/" else SITE / "index.html"
         assert target.is_file() and target.stat().st_size > 0, f"Missing packaged route: {route}"
 
-    server = ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler))
-    thread = Thread(target=server.serve_forever, daemon=True)
-    thread.start()
-    base_url = f"http://127.0.0.1:{server.server_port}"
+    server, thread, certificate_dir, base_url = start_https_server(partial(QuietHandler))
 
     all_violations: list[dict] = []
     failures: list[str] = []
@@ -80,9 +77,16 @@ def main() -> None:
             context = browser.new_context(
                 viewport={"width": 1365, "height": 900},
                 reduced_motion="reduce",
+                ignore_https_errors=True,
             )
-            # Third-party challenge/model frames are outside the local static-page audit.
-            context.route("https://**", lambda route: route.abort())
+            # Allow same-origin HTTPS assets (CSP upgrades HTTP resources); only
+            # third-party challenge/model requests are outside this local audit.
+            context.route(
+                "https://**",
+                lambda route: route.continue_()
+                if route.request.url.startswith(base_url + "/")
+                else route.abort(),
+            )
 
             for route in ROUTES:
                 page = context.new_page()
@@ -153,6 +157,7 @@ def main() -> None:
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+        certificate_dir.cleanup()
 
     report_path = ROOT / "axe-accessibility-report.json"
     report_path.write_text(
