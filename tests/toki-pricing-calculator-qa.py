@@ -119,6 +119,25 @@ def main() -> None:
                 document.body.style.setProperty("scroll-behavior", "auto", "important");
             }""")
             apply_button.scroll_into_view_if_needed()
+            page.evaluate("""() => {
+                window.__tokiPointerTrace = [];
+                for (const type of ["pointermove", "pointerover", "pointerout", "pointerleave", "mouseover", "mouseout"]) {
+                    document.addEventListener(type, event => {
+                        const target = event.target instanceof Element ? event.target : null;
+                        window.__tokiPointerTrace.push({
+                            type,
+                            x: event.clientX ?? null,
+                            y: event.clientY ?? null,
+                            pointerType: event.pointerType ?? null,
+                            target: target?.id || target?.className || target?.tagName || null,
+                            related: event.relatedTarget instanceof Element
+                                ? event.relatedTarget.id || event.relatedTarget.className || event.relatedTarget.tagName
+                                : null
+                        });
+                        if (window.__tokiPointerTrace.length > 30) window.__tokiPointerTrace.shift();
+                    }, true);
+                }
+            }""")
             button_box = apply_button.bounding_box()
             assert button_box and button_box["width"] > 0 and button_box["height"] > 0, (
                 "Pricing calculator apply button must have visible geometry before hover QA."
@@ -161,6 +180,7 @@ def main() -> None:
                         hoverChain: [...document.querySelectorAll(":hover")].map(node =>
                             node.id || node.className || node.tagName
                         ),
+                        pointerTrace: window.__tokiPointerTrace ?? [],
                         backgroundColor: style.backgroundColor,
                         borderTopColor: style.borderTopColor,
                         surfaceToken: style.getPropertyValue("--toki-button-surface").trim(),
