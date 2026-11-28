@@ -22,7 +22,7 @@ from PIL import Image, ImageOps
 ROOT = Path(__file__).resolve().parents[1]
 PHOTOGRAPHY_ROOT = ROOT / "assets" / "photography"
 FONT_ROOT = ROOT / "assets" / "fonts"
-USER_AGENT = "TOKI-SATSU E I asset importer/1.0 (+https://github.com/Legioniz/toki-satsuei)"
+USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 MAX_IMAGE_BYTES = 25 * 1024 * 1024
 MAX_FONT_BYTES = 4 * 1024 * 1024
 MAX_CSS_BYTES = 512 * 1024
@@ -233,36 +233,53 @@ def build_photography() -> list[dict]:
 
 
 def parse_font_faces(css: str) -> dict[tuple[str, str, str], str]:
+    """Resolve the requested static font faces from modern-browser Google CSS.
+
+    Google Fonts varies its CSS response by User-Agent. A real browser User-Agent
+    is required to receive WOFF2 rather than legacy TTF sources. Match each
+    descriptor independently and accept either quoted or unquoted WOFF2 URLs.
+    """
     selected: dict[tuple[str, str, str], str] = {}
+    diagnostics: set[str] = set()
     for match in re.finditer(r"@font-face\s*\{([^}]+)\}", css, re.IGNORECASE | re.DOTALL):
         block = match.group(1)
-        family_match = re.search(r"font-family:\s*['\"]([^'\"]+)['\"]", block, re.IGNORECASE)
+        family_match = re.search(r"font-family:\s*['\"]?([^;'\"}\n]+)['\"]?\s*;", block, re.IGNORECASE)
         style_match = re.search(r"font-style:\s*([^;]+)", block, re.IGNORECASE)
         weight_match = re.search(r"font-weight:\s*([^;]+)", block, re.IGNORECASE)
         range_match = re.search(r"unicode-range:\s*([^;]+)", block, re.IGNORECASE)
         source_match = re.search(
-            r"src:\s*url\(['\"]?(https://fonts\.gstatic\.com/[^)'\"\s]+)['\"]?\)\s*format\(['\"]woff2['\"]\)",
+            r"""src:\s*url\(\s*['"]?(https://fonts\.gstatic\.com/[^)'"\s]+)['"]?\s*\)\s*format\(\s*['"]?woff2['"]?\s*\)""",
             block,
             re.IGNORECASE,
         )
+        if family_match:
+            family = family_match.group(1).strip()
+            if family in FONT_SPECS:
+                weight_text = weight_match.group(1).strip() if weight_match else "?"
+                style_text = style_match.group(1).strip().lower() if style_match else "?"
+                diagnostics.add(f"{family} {style_text} {weight_text}")
         if not all((family_match, style_match, weight_match, range_match, source_match)):
             continue
-        if not re.search(r"U\+0000-00FF", range_match.group(1), re.IGNORECASE):
+        family = family_match.group(1).strip()
+        style = style_match.group(1).strip().lower()
+        weight = weight_match.group(1).strip()
+        if family not in FONT_SPECS:
             continue
-        key = (
-            family_match.group(1).strip(),
-            style_match.group(1).strip().lower(),
-            weight_match.group(1).strip(),
-        )
+        if not re.search(r"U\+\s*0000\s*-\s*00FF", range_match.group(1), re.IGNORECASE):
+            continue
+        key = (family, style, weight)
         if key in EXPECTED_FONT_FACES:
             selected[key] = source_match.group(1)
 
     missing = EXPECTED_FONT_FACES - selected.keys()
     if missing:
         readable = ", ".join(f"{family} {style} {weight}" for family, style, weight in sorted(missing))
-        raise ValueError(f"Google Fonts CSS did not provide all required Latin WOFF2 faces: {readable}")
+        received = ", ".join(sorted(diagnostics)) or "no matching @font-face blocks"
+        raise ValueError(
+            "Google Fonts CSS did not provide all required Latin WOFF2 faces: "
+            f"{readable}. Received descriptors: {received}"
+        )
     return selected
-
 
 def build_fonts() -> dict:
     expected_files = []
