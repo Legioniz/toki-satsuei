@@ -192,6 +192,13 @@ def main():
     assert ".calculator-wrap .section-aside" not in components_css, (
         "Shared components must not force an important color onto pricing-calculator copy"
     )
+    home_booking_css = (ROOT / "styles/pages/home-booking.css").read_text(encoding="utf-8")
+    assert ".sessions-section .section-aside" not in home_booking_css, (
+        "Home booking styles must not apply the outer session heading width to nested estimator text"
+    )
+    assert ".sessions-section > .section-heading .section-aside" in home_booking_css, (
+        "The outer session heading must retain its scoped max-width"
+    )
     assert ".sessions-section .section-aside" not in components_css, (
         "Session heading typography must not cascade into the nested pricing calculator"
     )
