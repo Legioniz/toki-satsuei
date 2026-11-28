@@ -15,7 +15,7 @@ module.exports = {
       numberOfRuns: 1,
       chromePath: process.env.CHROME_PATH,
       settings: {
-        preset: "mobile",
+        // Lighthouse defaults to mobile emulation; "mobile" is not a supported preset.
         chromeFlags: ["--no-sandbox", "--disable-dev-shm-usage", "--ignore-certificate-errors"]
       }
     },
