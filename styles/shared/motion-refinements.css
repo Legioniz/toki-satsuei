@@ -613,11 +613,13 @@ body.home-page .hero-opening {
 }
 
 /* Floating Sound HUD pill */
-.toki-sound-pill {
+.toki-sound-hud {
   position: fixed;
   left: 18px;
   bottom: 18px;
   z-index: 920;
+}
+.toki-sound-pill {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -679,9 +681,11 @@ html.toki-page-leaving body {
 }
 
 @media (max-width: 680px) {
-  .toki-sound-pill {
+  .toki-sound-hud {
     left: 12px;
     bottom: 12px;
+  }
+  .toki-sound-pill {
     padding: 5px 10px;
   }
 }

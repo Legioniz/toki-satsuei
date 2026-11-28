@@ -194,15 +194,19 @@ const TokiSFX = (() => {
   function syncToggleUI() {
     const pill = document.querySelector(".toki-sound-pill");
     if (!pill) return;
+    const stateText = enabled ? "SFX ON" : "SFX OFF";
     pill.setAttribute("aria-pressed", String(enabled));
-    pill.setAttribute("aria-label", enabled ? "Mute camera sound effects" : "Enable camera sound effects");
+    pill.setAttribute("aria-label", enabled ? "SFX ON — mute camera sound effects" : "SFX OFF — enable camera sound effects");
     pill.classList.toggle("is-muted", !enabled);
     const label = pill.querySelector(".toki-sound-label");
-    if (label) label.textContent = enabled ? "SFX ON" : "SFX OFF";
+    if (label) label.textContent = stateText;
   }
 
   function mountSoundPill() {
     if (!document.body || document.querySelector(".toki-sound-pill")) return;
+    const hud = document.createElement("aside");
+    hud.className = "toki-sound-hud";
+    hud.setAttribute("aria-label", "Sound controls");
     const pill = document.createElement("button");
     pill.type = "button";
     pill.className = "toki-sound-pill";
@@ -212,7 +216,8 @@ const TokiSFX = (() => {
       setEnabled(!enabled);
       if (enabled) playFocus();
     });
-    document.body.appendChild(pill);
+    hud.appendChild(pill);
+    document.body.appendChild(hud);
     syncToggleUI();
   }
 
