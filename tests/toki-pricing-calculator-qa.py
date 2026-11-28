@@ -118,7 +118,47 @@ def main() -> None:
                 document.documentElement.style.setProperty("scroll-behavior", "auto", "important");
                 document.body.style.setProperty("scroll-behavior", "auto", "important");
             }""")
+
+            # The hash target can still be completing its initial scroll when
+            # DOMContentLoaded fires. Wait for both scroll position and button
+            # geometry to settle before moving the pointer.
+            def wait_for_stable_calculator_geometry() -> None:
+                stable = page.evaluate("""async () => {
+                    const button = document.querySelector("#calc-apply-to-booking");
+                    if (!button) return false;
+                    let previous = null;
+                    let stableFrames = 0;
+                    for (let frame = 0; frame < 120 && stableFrames < 5; frame += 1) {
+                        await new Promise(requestAnimationFrame);
+                        const rect = button.getBoundingClientRect();
+                        const current = {
+                            scrollY: window.scrollY,
+                            x: rect.x,
+                            y: rect.y,
+                            width: rect.width,
+                            height: rect.height
+                        };
+                        if (previous &&
+                            Math.abs(current.scrollY - previous.scrollY) < 0.5 &&
+                            Math.abs(current.x - previous.x) < 0.5 &&
+                            Math.abs(current.y - previous.y) < 0.5 &&
+                            Math.abs(current.width - previous.width) < 0.5 &&
+                            Math.abs(current.height - previous.height) < 0.5) {
+                            stableFrames += 1;
+                        } else {
+                            stableFrames = 0;
+                        }
+                        previous = current;
+                    }
+                    return stableFrames >= 5;
+                }""")
+                assert stable, (
+                    "Calculator scroll position and button geometry did not settle before hover QA."
+                )
+
+            wait_for_stable_calculator_geometry()
             apply_button.scroll_into_view_if_needed()
+            wait_for_stable_calculator_geometry()
             page.evaluate("""() => {
                 window.__tokiPointerTrace = [];
                 for (const type of ["pointermove", "pointerover", "pointerout", "pointerleave", "mouseover", "mouseout"]) {
@@ -138,14 +178,29 @@ def main() -> None:
                     }, true);
                 }
             }""")
-            button_box = apply_button.bounding_box()
-            assert button_box and button_box["width"] > 0 and button_box["height"] > 0, (
-                "Pricing calculator apply button must have visible geometry before hover QA."
-            )
-            page.mouse.move(
-                button_box["x"] + button_box["width"] / 2,
-                button_box["y"] + button_box["height"] / 2,
-            )
+
+            # Re-measure after each failed hover attempt. This handles a
+            # final browser scroll/reveal frame without weakening :hover QA.
+            hovered = False
+            for _ in range(5):
+                button_box = apply_button.bounding_box()
+                assert button_box and button_box["width"] > 0 and button_box["height"] > 0, (
+                    "Pricing calculator apply button must have visible geometry before hover QA."
+                )
+                page.mouse.move(
+                    button_box["x"] + button_box["width"] / 2,
+                    button_box["y"] + button_box["height"] / 2,
+                )
+                try:
+                    page.wait_for_function(
+                        "() => document.querySelector('#calc-apply-to-booking')?.matches(':hover') === true",
+                        timeout=700,
+                    )
+                    hovered = True
+                    break
+                except Exception:
+                    wait_for_stable_calculator_geometry()
+            assert hovered, "Pricing calculator button did not receive the mouse hover after geometry settled."
             # Wait until the full hover transition has settled before asserting
             # the final color and outline. :hover alone is only the first frame.
             try:
