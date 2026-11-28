@@ -230,7 +230,7 @@ def build_photography() -> list[dict]:
                     {
                         "width": target_width,
                         "height": target_height,
-                        "path": f"/assets/photography/{output.name}",
+                        "path": f"./assets/photography/{output.name}",
                         "bytes": output.stat().st_size,
                         "sha256": sha256(output.read_bytes()),
                     }
@@ -241,7 +241,7 @@ def build_photography() -> list[dict]:
                 "slug": photo["slug"],
                 "title": photo["title"],
                 "alt": photo["alt"],
-                "original": f"/assets/photography/originals/{master.name}",
+                "original": f"./assets/photography/originals/{master.name}",
                 "width": image.width,
                 "height": image.height,
                 "aspect_ratio": round(image.width / image.height, 6),
