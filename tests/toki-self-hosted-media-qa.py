@@ -2,10 +2,13 @@
 """Verify TOKI's same-origin photography and web-font delivery contract."""
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
 import re
+from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from PIL import Image, ImageOps
 
@@ -19,11 +22,11 @@ PUBLIC_PAGES = (
     "admin.html",
     "client-gallery.html",
 )
-REMOTE_ASSET_HOSTS = (
+DISALLOWED_VISUAL_ASSET_HOSTS = frozenset({
     "media.base44.com",
     "fonts.googleapis.com",
     "fonts.gstatic.com",
-)
+})
 EXPECTED_PHOTOGRAPHS = {
     "behind-the-camera": (1536, 1159),
     "between-turns": (1536, 1024),
@@ -57,6 +60,90 @@ def local_file(public_path: str) -> Path:
 def attr(tag: str, name: str) -> str | None:
     match = re.search(rf'\b{re.escape(name)}="([^"]*)"', tag, re.IGNORECASE)
     return match.group(1) if match else None
+
+
+class VisualAssetURLCollector(HTMLParser):
+    """Collect actual image/font URL references without scanning prose or link text."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.urls: list[str] = []
+        self.in_style = False
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        values = {name.lower(): value or "" for name, value in attrs}
+        for name in ("src", "poster", "data-full", "imagesrc", "imagesrcset"):
+            value = values.get(name, "")
+            if value:
+                self._add_candidates(value)
+        if tag.lower() in {"img", "source"}:
+            self._add_candidates(values.get("srcset", ""))
+        if tag.lower() == "meta" and values.get("property", "").lower() in {
+            "og:image", "og:image:url", "twitter:image",
+        }:
+            self._add_candidates(values.get("content", ""))
+        if tag.lower() == "link":
+            rel = set(values.get("rel", "").lower().split())
+            if rel.intersection({"stylesheet", "preload", "icon"}):
+                self._add_candidates(values.get("href", ""))
+        style = values.get("style", "")
+        if style:
+            self._add_css_urls(style)
+        if tag.lower() == "style":
+            self.in_style = True
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag.lower() == "style":
+            self.in_style = False
+
+    def handle_data(self, data: str) -> None:
+        if self.in_style:
+            self._add_css_urls(data)
+
+    def _add_css_urls(self, css: str) -> None:
+        for match in re.finditer(r"""url\(\s*(['"]?)(.*?)\1\s*\)""", css, re.IGNORECASE):
+            self._add_candidates(match.group(2))
+
+    def _add_candidates(self, value: str) -> None:
+        for candidate in value.split(","):
+            url = candidate.strip().split()[0] if candidate.strip() else ""
+            if url:
+                self.urls.append(url)
+
+
+def is_disallowed_visual_asset_url(value: str) -> bool:
+    parsed = urlsplit(value.strip())
+    hostname = (parsed.hostname or "").lower()
+    return hostname in DISALLOWED_VISUAL_ASSET_HOSTS
+
+
+def css_url_values(css: str) -> list[str]:
+    return [
+        match.group(2).strip()
+        for match in re.finditer(r"""url\(\s*(['"]?)(.*?)\1\s*\)""", css, re.IGNORECASE)
+    ]
+
+
+def parse_csp_directives(policy: str) -> dict[str, list[str]]:
+    directives: dict[str, list[str]] = {}
+    for segment in policy.split(";"):
+        tokens = segment.strip().split()
+        if tokens:
+            directives[tokens[0].lower()] = tokens[1:]
+    return directives
+
+
+def csp_from_fingerprint_source(source: str) -> str:
+    module = ast.parse(source)
+    for node in module.body:
+        if isinstance(node, ast.Assign) and any(
+            isinstance(target, ast.Name) and target.id == "CSP_META"
+            for target in node.targets
+        ):
+            value = ast.literal_eval(node.value)
+            if isinstance(value, str):
+                return value
+    raise AssertionError("Fingerprint build source does not define a literal CSP_META policy")
 
 
 def verify_photography() -> None:
@@ -204,9 +291,11 @@ def verify_pages_and_loading() -> None:
     for page in PUBLIC_PAGES:
         content = (ROOT / page).read_text(encoding="utf-8")
         pages[page] = content
-        for host in REMOTE_ASSET_HOSTS:
-            if host in content:
-                raise AssertionError(f"{page} still references external visual asset host {host}")
+        collector = VisualAssetURLCollector()
+        collector.feed(content)
+        for reference in collector.urls:
+            if is_disallowed_visual_asset_url(reference):
+                raise AssertionError(f"{page} still references a retired visual asset origin: {reference}")
         expected_bundle = {
             "index.html": "toki-home.css",
             "booking.html": "toki-home.css",
@@ -284,15 +373,30 @@ def verify_pages_and_loading() -> None:
 def verify_security_policy() -> None:
     headers = (ROOT / "_headers").read_text(encoding="utf-8")
     worker = (ROOT / "worker.mjs").read_text(encoding="utf-8")
-    for label, content in (("_headers", headers), ("worker.mjs", worker)):
-        if "fonts.googleapis.com" in content or "fonts.gstatic.com" in content:
-            raise AssertionError(f"{label} CSP still allows Google Fonts hosts")
-        if "style-src 'self' 'unsafe-inline'" not in content or "font-src 'self'" not in content:
-            raise AssertionError(f"{label} CSP does not restrict styles and fonts to same-origin")
+    header_policy = re.search(r"(?im)^\\s*Content-Security-Policy:\\s*(.+)$", headers)
+    worker_policy = re.search(r'"Content-Security-Policy"\\s*:\\s*"([^"]+)"', worker)
+    if not header_policy or not worker_policy:
+        raise AssertionError("Pages and Worker CSP policies must both be present")
+    fingerprint_source = (ROOT / "scripts/fingerprint_assets.py").read_text(encoding="utf-8")
+    policies = (
+        ("_headers", header_policy.group(1).strip()),
+        ("worker.mjs", worker_policy.group(1).strip()),
+        ("fingerprint CSP", csp_from_fingerprint_source(fingerprint_source)),
+    )
+    for label, policy in policies:
+        directives = parse_csp_directives(policy)
+        style_sources = directives.get("style-src", [])
+        font_sources = directives.get("font-src", [])
+        if set(style_sources) != {"'self'", "'unsafe-inline'"}:
+            raise AssertionError(f"{label} style-src must allow only same-origin styles and inline style attributes")
+        if font_sources != ["'self'"]:
+            raise AssertionError(f"{label} font-src must allow only same-origin font resources")
 
-    fingerprint = (ROOT / "scripts/fingerprint_assets.py").read_text(encoding="utf-8")
-    if "fonts.googleapis.com" in fingerprint or "fonts.gstatic.com" in fingerprint:
-        raise AssertionError("Generated CSP template still allows Google Fonts hosts")
+    fonts_css = (ROOT / "assets/fonts/fonts.css").read_text(encoding="utf-8")
+    for reference in css_url_values(fonts_css):
+        parsed = urlsplit(reference)
+        if parsed.scheme or parsed.netloc or not parsed.path.startswith("/assets/fonts/"):
+            raise AssertionError(f"Generated font CSS contains a non-local asset reference: {reference}")
 
 
 def main() -> None:
