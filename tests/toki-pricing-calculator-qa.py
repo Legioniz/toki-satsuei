@@ -77,10 +77,15 @@ def main() -> None:
 
             # Page-owned styles must win through normal cascade order and scoped selectors.
             def computed(selector: str, property_name: str) -> str:
-                return page.locator(selector).evaluate(
-                    "(node, property) => getComputedStyle(node).getPropertyValue(property).trim()",
+                values = page.locator(selector).evaluate_all(
+                    "(nodes, property) => nodes.map(node => getComputedStyle(node).getPropertyValue(property).trim())",
                     property_name,
                 )
+                assert values, f"No elements found for computed-style check: {selector}"
+                assert all(value == values[0] for value in values), (
+                    f"Inconsistent computed values for {selector} {property_name}: {values}"
+                )
+                return values[0]
 
             expected_styles = (
                 (".calculator-wrap .section-heading h2", "color", "rgb(245, 242, 235)"),
