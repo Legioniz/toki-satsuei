@@ -1,21 +1,22 @@
 module.exports = {
   ci: {
     collect: {
-      staticDistDir: "./dist",
       url: [
-        "http://localhost/",
-        "http://localhost/booking.html",
-        "http://localhost/library.html",
-        "http://localhost/policies.html",
-        "http://localhost/admin.html",
-        "http://localhost/client-gallery.html",
-        "http://localhost/404.html"
+        "https://127.0.0.1:8443/",
+        "https://127.0.0.1:8443/booking.html",
+        "https://127.0.0.1:8443/library.html",
+        "https://127.0.0.1:8443/policies.html",
+        "https://127.0.0.1:8443/admin.html",
+        "https://127.0.0.1:8443/client-gallery.html",
+        "https://127.0.0.1:8443/404.html"
       ],
+      startServerCommand: "python scripts/qa_support/toki_lighthouse_https_server.py",
+      startServerReadyPattern: "TOKI_LHCI_SERVER_READY",
       numberOfRuns: 1,
       chromePath: process.env.CHROME_PATH,
       settings: {
         preset: "mobile",
-        chromeFlags: ["--no-sandbox", "--disable-dev-shm-usage"]
+        chromeFlags: ["--no-sandbox", "--disable-dev-shm-usage", "--ignore-certificate-errors"]
       }
     },
     assert: {
