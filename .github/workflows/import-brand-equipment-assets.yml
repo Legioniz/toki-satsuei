@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: write
   contents: write
 
 concurrency:
@@ -65,6 +66,7 @@ jobs:
           file assets/equipment/camera/*.png assets/brand/*.png
 
       - name: Commit originals to the dedicated asset folders
+        id: commit_import
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -75,7 +77,16 @@ jobs:
           git add assets/equipment/camera assets/brand
           if git diff --cached --quiet; then
             echo "Original asset files are already current."
+            echo "assets_changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git commit -m "Add submitted TOKI camera and brand originals"
           git push origin HEAD:main
+          echo "assets_changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch production deployment after asset commit
+        if: steps.commit_import.outputs.assets_changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: bash scripts/dispatch-pages-deploy.sh

@@ -32,6 +32,8 @@ The Cloudflare mirror deployment uses the following repository secrets under Git
 1. `CLOUDFLARE_API_TOKEN` — an account-scoped Cloudflare API token with **Cloudflare Pages: Edit/Write** permission.
 2. `CLOUDFLARE_ACCOUNT_ID` — the Cloudflare account ID that owns the Pages project.
 
+The photography/font and brand/equipment import workflows explicitly dispatch this production workflow after they create a bot-authored asset commit. GitHub does not automatically start a new push-triggered workflow for commits made with `GITHUB_TOKEN`, so the explicit `workflow_dispatch` prevents the official site from remaining behind the repository's latest assets.
+
 Both deployments run only after the same build, security, browser, booking, Axe, Lighthouse, and fingerprint checks pass. The deploy job also rechecks that `main` still points to the verified commit before publishing.
 
 ### Important GitHub Pages header limitation
