@@ -59,6 +59,15 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Set up Node.js for axe-core and Lighthouse
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Install pinned accessibility and performance audit tools
+        run: npm install --no-save --no-package-lock axe-core@4.14.1 @lhci/cli@0.16.1
+
       - name: Generate page-scoped CSS bundles from source
         run: python scripts/build-css.py
 
@@ -67,7 +76,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements-test.txt
           python -m pip install --upgrade pip-audit
-          python -m playwright install --with-deps chromium
+          python -m playwright install --with-deps chromium webkit
 
       - name: Audit Python dependencies for known vulnerabilities
         run: pip-audit -r requirements-test.txt
@@ -204,6 +213,27 @@ jobs:
 
       - name: Verify generated asset fingerprints before publishing
         run: python scripts/fingerprint_assets.py dist --verify-only
+
+      - name: Run axe-core WCAG 2.2 AA checks across all seven pages
+        run: python tests/toki-axe-accessibility-qa.py
+
+      - name: Test mobile WebKit, Android Chrome emulation, and rendered images
+        run: python tests/toki-mobile-browser-image-qa.py
+
+      - name: Run Lighthouse mobile audits across all seven packaged pages
+        run: ./node_modules/.bin/lhci autorun
+
+      - name: Upload Lighthouse and axe accessibility reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: toki-accessibility-performance-reports
+          path: |
+            .lighthouseci/
+            axe-accessibility-report.json
+          if-no-files-found: ignore
+          retention-days: 7
+
 
       - name: Upload verified static site artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
