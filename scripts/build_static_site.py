@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a curated TOKI static-site directory for Cloudflare Pages or Workers.
+"""Build curated TOKI static-site directories for GitHub Pages, Cloudflare Pages mirror, or Workers.
 
 Only the public page/runtime allowlist and the public media directories are copied.
 Repository source, CI workflows, tests, Supabase functions, and owner-only tooling
