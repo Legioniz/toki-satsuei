@@ -37,6 +37,20 @@ class QuietHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(SITE), **kwargs)
 
+    def do_GET(self):
+        # Serve axe-core from the test-only node_modules path on the same origin.
+        # This respects pages that enforce script-src 'self' through CSP meta tags.
+        if self.path.split("?", 1)[0] == "/__axe__/axe.min.js":
+            payload = AXE_SCRIPT.read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/javascript; charset=utf-8")
+            self.send_header("Content-Length", str(len(payload)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(payload)
+            return
+        super().do_GET()
+
     def log_message(self, *args):
         pass
 
@@ -76,7 +90,7 @@ def main() -> None:
                 assert response is not None and response.status == 200, (
                     f"{route}: packaged route did not load (response={response})"
                 )
-                page.add_script_tag(path=str(AXE_SCRIPT))
+                page.add_script_tag(url=base_url + "/__axe__/axe.min.js")
                 results = page.evaluate(
                     """async (tags) => {
                         const result = await axe.run(document, {
