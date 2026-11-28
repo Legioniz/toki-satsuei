@@ -39,6 +39,7 @@ PUBLIC_ROOT_FILES = (
     "media-library.json",
     "robots.txt",
     "sitemap.xml",
+    "llms.txt",
 )
 
 PUBLIC_DIRECTORIES = ("assets", "media-library")
