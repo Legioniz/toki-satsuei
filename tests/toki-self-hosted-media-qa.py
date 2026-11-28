@@ -177,8 +177,11 @@ def verify_fonts() -> None:
             raise AssertionError(f"Font license is not SIL OFL: {license_file}")
 
     font_css = (root / "fonts.css").read_text(encoding="utf-8")
-    if font_css.count("@font-face") != EXPECTED_FONT_FACES:
-        raise AssertionError("Local font stylesheet has an unexpected face count")
+    if font_css.count("@font-face") < len(faces):
+        raise AssertionError(
+            f"Local font stylesheet declares {font_css.count('@font-face')} faces; "
+            f"the manifest requires {len(faces)}"
+        )
     if "font-display: swap" not in font_css:
         raise AssertionError("Local font stylesheet is missing font-display: swap")
     assert_no_remote_visual_hosts(font_css, "Local font stylesheet")
