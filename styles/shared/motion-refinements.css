@@ -567,9 +567,6 @@ html.motion-system-ready :is(.hero-lead, .about-copy p, .faq-answer, .service-ro
 .contact-section .text-link:hover {
   letter-spacing: 0.16em;
 }
-.work-section .gallery-card {
-  transition: transform 220ms var(--ease-expo-out, ease-out), box-shadow 220ms ease, border-color 220ms ease;
-}
 .work-section .gallery-card .gallery-meta i {
   display: inline-block;
   transition: transform 200ms var(--ease-expo-out, ease-out), color 180ms ease;
@@ -667,7 +664,7 @@ html.motion-system-ready :is(.hero-lead, .about-copy p, .faq-answer, .service-ro
   max-width: min(1220px, 100%);
   margin: clamp(12px, 2vw, 22px) auto;
   padding: 6px 0;
-  color: rgba(17, 17, 16, 0.72);
+  color: #2b2824;
   font-family: var(--font-mono, "Space Mono", monospace);
   font-size: 10px;
   letter-spacing: 0.16em;
@@ -688,7 +685,7 @@ html.motion-system-ready :is(.hero-lead, .about-copy p, .faq-answer, .service-ro
   white-space: nowrap;
 }
 .toki-artifact-bar--dark {
-  color: rgba(244, 241, 234, 0.74);
+  color: #e8e2d8;
 }
 .toki-artifact-badge {
   justify-content: flex-start;
@@ -732,7 +729,6 @@ html.motion-system-ready .motion-item.is-motion-visible,
 html.motion-system-ready [data-reveal].is-visible {
   transition-duration: 150ms !important;
 }
-html.motion-system-ready .gallery-card,
 html.motion-system-ready .package-card,
 html.motion-system-ready .process-step,
 html.motion-system-ready .service-row {

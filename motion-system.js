@@ -1339,7 +1339,7 @@
     const availPanel = document.querySelector(".availability-section .availability-panel");
     if (availPanel && !document.querySelector(".toki-artifact-gate")) {
       availPanel.before(createArtifactEl(
-        "toki-artifact-bar toki-artifact-gate",
+        "toki-artifact-bar toki-artifact-bar--dark toki-artifact-gate",
         `<svg viewBox="0 0 480 20" preserveAspectRatio="xMidYMid meet" focusable="false">
           <path d="M12 16 V4 H36 M468 16 V4 H444" fill="none" stroke="#a31f2d" stroke-width="1.4"/>
           <line x1="54" y1="10" x2="426" y2="10" stroke="currentColor" stroke-opacity="0.2" stroke-width="1" stroke-dasharray="4 6"/>
