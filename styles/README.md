@@ -61,3 +61,7 @@ body/interface copy, and Space Mono for technical labels. Caveat is reserved for
 the handwritten homepage annotations and 404 art. It is only requested on the
 homepage and 404 route. Space Grotesk has been retired in favor of the
 already-loaded DM Sans.
+
+## Self-hosted typography
+
+The generated `toki-*.css` page bundles include the local Latin WOFF2 `@font-face` declarations. Each face uses `font-display: swap` and `/assets/fonts/` URLs, so typography loads from the same Cloudflare Pages origin without an extra stylesheet request or Google Fonts runtime dependency. Font files and SIL Open Font License copies are retained under `assets/fonts/`.
