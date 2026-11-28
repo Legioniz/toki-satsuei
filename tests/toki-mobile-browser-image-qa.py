@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from functools import partial
-from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from http.server import SimpleHTTPRequestHandler
 from pathlib import Path
-from threading import Thread
+from toki_local_https_server import start_https_server
 
 from playwright.sync_api import sync_playwright
 
@@ -32,7 +32,14 @@ class QuietHandler(SimpleHTTPRequestHandler):
 
 def verify_route(browser, label: str, base_url: str, route: str, context_options: dict) -> None:
     context = browser.new_context(**context_options)
-    context.route("https://**", lambda request: request.abort())
+    # The local HTTPS origin must remain reachable after the page's CSP upgrade.
+    # Only external third-party HTTPS requests are blocked in these deterministic tests.
+    context.route(
+        "https://**",
+        lambda request: request.continue_()
+        if request.request.url.startswith(base_url + "/")
+        else request.abort(),
+    )
     page = context.new_page()
     page.set_default_timeout(8_000)
     response = page.goto(base_url + route, wait_until="domcontentloaded")
@@ -158,10 +165,7 @@ def main() -> None:
         target = SITE / route.lstrip("/") if route != "/" else SITE / "index.html"
         assert target.is_file() and target.stat().st_size > 0, f"Missing packaged route: {route}"
 
-    server = ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler))
-    thread = Thread(target=server.serve_forever, daemon=True)
-    thread.start()
-    base_url = f"http://127.0.0.1:{server.server_port}"
+    server, thread, certificate_dir, base_url = start_https_server(partial(QuietHandler))
 
     try:
         with sync_playwright() as playwright:
@@ -177,6 +181,7 @@ def main() -> None:
                     "Mobile/15E148 Safari/604.1"
                 ),
                 "reduced_motion": "reduce",
+                "ignore_https_errors": True,
             }
             for route in ROUTES:
                 verify_route(webkit, "WebKit/iPhone-Safari-emulation", base_url, route, safari_options)
@@ -197,6 +202,7 @@ def main() -> None:
                     "Chrome/130.0.0.0 Mobile Safari/537.36"
                 ),
                 "reduced_motion": "reduce",
+                "ignore_https_errors": True,
             }
             for route in ROUTES:
                 verify_route(chromium, "Chromium/Android-emulation", base_url, route, android_options)
@@ -205,6 +211,7 @@ def main() -> None:
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+        certificate_dir.cleanup()
 
 
 if __name__ == "__main__":
