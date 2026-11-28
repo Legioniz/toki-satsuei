@@ -959,6 +959,9 @@
         preloadObserver?.observe(element);
         element.style.removeProperty("--motion-delay");
       });
+      matchingElements(document, SCROLL_SCENE_SELECTOR).forEach(scene => {
+        preloadObserver?.observe(scene);
+      });
       observeLazyImages(document);
       root.style.removeProperty("--scroll-y");
       root.style.removeProperty("--scroll-pct");
