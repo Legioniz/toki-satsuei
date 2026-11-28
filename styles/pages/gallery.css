@@ -54,9 +54,33 @@ body[hidden]{
   padding:var(--s-6);
   text-align:center;
 }
+.client-auth-card h1,
 .client-auth-card h2{
   font:500 28px var(--serif, "Cormorant Garamond", serif);
   margin:0 0 var(--s-2);
+}
+.client-auth-card .admin-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  min-height:48px;
+  padding:12px 16px;
+  border:1px solid #a31f2d;
+  background:#a31f2d;
+  color:#fff;
+  font:700 11px var(--c-mono,monospace);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.client-auth-card .admin-btn:hover{
+  background:#8e202b;
+  border-color:#8e202b;
+}
+.client-auth-card .admin-btn:focus-visible{
+  outline:3px solid #f4c6ca;
+  outline-offset:3px;
 }
 .client-auth-card p{
   font-size:15px;
