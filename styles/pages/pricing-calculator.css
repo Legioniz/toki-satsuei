@@ -202,9 +202,8 @@
   transition: transform var(--dur-2, .2s), background var(--dur-2, .2s), box-shadow var(--dur-2, .2s);
 }
 .calc-apply-btn:hover {
-  background: #b82837;
+  --toki-button-surface: #b82837;
   border-color: #a31f2d;
-  color: #ffffff;
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(163, 31, 45, 0.5);
 }
