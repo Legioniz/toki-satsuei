@@ -45,7 +45,7 @@ SOURCE_PATHS = {
 }
 
 BUNDLES = {
-    "toki-home.css": ["self-hosted-fonts", "styles", "refinement", "policies", "availability", "motion-system", "cinematic", "experience", "fixes", "pricing-calculator", "design-system", "orientation", "global-motion", "site-enhancements", "motion-refinements", "mobile-nav", "equipment"],
+    "toki-home.css": ["self-hosted-fonts", "styles", "refinement", "policies", "availability", "motion-system", "cinematic", "experience", "fixes", "design-system", "pricing-calculator", "orientation", "global-motion", "site-enhancements", "motion-refinements", "mobile-nav", "equipment"],
     "toki-archive.css": ["self-hosted-fonts", "styles", "library", "refinement", "motion-system", "cinematic", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
     "toki-policies.css": ["self-hosted-fonts", "styles", "refinement", "policies", "motion-system", "cinematic", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
     "toki-404.css": ["self-hosted-fonts", "styles", "refinement", "policies", "motion-system", "cinematic", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
