@@ -252,7 +252,7 @@ def build_photography() -> list[dict]:
         )
 
     payload = json.dumps(
-        {"version": 1, "hosting": "same-origin Cloudflare Pages", "photographs": manifest},
+        {"version": 1, "hosting": "same-origin static assets; official GitHub Pages and secured Cloudflare Pages mirror", "photographs": manifest},
         indent=2,
         ensure_ascii=False,
     ) + "\n"
