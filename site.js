@@ -909,18 +909,32 @@ form?.addEventListener("submit",async event=>{
     }
 
     if(breakdownList){
-      let items=`<li><span>Base: ${selectedPkg}</span><strong>₱${basePrice.toLocaleString()}</strong></li>`;
+      const addBreakdownRow=(label,value,isSummary=false)=>{
+        const li=document.createElement("li");
+        if(isSummary){
+          li.style.borderTop="1px dashed #403831";
+          li.style.paddingTop="6px";
+          li.style.marginTop="6px";
+        }
+        const labelEl=document.createElement("span");
+        labelEl.textContent=label;
+        const valueEl=document.createElement("strong");
+        valueEl.textContent=`₱${value.toLocaleString()}`;
+        li.append(labelEl,valueEl);
+        breakdownList.appendChild(li);
+      };
+      breakdownList.textContent="";
+      addBreakdownRow(`Base: ${selectedPkg}`,basePrice);
       if(extraParticipants>0){
-        items+=`<li><span>Extra Participants (${extraParticipants} × ₱50)</span><strong>₱${participantAddonCost.toLocaleString()}</strong></li>`;
+        addBreakdownRow(`Extra Participants (${extraParticipants} × ₱50)`,participantAddonCost);
       }
       if(extraPhotos>0){
-        items+=`<li><span>Additional Edited Photos (${extraPhotos} × ₱30)</span><strong>₱${photoAddonCost.toLocaleString()}</strong></li>`;
+        addBreakdownRow(`Additional Edited Photos (${extraPhotos} × ₱30)`,photoAddonCost);
       }
       if(extraTimeSteps>0){
-        items+=`<li><span>Additional Time (${extraTimeMins} mins)</span><strong>₱${timeAddonCost.toLocaleString()}</strong></li>`;
+        addBreakdownRow(`Additional Time (${extraTimeMins} mins)`,timeAddonCost);
       }
-      items+=`<li style="border-top:1px dashed #403831;padding-top:6px;margin-top:6px;"><span>20% Reservation Fee (est.)</span><strong>₱${deposit.toLocaleString()}</strong></li>`;
-      breakdownList.innerHTML=items;
+      addBreakdownRow("20% Reservation Fee (est.)",deposit,true);
       if(!reducedMotion&&breakdownList.querySelectorAll){
         breakdownList.querySelectorAll("li").forEach((li,idx)=>{
           li.animate?.([

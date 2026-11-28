@@ -84,7 +84,9 @@ def main() -> None:
     assert "'unsafe-inline'" not in script_policy and "'unsafe-eval'" not in script_policy, (
         "The response CSP must not allow inline or eval scripts."
     )
-    assert "https://static.sketchfab.com" in home, "The page CSP must allow the official Sketchfab Viewer API script."
+    home_csp = next((line for line in home.splitlines() if "Content-Security-Policy" in line), "")
+    home_script_src = next((part.strip() for part in home_csp.split(";") if part.strip().startswith("script-src ")), "")
+    assert "https://static.sketchfab.com" in home_script_src.split(), "The page CSP must allow the official Sketchfab Viewer API script."
     assert "Canon EOS 3000D" in equipment and "EF-S 18–55MM" in equipment, "Current equipment viewer must identify the camera body and kit lens."
     assert equipment.count("equipment-spec-disclosure") == 0, "The intentionally removed equipment specification disclosure panel must stay removed."
     assert "lens revision" not in equipment.lower(), "The removed lens-revision paragraph must stay removed."

@@ -58,11 +58,13 @@ def main() -> None:
     assert logo_png[25] == 3 and b"tRNS" in logo_png, "Current TOKI logo must retain indexed PNG transparency."
     index_head = (ROOT / "index.html").read_text(encoding="utf-8").split("</head>", 1)[0]
     assert "http-equiv=\"Content-Security-Policy\"" in index_head
-    assert "https://sketchfab.com" in index_head, "GitHub Pages must permit the Sketchfab iframe through the page meta policy."
+    head_csp = next((line for line in index_head.splitlines() if "Content-Security-Policy" in line), "")
+    head_frame_src = next((part.strip() for part in head_csp.split(";") if part.strip().startswith("frame-src ")), "")
+    assert "https://sketchfab.com" in head_frame_src.split(), "GitHub Pages must permit the Sketchfab iframe through the page meta policy."
     headers = (ROOT / "_headers").read_text(encoding="utf-8")
     csp = next((line for line in headers.splitlines() if "Content-Security-Policy:" in line), "")
     frame_src = next((part.strip() for part in csp.split(";") if part.strip().startswith("frame-src ")), "")
-    assert "https://sketchfab.com" in frame_src, (
+    assert "https://sketchfab.com" in frame_src.split(), (
         "The deployed Content Security Policy must allow the Sketchfab iframe host."
     )
     viewer_source = (ROOT / "equipment-viewer.js").read_text(encoding="utf-8")
@@ -124,7 +126,13 @@ def main() -> None:
             root.locator('[data-equipment-mode="3d"]').click()
             iframe = root.locator("[data-equipment-embed] iframe")
             assert iframe.count() == 1, "Selecting 3D should create the Sketchfab iframe"
-            assert iframe.get_attribute("src") is None or "sketchfab.com" in iframe.get_attribute("src"), "Sketchfab API iframe source must be assigned by the viewer after initialization."
+            iframe_src = iframe.get_attribute("src")
+            if iframe_src is not None:
+                from urllib.parse import urlsplit
+                iframe_host = urlsplit(iframe_src).hostname or ""
+                assert iframe_host == "sketchfab.com" or iframe_host.endswith(".sketchfab.com"), (
+                    "Sketchfab API iframe source must be assigned by the viewer after initialization."
+                )
             assert iframe.get_attribute("title")
             assert iframe.evaluate("(node) => node.allowFullscreen")
             assert root.locator("[data-equipment-mode='3d']").get_attribute("aria-pressed") == "true"

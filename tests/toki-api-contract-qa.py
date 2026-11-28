@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Static contract checks for TOKI's public API limits and retry semantics."""
 from pathlib import Path
+import re
 
 source = Path("supabase/functions/toki-calendar/index.ts").read_text(encoding="utf-8")
 assert "const CALENDAR_LIMIT = 30;" in source
@@ -15,7 +16,7 @@ assert '"X-Content-Type-Options": "nosniff"' in source
 assert '"X-Frame-Options": "DENY"' in source
 assert '"Referrer-Policy": "no-referrer"' in source
 assert 'PORTFOLIO_ADDITIONAL_ALLOWED_ORIGINS' in source
-assert 'https://toki-satsuei.pages.dev' in source
+assert re.search(r'["\']https://toki-satsuei\.pages\.dev["\']', source)
 assert 'ALLOWED_ORIGINS.has(origin)' in source
 
 booking = Path("supabase/functions/portfolio-submit/index.ts").read_text(encoding="utf-8")
@@ -27,7 +28,7 @@ for label, text in (("booking", booking), ("calendar", calendar)):
     assert "x-forwarded-for" not in text and "x-real-ip" not in text, f"{label}: untrusted proxy header accepted"
 assert booking.index("consumeQuota(bucket, 'portfolio_turnstile_verify', 20)") < booking.index("verifyTurnstile(token, expectedAction, secret, isTokiBooking, hostnameForOrigin(origin))"), "a dedicated verification quota must protect the CAPTCHA provider"
 assert 'PORTFOLIO_ADDITIONAL_ALLOWED_ORIGINS' in booking
-assert 'https://toki-satsuei.pages.dev' in booking
+assert re.search(r'["\']https://toki-satsuei\.pages\.dev["\']', booking)
 assert 'ALLOWED_ORIGINS.has(origin)' in booking
 assert booking.index("verifyTurnstile(token, expectedAction, secret, isTokiBooking, hostnameForOrigin(origin))") < booking.index("consumeQuota(bucket, kind, limits[kind] ?? 4)"), "normal submission quota must be charged only after successful human verification"
 assert "payload.hostname === expectedHostname" in booking, "Turnstile hostname must match the exact allowlisted request origin"

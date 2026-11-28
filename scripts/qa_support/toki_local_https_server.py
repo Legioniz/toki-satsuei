@@ -40,6 +40,7 @@ def start_https_server(
 
     server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
     tls_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    tls_context.minimum_version = ssl.TLSVersion.TLSv1_2
     tls_context.load_cert_chain(certfile=str(cert_path), keyfile=str(key_path))
     server.socket = tls_context.wrap_socket(server.socket, server_side=True)
 
