@@ -48,12 +48,21 @@ def main() -> None:
     )
     assert intro_timing, "Page intro curtain is missing its explicit timing."
     intro_total = sum(float(value) for value in intro_timing.groups())
-    assert intro_total <= 0.6, (
-        f"Page intro curtain should clear in 600ms or less, found {intro_total:.3f}s."
+    assert abs(intro_total - 1.0) < 0.001, (
+        f"Page intro curtain should clear in exactly 1 second, found {intro_total:.3f}s."
+    )
+    logo_timing = re.search(
+        r"animation:\s*tokiIntroSealPop\s+([0-9.]+)s\s+var\(--ease-spring-overshoot\)\s+([0-9.]+)s\s+both",
+        global_css,
+    )
+    assert logo_timing, "Startup logo mark is missing its explicit animation timing."
+    logo_total = sum(float(value) for value in logo_timing.groups())
+    assert abs(logo_total - 1.0) < 0.001, (
+        f"Startup logo should animate for exactly 1 second, found {logo_total:.3f}s."
     )
     intro_fallback = re.search(r"window\.setTimeout\(cleanup,\s*(\d+)\)", motion)
-    assert intro_fallback and int(intro_fallback.group(1)) <= 900, (
-        "Page intro fallback cleanup must not hold the overlay longer than 900ms."
+    assert intro_fallback and 1000 <= int(intro_fallback.group(1)) <= 1200, (
+        "Page intro fallback cleanup must allow the full 1-second logo sequence."
     )
 
     shutter_motion = motion.split("function triggerShutterFlash", 1)[1].split("function pulseMetric", 1)[0]

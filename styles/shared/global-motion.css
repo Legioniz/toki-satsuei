@@ -10,7 +10,7 @@
   aspect-ratio: 1;
   object-fit: contain;
   filter: drop-shadow(0 0 18px rgba(195, 42, 57, 0.22));
-  animation: tokiIntroSealPop 0.72s var(--ease-spring-overshoot) 0.06s both;
+  animation: tokiIntroSealPop 0.94s var(--ease-spring-overshoot) 0.06s both;
 }
 .toki-intro-ring-crimson { stroke: rgba(195, 42, 57, 0.92); }
 .toki-intro-ring-gold { stroke: rgba(245, 242, 235, 0.72); }

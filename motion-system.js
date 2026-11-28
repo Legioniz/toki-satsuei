@@ -201,7 +201,7 @@
     curtain.addEventListener("animationend", event => {
       if (event.target === curtain) cleanup();
     });
-    window.setTimeout(cleanup, 850);
+    window.setTimeout(cleanup, 1100);
   }
 
   function ensureDarkroomOverlays() {
