@@ -144,17 +144,26 @@ def main():
        header?.classList.contains("is-auto-hidden") && header.inert &&
        header.getAttribute("aria-hidden") === "true");
    }""", timeout=5000)
-   # A revealed masthead must remain visible when its menu opens, even while the hero lock is active.
+   # Keyboard users must be able to enter a masthead hidden by the homepage hero.
+   # Reveal it on Tab keydown, before the browser performs the focus move.
    header=home.locator(".site-header")
-   header.evaluate("""node=>{
-     node.classList.remove("is-auto-hidden","is-initial-hidden");
-     node.setAttribute("aria-hidden","false");
-     node.inert=false;
-   }""")
    menu=home.locator(".menu-toggle")
-   # Focus reveals the auto-hidden masthead through the real :focus-within path.
-   # This is the accessible way a keyboard user reaches the mobile navigation.
-   menu.focus()
+   home.evaluate("""() => {
+     document.activeElement?.blur();
+     document.body.tabIndex=-1;
+     document.body.focus();
+   }""")
+   assert header.evaluate("(node)=>node.classList.contains('is-auto-hidden') && node.inert")
+   home.keyboard.press("Tab")
+   home.wait_for_function("""() => {
+     const header=document.querySelector(".site-header");
+     const brand=document.querySelector(".site-header .brand");
+     const h=header?.getBoundingClientRect();
+     return document.activeElement===brand && h && h.top>=-1 && h.top<=1 &&
+       header?.getAttribute("aria-hidden")==="false" && !header.inert &&
+       !header.classList.contains("is-auto-hidden");
+   }""")
+   home.keyboard.press("Tab")
    home.wait_for_function("""() => {
      const header=document.querySelector(".site-header");
      const toggle=document.querySelector(".menu-toggle");
@@ -165,7 +174,7 @@ def main():
        Number(style.opacity)>0 && toggle.getClientRects().length>0 &&
        header?.getAttribute("aria-hidden")==="false" && !header.inert;
    }""")
-   menu.click()
+   home.keyboard.press("Enter")
    home.wait_for_function("""() => {
      const header=document.querySelector(".site-header");
      const nav=document.querySelector(".primary-nav");
