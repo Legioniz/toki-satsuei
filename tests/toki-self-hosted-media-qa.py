@@ -169,7 +169,7 @@ def verify_fonts() -> None:
         raise AssertionError("Font CSS is missing expected local faces or font-display: swap")
     for item in fonts:
         filename = Path(item["path"]).name
-        if f'url("./{filename}")' not in css:
+        if f'url("/assets/fonts/{filename}")' not in css:
             raise AssertionError(f"Font CSS does not declare local face: {filename}")
 
 
