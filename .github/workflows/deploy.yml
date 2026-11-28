@@ -242,11 +242,23 @@ jobs:
           retention-days: 7
 
 
+      - name: Prepare GitHub Pages artifact without Cloudflare-only header rules
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf github-pages-dist
+          mkdir -p github-pages-dist
+          cp -a dist/. github-pages-dist/
+          rm -f github-pages-dist/_headers
+          test -f github-pages-dist/.nojekyll
+          test ! -e github-pages-dist/_headers
+
       - name: Upload official GitHub Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa
         with:
-          path: dist/
+          path: github-pages-dist/
 
       - name: Upload verified static site artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
