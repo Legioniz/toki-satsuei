@@ -396,59 +396,15 @@ if(hoverPointer){
   });
 }
 
-// Interactive camera viewfinder reticle, click shutter ripples, and page transitions
+// Tactile FAQ & control audio feedback, shutter click ripples, and smooth internal page transitions
+document.querySelectorAll(".faq-list details").forEach(detail=>{
+  detail.addEventListener("toggle",()=>{
+    if(detail.open)TokiSFX.playFocus();
+    else TokiSFX.playHoverDetent();
+  });
+});
+
 if(!reducedMotion&&document.body){
-  if(hoverPointer){
-    const reticle=document.createElement("div");
-    reticle.className="toki-cursor-reticle";
-    reticle.setAttribute("aria-hidden","true");
-    reticle.innerHTML='<span class="toki-reticle-brackets"></span><span class="toki-reticle-pip"></span><span class="toki-reticle-label"></span>';
-    document.body.appendChild(reticle);
-
-    const labelEl=reticle.querySelector(".toki-reticle-label");
-    let targetX=-100,targetY=-100,curX=-100,curY=-100,rafId=0,visible=false;
-
-    const tickReticle=()=>{
-      curX+=(targetX-curX)*0.24;
-      curY+=(targetY-curY)*0.24;
-      reticle.style.transform=`translate3d(${curX.toFixed(1)}px, ${curY.toFixed(1)}px, 0)`;
-      if(Math.abs(targetX-curX)>0.2||Math.abs(targetY-curY)>0.2){
-        rafId=requestAnimationFrame(tickReticle);
-      }else{
-        rafId=0;
-      }
-    };
-
-    const setReticleState=(state,labelText)=>{
-      reticle.dataset.state=state;
-      if(labelEl&&labelEl.textContent!==labelText)labelEl.textContent=labelText;
-    };
-
-    document.addEventListener("pointermove",event=>{
-      if(event.pointerType==="touch")return;
-      targetX=event.clientX;
-      targetY=event.clientY;
-      if(!visible){
-        visible=true;
-        curX=targetX;
-        curY=targetY;
-        reticle.classList.add("is-visible");
-      }
-      const el=event.target instanceof Element?event.target:null;
-      if(el?.closest(".gallery-card, .album-card"))setReticleState("focus","AF-S");
-      else if(el?.closest(".equipment-stage"))setReticleState("orbit","3D");
-      else if(el?.closest(".button, .package-card, .calc-apply-btn, .nav-contact"))setReticleState("action","SNAP");
-      else if(el?.closest(".frame-intention-quote, .service-row, .faq-list summary"))setReticleState("text","READ");
-      else setReticleState("idle","");
-      if(!rafId)rafId=requestAnimationFrame(tickReticle);
-    },{passive:true});
-
-    document.addEventListener("pointerleave",()=>{
-      visible=false;
-      reticle.classList.remove("is-visible");
-    },{passive:true});
-  }
-
   document.addEventListener("pointerdown",event=>{
     if(event.button&&event.button!==0)return;
     const ripple=document.createElement("span");

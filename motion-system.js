@@ -635,12 +635,28 @@
     observeLazyImages(node);
   }
 
+  let lastScrollDirY = window.scrollY || 0;
+  function updateEnterDirection() {
+    const y = window.scrollY || 0;
+    const dir = y >= lastScrollDirY ? "1" : "-1";
+    lastScrollDirY = y;
+    root.style.setProperty("--toki-enter-dir", dir);
+  }
+  window.addEventListener("scroll", updateEnterDirection, { passive: true });
+  root.style.setProperty("--toki-enter-dir", "1");
+
   function createObserver() {
     if (reduced || !("IntersectionObserver" in window)) return null;
     return new IntersectionObserver(entries => {
       entries.forEach(entry => {
-        if (entry.isIntersecting) markVisible(entry.target);
-        else markHidden(entry.target);
+        if (entry.isIntersecting) {
+          markVisible(entry.target);
+        } else {
+          const r = entry.boundingClientRect;
+          if (r.top > window.innerHeight * 0.96 || r.bottom < window.innerHeight * 0.04) {
+            markHidden(entry.target);
+          }
+        }
       });
     }, {
       threshold: 0.04,
@@ -1190,11 +1206,16 @@
 
     const kineticObserver = "IntersectionObserver" in window ? new IntersectionObserver(entries => {
       entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add("is-kinetic-visible");
-        kineticObserver.unobserve(entry.target);
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-kinetic-visible");
+        } else {
+          const r = entry.boundingClientRect;
+          if ((r.top > window.innerHeight * 0.98 || r.bottom < window.innerHeight * 0.02) && !entry.target.closest(".hero-opening")) {
+            entry.target.classList.remove("is-kinetic-visible");
+          }
+        }
       });
-    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.1 }) : null;
+    }, { rootMargin: "0px 0px -4% 0px", threshold: 0.05 }) : null;
 
     headings.forEach(el => {
       if (el.closest(".hero-opening") || !kineticObserver) {
