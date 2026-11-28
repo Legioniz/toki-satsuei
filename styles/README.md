@@ -64,4 +64,4 @@ already-loaded DM Sans.
 
 ## Self-hosted typography
 
-The CSS build includes `assets/fonts/fonts.css` as a source module in each page-scoped `toki-*.css` bundle. The browser still requests exactly one stylesheet per page; that bundle declares same-origin Latin WOFF2 faces with `font-display: swap`. SIL Open Font License files are retained under `assets/fonts/licenses/`. No page requests Google Fonts CSS or font binaries at runtime.
+The CSS build includes `assets/fonts/fonts.css` in every page-scoped bundle and `assets/fonts/fonts-caveat.css` only in the homepage/404 bundles. The browser still requests exactly one stylesheet per page. These bundles declare same-origin Latin WOFF2 faces with `font-display: swap`; Caveat is declared only in the homepage bundle (shared with booking) and the 404 bundle, and is downloaded only on pages where it is actually used. SIL Open Font License files are retained under `assets/fonts/licenses/`. No page requests Google Fonts CSS or font binaries at runtime.
