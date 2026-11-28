@@ -80,4 +80,4 @@ h2 em{ font-style: italic; color: var(--accent); }
 
 /* Visible focus everywhere; calmer motion for those who ask. */
 :where(a, button, input, select, textarea, summary):focus-visible{ outline: 2px solid var(--accent); outline-offset: 3px; }
-@media (prefers-reduced-motion: reduce){ *, *::before, *::after{ animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+@media (prefers-reduced-motion: reduce){ *, *::before, *::after{ animation:none !important; transition:none !important; scroll-behavior: auto !important; } }
