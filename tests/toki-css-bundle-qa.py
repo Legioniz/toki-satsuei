@@ -188,6 +188,10 @@ def main():
     assert "!important" not in pricing_css, (
         "Pricing calculator styling must rely on bundle order and scoped selector specificity"
     )
+    components_css = (ROOT / "styles/components.css").read_text(encoding="utf-8")
+    assert ".calculator-wrap .section-aside" not in components_css, (
+        "Shared components must not force an important color onto pricing-calculator copy"
+    )
     assert ".calculator-wrap .section-heading .section-aside" in pricing_css, (
         "Pricing calculator aside must outrank shared heading styles without !important"
     )
