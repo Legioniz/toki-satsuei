@@ -716,6 +716,7 @@
   let headerDirection = 0;
   let headerDirectionDistance = 0;
   let headerFrame = 0;
+  let keyboardNavigationActive = false;
   const HEADER_DIRECTION_THRESHOLD = 3;
 
   function heroOwnsViewport() {
@@ -729,7 +730,7 @@
     const heroLock = heroOwnsViewport();
     const navigationOpen = Boolean(headerNavigation?.classList.contains("is-open"));
     const focusWithinHeader = headerElements.some(header => header.matches(":focus-within"));
-    const shouldShow = navigationOpen || focusWithinHeader || (Boolean(visible) && !heroLock);
+    const shouldShow = navigationOpen || focusWithinHeader || keyboardNavigationActive || (Boolean(visible) && !heroLock);
     headerElements.forEach(header => {
       header.classList.toggle("is-auto-hidden", !shouldShow);
       // The initial hero lock must not re-hide a masthead that is being
@@ -777,6 +778,31 @@
   }
 
   if (headerElements.length) {
+    // A hidden masthead cannot receive focus while visibility:hidden is active.
+    // Reveal it during the Tab keydown phase, before the browser moves focus.
+    document.addEventListener("keydown", event => {
+      if (event.key !== "Tab" || event.altKey || event.ctrlKey || event.metaKey) return;
+      keyboardNavigationActive = true;
+      setHeaderVisible(true);
+    }, true);
+
+    // Keep the masthead available while focus is inside it. Once keyboard focus
+    // leaves, return to the scroll/hero visibility policy on the next frame.
+    document.addEventListener("focusout", () => {
+      window.requestAnimationFrame(() => {
+        if (headerElements.some(header => header.matches(":focus-within"))) return;
+        keyboardNavigationActive = false;
+        updateHeaderVisibility();
+      });
+    }, true);
+
+    // Pointer users return to the normal scroll-controlled header behavior.
+    document.addEventListener("pointerdown", event => {
+      if (headerElements.some(header => header.contains(event.target))) return;
+      keyboardNavigationActive = false;
+      updateHeaderVisibility();
+    }, { capture: true, passive: true });
+
     setHeaderVisible(window.scrollY <= 1 && !heroOwnsViewport());
     updateHeaderVisibility();
     window.addEventListener("scroll", () => {
