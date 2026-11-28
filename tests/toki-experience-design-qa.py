@@ -269,10 +269,18 @@ def main() -> None:
             )
             assert scroll_range > 96, "Booking page must be scrollable for masthead interaction QA."
             booking_page.evaluate("""() => {
-              document.scrollingElement.style.setProperty("scroll-behavior", "auto", "important");
-              document.scrollingElement.scrollTop = 0;
+              const root = document.documentElement;
+              const body = document.body;
+              root.style.setProperty("scroll-behavior", "auto", "important");
+              body.style.setProperty("scroll-behavior", "auto", "important");
+              root.scrollTop = 0;
+              body.scrollTop = 0;
+              window.scrollTo({ top: 0, left: 0, behavior: "instant" });
             }""")
-            booking_page.wait_for_function("window.scrollY <= 1")
+            booking_page.wait_for_function(
+                "window.scrollY <= 1",
+                timeout=3500,
+            )
             # Let the scroll listener's queued animation-frame update finish before
             # issuing the next direction, so consecutive scrolls cannot coalesce.
             booking_page.evaluate(
