@@ -31,13 +31,14 @@ client gallery, and the shared archive/policy/404 page shells.
 
 ## Migration and cascade policy
 
-The folder structure establishes ownership without pretending that every older
-rule has already been deduplicated. CSS bundle QA now rejects byte-equivalent
-rules repeated within the same source module and at-rule context. Non-identical
-repeated selectors and historical `!important` declarations remain a separate
-cascade-cleanup task: do not remove them or reorder shared layers by filename
-alone. Migrate those rules only with computed-style and responsive/browser
-regression checks.
+CSS bundle QA rejects byte-equivalent rules repeated within the same source
+module and at-rule context. The mobile drawer now uses one consolidated layout
+block, and the pricing calculator loads after shared components so its styles
+win through scoped selectors instead of broad `!important` declarations.
+Session heading width and typography are scoped to the outer section heading,
+not nested calculator copy. The mobile drawer retains important priority only
+for suppressing animated sticky controls while its menu is open. Remaining
+legacy overrides still require computed-style and responsive/browser tests.
 
 ## Build contract
 
