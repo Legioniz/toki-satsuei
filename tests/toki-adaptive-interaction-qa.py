@@ -36,7 +36,34 @@ def main():
    assert home.evaluate("typeof window.TokiMotion.closeDialog === 'function' && typeof window.TokiMotion.setMenuOpen === 'function'"), "Shared menu/dialog transition helpers are missing"
    assert home.locator(".motion-item").count() >= 10, "Shared motion system did not prepare enough homepage content"
    gallery_transition=home.locator(".gallery-card").first.evaluate("(el)=>getComputedStyle(el).transitionDuration")
-   assert "0.313s" in gallery_transition, "Gallery cards are missing the current reduced-duration interaction transition"
+   gallery_durations=[float(value.strip().removesuffix("s")) for value in gallery_transition.split(",")]
+   assert any(abs(duration-0.313)<0.001 for duration in gallery_durations), (
+    f"Gallery cards should retain the intended 313ms interaction transition, got {gallery_transition}"
+   )
+
+   lazy_render_state=home.evaluate("""() => {
+    const selectors=[
+     ".home-page .intro-band", ".home-page .work-section",
+     ".home-page .services-section", ".home-page .sessions-section",
+     ".home-page .availability-section", ".home-page .process-section",
+     ".home-page .about-section", ".home-page .equipment-section",
+     ".home-page .contact-section", ".home-page .toki-assurance"
+    ];
+    return selectors.map(selector=>{
+     const element=document.querySelector(selector);
+     if(!element) return {selector,found:false};
+     const style=getComputedStyle(element);
+     return {
+      selector,found:true,
+      contentVisibility:style.contentVisibility,
+      intrinsicSize:style.containIntrinsicSize
+     };
+    });
+   }""")
+   assert len(lazy_render_state)==10 and all(
+    section["found"] and section["contentVisibility"]=="auto" and "px" in section["intrinsicSize"]
+    for section in lazy_render_state
+   ), f"Homepage off-screen rendering or intrinsic size reservation is incomplete: {lazy_render_state}"
    hero=home.locator(".hero-opening").bounding_box()
    home.mouse.move(hero["x"]+hero["width"]*.78,hero["y"]+hero["height"]*.3)
    home.wait_for_function("() => getComputedStyle(document.querySelector('.hero-photo')).translate !== 'none' && getComputedStyle(document.querySelector('.hero-photo')).translate !== '0px 0px'")
