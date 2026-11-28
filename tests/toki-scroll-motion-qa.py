@@ -156,7 +156,7 @@ def main() -> None:
         assert re.search(rf'href="./{re.escape(bundle)}"', page_source), (
             f"{page_name}: expected page stylesheet is missing"
         )
-        assert re.search(r'src="./motion-system\.js"', page_source), (
+        assert re.search(r'src="./assets/js/motion-system\.js"', page_source), (
             f"{page_name}: shared motion controller is missing"
         )
         assert not re.search(r'(?:href|src)="\./[^"]+\?v=', page_source), (
