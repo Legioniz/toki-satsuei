@@ -26,7 +26,7 @@
   --shadow-1:0 1px 2px rgba(17,17,16,.08),0 4px 12px rgba(17,17,16,.06);
   --shadow-2:0 2px 4px rgba(17,17,16,.1),0 14px 32px rgba(17,17,16,.14);
   /* motion */
-  --dur-1:120ms; --dur-2:220ms; --dur-3:360ms; --dur-4:600ms;
+  --dur-1:81.6ms; --dur-2:149.6ms; --dur-3:244.8ms; --dur-4:408ms;
   --ease-out:cubic-bezier(.22,1,.36,1); --ease-in:cubic-bezier(.64,0,.78,0); --ease-io:cubic-bezier(.65,0,.35,1);
   /* sizing */
   --tap:3rem; --header-h:4rem;
