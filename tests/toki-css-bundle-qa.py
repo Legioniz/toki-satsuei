@@ -188,6 +188,9 @@ def main():
     assert "!important" not in pricing_css, (
         "Pricing calculator styling must rely on bundle order and scoped selector specificity"
     )
+    assert ".calculator-wrap .section-heading .section-aside" in pricing_css, (
+        "Pricing calculator aside must outrank shared heading styles without !important"
+    )
     home_bundle_match = re.search(r'"toki-home\.css": \[([\s\S]*?)\],\s*"toki-archive\.css"', builder)
     assert home_bundle_match, "Cannot locate the TOKI home stylesheet bundle manifest"
     home_bundle = home_bundle_match.group(1)
