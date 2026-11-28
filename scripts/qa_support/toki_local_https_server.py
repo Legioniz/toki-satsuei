@@ -11,7 +11,6 @@ from __future__ import annotations
 import ssl
 import subprocess
 import tempfile
-from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Thread
