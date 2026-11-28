@@ -75,6 +75,46 @@ def main() -> None:
             calc = page.locator("#pricing-calculator")
             assert calc.is_visible()
 
+            # Page-owned styles must win through normal cascade order and scoped selectors.
+            def computed(selector: str, property_name: str) -> str:
+                return page.locator(selector).evaluate(
+                    "(node, property) => getComputedStyle(node).getPropertyValue(property).trim()",
+                    property_name,
+                )
+
+            expected_styles = (
+                (".calculator-wrap .section-heading h2", "color", "rgb(245, 242, 235)"),
+                (".calculator-wrap .section-heading h2 em", "color", "rgb(216, 117, 125)"),
+                (".calculator-wrap .section-aside", "color", "rgb(212, 204, 193)"),
+                (".calc-label", "color", "rgb(245, 242, 235)"),
+                (".calc-select", "color", "rgb(255, 255, 255)"),
+                (".calc-select", "background-color", "rgb(20, 19, 20)"),
+                (".calc-btn-step", "color", "rgb(255, 255, 255)"),
+                (".calc-input-qty", "color", "rgb(255, 255, 255)"),
+                (".calc-summary-card h4", "color", "rgb(255, 255, 255)"),
+                (".calc-breakdown-list li", "color", "rgb(229, 222, 212)"),
+                (".calc-total-label", "color", "rgb(255, 255, 255)"),
+                (".calc-total-val", "color", "rgb(245, 242, 235)"),
+                (".calc-disclaimer", "color", "rgb(209, 200, 190)"),
+                (".calc-apply-btn", "background-color", "rgb(163, 31, 45)"),
+                (".calc-apply-btn", "color", "rgb(255, 255, 255)"),
+            )
+            for selector, property_name, expected in expected_styles:
+                actual = computed(selector, property_name)
+                assert actual == expected, (
+                    f"Pricing calculator cascade mismatch for {selector} {property_name}: "
+                    f"expected {expected}, got {actual}"
+                )
+
+            apply_button = page.locator("#calc-apply-to-booking")
+            apply_button.hover()
+            assert computed(".calc-apply-btn", "background-color") == "rgb(184, 40, 55)", (
+                "Pricing calculator hover surface was overridden by shared button styling"
+            )
+            assert computed(".calc-apply-btn", "border-top-color") == "rgb(163, 31, 45)", (
+                "Pricing calculator hover border was overridden by shared button styling"
+            )
+
             # Verify initial default state (Toki Portraits)
             assert "₱350" in page.locator("#calc-total-display").inner_text()
             assert "₱70" in page.locator("#calc-breakdown-list").inner_text()
