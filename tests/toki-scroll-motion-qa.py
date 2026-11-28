@@ -48,8 +48,8 @@ def main() -> None:
     )
     assert intro_timing, "Page intro curtain is missing its explicit timing."
     intro_total = sum(float(value) for value in intro_timing.groups())
-    assert abs(intro_total - 1.0) < 0.001, (
-        f"Page intro curtain should clear in exactly 1 second, found {intro_total:.3f}s."
+    assert abs(intro_total - 0.70) < 0.001, (
+        f"Page intro curtain should clear in 700ms, found {intro_total:.3f}s."
     )
     logo_timing = re.search(
         r"animation:\s*tokiIntroSealPop\s+([0-9.]+)s\s+var\(--ease-spring-overshoot\)\s+([0-9.]+)s\s+both",
@@ -57,13 +57,32 @@ def main() -> None:
     )
     assert logo_timing, "Startup logo mark is missing its explicit animation timing."
     logo_total = sum(float(value) for value in logo_timing.groups())
-    assert abs(logo_total - 1.0) < 0.001, (
-        f"Startup logo should animate for exactly 1 second, found {logo_total:.3f}s."
+    assert abs(logo_total - 0.66) < 0.001, (
+        f"Startup logo should animate for 660ms, found {logo_total:.3f}s."
     )
     intro_fallback = re.search(r"window\.setTimeout\(cleanup,\s*(\d+)\)", motion)
-    assert intro_fallback and 1000 <= int(intro_fallback.group(1)) <= 1200, (
-        "Page intro fallback cleanup must allow the full 1-second logo sequence."
+    assert intro_fallback and 760 <= int(intro_fallback.group(1)) <= 900, (
+        "Page intro fallback cleanup must allow the accelerated 700ms logo sequence."
     )
+
+    assert "MOTION_DURATION_FACTOR = 0.42" in motion, "WAAPI choreography should use the accelerated duration factor."
+    assert "CSS_MOTION_PLAYBACK_RATE = 2" in motion, "CSS animations should play at double speed."
+    assert "Math.min(index, 4) * 18 + \"ms\"" in motion, "Stagger delays should be capped at 72ms."
+    assert "preloadObserver.observe(element)" in motion, "Motion targets must register with the preloader observer."
+    assert 'rootMargin: "1100px 0px 1100px 0px"' in motion, "Motion assets should warm one viewport ahead."
+    assert 'image.loading = "eager"' in motion and "image.decode()" in motion, (
+        "Images inside upcoming motion content should be fetched and decoded before reveal."
+    )
+    homepage_head = (ROOT / "index.html").read_text(encoding="utf-8").split("</head>", 1)[0]
+    for asset in (
+        "./assets/fonts/dm-sans-variable-normal.woff2",
+        "./assets/fonts/cormorant-garamond-variable-normal.woff2",
+        "./assets/brand/Toki-Satsuei-Brushstroke-Emblem.png",
+        "./assets/photography/behind-the-camera-960.jpg",
+        "./assets/photography/before-the-next-shot-960.webp",
+        "./assets/photography/colour-in-the-quiet-960.webp",
+    ):
+        assert asset in homepage_head, f"Homepage critical preload is missing {asset}"
 
     shutter_motion = motion.split("function triggerShutterFlash", 1)[1].split("function pulseMetric", 1)[0]
     assert "animate(iris," in shutter_motion and "animate(streak," in shutter_motion, (
