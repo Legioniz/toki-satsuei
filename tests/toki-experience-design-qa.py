@@ -26,7 +26,7 @@ def main() -> None:
     pages = ["index.html", "booking.html", "library.html", "policies.html", "404.html"]
     for filename in pages:
         bundle_name = {"index.html": "assets/css/toki-home.css", "booking.html": "assets/css/toki-home.css", "library.html": "assets/css/toki-archive.css", "policies.html": "assets/css/toki-policies.css", "404.html": "assets/css/toki-404.css"}[filename]
-        has_experience = "experience.css" in (ROOT / "assets" / "css" / bundle_name).read_text(encoding="utf-8").splitlines()[0]
+        has_experience = "experience.css" in (ROOT / bundle_name).read_text(encoding="utf-8").splitlines()[0]
         should_have_experience = filename in ("index.html", "booking.html")
         assert has_experience == should_have_experience, (
             f"{filename}: booking/home experience CSS should be page-scoped"
