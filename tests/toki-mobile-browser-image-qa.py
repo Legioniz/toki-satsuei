@@ -6,6 +6,7 @@ from functools import partial
 from http.server import SimpleHTTPRequestHandler
 import sys
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError, sync_playwright
 
@@ -13,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts" / "qa_support"))
 from toki_local_https_server import start_https_server
 SITE = ROOT / "dist"
+ALLOWED_EXTERNAL_IMAGE_HOSTS = frozenset({"upload.wikimedia.org"})
 ROUTES = (
     "/",
     "/booking.html",
@@ -153,10 +155,27 @@ def verify_route(browser, label: str, base_url: str, route: str, context_options
     image_count = page.locator("img").count()
     checked_images = 0
     forced_eager_images = 0
+    external_images_skipped = 0
     skipped_external_images: list[str] = []
     for index in range(image_count):
         image = page.locator("img").nth(index)
         if not image.is_visible():
+            continue
+        source_url = image.evaluate("(img) => img.currentSrc || img.src")
+        source_host = (urlsplit(source_url).hostname or "").lower()
+        if source_host != urlsplit(base_url).hostname:
+            alt_text = image.get_attribute("alt") or ""
+            assert source_host in ALLOWED_EXTERNAL_IMAGE_HOSTS, (
+                f"{label} {route}: unexpected third-party image host {source_host!r}: {source_url}"
+            )
+            assert alt_text.strip(), (
+                f"{label} {route}: externally hosted image has no descriptive alt text: {source_url}"
+            )
+            external_images_skipped += 1
+            print(
+                f"WARN {label} {route}: skipped externally hosted reference image "
+                f"from {source_host}; its request is intentionally blocked in this isolated QA run."
+            )
             continue
         # Center the image, rather than accepting a one-pixel intersection at the
         # viewport edge. WebKit can otherwise leave loading="lazy" pending even
