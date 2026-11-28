@@ -25,6 +25,8 @@ The official public website is **[https://legioniz.github.io/toki-satsuei/](http
 
 The workflow also deploys the identical verified artifact to **[https://toki-satsuei.pages.dev/](https://toki-satsuei.pages.dev/)** as a secured Cloudflare Pages mirror. The mirror is not the canonical URL; it exists to provide the full response-header and cache policy that GitHub Pages cannot configure.
 
+**One-time GitHub setting:** before the first Actions deployment, open repository **Settings → Pages → Build and deployment → Source** and select **GitHub Actions**. The workflow checks this setting and stops with a direct instruction if the repository is still using branch-based publishing. GitHub's Pages API requires repository administration permission to change this source; the workflow's normal `GITHUB_TOKEN` is not granted that permission.
+
 The Cloudflare mirror deployment uses the following repository secrets under GitHub **Settings → Secrets and variables → Actions → Repository secrets**:
 
 1. `CLOUDFLARE_API_TOKEN` — an account-scoped Cloudflare API token with **Cloudflare Pages: Edit/Write** permission.
