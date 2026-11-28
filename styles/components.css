@@ -648,7 +648,7 @@ html {
   max-width: 38ch;
 }
 .work-section .section-aside,
-.sessions-section .section-aside,
+.sessions-section > .section-heading .section-aside,
 .availability-section .section-aside,
 .faq-section .section-aside {
   color: #26211c;
@@ -1070,15 +1070,13 @@ body::-webkit-scrollbar,
   transform: none !important;
 }
 .work-section .section-aside,
-.sessions-section .section-aside,
+.sessions-section > .section-heading .section-aside,
 .faq-section .section-aside {
   color: #1f1a16 !important;
   font-size: 15.5px !important;
   line-height: 1.75 !important;
 }
 .services-section .section-aside,
-.sessions-section .calculator-wrap .section-aside,
-.calculator-wrap .section-aside,
 .availability-section .section-aside,
 .contact-copy > p:not(.eyebrow) {
   color: #e6dfd5 !important;
