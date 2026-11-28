@@ -192,6 +192,12 @@ def main():
     assert ".calculator-wrap .section-aside" not in components_css, (
         "Shared components must not force an important color onto pricing-calculator copy"
     )
+    assert ".sessions-section .section-aside" not in components_css, (
+        "Session heading typography must not cascade into the nested pricing calculator"
+    )
+    assert ".sessions-section > .section-heading .section-aside" in components_css, (
+        "The outer session heading must retain its section-specific styling"
+    )
     assert ".calculator-wrap .section-heading .section-aside" in pricing_css, (
         "Pricing calculator aside must outrank shared heading styles without !important"
     )
