@@ -124,7 +124,19 @@ def main():
      node.setAttribute("aria-hidden","false");
      node.inert=false;
    }""")
-   menu=home.locator(".menu-toggle");menu.click()
+   menu=home.locator(".menu-toggle")
+   # Focus reveals the auto-hidden masthead through the real :focus-within path.
+   # This is the accessible way a keyboard user reaches the mobile navigation.
+   menu.focus()
+   home.wait_for_function("""() => {
+     const header=document.querySelector(".site-header");
+     const toggle=document.querySelector(".menu-toggle");
+     const h=header?.getBoundingClientRect();
+     return document.activeElement===toggle && h && h.top>=-1 && h.top<=1 &&
+       getComputedStyle(toggle).display!=="none" &&
+       header?.getAttribute("aria-hidden")==="false" && !header.inert;
+   }""")
+   menu.click()
    home.wait_for_function("""() => {
      const header=document.querySelector(".site-header");
      const nav=document.querySelector(".primary-nav");
