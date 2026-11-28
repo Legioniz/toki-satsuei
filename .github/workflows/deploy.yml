@@ -116,6 +116,8 @@ jobs:
 
       - name: Verify page and asset integration
         run: python tests/toki-asset-integration-qa.py
+      - name: Verify self-hosted photography and typography
+        run: python tests/toki-self-hosted-media-qa.py
       - name: Verify allowlisted Pages and Workers static outputs
         run: python tests/toki-worker-static-build-qa.py
 
