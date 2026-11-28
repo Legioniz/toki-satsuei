@@ -102,8 +102,8 @@
 
   root.classList.add("motion-system-ready", "motion-ready");
 
-  /* Shorten site motion without changing the official startup logo sequence. */
-  const MOTION_DURATION_FACTOR = 0.42;
+  /* Keep the startup logo at its authored two-second sequence; halve every other motion. */
+  const MOTION_DURATION_FACTOR = 0.5;
   const CSS_MOTION_PLAYBACK_RATE = 2;
   const STARTUP_LOGO_SELECTOR = ".toki-intro-curtain, .toki-intro-curtain *, .toki-intro-logo";
 
@@ -145,7 +145,7 @@
 
   function shortenMotionTime(value) {
     return typeof value === "number" && Number.isFinite(value) && value > 0
-      ? Math.max(64, Math.round(value * MOTION_DURATION_FACTOR))
+      ? Math.max(1, Math.round(value * MOTION_DURATION_FACTOR))
       : value;
   }
 
@@ -203,7 +203,7 @@
     curtain.addEventListener("animationend", event => {
       if (event.target === curtain) cleanup();
     });
-    window.setTimeout(cleanup, 800);
+    window.setTimeout(cleanup, 2200);
   }
 
   function ensureDarkroomOverlays() {

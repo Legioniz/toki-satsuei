@@ -48,8 +48,8 @@ def main() -> None:
     )
     assert intro_timing, "Page intro curtain is missing its explicit timing."
     intro_total = sum(float(value) for value in intro_timing.groups())
-    assert abs(intro_total - 0.70) < 0.001, (
-        f"Page intro curtain should clear in 700ms, found {intro_total:.3f}s."
+    assert abs(intro_total - 2.00) < 0.001, (
+        f"Page intro curtain should clear in exactly 2 seconds, found {intro_total:.3f}s."
     )
     logo_timing = re.search(
         r"animation:\s*tokiIntroSealPop\s+([0-9.]+)s\s+var\(--ease-spring-overshoot\)\s+([0-9.]+)s\s+both",
@@ -61,11 +61,14 @@ def main() -> None:
         f"Startup logo should animate for 660ms, found {logo_total:.3f}s."
     )
     intro_fallback = re.search(r"window\.setTimeout\(cleanup,\s*(\d+)\)", motion)
-    assert intro_fallback and 760 <= int(intro_fallback.group(1)) <= 900, (
-        "Page intro fallback cleanup must allow the accelerated 700ms logo sequence."
+    assert intro_fallback and 2100 <= int(intro_fallback.group(1)) <= 2300, (
+        "Page intro fallback cleanup must allow the full two-second logo sequence."
     )
 
-    assert "MOTION_DURATION_FACTOR = 0.42" in motion, "WAAPI choreography should use the accelerated duration factor."
+    assert "MOTION_DURATION_FACTOR = 0.5" in motion, "WAAPI choreography should use exactly half-duration timing."
+    assert "Math.max(1, Math.round(value * MOTION_DURATION_FACTOR))" in motion, (
+        "Short WAAPI animations must also retain the exact 50% duration reduction."
+    )
     assert "CSS_MOTION_PLAYBACK_RATE = 2" in motion, "CSS animations should play at double speed."
     assert "Math.min(index, 4) * 18 + \"ms\"" in motion, "Stagger delays should be capped at 72ms."
     assert "preloadObserver?.observe(element)" in motion, "Motion targets must register with the preloader observer."
@@ -211,6 +214,63 @@ def main() -> None:
             assert page.evaluate("window.TokiMotion.reduced") is False, (
                 "Normal-motion scroll regression context unexpectedly has reduced motion enabled."
             )
+
+            # The startup mark stays at normal speed for a two-second intro;
+            # unrelated CSS and WAAPI effects are each reduced to half duration.
+            intro_page = context.new_page()
+            intro_page.goto(base + "/index.html", wait_until="domcontentloaded")
+            intro_page.wait_for_selector(".toki-intro-curtain")
+            intro_page.wait_for_function("""() => {
+              const grain = document.querySelector(".toki-film-grain");
+              return grain && grain.getAnimations().some(
+                animation => animation.animationName === "tokiGrainDrift" &&
+                  Math.abs(animation.playbackRate - 2) < 0.001
+              );
+            }""", timeout=1500)
+            intro_runtime = intro_page.locator(".toki-intro-curtain").evaluate("""curtain => {
+              const curtainAnimation = curtain.getAnimations().find(
+                animation => animation.animationName === "tokiIntroCurtainOut"
+              );
+              const logoAnimation = curtain.querySelector(".toki-intro-logo")?.getAnimations().find(
+                animation => animation.animationName === "tokiIntroSealPop"
+              );
+              const grainAnimation = document.querySelector(".toki-film-grain")?.getAnimations().find(
+                animation => animation.animationName === "tokiGrainDrift"
+              );
+              return {
+                curtainRate: curtainAnimation?.playbackRate,
+                curtainEndTime: curtainAnimation?.effect?.getComputedTiming().endTime,
+                logoRate: logoAnimation?.playbackRate,
+                grainRate: grainAnimation?.playbackRate
+              };
+            }""")
+            assert intro_runtime["curtainRate"] == 1 and abs(intro_runtime["curtainEndTime"] - 2000) < 1, (
+                f"Startup curtain must run unaccelerated for two seconds: {intro_runtime}"
+            )
+            assert intro_runtime["logoRate"] == 1, (
+                f"Startup logo must remain excluded from global acceleration: {intro_runtime}"
+            )
+            assert intro_runtime["grainRate"] == 2, (
+                f"Non-startup CSS animation must run at double playback rate: {intro_runtime}"
+            )
+            waapi_timing = intro_page.evaluate("""() => {
+              const probe = document.createElement("div");
+              document.body.append(probe);
+              window.TokiMotion.animate(probe, [{ opacity: 0 }, { opacity: 1 }], {
+                duration: 200,
+                delay: 100
+              });
+              const animation = probe.getAnimations()[0];
+              const timing = animation.effect.getTiming();
+              const result = { duration: timing.duration, delay: timing.delay };
+              animation.cancel();
+              probe.remove();
+              return result;
+            }""")
+            assert waapi_timing == {"duration": 100, "delay": 50}, (
+                f"WAAPI durations and delays must both be halved: {waapi_timing}"
+            )
+            intro_page.close()
             assert page.locator(".toki-scroll-scene").count() >= 10
 
             # The homepage masthead remains hidden throughout the hero, even on rapid scroll jumps.
