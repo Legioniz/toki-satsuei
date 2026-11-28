@@ -121,23 +121,33 @@ def check_header(page, width, label):
             # Exercise the real wheel-direction path. Direct scrollTop assignments can
             # coalesce across viewport resizes and do not model a visitor gesture.
             page.mouse.move(width / 2, page.evaluate("innerHeight / 2"))
-            page.mouse.wheel(0, max(700, page.evaluate("innerHeight") + 200))
-            try:
-                page.wait_for_function(
-                    "() => document.querySelector('.hero-opening')?.getBoundingClientRect().bottom < 0",
-                    timeout=5000,
+            # Move sufficiently beyond the hero before the upward gesture. The header
+            # must remain hidden while any part of the opening hero owns the viewport.
+            hero_bottom = page.locator(".hero-opening").evaluate(
+                "(node) => node.getBoundingClientRect().bottom"
+            )
+            for _ in range(8):
+                if hero_bottom < -320:
+                    break
+                previous_down_scroll = page.evaluate("window.scrollY")
+                page.mouse.wheel(0, 500)
+                try:
+                    page.wait_for_function(
+                        "(previous) => window.scrollY > previous",
+                        arg=previous_down_scroll,
+                        timeout=2000,
+                    )
+                except PlaywrightTimeoutError:
+                    break
+                hero_bottom = page.locator(".hero-opening").evaluate(
+                    "(node) => node.getBoundingClientRect().bottom"
                 )
-            except PlaywrightTimeoutError as error:
-                state = page.evaluate("""() => ({
-                    scrollY: window.scrollY,
-                    viewportHeight: window.innerHeight,
-                    hero: (() => {
-                        const rect = document.querySelector('.hero-opening')?.getBoundingClientRect();
-                        return rect ? {top: rect.top, bottom: rect.bottom, height: rect.height} : null;
-                    })(),
-                    scrollHeight: document.documentElement.scrollHeight
-                })""")
-                raise AssertionError(f"{label}: real downward wheel did not move the hero out of view: {state}") from error
+            assert hero_bottom < -320, (
+                f"{label}: downward wheel did not move the opening hero far enough "
+                f"to test upward masthead reveal without re-entering hero lock "
+                f"(scrollY={page.evaluate('window.scrollY')}, heroBottom={hero_bottom}, "
+                f"scrollHeight={page.evaluate('document.documentElement.scrollHeight')})"
+            )
             previous_scroll = page.evaluate("window.scrollY")
             page.mouse.wheel(0, -120)
             try:
@@ -151,6 +161,13 @@ def check_header(page, width, label):
                     f"{label}: real upward wheel did not change the document scroll position "
                     f"(previousY={previous_scroll}, currentY={page.evaluate('window.scrollY')})"
                 ) from error
+            hero_bottom_after_up = page.locator(".hero-opening").evaluate(
+                "(node) => node.getBoundingClientRect().bottom"
+            )
+            assert hero_bottom_after_up < 0, (
+                f"{label}: upward gesture unexpectedly re-entered hero lock before "
+                f"the masthead reveal check (heroBottom={hero_bottom_after_up})"
+            )
         else:
             # Interior pages should expose the masthead at the document top.
             page.evaluate("() => window.scrollTo({top: 0, left: 0, behavior: 'instant'})")
