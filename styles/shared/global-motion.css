@@ -23,7 +23,7 @@
 }
 .motion-item[data-motion="focus-pull"].is-motion-visible,
 [data-reveal][data-motion="focus-pull"].is-visible {
-  animation: tokiFocusPull 0.82s var(--ease-expo-out) var(--motion-delay, 0ms) both;
+  animation:tokiFocusPull 0.558s var(--ease-expo-out) var(--motion-delay, 0ms) both;
 }
 @keyframes tokiFocusPull {
   0% { opacity: 0; transform: translate3d(0, 24px, 0) scale(0.985); filter: blur(3px); }
@@ -40,7 +40,7 @@
 }
 .motion-item[data-motion="film-gate"].is-motion-visible,
 [data-reveal][data-motion="film-gate"].is-visible {
-  animation: tokiFilmGate 0.76s var(--ease-shutter-snap) var(--motion-delay, 0ms) both;
+  animation:tokiFilmGate 0.517s var(--ease-shutter-snap) var(--motion-delay, 0ms) both;
 }
 @keyframes tokiFilmGate {
   0% { opacity: 0; transform: translate3d(0, 28px, 0) scale(0.99); clip-path: inset(0 0 12% 0); }
@@ -99,7 +99,7 @@
   box-shadow: 0 0 0 3px rgba(195, 42, 57, 0.12), 0 0 12px rgba(195, 42, 57, 0.18);
   opacity: var(--toki-scene-opacity, 0.42);
   transform: translateX(-50%);
-  transition: opacity 160ms var(--ease-shutter-snap, ease-out);
+  transition:opacity 108.8ms var(--ease-shutter-snap, ease-out);
 }
 .toki-scroll-scene--dark > .toki-scene-track::after {
   background: #09090b;
