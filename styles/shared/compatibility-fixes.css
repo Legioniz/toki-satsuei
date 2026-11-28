@@ -30,14 +30,7 @@
   .contact-panel::before{ position: static; margin: 0; white-space: normal; letter-spacing: .14em; line-height: 1.7; }
 }
 
-/* ==========================================================================
-   Design system layer (homepage). Rules applied:
-   - Type scale: major third (1.25) from a 16px base  -> 13 / 16 / 20 / 25 / 31 / 39 / 49 / 61
-   - Spacing: 8px grid; section rhythm in multiples of 8
-   - Colour: 60 paper / 30 ink / 10 crimson. Crimson is reserved for actions and one accent per section
-   - Readability: 62ch measure, 1.7 leading, nothing below 13px
-   - Fitts's law: 48px minimum targets. Hick's law: fewer, quieter labels
-   ========================================================================== */
+/* Design system compatibility layer: 1.25 type scale, 8px grid, 48px targets */
 :root{
   --step--1: .8125rem; --step-0: 1rem; --step-1: 1.25rem; --step-2: 1.5625rem;
   --step-3: 1.953rem; --step-4: 2.441rem; --step-5: 3.052rem; --step-6: 3.815rem;

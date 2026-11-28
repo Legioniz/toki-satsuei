@@ -1,6 +1,4 @@
-/* ==========================================================================
-   TOKI SATSUEI — unified darkroom motion, multi-curve scroll keyframes & graphics
-   ========================================================================== */
+/* TOKI SATSUEI darkroom motion, scroll keyframes, and graphics */
 :root {
   /* Multi-curve optical timing vocabulary (beyond linear & ease-in-out) */
   --ease-shutter-snap: cubic-bezier(0.16, 1, 0.3, 1);
@@ -28,9 +26,7 @@
   }
 }
 
-/* ==========================================================================
-   PAGE LOAD INTRO MOTION GRAPHIC (NON-BLOCKING DARKROOM APERTURE VEIL)
-   ========================================================================== */
+/* Non-blocking darkroom aperture intro veil */
 .toki-intro-curtain {
   position: fixed;
   inset: 0;
@@ -161,9 +157,7 @@ html.motion-system-ready :where(h1, h2, h3, h4, p, small, strong, em, label, fig
   transition:color 0.19s var(--ease-in-out-sine), text-shadow 0.231s var(--ease-in-out-sine);
 }
 
-/* ==========================================================================
-   SCROLL-CHOREOGRAPHED MULTI-PROFILE ENTRANCES (@keyframes)
-   ========================================================================== */
+/* Scroll-choreographed reveal keyframes */
 .motion-item {
   opacity: 0;
   transform: translate3d(0, 34px, 0);
@@ -404,9 +398,7 @@ html.motion-ready [data-reveal="right"].is-visible {
   }
 }
 
-/* ==========================================================================
-   HEADER, NAVIGATION & CIRCULAR EXPOSURE BACK-TO-TOP DIAL
-   ========================================================================== */
+/* Header, navigation, and back-to-top dial */
 .announcement .red-dot {
   box-shadow: 0 0 0 0 rgba(194, 58, 69, 0.28);
   animation:motion-beacon 3.264s var(--ease-in-out-sine) infinite;
@@ -490,9 +482,7 @@ html.motion-ready [data-reveal="right"].is-visible {
   box-shadow: 0 14px 34px rgba(163, 31, 45, 0.55), 0 0 18px rgba(195, 42, 57, 0.36) !important;
 }
 
-/* ==========================================================================
-   HERO APERTURE SETTLE, DEPTH PARALLAX & VIEWFINDER HUD
-   ========================================================================== */
+/* Hero aperture settle, parallax, and viewfinder HUD */
 .hero-opening .hero-photo.hero-frame-media {
   transform-origin: center center;
   transform: translate3d(
@@ -679,9 +669,7 @@ html.motion-ready [data-reveal="right"].is-visible {
   mix-blend-mode: screen;
 }
 
-/* ==========================================================================
-   CONTINUOUS SCROLL GRAPHICS: FILM SPROCKETS, PARALLAX FRAMES & PROGRESS BAR
-   ========================================================================== */
+/* Film sprockets, parallax frames, and progress bar */
 .intro-band::before,
 .process-section::after {
   content: "";
@@ -764,9 +752,7 @@ html.motion-ready [data-reveal="right"].is-visible {
   transform-origin: 0 50%;
 }
 
-/* ==========================================================================
-   ELEMENT DESIGN & OPTICAL GRAPHIC REFINEMENTS (ZERO HALLUCINATED COPY)
-   ========================================================================== */
+/* Optical and decorative graphic refinements */
 .hero-opening h1 em,
 .section-heading h2 em,
 .process-heading h2 em,

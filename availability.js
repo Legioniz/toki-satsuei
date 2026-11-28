@@ -158,7 +158,7 @@
         button.classList.add("is-booked");
         const times = slots.map((slot) => formatTime(slot.start_time) + " to " + formatTime(slot.end_time)).join(", ");
         button.setAttribute("aria-label", formatDate(dateKey) + ", " + slots.length + " confirmed time " + (slots.length === 1 ? "window: " : "windows: ") + times + ". Select to view schedule.");
-        button.title = slots.length + " booked time " + (slots.length === 1 ? "window" : "windows") + " — select to view";
+        button.title = slots.length + " booked time " + (slots.length === 1 ? "window" : "windows") + " (select to view)";
         const count = document.createElement("span");
         count.className = "calendar-booking-count";
         count.setAttribute("aria-hidden", "true");

@@ -32,7 +32,7 @@
 }
 .archive-page .primary-nav .is-current { color: #fff; }
 
-/* ---------- Page head ---------- */
+/* Page head */
 
 .archive-main { min-height: 62vh; }
 
@@ -79,7 +79,7 @@
   opacity: .7;
 }
 
-/* ---------- Body: index + sheet ---------- */
+/* Body: index and sheet */
 
 .archive-body {
   display: grid;
@@ -213,7 +213,7 @@
 .archive-body:has(.library-toolbar.is-empty),
 .archive-body:has(.library-toolbar.is-loading) { grid-template-columns: minmax(0, 1fr); }
 
-/* ---------- Groups and the contact sheet ---------- */
+/* Groups and contact sheet */
 
 .library-groups { min-width: 0; display: grid; gap: clamp(48px, 6vw, 80px); }
 
@@ -347,7 +347,7 @@
   text-transform: none;
 }
 
-/* ---------- Grease-pencil mark ---------- */
+/* Grease-pencil mark */
 
 .pencil-mark {
   position: absolute;
@@ -378,7 +378,7 @@
 .archive-page .album-card:focus-visible { outline: none; }
 .archive-page .album-card:focus-visible .album-cover { outline: 2px solid var(--a-ivory); outline-offset: 3px; }
 
-/* ---------- Empty state: an undeveloped strip ---------- */
+/* Empty state: undeveloped strip */
 
 .archive-page .archive-empty {
   display: grid;
@@ -465,7 +465,7 @@
   line-height: 1.7;
 }
 
-/* ---------- Album viewer ---------- */
+/* Album viewer */
 
 .archive-page .album-dialog {
   position: fixed;
@@ -674,12 +674,12 @@
   opacity: .85;
 }
 
-/* ---------- Keyframes ---------- */
+/* Keyframes */
 
 @keyframes pencil-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @keyframes viewer-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
-/* ---------- Focus ---------- */
+/* Focus */
 
 .archive-page .library-filter:focus-visible,
 .archive-page .rail-button:focus-visible,
@@ -687,7 +687,7 @@
 .archive-page .archive-upload-guide:focus-visible,
 .archive-page .archive-empty-action:focus-visible { outline: 2px solid var(--a-ivory); outline-offset: 3px; }
 
-/* ---------- Responsive ---------- */
+/* Responsive */
 
 @media (max-width: 920px) {
   .archive-body { grid-template-columns: minmax(0, 1fr); row-gap: 36px; }

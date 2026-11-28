@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#000000">
   <meta name="robots" content="noindex,nofollow">
-  <title>TOKI SATSUEI — Client Gallery Delivery</title>
+  <title>TOKI SATSUEI · Client Gallery Delivery</title>
   <link rel="stylesheet" href="./toki-client.css">
   <link rel="icon" href="./assets/brand/Toki-Satsuei-Brushstroke-Emblem.png" type="image/png">
   <script src="./motion-system.js" defer></script>
@@ -22,7 +22,7 @@
       <span style="font:700 11px var(--c-mono, monospace);color:#c7bfb5;letter-spacing:.12em;">PRIVATE CLIENT GALLERY</span>
     </div>
     <div>
-      <a href="./index.html" style="font:700 11px var(--c-mono, monospace);color:#df6871;text-decoration:none;">TOKI HOME ↗</a>
+      <a href="./index.html" style="font:700 11px var(--c-mono, monospace);color:#df6871;text-decoration:none;">TOKI HOME</a>
     </div>
   </header>
 
@@ -34,7 +34,7 @@
       <form id="client-token-form">
         <input type="password" id="client-token-input" class="admin-input" placeholder="Enter your private delivery key" autocomplete="off" autocapitalize="none" spellcheck="false" required aria-label="Gallery access key">
         <div id="client-token-error" role="alert" style="color:#f1a1a6;font-size:12px;margin-bottom:12px;display:none;"></div>
-        <button type="submit" class="admin-btn" id="client-submit-token-btn">Open Private Gallery ↗</button>
+        <button type="submit" class="admin-btn" id="client-submit-token-btn">Open Private Gallery</button>
       </form>
     </section>
 
@@ -51,9 +51,11 @@
             <span>SELECTED FAVORITES</span>
             <div id="client-selected-count" style="font:600 18px var(--serif, serif);color:#f4f1ea;">0 photos</div>
           </div>
-          <button type="button" class="admin-btn" id="client-submit-selection-btn" style="width:auto;min-height:36px;padding:0 16px;font-size:11px;">Save Favorites ↗</button>
+          <button type="button" class="admin-btn" id="client-submit-selection-btn" style="width:auto;min-height:36px;padding:0 16px;font-size:11px;">Save Favorites</button>
         </div>
       </div>
+
+      <p id="client-selection-status" class="client-selection-status" role="status" aria-live="polite" hidden></p>
 
       <!-- Photo Grid -->
       <div class="client-photo-grid" id="client-photo-grid">

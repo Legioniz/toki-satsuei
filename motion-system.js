@@ -1,4 +1,4 @@
-/* TOKI SATSUEI — unified scroll choreography, darkroom optics & reduced-motion engine. */
+/* TOKI SATSUEI: unified scroll choreography, darkroom optics & reduced-motion engine. */
 (() => {
   "use strict";
 

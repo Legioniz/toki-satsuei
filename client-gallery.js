@@ -16,6 +16,7 @@
   const submitSelectionBtn = document.querySelector("#client-submit-selection-btn");
   const tokenSubmitBtn = document.querySelector("#client-submit-token-btn");
   const photoGrid = document.querySelector("#client-photo-grid");
+  const selectionStatus = document.querySelector("#client-selection-status");
 
   let tokenRequestInFlight = false;
   let currentToken = "";
@@ -24,9 +25,17 @@
 
   const selectionSummary = document.querySelector(".client-selection-summary");
 
+  function showSelectionStatus(message, isError = false) {
+    if (!selectionStatus) return;
+    selectionStatus.textContent = message;
+    selectionStatus.hidden = !message;
+    selectionStatus.classList.toggle("is-error", isError);
+    selectionStatus.setAttribute("role", isError ? "alert" : "status");
+  }
 
   async function fetchGallery(token) {
     tokenError.style.display = "none";
+    showSelectionStatus("");
     currentToken = "";
     galleryData = null;
     try {
@@ -55,7 +64,7 @@
       renderGallery();
       return true;
     } catch {
-      tokenError.textContent = "Unable to verify access key with the studio server.";
+      tokenError.textContent = "Unable to verify access key with the delivery server.";
       tokenError.style.display = "block";
       return false;
     }
@@ -96,8 +105,8 @@
       photoGrid.innerHTML = `
         <div class="client-gallery-empty" role="status">
           <span class="client-gallery-empty__eyebrow">PRIVATE DELIVERY</span>
-          <h2>Your files are shared through the studio's private delivery link.</h2>
-          <p>This portal has verified your access key, but a private photo preview list has not been connected to this delivery yet. Contact the studio through your official booking conversation to request your photographs.</p>
+          <h2>Your files are shared through TOKI SATSUEI's private delivery link.</h2>
+          <p>This portal has verified your access key, but a private photo preview list has not been connected to this delivery yet. Message TOKI SATSUEI through your official booking conversation to request your photographs.</p>
         </div>
       `;
       return;
@@ -114,15 +123,15 @@
     photoGrid.innerHTML = photos.map((photo) => {
       const isSelected = selectedPhotos.has(photo.id);
       return `
-        <div class="client-photo-item ${isSelected ? "is-selected" : ""}" data-id="${escapeHtml(photo.id)}" tabindex="0" role="button" aria-pressed="${isSelected}" aria-label="Select photo ${escapeHtml(photo.title)}">
+        <button type="button" class="client-photo-item ${isSelected ? "is-selected" : ""}" data-id="${escapeHtml(photo.id)}" aria-pressed="${isSelected}" aria-label="Select photo ${escapeHtml(photo.title)}">
           <img src="${escapeHtml(photo.url)}" alt="${escapeHtml(photo.title)}" loading="lazy" decoding="async">
-          <div class="client-photo-select-btn" aria-hidden="true">${isSelected ? "✓" : "+"}</div>
-        </div>
+          <span class="client-photo-select-btn" aria-hidden="true">${isSelected ? "✓" : "+"}</span>
+        </button>
       `;
     }).join("");
 
     photoGrid.querySelectorAll(".client-photo-item").forEach((item) => {
-      const toggle = () => {
+      item.addEventListener("click", () => {
         const id = item.dataset.id;
         if (selectedPhotos.has(id)) {
           selectedPhotos.delete(id);
@@ -136,13 +145,6 @@
           item.querySelector(".client-photo-select-btn").textContent = "✓";
         }
         updateSelectedCount();
-      };
-      item.addEventListener("click", toggle);
-      item.addEventListener("keydown", (event) => {
-        if ((event.key === "Enter" || event.key === " ") && !event.repeat) {
-          event.preventDefault();
-          toggle();
-        }
       });
     });
   }
@@ -154,6 +156,7 @@
   submitSelectionBtn?.addEventListener("click", async () => {
     submitSelectionBtn.disabled = true;
     submitSelectionBtn.textContent = "Saving...";
+    showSelectionStatus("Saving your favorites...");
 
     try {
       const res = await fetch(SUPABASE_URL + "/rest/v1/rpc/toki_submit_client_selection", {
@@ -170,15 +173,15 @@
 
       const data = await res.json();
       if (res.ok && data?.ok) {
-        alert("Favorites saved successfully! The studio has been notified of your selections.");
+        showSelectionStatus("Favorites saved. TOKI SATSUEI has received your selections.");
       } else {
-        alert(data?.message || "Failed to save selections. Please try again.");
+        showSelectionStatus(data?.message || "Failed to save selections. Please try again.", true);
       }
     } catch {
-      alert("Could not reach the studio server. Your selections were not saved. Check your connection and try again.");
+      showSelectionStatus("Could not reach the delivery server. Your selections were not saved. Check your connection and try again.", true);
     } finally {
       submitSelectionBtn.disabled = false;
-      submitSelectionBtn.textContent = "Save Favorites ↗";
+      submitSelectionBtn.textContent = "Save Favorites";
     }
   });
 
@@ -188,7 +191,7 @@
     const token = tokenInput.value.trim().toLowerCase();
     tokenInput.value = "";
     if (!/^toki-[0-9a-f]{64}$/.test(token)) {
-      tokenError.textContent = "Enter the complete private delivery key provided by the studio.";
+      tokenError.textContent = "Enter the complete private delivery key provided by TOKI SATSUEI.";
       tokenError.style.display = "block";
       return;
     }

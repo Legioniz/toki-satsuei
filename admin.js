@@ -238,14 +238,14 @@
 
       return `
         <tr data-id="${b.id}">
-          <td><strong style="font-family:var(--c-mono, monospace);">${escapeHtml(b.reference_code || "—")}</strong></td>
+          <td><strong style="font-family:var(--c-mono, monospace);">${escapeHtml(b.reference_code || "N/A")}</strong></td>
           <td>
             <div style="font-weight:600;color:#f4f1ea;">${escapeHtml(b.name || "Anonymous")}</div>
             <div style="font-size:11px;color:var(--admin-subtext);font-family:var(--c-mono, monospace);">${escapeHtml(b.contact_method || "")}: ${escapeHtml(b.contact_value || "")}</div>
           </td>
           <td>
             <div style="color:#ede6dd;">${escapeHtml((b.session_type || "Session") + formatSessionAddons(b))}</div>
-            <div style="font-size:12px;color:var(--admin-subtext);">${escapeHtml(b.confirmed_date || b.preferred_date || "—")} (${escapeHtml(b.preferred_time || "—")})</div>
+            <div style="font-size:12px;color:var(--admin-subtext);">${escapeHtml(b.confirmed_date || b.preferred_date || "Unscheduled")} (${escapeHtml(b.preferred_time || "TBD")})</div>
           </td>
           <td><span class="status-tag ${statusClass}">${escapeHtml(statusLabel)}</span></td>
           <td>
@@ -253,7 +253,7 @@
             <div style="font-size:11px;color:var(--admin-subtext);font-family:var(--c-mono, monospace);">₱${Number(b.total_price || 0).toFixed(2)}</div>
           </td>
           <td>
-            <button type="button" class="admin-btn admin-btn-secondary btn-manage-booking admin-action-btn" data-id="${b.id}" style="width:auto;min-height:32px;padding:0 12px;font-size:11px;">Manage ↗</button>
+            <button type="button" class="admin-btn admin-btn-secondary btn-manage-booking admin-action-btn" data-id="${b.id}" style="width:auto;min-height:32px;padding:0 12px;font-size:11px;">Manage</button>
           </td>
         </tr>
       `;
@@ -288,9 +288,9 @@
     modalBookingId.value = b.id;
     modalBookingRef.textContent = b.reference_code || "TOKI-";
     modalClientName.textContent = b.name || "Client";
-    modalContactInfo.textContent = `${b.contact_method || "Contact"}: ${b.contact_value || "—"}`;
-    modalSessionType.textContent = (b.session_type || "—") + formatSessionAddons(b);
-    modalRequestedDateTime.textContent = `${b.preferred_date || "—"} at ${b.preferred_time || "—"}${b.alternate_date ? ` (Alt: ${b.alternate_date})` : ""}`;
+    modalContactInfo.textContent = `${b.contact_method || "Contact"}: ${b.contact_value || "Not provided"}`;
+    modalSessionType.textContent = (b.session_type || "Session") + formatSessionAddons(b);
+    modalRequestedDateTime.textContent = `${b.preferred_date || "Unscheduled"} at ${b.preferred_time || "TBD"}${b.alternate_date ? ` (Alt: ${b.alternate_date})` : ""}`;
     modalParticipantsLocation.textContent = `${b.participants || 1} participant(s) at ${b.location || "Quezon City"}`;
     modalClientNotes.textContent = b.notes || "No additional notes provided.";
 

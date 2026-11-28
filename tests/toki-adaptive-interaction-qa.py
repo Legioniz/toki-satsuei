@@ -119,13 +119,13 @@ def main():
    launcher.goto(base+"/index.html#sessions",wait_until="domcontentloaded")
    duo_card=launcher.locator('.package-card[data-session="Duo Session"]')
    duo_card.locator(".package-link").click()
-   launcher.wait_for_function("() => location.pathname.endsWith('/booking.html')")
+   launcher.wait_for_function("""() => location.pathname.endsWith('/booking.html') && document.querySelector('select[name="session"]')?.value === "Duo Session" """)
    assert launcher.locator('select[name="session"]').input_value()=="Duo Session","Duo package was not carried into booking"
    launcher.goto(base+"/index.html#sessions",wait_until="domcontentloaded")
    portrait_card=launcher.locator('.package-card[data-session="Toki Portraits"]')
    portrait_card.locator(".package-link").focus()
    launcher.keyboard.press("Enter")
-   launcher.wait_for_function("() => location.pathname.endsWith('/booking.html')")
+   launcher.wait_for_function("""() => location.pathname.endsWith('/booking.html') && document.querySelector('select[name="session"]')?.value === "Toki Portraits" """)
    assert launcher.locator('select[name="session"]').input_value()=="Toki Portraits","Keyboard package selection did not prefill booking"
    launcher.close()
    passed+=1
@@ -155,6 +155,15 @@ def main():
    }""")
    assert header.evaluate("(node)=>node.classList.contains('is-auto-hidden') && node.inert")
    home.keyboard.press("Tab")
+   if home.locator(".skip-link").count() > 0:
+     home.wait_for_function("""() => {
+       const header=document.querySelector(".site-header");
+       const skip=document.querySelector(".skip-link");
+       return document.activeElement===skip &&
+         header?.getAttribute("aria-hidden")==="false" && !header.inert &&
+         !header.classList.contains("is-auto-hidden");
+     }""")
+     home.keyboard.press("Tab")
    home.wait_for_function("""() => {
      const header=document.querySelector(".site-header");
      const brand=document.querySelector(".site-header .brand");

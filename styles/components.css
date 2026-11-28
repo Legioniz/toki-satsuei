@@ -1,4 +1,4 @@
-/* 4. COMPONENTS ------------------------------------------------------------ */
+/* 4. Components */
 /* buttons: 48px targets, tactile press feedback */
 .button,.form-submit,.availability-cta,.filter-button{min-height:var(--tap);display:inline-flex;align-items:center;justify-content:center;gap:var(--s-2);
   transition:background-color var(--dur-2) var(--ease-out),color var(--dur-2) var(--ease-out),border-color var(--dur-2) var(--ease-out),
@@ -43,7 +43,7 @@
 /* thumb-zone CTA (mobile only, hidden until the visitor has scrolled) */
 .mobile-cta{display:none}
 
-/* 5. MOTION ---------------------------------------------------------------- */
+/* 5. Motion */
 @view-transition{navigation:auto}
 ::view-transition-group(site-header){animation-duration:0s}
 ::view-transition-old(root){animation:tokiPageShutterClose 0.19s cubic-bezier(0.4, 0, 1, 1) both}
@@ -55,7 +55,7 @@
 .hero-copy>*{animation:ds-rise var(--dur-4) var(--ease-out) both}
 .hero-copy>:nth-child(2){animation-delay:61.2ms}.hero-copy>:nth-child(3){animation-delay:122.4ms}.hero-copy>:nth-child(4){animation-delay:183.6ms}
 
-/* 6. ADAPTIVE: size, orientation, input, preference ------------------------- */
+/* 6. Adaptive: size, orientation, input, preference */
 @media (max-width:820px){
   body{padding-bottom:calc(var(--tap) + var(--s-7))}
   .mobile-cta{display:inline-flex;position:fixed;z-index:60;left:var(--gutter);right:var(--gutter);bottom:max(var(--s-4),env(safe-area-inset-bottom));
@@ -96,10 +96,7 @@
   .hero-copy>*{animation:none}
 }
 
-/* 7. FINAL TOKI POLISH -----------------------------------------------------
-   A quiet Nothing-inspired layer: type and spacing carry the hierarchy, while
-   the existing warm paper / charcoal / crimson identity and official assets stay.
-*/
+/* 7. Spacing and typographic hierarchy polish */
 :root{--c-mono:"Space Mono","DM Mono",monospace;--c-display:"DM Sans","DM Sans",Arial,sans-serif}
 .hero-proof{display:flex;flex-wrap:wrap;gap:8px 18px;margin:20px 0 0;color:#d0c7bc;font:11px/1.4 var(--c-mono);letter-spacing:.09em}
 .hero-proof span{display:inline-flex;align-items:center;gap:8px}
@@ -133,10 +130,7 @@ html.motion-ready [data-reveal] { transition-duration:571.2ms; transition-timing
 .inquiry-form .booking-consent { grid-template-columns: 24px minmax(0, 1fr); }
 .inquiry-form .booking-consent input[type="checkbox"] { width: 24px; min-width: 24px; height: 24px; min-height: 24px; margin: 0; }
 
-/* 8. ELEVATED STUDIO REDESIGN UPGRADE ---------------------------------------
-   Circular brand aperture, refined optical hierarchy, razor-sharp darkroom rules,
-   and high-contrast tactile interaction states.
-*/
+/* 8. Brand aperture and interactive states */
 .site-header {
   position: fixed;
   top: 0;
@@ -612,10 +606,7 @@ html {
   width: 100%;
 }
 
-/* 9. COMPREHENSIVE REDESIGN: FOUNDATIONAL PRINCIPLES & 7 C'S ------------------
-   Hierarchy, Balance, Contrast, Consistency, Alignment, Whitespace, Proximity.
-   Context, Content, Community, Customization, Communication, Connection, Commerce.
------------------------------------------------------------------------------- */
+/* 9. Grid alignment and contrast refinements */
 
 /* Core Spacing & Whitespace Tokens */
 :root {
@@ -786,11 +777,7 @@ html {
   }
 }
 
-/* 10. REDUCED MOTION OVERRIDE FALLBACKS -------------------------------------
-   Authoritative scroll reveal keyframes live in motion-system.css.
-   When reduced motion is preferred: disorienting movement is replaced with
-   minimal gentle opacity/color feedback.
------------------------------------------------------------------------------- */
+/* 10. Reduced-motion fallbacks (primary keyframes live in motion-system.css) */
 
 /* Reduced Motion Mode: Minimal Effects */
 @media (prefers-reduced-motion: reduce) {
@@ -841,9 +828,7 @@ html {
 
 
 
-/* ==========================================================================
-   TOKI SATSUEI — NOCTURNE TOKENS, ACCESSIBILITY & NON-INVERTING CONTROLS
-   ========================================================================== */
+/* Nocturne tokens and non-inverting controls */
 :root {
   --bg-void: #070709;
   --bg-canvas: #09090b;
@@ -1035,9 +1020,7 @@ body::-webkit-scrollbar,
   outline-offset: 3px;
 }
 
-/* ==========================================================================
-   11. TYPOGRAPHY & READABILITY FLOOR ACROSS ALL PUBLIC PAGES
-   ========================================================================== */
+/* 11. Typography and readability floor across public pages */
 .hero-opening h1,
 .section-heading h2,
 .about-copy h2,

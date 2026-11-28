@@ -4,7 +4,7 @@
 @custom-media --toki-tablet (max-width: 960px);
 @custom-media --toki-wide (min-width: 1200px);
 
-/* 1. TOKENS ---------------------------------------------------------------- */
+/* 1. Tokens */
 :root{
   /* colour roles: paper 60% / ink 30% / accent 10% */
   --c-paper:#f4f1ea; --c-paper-2:#e9e4da; --c-ink:#111110; --c-ink-2:#1a1918;

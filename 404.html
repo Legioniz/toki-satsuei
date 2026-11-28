@@ -5,18 +5,20 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#000000">
   <meta name="robots" content="noindex,follow">
-  <title>Page not found — TOKI SATSUEI</title>
+  <title>Page not found · TOKI SATSUEI</title>
   <link rel="stylesheet" href="./toki-404.css">
   <link rel="icon" href="./assets/brand/Toki-Satsuei-Brushstroke-Emblem.png" type="image/png">
   <script src="./motion-system.js" defer></script>
+  <script src="./site.js" defer></script>
 </head>
 <body class="not-found-page">
-  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
   <header class="site-header" id="top">
     <a class="brand" href="./index.html" aria-label="TOKI SATSUEI home">
-      <img src="./assets/brand/Toki-Satsuei-Brushstroke-Emblem.png" alt="TOKI SATSUEI official logo" class="brand-mark">
+      <img src="./assets/brand/Toki-Satsuei-Brushstroke-Emblem.png" alt="TOKI SATSUEI official logo" class="brand-mark" width="500" height="500" decoding="async">
     </a>
-    <nav class="primary-nav not-found-nav" aria-label="Main navigation">
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation"><span></span><span></span></button>
+    <nav id="primary-nav" class="primary-nav not-found-nav" aria-label="Main navigation">
       <a href="./index.html#work">Early studies</a>
       <a href="./library.html">The archive</a>
       <a href="./index.html#sessions">Sessions</a>
@@ -29,8 +31,8 @@
     <h1>This moment<br><em>is out of frame.</em></h1>
     <p class="not-found-copy">The page may have moved, or the address may be incomplete. Let's bring you back to the photographs and information that are still here.</p>
     <div class="not-found-actions">
-      <a class="button button-red" href="./index.html">Return home <span>↗</span></a>
-      <a class="text-link" href="./library.html">Browse the archive <span>→</span></a>
+      <a class="button button-red" href="./index.html">Return home</a>
+      <a class="text-link" href="./library.html">Browse the archive</a>
     </div>
     <span class="not-found-foot">TOKI SATSUEI · CAPTURING MOMENTS, PRESERVING MEMORIES.</span>
   </main>

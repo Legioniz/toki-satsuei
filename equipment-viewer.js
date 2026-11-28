@@ -83,7 +83,7 @@
 
       api.setTextureQuality("hd", error => {
         announce(error
-          ? "3D MODEL / HD TEXTURE REQUEST FAILED — DEFAULT QUALITY"
+          ? "3D MODEL / HD TEXTURE REQUEST FAILED: DEFAULT QUALITY"
           : "3D MODEL / HIGH-DEFINITION TEXTURES REQUESTED");
       });
     });
@@ -105,7 +105,7 @@
         },
         error: () => {
           viewerStarted = false;
-          announce("3D MODEL / VIEWER FAILED — RETRY BY RESELECTING 3D");
+          announce("3D MODEL / VIEWER FAILED: RETRY BY RESELECTING 3D");
         }
       });
     }).catch(() => {

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#000000">
   <meta name="robots" content="noindex,nofollow">
-  <title>TOKI SATSUEI — Studio Operations Console</title>
+  <title>TOKI SATSUEI · Operations Console</title>
   <link rel="stylesheet" href="./toki-admin.css">
   <link rel="icon" href="./assets/brand/Toki-Satsuei-Brushstroke-Emblem.png" type="image/png">
   <script src="./motion-system.js" defer></script>
@@ -30,18 +30,18 @@
   <main id="main-content" class="admin-main">
     <!-- Auth Gate Container -->
     <section class="admin-auth-gate" id="admin-auth-section" aria-labelledby="auth-title">
-      <h1 id="auth-title">Studio Sign In</h1>
+      <h1 id="auth-title">Team Sign In</h1>
       <p>Authorized access only. Sign in with your Supabase administrator account to manage bookings, payments, and client deliveries.</p>
       <form id="admin-login-form">
         <label for="admin-email" class="admin-field-label">Administrator Email</label>
-        <input type="email" id="admin-email" name="email" class="admin-input" required autocomplete="username" placeholder="owner@tokisatsuei.com">
+        <input type="email" id="admin-email" name="email" class="admin-input" required autocomplete="username" placeholder="Administrator email">
 
         <label for="admin-password" class="admin-field-label">Password</label>
         <input type="password" id="admin-password" name="password" class="admin-input" required autocomplete="current-password" placeholder="••••••••••••">
 
         <div id="admin-auth-error" role="alert" style="color:#f1a1a6;font-size:12px;margin-bottom:12px;display:none;"></div>
 
-        <button type="submit" class="admin-btn" id="admin-login-btn">Sign In to Console ↗</button>
+        <button type="submit" class="admin-btn" id="admin-login-btn">Sign In to Console</button>
       </form>
     </section>
 
@@ -226,7 +226,7 @@
 
           <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:var(--s-4);">
             <button type="button" class="admin-btn admin-btn-secondary" id="modal-cancel-btn" style="width:auto;padding:0 20px;">Cancel</button>
-            <button type="submit" class="admin-btn" id="modal-save-btn" style="width:auto;padding:0 28px;">Save Changes ↗</button>
+            <button type="submit" class="admin-btn" id="modal-save-btn" style="width:auto;padding:0 28px;">Save Changes</button>
           </div>
         </form>
       </div>

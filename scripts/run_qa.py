@@ -50,6 +50,8 @@ BROWSER_CHECKS: list[tuple[str, list[str]]] = [
     ("Client gallery QA", [sys.executable, "tests/toki-client-gallery-qa.py"]),
     ("Availability calendar QA", [sys.executable, "tests/toki-availability-calendar-qa.py"]),
     ("Cinematic design QA", [sys.executable, "tests/toki-cinematic-design-qa.py"]),
+    ("Build static Pages output for mobile QA", [sys.executable, "scripts/build_static_site.py", "--target", "pages"]),
+    ("Fingerprint static Pages output", [sys.executable, "scripts/fingerprint_assets.py", "dist"]),
     ("Mobile browser & image QA", [sys.executable, "tests/toki-mobile-browser-image-qa.py"]),
 ]
 

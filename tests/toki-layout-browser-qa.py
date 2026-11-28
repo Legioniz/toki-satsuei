@@ -93,7 +93,7 @@ def check_header(page, width, label):
         skip_link = page.locator(".skip-link")
         assert skip_link.get_attribute("href") == "#main-content", f"{label}: keyboard skip link is missing"
         skip_link.focus()
-        page.wait_for_function("document.querySelector('.skip-link')?.matches(':focus') && document.querySelector('.skip-link').getBoundingClientRect().top >= 0", timeout=1200)
+        page.wait_for_function("() => Boolean(document.querySelector('.skip-link')?.matches(':focus') && document.querySelector('.skip-link').getBoundingClientRect().top >= 0)", timeout=1200)
         assert skip_link.evaluate("(node) => node.matches(':focus') && getComputedStyle(node).visibility !== 'hidden'"), f"{label}: skip link is not revealed on keyboard focus"
     assert page.locator("#main-content").count() == 1, f"{label}: main content landmark is missing"
     logo = page.locator(".brand-mark")

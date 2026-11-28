@@ -1,14 +1,16 @@
-/* 2. BASE ------------------------------------------------------------------ */
+/* Base typography, focus, and pointer affordances */
 html{scroll-padding-top:calc(var(--header-h) + var(--s-4));-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{font-size:var(--step-0);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a[href],button:not(:disabled),summary,select:not(:disabled),label[for],input[type="checkbox"]:not(:disabled),input[type="radio"]:not(:disabled),[role="button"]:not([aria-disabled="true"]),[role="tab"]:not([aria-disabled="true"]),[role="switch"]:not([aria-disabled="true"]){cursor:pointer}
+button:disabled,select:disabled,input:disabled,textarea:disabled,[aria-disabled="true"]{cursor:not-allowed}
 :where(h1,h2,h3){text-wrap:balance}
 :where(p,li,figcaption){text-wrap:pretty}
 ::selection{background:var(--c-accent);color:#fff}
 :focus-visible{outline:2px solid #fff;outline-offset:2px;box-shadow:0 0 0 5px var(--c-accent-hi);border-radius:var(--r-1)}
 :focus:not(:focus-visible){outline:0}
-.about-caption,.archive-signature{color:#a8a197;opacity:1} /* was <4.5:1 on dark */
+.about-caption,.archive-signature{color:#a8a197;opacity:1}
 
-/* 3. LAYOUT RHYTHM --------------------------------------------------------- */
+/* Layout rhythm */
 .work-section,.services-section,.sessions-section,.availability-section,.process-section,.about-section,.faq-section{
   padding-block:var(--section)}
 .section-heading h2{font-size:var(--step-4);line-height:1.02;letter-spacing:-.015em}

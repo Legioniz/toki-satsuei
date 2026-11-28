@@ -37,7 +37,7 @@ if(menuButton&&nav){
   window.matchMedia("(min-width: 821px)").addEventListener?.("change",event=>{if(event.matches)setMenuOpen(false);});
 }
 
-// Native Web Audio Synthesizer (0 external network requests, 100% original darkroom sound design)
+// Native Web Audio synthesizer with no external audio assets.
 const TokiSFX = (() => {
   let ctx = null;
   let enabled = true;
@@ -873,7 +873,7 @@ form?.addEventListener("submit",async event=>{
       if(extraTimeSteps>0){
         items+=`<li><span>Additional Time (${extraTimeMins} mins)</span><strong>₱${timeAddonCost.toLocaleString()}</strong></li>`;
       }
-      items+=`<li style="border-top:1px dashed #403831;padding-top:6px;margin-top:6px;"><span>20% Reservation Deposit (est.)</span><strong>₱${deposit.toLocaleString()}</strong></li>`;
+      items+=`<li style="border-top:1px dashed #403831;padding-top:6px;margin-top:6px;"><span>20% Reservation Fee (est.)</span><strong>₱${deposit.toLocaleString()}</strong></li>`;
       breakdownList.innerHTML=items;
       if(!reducedMotion&&breakdownList.querySelectorAll){
         breakdownList.querySelectorAll("li").forEach((li,idx)=>{

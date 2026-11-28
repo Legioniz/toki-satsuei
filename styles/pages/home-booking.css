@@ -51,13 +51,7 @@
 .toki-booking-sheet__layout{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);align-items:start;gap:clamp(2.5rem,4vw,4.5rem);padding-top:2.5rem}
 .booking-terms-summary{display:grid;gap:.65rem;padding:1.35rem 1.55rem;border:1px solid rgba(230,190,116,.42);border-left:3px solid #d8a448;border-radius:10px;background:rgba(216,164,72,.075);color:#f5f2eb;font-size:.88rem;line-height:1.75}
 
-/* ---------------------------------------------------------------------------
-   Professional polish pass (loaded last on every page)
-   - hero micro-copy no longer runs together
-   - Japanese stamp reads left-to-right as 時の記憶 instead of reversed
-   - "text-link" underline sits under its label instead of floating below it
-   - announcement bar, hero footer rule and hero annotation fit small screens
---------------------------------------------------------------------------- */
+/* Mobile overflow, text-link underline, and hero stamp polish */
 /* Reveal animations can momentarily push content 1px past the viewport on narrow phones. */
 html, body{ overflow-x:clip; }
 .hero-opening .hero-index{ display:flex; gap:10px 22px; flex-wrap:wrap; }

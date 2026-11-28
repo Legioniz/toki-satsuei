@@ -16,7 +16,7 @@ EXPECTED_CONSUMERS = {
     "booking.html": ("motion-system.js", "site.js"),
     "library.html": ("motion-system.js", "site.js", "library.js"),
     "policies.html": ("motion-system.js", "site.js"),
-    "404.html": ("motion-system.js",),
+    "404.html": ("motion-system.js", "site.js"),
     "admin.html": ("motion-system.js", "admin.js"),
     "client-gallery.html": ("motion-system.js", "client-gallery.js"),
 }
