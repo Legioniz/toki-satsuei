@@ -229,7 +229,7 @@ jobs:
         with:
           name: toki-accessibility-performance-reports
           path: |
-            .lighthouseci/
+            lighthouseci-reports/
             axe-accessibility-report.json
           if-no-files-found: ignore
           retention-days: 7
