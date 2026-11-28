@@ -198,7 +198,7 @@ else:
         "github.ref == 'refs/heads/main' && github.event_name != 'pull_request'",
         "workflow_run:",
         'workflows: ["Import TOKI self-hosted visual assets"]',
-        "github.event_name == 'workflow_run' || github.event.workflow_run.conclusion == 'success'",
+        "github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'",
         'GITHUB_EVENT_NAME" != "workflow_run"',
         "actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b",
         "actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa",
