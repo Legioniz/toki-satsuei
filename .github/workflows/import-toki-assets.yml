@@ -9,6 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: write
   contents: write
 
 concurrency:
@@ -44,6 +45,7 @@ jobs:
         run: python scripts/build-css.py
 
       - name: Commit imported assets to the repository
+        id: commit_import
         shell: bash
         run: |
           set -euo pipefail
@@ -52,7 +54,16 @@ jobs:
           git add assets/photography assets/fonts toki-*.css
           if git diff --cached --quiet; then
             echo "Self-hosted assets are already up to date."
+            echo "assets_changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git commit -m "Import self-hosted photography and font assets"
           git push origin HEAD:main
+          echo "assets_changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch production deployment after asset commit
+        if: steps.commit_import.outputs.assets_changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: bash scripts/dispatch-pages-deploy.sh
