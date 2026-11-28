@@ -10,7 +10,7 @@
   aspect-ratio: 1;
   object-fit: contain;
   filter: drop-shadow(0 0 18px rgba(195, 42, 57, 0.22));
-  animation: tokiIntroSealPop 0.94s var(--ease-spring-overshoot) 0.06s both;
+  animation: tokiIntroSealPop 0.64s var(--ease-spring-overshoot) 0.02s both;
 }
 .toki-intro-ring-crimson { stroke: rgba(195, 42, 57, 0.92); }
 .toki-intro-ring-gold { stroke: rgba(245, 242, 235, 0.72); }
@@ -23,7 +23,7 @@
 }
 .motion-item[data-motion="focus-pull"].is-motion-visible,
 [data-reveal][data-motion="focus-pull"].is-visible {
-  animation:tokiFocusPull 0.558s var(--ease-expo-out) var(--motion-delay, 0ms) both;
+  animation:tokiFocusPull 0.34s var(--ease-expo-out) var(--motion-delay, 0ms) both;
 }
 @keyframes tokiFocusPull {
   0% { opacity: 0; transform: translate3d(0, 24px, 0) scale(0.985); filter: blur(3px); }
@@ -40,7 +40,7 @@
 }
 .motion-item[data-motion="film-gate"].is-motion-visible,
 [data-reveal][data-motion="film-gate"].is-visible {
-  animation:tokiFilmGate 0.517s var(--ease-shutter-snap) var(--motion-delay, 0ms) both;
+  animation:tokiFilmGate 0.32s var(--ease-shutter-snap) var(--motion-delay, 0ms) both;
 }
 @keyframes tokiFilmGate {
   0% { opacity: 0; transform: translate3d(0, 28px, 0) scale(0.99); clip-path: inset(0 0 12% 0); }
