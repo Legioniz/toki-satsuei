@@ -213,7 +213,10 @@ def verify_photography() -> None:
 
 def verify_fonts() -> None:
     importer_source = (ROOT / "scripts/import_site_media.py").read_text(encoding="utf-8")
-    if "/assets/fonts/" in importer_source:
+    if re.search(
+        r"""(?:url\(\s*['"]?/assets/fonts/|["']path["']\s*:\s*["']/assets/fonts/)""",
+        importer_source,
+    ):
         raise AssertionError(
             "Font importer must emit ./assets/fonts URLs for GitHub Pages project-subpath hosting"
         )
