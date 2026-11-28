@@ -42,12 +42,10 @@ jobs:
             echo "Skipping stale queued commit $GITHUB_SHA; main is $current_sha."
           fi
 
-  verify-and-package:
+  verify-static-security:
+    name: Static, security, and API checks
     needs: freshness
     if: needs.freshness.outputs.is_current == 'true'
-    permissions:
-      contents: read
-      pages: write
     runs-on: ubuntu-24.04
     steps:
       - name: Check out repository
@@ -59,28 +57,29 @@ jobs:
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
         with:
           python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'requirements-test.txt'
 
-      - name: Set up Node.js for axe-core and Lighthouse
+      - name: Set up Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: '24'
           package-manager-cache: false
 
-      - name: Install pinned accessibility and performance audit tools
-        run: npm install --no-save --no-package-lock axe-core@4.14.1 @lhci/cli@0.16.1
-
-      - name: Generate page-scoped CSS bundles from source
-        run: python scripts/build-css.py
-
-      - name: Install browser test dependencies
+      - name: Install Python QA and audit tools
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements-test.txt
           python -m pip install --upgrade pip-audit
-          python -m playwright install --with-deps chromium webkit
 
       - name: Audit Python dependencies for known vulnerabilities
         run: pip-audit -r requirements-test.txt
+
+      - name: Verify security policy synchronization
+        run: python scripts/sync_security_policy.py --check
+
+      - name: Generate page-scoped CSS bundles from source
+        run: python scripts/build-css.py
 
       - name: Verify JavaScript syntax
         run: |
@@ -129,40 +128,63 @@ jobs:
 
       - name: Verify page and asset integration
         run: python tests/toki-asset-integration-qa.py
+
       - name: Verify self-hosted photography and fonts
         run: python tests/toki-self-hosted-media-qa.py
-      - name: Export generated CSS bundles for cascade diagnostics
-        run: |
-          python - <<'PY'
-          import importlib.util
-          from pathlib import Path
 
-          spec = importlib.util.spec_from_file_location("css_builder", "scripts/build-css.py")
-          builder = importlib.util.module_from_spec(spec)
-          spec.loader.exec_module(builder)
-          output = Path("/tmp/css-build-diagnostics")
-          output.mkdir(parents=True, exist_ok=True)
-          for name in builder.BUNDLES:
-              (output / name).write_text(builder.build(name), encoding="utf-8")
-          PY
-
-      - name: Upload generated CSS diagnostics
-        uses: actions/upload-artifact@v4
-        with:
-          name: css-build-diagnostics
-          path: /tmp/css-build-diagnostics/
-          retention-days: 1
+      - name: Verify CSS bundles are current
+        run: python tests/toki-css-bundle-qa.py
 
       - name: Verify allowlisted Pages and Workers static outputs
         run: python tests/toki-worker-static-build-qa.py
 
+      - name: Verify private Gmail notification relay source
+        run: python tests/toki-email-notification-qa.py
+
+      - name: Test live TOKI HTTP security boundaries
+        env:
+          TOKI_EXPECT_TURNSTILE: ${{ vars.TOKI_EXPECT_TURNSTILE || '1' }}
+        run: python tests/toki-live-http-security-qa.py
+
+  verify-browser-qa:
+    name: Browser & mobile matrix QA
+    needs: freshness
+    if: needs.freshness.outputs.is_current == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'requirements-test.txt'
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('requirements-test.txt') }}
+
+      - name: Install browser test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-test.txt
+          python -m playwright install --with-deps chromium webkit
+
+      - name: Generate CSS bundles and media manifest
+        run: |
+          python scripts/build-css.py
+          python scripts/build-toki-media-library.py
+
       - name: Verify responsive layouts
         run: python tests/toki-layout-browser-qa.py
+
       - name: Run orientation QA
         run: python tests/toki-orientation-qa.py
-
-      - name: Verify CSS bundles are current
-        run: python tests/toki-css-bundle-qa.py
 
       - name: Verify adaptive interactions
         run: python tests/toki-adaptive-interaction-qa.py
@@ -175,7 +197,6 @@ jobs:
 
       - name: Verify experience design and booking usability
         run: python tests/toki-experience-design-qa.py
-
 
       - name: Verify public pages and search discovery
         run: python tests/toki-public-pages-qa.py
@@ -195,17 +216,54 @@ jobs:
       - name: Verify public monthly booking availability calendar
         run: python tests/toki-availability-calendar-qa.py
 
-      - name: Verify private Gmail notification relay source
-        run: python tests/toki-email-notification-qa.py
-
       - name: Verify cinematic field-journal design
         run: python tests/toki-cinematic-design-qa.py
 
-      - name: Test live TOKI HTTP security boundaries
-        env:
-          TOKI_EXPECT_TURNSTILE: ${{ vars.TOKI_EXPECT_TURNSTILE || '1' }}
-        run: python tests/toki-live-http-security-qa.py
+      - name: Test mobile WebKit, Android Chrome emulation, and rendered images
+        run: python tests/toki-mobile-browser-image-qa.py
 
+  package-and-audit:
+    name: Package, accessibility, and Lighthouse audits
+    needs: freshness
+    if: needs.freshness.outputs.is_current == 'true'
+    permissions:
+      contents: read
+      pages: write
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'requirements-test.txt'
+
+      - name: Set up Node.js for axe-core and Lighthouse
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Cache Playwright Chromium
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('requirements-test.txt') }}
+
+      - name: Install audit and packaging dependencies
+        run: |
+          npm install --no-save --no-package-lock axe-core@4.14.1 @lhci/cli@0.16.1
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-test.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Generate CSS bundles and media manifest
+        run: |
+          python scripts/build-css.py
+          python scripts/build-toki-media-library.py
 
       - name: Assemble standalone Pages artifact
         run: |
@@ -217,9 +275,6 @@ jobs:
 
       - name: Run axe-core WCAG 2.2 AA checks across all seven pages
         run: python tests/toki-axe-accessibility-qa.py
-
-      - name: Test mobile WebKit, Android Chrome emulation, and rendered images
-        run: python tests/toki-mobile-browser-image-qa.py
 
       - name: Expose Playwright Chromium binary to Lighthouse
         shell: bash
@@ -240,7 +295,6 @@ jobs:
             axe-accessibility-report.json
           if-no-files-found: ignore
           retention-days: 7
-
 
       - name: Prepare GitHub Pages artifact without Cloudflare-only header rules
         if: github.event_name != 'pull_request'
@@ -269,7 +323,7 @@ jobs:
           retention-days: 1
 
   deploy:
-    needs: [freshness, verify-and-package]
+    needs: [freshness, verify-static-security, verify-browser-qa, package-and-audit]
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.freshness.outputs.is_current == 'true'
     permissions:
       contents: read

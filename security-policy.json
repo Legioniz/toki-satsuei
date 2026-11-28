@@ -1,0 +1,58 @@
+{
+  "hsts": "max-age=31536000",
+  "security_headers": {
+    "X-Frame-Options": "SAMEORIGIN",
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    "X-Permitted-Cross-Domain-Policies": "none"
+  },
+  "csp": {
+    "default-src": ["'self'"],
+    "base-uri": ["'self'"],
+    "object-src": ["'none'"],
+    "form-action": ["'self'"],
+    "frame-ancestors": ["'self'"],
+    "script-src": [
+      "'self'",
+      "https://static.sketchfab.com",
+      "https://challenges.cloudflare.com",
+      "https://*.challenges.cloudflare.com"
+    ],
+    "style-src": ["'self'", "'unsafe-inline'"],
+    "font-src": ["'self'"],
+    "img-src": ["'self'", "data:", "blob:", "https:"],
+    "connect-src": [
+      "'self'",
+      "https://pjuwrngnrrvdiwqspkic.supabase.co",
+      "https://challenges.cloudflare.com",
+      "https://*.challenges.cloudflare.com",
+      "https://*.cloudflareinsights.com"
+    ],
+    "frame-src": [
+      "'self'",
+      "https://sketchfab.com",
+      "https://*.sketchfab.com",
+      "https://challenges.cloudflare.com",
+      "https://*.challenges.cloudflare.com"
+    ],
+    "upgrade-insecure-requests": []
+  },
+  "cache": {
+    "default": "no-cache, max-age=0, must-revalidate",
+    "no_store_routes": [
+      "/admin.html",
+      "/client-gallery.html",
+      "/admin",
+      "/client-gallery"
+    ],
+    "immutable_paths": [
+      "/*.css",
+      "/*.js",
+      "/media-library.json",
+      "/assets/*",
+      "/media-library/*"
+    ],
+    "immutable_header": "public, max-age=31536000, immutable"
+  }
+}

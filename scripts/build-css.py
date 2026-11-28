@@ -49,7 +49,7 @@ BUNDLES = {
     "toki-home.css": ["self-hosted-fonts", "handwritten-font", "styles", "refinement", "policies", "availability", "motion-system", "cinematic", "experience", "fixes", "design-system", "pricing-calculator", "orientation", "global-motion", "site-enhancements", "motion-refinements", "mobile-nav", "equipment"],
     "toki-archive.css": ["self-hosted-fonts", "styles", "library", "refinement", "motion-system", "cinematic", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
     "toki-policies.css": ["self-hosted-fonts", "styles", "refinement", "policies", "motion-system", "cinematic", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
-    "toki-404.css": ["self-hosted-fonts", "handwritten-font", "styles", "refinement", "policies", "motion-system", "cinematic", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
+    "toki-404.css": ["self-hosted-fonts", "handwritten-font", "styles", "refinement", "motion-system", "cinematic", "pages", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
     "toki-admin.css": ["self-hosted-fonts", "styles", "refinement", "motion-system", "admin", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
     "toki-client.css": ["self-hosted-fonts", "styles", "refinement", "motion-system", "client-gallery", "design-system", "orientation", "global-motion", "motion-refinements", "mobile-nav"],
 }

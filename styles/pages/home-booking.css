@@ -61,7 +61,6 @@
 /* Reveal animations can momentarily push content 1px past the viewport on narrow phones. */
 html, body{ overflow-x:clip; }
 .hero-opening .hero-index{ display:flex; gap:10px 22px; flex-wrap:wrap; }
-.hero-opening .hero-stamp{ writing-mode:horizontal-tb; flex-direction:row; gap:.12em; letter-spacing:0; }
 .hero-opening .hero-actions .text-link{
   display:inline-flex; align-items:center; align-self:center; border-bottom:0;
   text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:9px;

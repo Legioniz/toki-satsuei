@@ -7,17 +7,22 @@ import os
 import socket
 import time
 from datetime import datetime
+from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 from zoneinfo import ZoneInfo
 
-SUPABASE = "https://pjuwrngnrrvdiwqspkic.supabase.co"
+_SITE_CONFIG = json.loads(
+    (Path(__file__).resolve().parents[1] / "site-config.json").read_text(encoding="utf-8")
+)
+
+SUPABASE = _SITE_CONFIG["supabase_url"]
 INTAKE = SUPABASE + "/functions/v1/portfolio-submit"
 CALENDAR = SUPABASE + "/functions/v1/toki-calendar"
 REST = SUPABASE + "/rest/v1"
 PUBLISHABLE_KEY = "sb_publishable_PRGb0-smtTzCm9VHuM9NOQ_ZFh1wKRS"
-ALLOWED_ORIGIN = "https://legioniz.github.io"
-PAGES_ORIGIN = "https://toki-satsuei.pages.dev"
+ALLOWED_ORIGIN = os.getenv("TOKI_ALLOWED_ORIGIN", _SITE_CONFIG["canonical_origin"]).strip()
+PAGES_ORIGIN = os.getenv("TOKI_MIRROR_ORIGIN", _SITE_CONFIG["mirror_origin"]).strip()
 UNTRUSTED_ORIGIN = "https://untrusted.example"
 EXPECT_TURNSTILE = os.getenv("TOKI_EXPECT_TURNSTILE", "0").strip().lower() in {"1", "true", "yes"}
 

@@ -46,13 +46,17 @@ If full response-level headers are required on the *same canonical hostname*, th
 
 Cloudflare Workers Builds remains enabled for main-branch production Worker builds. Its optional pull-request preview builds are disabled because the website is packaged and deployed through the GitHub Pages and Cloudflare Pages workflow above; the Worker preview command requires a separate Wrangler `previews` configuration that this static site does not use. Main-branch Worker builds use `wrangler.worker.jsonc` and `scripts/build_static_site.py --target worker` to create a dedicated `worker-dist/` directory from an explicit public-file allowlist, then fingerprint and verify its assets before Wrangler uploads them. The Worker asset directory contains only the seven public pages, generated CSS/JavaScript bundles, public `assets/`, and `media-library/`; repository-only content such as `.github/`, `tests/`, `scripts/`, and `supabase/` is excluded. The Pages-only `_headers` file is not copied into the Worker package. The Worker wrapper applies the same CSP, response-security headers, admin/client-gallery `no-store` policy, and fingerprint-aware immutable caching on the `workers.dev` mirror.
 
-## HTTP security headers and cache integrity
+## Security headers, cache integrity, and origin config
 
-The build injects one consistent CSP meta fallback and a `strict-origin-when-cross-origin` referrer meta fallback into all seven deployed HTML pages. It then fingerprints local CSS, JavaScript, JSON, fonts, images, and media URLs with a 32-hex-character SHA-256 prefix (128-bit cache key). Any content change automatically changes the asset URL; the build verifies every local reference before deployment.
+One config file—`security-policy.json`—drives the CSP, security headers, and route cache rules across `_headers`, `worker.mjs`, and the HTML `<meta>` fallback in `scripts/fingerprint_assets.py`. Run `python scripts/sync_security_policy.py` after editing it, or `python scripts/sync_security_policy.py --check` to verify everything matches.
 
-The root `_headers` file is included at the Cloudflare Pages static output root only. Cloudflare Pages parses it into actual HTTP response headers for the seven static pages and assets. The policy sets HSTS, response CSP (including `frame-ancestors`), clickjacking and MIME-sniffing protection, referrer and permissions policies, HTML revalidation, `no-store` for the admin and client-gallery pages, and one-year immutable caching for fingerprinted assets. GitHub Pages ignores this file.
+Canonical and mirror URLs (`legioniz.github.io/toki-satsuei/` and `toki-satsuei.pages.dev`) are centralized in `site-config.json`. When you are ready to point a custom domain at Cloudflare, you only need to update that file, `sitemap.xml`, and your Supabase/Turnstile allowlists.
 
-After every production deployment, `tests/toki-live-site-security-qa.py` fetches all seven pages on both origins. For the official GitHub Pages site, it checks route availability, meta policy fallbacks, and the actual SHA-256 values of fingerprinted same-origin assets. For the Cloudflare mirror, it additionally verifies actual response headers, HTML cache behavior, private no-store routes, immutable asset caching, and the SHA-256 values against live response bodies. A failed check blocks the deployment workflow.
+During packaging, `scripts/fingerprint_assets.py` adds a 32-character SHA-256 prefix (`?v=...`) to every local CSS, JS, JSON, font, image, and media reference, then verifies every link before deployment.
+
+The root `_headers` file ships only in the Cloudflare Pages output. Cloudflare Pages turns it into real HTTP response headers (HSTS, `frame-ancestors`, clickjacking/MIME protection, `no-store` for `admin.html` and `client-gallery.html`, and one-year `immutable` caching for fingerprinted assets). GitHub Pages ignores `_headers`.
+
+After every production deploy, `tests/toki-live-site-security-qa.py` checks all seven pages on both origins—verifying routes, meta fallbacks, response headers on Cloudflare, and live SHA-256 digests.
 
 ### One-time origin verification
 
@@ -68,30 +72,18 @@ The build scans those folders and generates `media-library.json` automatically. 
 
 ## Local testing
 
+Install the Python and Playwright dependencies once, then use the unified QA runner:
+
 ```bash
 python -m pip install -r requirements-test.txt
-python -m playwright install --with-deps chromium
-python scripts/build-toki-media-library.py
-python scripts/build-css.py
-python scripts/build-css.py --check
-python tests/toki-layout-browser-qa.py
-python tests/toki-adaptive-interaction-qa.py
-python tests/toki-scroll-motion-qa.py
-python tests/toki-experience-design-qa.py
-python tests/toki-public-pages-qa.py
-python tests/toki-booking-browser-qa.py
-python tests/toki-availability-calendar-qa.py
-python tests/toki-cinematic-design-qa.py
-python tests/toki-asset-integration-qa.py
-python tests/toki-css-bundle-qa.py
-python tests/toki-orientation-qa.py
-python tests/toki-pricing-calculator-qa.py
-python tests/toki-admin-dashboard-qa.py
-python tests/toki-client-gallery-qa.py
-python tests/toki-email-notification-qa.py
-python tests/toki-security-static-qa.py
-python tests/toki-live-http-security-qa.py
+python -m playwright install --with-deps chromium webkit
+
+python scripts/run_qa.py --fast      # syntax, security policy sync, CSS bundles, static build
+python scripts/run_qa.py --browser   # Playwright layout, motion, booking, and mobile checks
+python scripts/run_qa.py --all       # full local suite
 ```
+
+Pass `--live` to include live Supabase HTTP security checks.
 
 ## Booking, privacy, and image consent
 

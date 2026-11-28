@@ -3,23 +3,30 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import re
 import socket
 import time
 from html.parser import HTMLParser
+from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import parse_qs, urljoin, urlsplit
 from urllib.request import Request, urlopen
 
-DEFAULT_SITE_URL = "https://legioniz.github.io/toki-satsuei/"
+_SITE_CONFIG = json.loads(
+    (Path(__file__).resolve().parents[1] / "site-config.json").read_text(encoding="utf-8")
+)
+
+DEFAULT_SITE_URL = _SITE_CONFIG["canonical_base_url"]
 SITE_URL = os.getenv("TOKI_SITE_URL", DEFAULT_SITE_URL).strip()
 REQUIRE_HEADERS = os.getenv("TOKI_REQUIRE_SECURITY_HEADERS", "1").strip().lower() in {
     "1", "true", "yes",
 }
 FINGERPRINT_PATTERN = re.compile(r"^[0-9a-f]{32}$")
-GITHUB_PAGES_HOST = "legioniz.github.io"
-GITHUB_PAGES_PATH = "/toki-satsuei"
+_CANONICAL_PARTS = urlsplit(DEFAULT_SITE_URL)
+GITHUB_PAGES_HOST = _CANONICAL_PARTS.netloc
+GITHUB_PAGES_PATH = _CANONICAL_PARTS.path.rstrip("/")
 
 
 
