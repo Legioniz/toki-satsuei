@@ -12,6 +12,7 @@ module.exports = {
         "http://localhost/404.html"
       ],
       numberOfRuns: 1,
+      chromePath: process.env.CHROME_PATH,
       settings: {
         preset: "mobile",
         chromeFlags: ["--no-sandbox", "--disable-dev-shm-usage"]
