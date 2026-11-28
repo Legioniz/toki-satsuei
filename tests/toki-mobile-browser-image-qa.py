@@ -158,7 +158,6 @@ def verify_route(browser, label: str, base_url: str, route: str, context_options
         """nodes => nodes.map(node => {
             const style = getComputedStyle(node);
             return {
-                clipPath: style.clipPath,
                 borderRadius: style.borderRadius,
                 width: node.getBoundingClientRect().width,
                 height: node.getBoundingClientRect().height
@@ -167,11 +166,11 @@ def verify_route(browser, label: str, base_url: str, route: str, context_options
     )
     assert logo_shapes, f"{label} {route}: no official logo image was found."
     for shape in logo_shapes:
-        assert shape["clipPath"].startswith("circle("), (
-            f"{label} {route}: official logo is not circular: {shape}"
+        assert shape["borderRadius"] == "50%", (
+            f"{label} {route}: official logo must have a 50% circular border radius: {shape}"
         )
         assert abs(shape["width"] - shape["height"]) <= 1, (
-            f"{label} {route}: official logo is not square before circular clipping: {shape}"
+            f"{label} {route}: official logo must render in a square box for a true circle: {shape}"
         )
 
     if route == "/policies.html":

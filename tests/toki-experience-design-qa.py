@@ -55,7 +55,7 @@ def main() -> None:
     assert "global-motion.css" in home_bundle.splitlines()[0]
     assert ".toki-intro-logo" in global_motion
     assert 'img[src*="Toki-Satsuei-Brushstroke-Emblem.png"]' in global_motion
-    assert "clip-path: circle(50%)" in global_motion
+    assert "border-radius: 50% !important" in global_motion
     assert "./assets/brand/Toki-Satsuei-Brushstroke-Emblem.png" in motion_js
     assert ".toki-booking-sheet .booking-fieldset .form-split > label" in motion_js
 
@@ -155,18 +155,17 @@ def main() -> None:
                     const style = getComputedStyle(node);
                     const rect = node.getBoundingClientRect();
                     return {
-                        clipPath: style.clipPath,
                         borderRadius: style.borderRadius,
                         width: rect.width,
                         height: rect.height
                     };
                 }"""
             )
-            assert intro_logo_shape["clipPath"].startswith("circle("), (
-                f"The startup logo must be circular: {intro_logo_shape}"
+            assert intro_logo_shape["borderRadius"] == "50%", (
+                f"The startup logo must have a 50% circular border radius: {intro_logo_shape}"
             )
             assert abs(intro_logo_shape["width"] - intro_logo_shape["height"]) <= 1, (
-                f"The startup logo must stay square before clipping: {intro_logo_shape}"
+                f"The startup logo must render in a square box for a true circle: {intro_logo_shape}"
             )
             assert page.locator("#inquiry-form").count() == 0, "Homepage should link out to booking instead of embedding the form."
             booking_page = context.new_page()
