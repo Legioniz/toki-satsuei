@@ -113,6 +113,16 @@ def main() -> None:
 
             apply_button = page.locator("#calc-apply-to-booking")
             apply_button.hover()
+            page.wait_for_function(
+                """() => {
+                    const button = document.querySelector(".calc-apply-btn");
+                    if (!button || !button.matches(":hover")) return false;
+                    const style = getComputedStyle(button);
+                    return style.backgroundColor === "rgb(184, 40, 55)" &&
+                           style.borderTopColor === "rgb(163, 31, 45)";
+                }""",
+                timeout=1500,
+            )
             assert computed(".calc-apply-btn", "background-color") == "rgb(184, 40, 55)"
             assert computed(".calc-apply-btn", "border-top-color") == "rgb(163, 31, 45)"
 
