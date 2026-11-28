@@ -113,10 +113,15 @@ def main() -> None:
 
             apply_button = page.locator("#calc-apply-to-booking")
             apply_button.hover()
+            # Wait for the cascade and any declared background transition to settle.
+            # A :hover match alone is not proof that the final computed style has landed.
             page.wait_for_function(
                 """() => {
                     const button = document.querySelector(".calc-apply-btn");
-                    return Boolean(button && button.matches(":hover"));
+                    if (!button || !button.matches(":hover")) return false;
+                    const style = getComputedStyle(button);
+                    return style.backgroundColor === "rgb(184, 40, 55)" &&
+                           style.borderTopColor === "rgb(163, 31, 45)";
                 }""",
                 timeout=4000,
             )
@@ -129,11 +134,8 @@ def main() -> None:
                     transform: style.transform
                 };
             }""")
-            assert hover_style["backgroundColor"] == "rgb(184, 40, 55)", (
-                f"Calculator hover surface must use its crimson hover token: {hover_style}"
-            )
-            assert hover_style["borderTopColor"] == "rgb(163, 31, 45)", (
-                f"Calculator hover border must preserve the darker TOKI outline: {hover_style}"
+            assert hover_style["surfaceToken"] == "#b82837", (
+                f"Calculator hover token must resolve from the page-scoped state: {hover_style}"
             )
 
             # Verify initial default state (Toki Portraits)
