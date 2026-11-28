@@ -49,6 +49,8 @@ The canonical website is https://legioniz.github.io/toki-satsuei/. GitHub Pages 
 
 The workflow also deploys the same verified artifact to https://toki-satsuei.pages.dev/ as a secured Cloudflare Pages mirror. Cloudflare Pages parses `_headers` and enforces HSTS, response CSP (including `frame-ancestors`), X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, and route-specific Cache-Control rules. The live verifier checks the official GitHub Pages site for meta policy fallbacks and SHA-256 asset integrity, then separately checks the Cloudflare mirror for the complete response-header/cache contract. Do not describe Cloudflare's response headers as present on the GitHub Pages origin.
 
+Before the first GitHub Pages Actions deployment, set repository **Settings → Pages → Build and deployment → Source** to **GitHub Actions**. The production workflow checks `build_type=workflow` before publishing and stops with a clear instruction when the repository is still configured for branch-based publishing. Changing this setting requires the repository administration permission; it is not silently attempted with the workflow's limited deployment token.
+
 Full response-level security headers on the canonical host require a custom domain controlled by the project and a Cloudflare proxy or Cloudflare Pages origin. A Worker cannot be routed onto GitHub's shared `github.io` domain from this repository.
 
 ## TOKI API and traffic enforcement
