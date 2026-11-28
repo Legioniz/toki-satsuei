@@ -275,9 +275,10 @@ def verify_route(browser, label: str, base_url: str, route: str, context_options
         f"{forced_eager_images} WebKit lazy-load fallbacks in test context."
     )
     if skipped_external_images:
-        print(f"INFO {label} {route}: off-origin images not fetched by the isolated test policy: "
-              f"{skipped_external_images}")
-    )
+        print(
+            f"INFO {label} {route}: off-origin images not fetched by the isolated test policy: "
+            f"{skipped_external_images}"
+        )
     page.close()
     context.close()
 
