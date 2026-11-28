@@ -4,7 +4,7 @@ The complete standalone TOKI SATSUEI website, kept separate from the Legioniz pe
 
 - **Official website:** https://legioniz.github.io/toki-satsuei/
 - **Secured Cloudflare Pages mirror:** https://toki-satsuei.pages.dev/
-- **Design principles:** [DESIGN-PRINCIPLES.md](DESIGN-PRINCIPLES.md) documents the usability, accessibility, and booking-integrity rules behind the site.
+- **Design principles:** [Design principles](docs/DESIGN-PRINCIPLES.md) documents the usability, accessibility, and booking-integrity rules behind the site.
 - **Facebook:** https://www.facebook.com/tokisatsuiephotography/
 - **Instagram:** https://www.instagram.com/tokisatsuiephotography/
 
@@ -18,6 +18,16 @@ The complete standalone TOKI SATSUEI website, kept separate from the Legioniz pe
 - Shared responsive design system for layout, spacing, color grading, and visual consistency
 - Original TOKI SATSUEI brushstroke logo, upload-ready media folders, and automatic archive manifest generator
 - GitHub Pages as the canonical website, with a secured Cloudflare Pages mirror and responsive browser regression tests
+
+## Repository layout
+
+- Root HTML files (`index.html`, `booking.html`, `library.html`, `policies.html`, `404.html`, `admin.html`, and `client-gallery.html`) remain the public route entrypoints.
+- `src/js/` contains authored browser controllers; `src/styles/` contains editable CSS modules; `src/worker/` contains the Worker response-security wrapper.
+- `assets/` contains image, brand, equipment, and font assets. `assets/css/` contains generated page-scoped CSS bundles. The deployment builder copies browser JavaScript from `src/js/` into `dist/assets/js/`.
+- `data/media-library/` contains public archive uploads, and `data/media-library.json` is generated from those folders.
+- `scripts/` contains build, import, fingerprint, and deployment utilities. `tests/` contains QA suites and `tests/support/` contains their local HTTPS helpers.
+- `docs/` contains design and brand documentation. The `supabase/` directory remains at the repository root for the conventional Supabase CLI layout.
+- `dist/` and `worker-dist/` are generated deployment outputs and are not committed.
 
 ## Official GitHub Pages deployment and Cloudflare security mirror
 
@@ -44,7 +54,7 @@ The Cloudflare Pages mirror parses the root `_headers` file and applies the full
 
 If full response-level headers are required on the *same canonical hostname*, the site needs a custom domain under your control with Cloudflare proxy/Pages in front. A repository cannot attach a Cloudflare Worker to GitHub's shared `github.io` domain.
 
-Cloudflare Workers Builds remains enabled for main-branch production Worker builds. Its optional pull-request preview builds are disabled because the website is packaged and deployed through the GitHub Pages and Cloudflare Pages workflow above; the Worker preview command requires a separate Wrangler `previews` configuration that this static site does not use. Main-branch Worker builds use `wrangler.worker.jsonc` and `scripts/build_static_site.py --target worker` to create a dedicated `worker-dist/` directory from an explicit public-file allowlist, then fingerprint and verify its assets before Wrangler uploads them. The Worker asset directory contains only the seven public pages, generated CSS/JavaScript bundles, public `assets/`, and `media-library/`; repository-only content such as `.github/`, `tests/`, `scripts/`, and `supabase/` is excluded. The Pages-only `_headers` file is not copied into the Worker package. The Worker wrapper applies the same CSP, response-security headers, admin/client-gallery `no-store` policy, and fingerprint-aware immutable caching on the `workers.dev` mirror.
+Cloudflare Workers Builds remains enabled for main-branch production Worker builds. Its optional pull-request preview builds are disabled because the website is packaged and deployed through the GitHub Pages and Cloudflare Pages workflow above; the Worker preview command requires a separate Wrangler `previews` configuration that this static site does not use. Main-branch Worker builds use `wrangler.worker.jsonc` and `scripts/build_static_site.py --target worker` to create a dedicated `worker-dist/` directory from an explicit public-file allowlist, then fingerprint and verify its assets before Wrangler uploads them. The Worker asset directory contains only the seven public pages, generated CSS/JavaScript bundles, public `assets/`, and `data/media-library/`; repository-only content such as `.github/`, `tests/`, `scripts/`, and `supabase/` is excluded. The Pages-only `_headers` file is not copied into the Worker package. The Worker wrapper applies the same CSP, response-security headers, admin/client-gallery `no-store` policy, and fingerprint-aware immutable caching on the `workers.dev` mirror.
 
 ## HTTP security headers and cache integrity
 
@@ -60,11 +70,11 @@ The Turnstile hostname allowlist must include `legioniz.github.io` for the offic
 
 ## Add photos and videos
 
-Upload web-ready JPG, JPEG, PNG, WEBP, AVIF, GIF, MP4, or WEBM files into an album folder under `media-library/`.
+Upload web-ready JPG, JPEG, PNG, WEBP, AVIF, GIF, MP4, or WEBM files into an album folder under `data/media-library/`.
 
-Example: `media-library/cosplay/november-convention-2026/portrait-001.jpg`
+Example: `data/media-library/cosplay/november-convention-2026/portrait-001.jpg`
 
-The build scans those folders and generates `media-library.json` automatically. Do not upload private client-only files or camera RAW files to this public repository.
+The build scans those folders and generates `data/media-src/js/library.json` automatically. Do not upload private client-only files or camera RAW files to this public repository.
 
 ## Local testing
 
@@ -111,9 +121,9 @@ The homepage includes a live monthly calendar backed by the separate `toki-calen
 
 ## Stylesheet source architecture
 
-Editable CSS lives under styles/. The shared design system is split into styles/tokens.css (design tokens and build-time breakpoint tokens), styles/base.css (typography, accessibility, and layout foundations), and styles/components.css (reusable controls and components). Cross-page legacy layers are grouped under styles/shared/; page-owned styling is under styles/pages/. The exact source order for each page is defined in scripts/build-css.py.
+Editable CSS lives under src/styles/. The shared design system is split into src/styles/tokens.css (design tokens and build-time breakpoint tokens), src/styles/base.css (typography, accessibility, and layout foundations), and src/styles/components.css (reusable controls and components). Cross-page legacy layers are grouped under src/styles/shared/; page-owned styling is under src/styles/pages/. The exact source order for each page is defined in scripts/build-css.py.
 
-The builder expands named @custom-media breakpoints into ordinary browser @media queries, then generates the six committed toki-*.css bundles. Every page still requests exactly one stylesheet. Source modules are not loaded individually by visitors. See styles/README.md before changing source ownership or bundle order.
+The builder expands named @custom-media breakpoints into ordinary browser @media queries, then generates the six committed toki-*.css bundles. Every page still requests exactly one stylesheet. Source modules are not loaded individually by visitors. See src/styles/README.md before changing source ownership or bundle order.
 
 The production workflow regenerates all six bundles from these source modules before running stylesheet QA and assembling the Pages/Workers artifacts. The static-site preflight then checks that the generated bundles are current. This prevents stale generated CSS from blocking packaging and ensures the deployed artifact reflects the checked-in source order. For local work, regenerate with `python scripts/build-css.py` before running `python scripts/build-css.py --check`.
 
@@ -129,17 +139,17 @@ The site is delivered as seven static pages backed by unified bundled CSS (scrip
 
 | File | Used by | Responsibility |
 | --- | --- | --- |
-| `toki-home.css`, `toki-archive.css`, `toki-policies.css`, `toki-404.css`, `toki-admin.css`, `toki-client.css` | All pages | Validated page bundles compiled by scripts/build-css.py from the shared design-system modules, ordered cross-page layers in styles/shared/, and page-specific modules in styles/pages/ |
-| `motion-system.js` | Home, booking, archive, policies, admin, client gallery | Official-logo aperture intro, six reveal profiles, scroll-linked chapter rails and bounded image parallax, pointer tilt, shutter feedback, menu, and dialog helpers |
-| `site.js` | Home, booking, archive, and policies | Navigation, page progress, interactive pricing calculator + booking sheet synchronization, Web Audio feedback, and Supabase intake relay |
-| `styles/pages/availability.css` + `availability.js` | `index.html` | Public monthly calendar, confirmed-date feed, Manila month rollover, inquiry prefill, and minute refresh |
-| `site.js` + `booking.html` | Dedicated desktop/mobile booking form, secure request submission, and cross-page package, calculator, and calendar prefill |
-| `library.js` | `library.html` | Archive filters, search, media manifest, and album viewer |
-| `admin.js` + `admin.html` | Studio operations console | Authenticated booking inbox management, pricing/add-ons inspection, confirmation windows, and token generation |
-| `client-gallery.js` + `client-gallery.html` | Private client gallery | Token-gated photo delivery and client favorite selection |
-| `media-library.json` + `media-library/` | `library.html` | Generated archive index and uploaded media |
+| `assets/css/toki-home.css`, `assets/css/toki-archive.css`, `assets/css/toki-policies.css`, `assets/css/toki-404.css`, `assets/css/toki-admin.css`, `assets/css/toki-client.css` | All pages | Validated page bundles compiled by scripts/build-css.py from the shared design-system modules, ordered cross-page layers in src/styles/shared/, and page-specific modules in src/styles/pages/ |
+| `src/js/motion-system.js` | Home, booking, archive, policies, admin, client gallery | Official-logo aperture intro, six reveal profiles, scroll-linked chapter rails and bounded image parallax, pointer tilt, shutter feedback, menu, and dialog helpers |
+| `src/js/site.js` | Home, booking, archive, and policies | Navigation, page progress, interactive pricing calculator + booking sheet synchronization, Web Audio feedback, and Supabase intake relay |
+| `src/styles/pages/availability.css` + `src/js/availability.js` | `index.html` | Public monthly calendar, confirmed-date feed, Manila month rollover, inquiry prefill, and minute refresh |
+| `src/js/site.js` + `booking.html` | Dedicated desktop/mobile booking form, secure request submission, and cross-page package, calculator, and calendar prefill |
+| `src/js/library.js` | `library.html` | Archive filters, search, media manifest, and album viewer |
+| `src/js/admin.js` + `admin.html` | Studio operations console | Authenticated booking inbox management, pricing/add-ons inspection, confirmation windows, and token generation |
+| `src/js/client-gallery.js` + `client-gallery.html` | Private client gallery | Token-gated photo delivery and client favorite selection |
+| `data/media-src/js/library.json` + `data/media-library/` | `library.html` | Generated archive index and uploaded media |
 
-Scripts load with `defer` in dependency order: shared motion first, shared page behavior second, and page-specific behavior last. Controllers are scoped so local declarations cannot collide. The archive manifest separates image, video, and total-media counts; the interface labels the combined count as items instead of treating videos as photographs. Every HTML asset reference, bundle checksum, test runner entry in `.github/workflows/deploy.yml`, and backend migration stays synchronized and is verified by `tests/toki-asset-integration-qa.py` and `tests/toki-css-bundle-qa.py`. Empty category folders under `media-library/` are intentional upload shelves, not unused assets.
+Scripts load with `defer` in dependency order: shared motion first, shared page behavior second, and page-specific behavior last. Controllers are scoped so local declarations cannot collide. The archive manifest separates image, video, and total-media counts; the interface labels the combined count as items instead of treating videos as photographs. Every HTML asset reference, bundle checksum, test runner entry in `.github/workflows/deploy.yml`, and backend migration stays synchronized and is verified by `tests/toki-asset-integration-qa.py` and `tests/toki-css-bundle-qa.py`. Empty category folders under `data/media-library/` are intentional upload shelves, not unused assets.
 
 
 ## Booking form human verification
@@ -177,7 +187,7 @@ The source of the intake function is tracked at `supabase/functions/portfolio-su
 
 ## Motion and transition system
 
-The motion implementation has one runtime source of truth: motion-system.js, its core stylesheet styles/shared/motion-system.css, and shared refinements in styles/shared/motion-refinements.css and styles/shared/global-motion.css. Scroll scenes receive a single active focal state, section progress, and bounded image parallax through the shared runtime. The active chapter marker is decorative and does not carry essential information.
+The motion implementation has one runtime source of truth: src/js/motion-system.js, its core stylesheet src/styles/shared/motion-system.css, and shared refinements in src/styles/shared/motion-refinements.css and src/styles/shared/global-motion.css. Scroll scenes receive a single active focal state, section progress, and bounded image parallax through the shared runtime. The active chapter marker is decorative and does not carry essential information.
 
 Cross-document view transitions progressively enhance supported browsers and preserve the masthead as a shared visual element. They do not replace normal navigation. Reduced-motion preferences disable the page transition and scroll-linked effects; constrained devices also skip continuous grain and ambient overlay work.
 

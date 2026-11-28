@@ -1,8 +1,8 @@
 # TOKI stylesheet source architecture
 
-TOKI keeps one generated stylesheet per visitor-facing page. The browser does not
+TOKI keeps one generated stylesheet per visitor-facing page under `assets/css/`. The browser does not
 load source modules individually; `scripts/build-css.py` flattens them into the
-committed `toki-*.css` bundles and preserves the established cascade order.
+committed `assets/css/toki-*.css` bundles and preserves the established cascade order.
 
 ## Shared design system
 
@@ -16,7 +16,7 @@ committed `toki-*.css` bundles and preserves the established cascade order.
 
 ## Cross-page styles
 
-`styles/shared/` contains cross-page foundation, refinements, cinematic
+`src/styles/shared/` contains cross-page foundation, refinements, cinematic
 presentation, motion, orientation, compatibility, and navigation layers.
 Homepage and booking-only experience styling lives in
 `styles/pages/home-booking.css` and is emitted only in the shared home/booking
@@ -25,7 +25,7 @@ current cascade.
 
 ## Page styles
 
-`styles/pages/` owns page-specific and page-family styling: homepage/booking,
+`src/styles/pages/` owns page-specific and page-family styling: homepage/booking,
 availability, policies, pricing calculator, equipment viewer, archive, admin,
 client gallery, and the shared archive/policy/404 page shells.
 
