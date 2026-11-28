@@ -1,0 +1,144 @@
+{
+  "version": 1,
+  "source": "Google Fonts CSS2 API, imported for self-hosting",
+  "format": "WOFF2",
+  "font_display": "swap",
+  "fonts": [
+    {
+      "family": "Caveat",
+      "style": "normal",
+      "weight": 400,
+      "path": "/assets/fonts/caveat-400-normal.woff2",
+      "bytes": 74932,
+      "sha256": "891951df5e8b5b0f0bc760d31375405e795c666b5add70437de12d4a6482b33f"
+    },
+    {
+      "family": "Caveat",
+      "style": "normal",
+      "weight": 500,
+      "path": "/assets/fonts/caveat-500-normal.woff2",
+      "bytes": 74932,
+      "sha256": "891951df5e8b5b0f0bc760d31375405e795c666b5add70437de12d4a6482b33f"
+    },
+    {
+      "family": "Caveat",
+      "style": "normal",
+      "weight": 600,
+      "path": "/assets/fonts/caveat-600-normal.woff2",
+      "bytes": 74932,
+      "sha256": "891951df5e8b5b0f0bc760d31375405e795c666b5add70437de12d4a6482b33f"
+    },
+    {
+      "family": "Caveat",
+      "style": "normal",
+      "weight": 700,
+      "path": "/assets/fonts/caveat-700-normal.woff2",
+      "bytes": 74932,
+      "sha256": "891951df5e8b5b0f0bc760d31375405e795c666b5add70437de12d4a6482b33f"
+    },
+    {
+      "family": "Cormorant Garamond",
+      "style": "normal",
+      "weight": 400,
+      "path": "/assets/fonts/cormorant-garamond-400-normal.woff2",
+      "bytes": 37640,
+      "sha256": "d80df8ff5aecd299a61549f9e29ab1ed0b9b05f4ea71d50fe978e07d5240b235"
+    },
+    {
+      "family": "Cormorant Garamond",
+      "style": "normal",
+      "weight": 500,
+      "path": "/assets/fonts/cormorant-garamond-500-normal.woff2",
+      "bytes": 37640,
+      "sha256": "d80df8ff5aecd299a61549f9e29ab1ed0b9b05f4ea71d50fe978e07d5240b235"
+    },
+    {
+      "family": "Cormorant Garamond",
+      "style": "normal",
+      "weight": 600,
+      "path": "/assets/fonts/cormorant-garamond-600-normal.woff2",
+      "bytes": 37640,
+      "sha256": "d80df8ff5aecd299a61549f9e29ab1ed0b9b05f4ea71d50fe978e07d5240b235"
+    },
+    {
+      "family": "Cormorant Garamond",
+      "style": "normal",
+      "weight": 700,
+      "path": "/assets/fonts/cormorant-garamond-700-normal.woff2",
+      "bytes": 37640,
+      "sha256": "d80df8ff5aecd299a61549f9e29ab1ed0b9b05f4ea71d50fe978e07d5240b235"
+    },
+    {
+      "family": "Cormorant Garamond",
+      "style": "italic",
+      "weight": 400,
+      "path": "/assets/fonts/cormorant-garamond-400-italic.woff2",
+      "bytes": 39260,
+      "sha256": "6f2f5c3b1abc3d0bb035a927f66a90ca873f94fc31c4966c8d024142c2036e55"
+    },
+    {
+      "family": "Cormorant Garamond",
+      "style": "italic",
+      "weight": 500,
+      "path": "/assets/fonts/cormorant-garamond-500-italic.woff2",
+      "bytes": 39260,
+      "sha256": "6f2f5c3b1abc3d0bb035a927f66a90ca873f94fc31c4966c8d024142c2036e55"
+    },
+    {
+      "family": "Cormorant Garamond",
+      "style": "italic",
+      "weight": 600,
+      "path": "/assets/fonts/cormorant-garamond-600-italic.woff2",
+      "bytes": 39260,
+      "sha256": "6f2f5c3b1abc3d0bb035a927f66a90ca873f94fc31c4966c8d024142c2036e55"
+    },
+    {
+      "family": "DM Sans",
+      "style": "normal",
+      "weight": 400,
+      "path": "/assets/fonts/dm-sans-400-normal.woff2",
+      "bytes": 36932,
+      "sha256": "9fea608a947e67020c33cad9a6fe3d60c54119dfb8cff87768a8117a15ed7543"
+    },
+    {
+      "family": "DM Sans",
+      "style": "normal",
+      "weight": 500,
+      "path": "/assets/fonts/dm-sans-500-normal.woff2",
+      "bytes": 36932,
+      "sha256": "9fea608a947e67020c33cad9a6fe3d60c54119dfb8cff87768a8117a15ed7543"
+    },
+    {
+      "family": "DM Sans",
+      "style": "normal",
+      "weight": 600,
+      "path": "/assets/fonts/dm-sans-600-normal.woff2",
+      "bytes": 36932,
+      "sha256": "9fea608a947e67020c33cad9a6fe3d60c54119dfb8cff87768a8117a15ed7543"
+    },
+    {
+      "family": "DM Sans",
+      "style": "normal",
+      "weight": 700,
+      "path": "/assets/fonts/dm-sans-700-normal.woff2",
+      "bytes": 36932,
+      "sha256": "9fea608a947e67020c33cad9a6fe3d60c54119dfb8cff87768a8117a15ed7543"
+    },
+    {
+      "family": "Space Mono",
+      "style": "normal",
+      "weight": 400,
+      "path": "/assets/fonts/space-mono-400-normal.woff2",
+      "bytes": 16520,
+      "sha256": "fb4a81a2d0a893e5c38c394a7e716a1cef0b24610a0af49c96f6d529bd66bf2b"
+    },
+    {
+      "family": "Space Mono",
+      "style": "normal",
+      "weight": 700,
+      "path": "/assets/fonts/space-mono-700-normal.woff2",
+      "bytes": 16724,
+      "sha256": "2d46bd159b53f55c41167a4f1540a074649464194fd1e416f5b4694a6c0f282c"
+    }
+  ]
+}
