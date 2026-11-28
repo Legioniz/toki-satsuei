@@ -102,6 +102,8 @@ Editable CSS lives under styles/. The shared design system is split into styles/
 
 The builder expands named @custom-media breakpoints into ordinary browser @media queries, then generates the six committed toki-*.css bundles. Every page still requests exactly one stylesheet. Source modules are not loaded individually by visitors. See styles/README.md before changing source ownership or bundle order.
 
+The production workflow regenerates all six bundles from these source modules before running stylesheet QA and assembling the Pages/Workers artifacts. The static-site preflight then checks that the generated bundles are current. This prevents stale generated CSS from blocking packaging and ensures the deployed artifact reflects the checked-in source order. For local work, regenerate with `python scripts/build-css.py` before running `python scripts/build-css.py --check`.
+
 ## Runtime integration map
 
 The site is delivered as seven static pages backed by unified bundled CSS (scripts/build-css.py), shared progressive motion/effects, and modular JavaScript controllers:
