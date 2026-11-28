@@ -251,13 +251,20 @@ def verify_fonts() -> None:
 
     shared_css = (root / "fonts.css").read_text(encoding="utf-8")
     caveat_css = (root / "fonts-caveat.css").read_text(encoding="utf-8")
-    if any(host in shared_css or host in caveat_css for host in ("fonts.googleapis.com", "fonts.gstatic.com")):
-        raise AssertionError("Self-hosted font CSS contains an external font URL")
     if shared_css.count("@font-face") != 5 or caveat_css.count("@font-face") != 1:
         raise AssertionError("Shared and handwritten font CSS must contain five and one faces respectively")
     for css in (shared_css, caveat_css):
-        if "https://" in css or "font-display: swap" not in css:
-            raise AssertionError("Font CSS is missing local sources or font-display: swap")
+        if "font-display: swap" not in css:
+            raise AssertionError("Font CSS is missing font-display: swap")
+        for reference in css_url_values(css):
+            parsed = urlsplit(reference)
+            if (
+                parsed.scheme
+                or parsed.netloc
+                or not parsed.path.startswith("/assets/fonts/")
+                or is_disallowed_visual_asset_url(reference)
+            ):
+                raise AssertionError(f"Font CSS contains a non-local font URL: {reference}")
     for item in fonts:
         filename = Path(item["path"]).name
         source_css = caveat_css if item.get("family") == "Caveat" else shared_css
