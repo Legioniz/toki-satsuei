@@ -389,11 +389,19 @@ def verify_pages_and_loading() -> None:
         if not local_file(candidate).is_file():
             raise AssertionError(f"Homepage hero srcset references a missing image: {candidate}")
 
-    preload = re.search(r'<link rel="preload" as="image"[^>]*>', home, re.IGNORECASE)
-    if not preload or attr(preload.group(0), "fetchpriority") != "high":
-        raise AssertionError("Homepage hero must be preloaded with high fetch priority")
-    if not attr(preload.group(0), "imagesrcset") or not attr(preload.group(0), "imagesizes"):
-        raise AssertionError("Homepage hero preload must match its responsive candidates")
+    image_preloads = re.findall(r'<link rel="preload" as="image"[^>]*>', home, re.IGNORECASE)
+    hero_preload = next(
+        (tag for tag in image_preloads if attr(tag, "href") == "./assets/photography/behind-the-camera-960.webp"),
+        None,
+    )
+    if not hero_preload or attr(hero_preload, "fetchpriority") != "high":
+        raise AssertionError("Homepage hero WebP source must be preloaded with high fetch priority")
+    if attr(hero_preload, "type") != "image/webp":
+        raise AssertionError("Homepage hero preload must use the same format as its responsive picture source")
+    if attr(hero_preload, "imagesrcset") != attr(hero_sources[0], "srcset"):
+        raise AssertionError("Homepage hero preload must match the responsive WebP candidates")
+    if attr(hero_preload, "imagesizes") != attr(hero_sources[0], "sizes"):
+        raise AssertionError("Homepage hero preload sizes must match its responsive picture source")
 
     grid_start = home.find('<div class="gallery-grid"')
     grid_end = home.find('<p class="gallery-footnote"', grid_start)
