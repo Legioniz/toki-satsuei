@@ -45,7 +45,7 @@ def sha256(payload: bytes) -> str:
 
 
 def local_file(public_path: str) -> Path:
-    normalized = public_path.lstrip("/")
+    normalized = public_path.removeprefix("./").lstrip("/")
     if not normalized.startswith("assets/"):
         raise AssertionError(f"Expected a same-origin /assets path, got {public_path!r}")
     target = (ROOT / normalized).resolve()
