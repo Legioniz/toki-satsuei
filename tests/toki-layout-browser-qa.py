@@ -157,9 +157,11 @@ def check_header(page, width, label):
                 f"(scrollY={page.evaluate('window.scrollY')}, heroBottom={hero_bottom})"
             )
 
-            page.mouse.move(width / 2, page.evaluate("innerHeight / 2"))
+            # ArrowUp is a real browser scroll gesture and avoids wheel hit-target
+            # ambiguity when a mobile/tablet overlay occupies the pointer position.
+            page.evaluate("() => document.activeElement?.blur()")
             previous_scroll = page.evaluate("window.scrollY")
-            page.mouse.wheel(0, -120)
+            page.keyboard.press("ArrowUp")
             try:
                 page.wait_for_function(
                     "(previous) => window.scrollY < previous",
@@ -168,7 +170,7 @@ def check_header(page, width, label):
                 )
             except PlaywrightTimeoutError as error:
                 raise AssertionError(
-                    f"{label}: real upward wheel did not change the document scroll position "
+                    f"{label}: ArrowUp did not change the document scroll position "
                     f"(previousY={previous_scroll}, currentY={page.evaluate('window.scrollY')})"
                 ) from error
             hero_bottom_after_up = page.locator(".hero-opening").evaluate(
