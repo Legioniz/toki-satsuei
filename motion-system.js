@@ -275,7 +275,7 @@
     const previous = activeAnimations.get(element);
     previous?.cancel();
     const animation = element.animate(frames, {
-      duration: shortenMotionTime(options.duration ?? 220),
+      duration: shortenMotionTime(options.duration ?? 150),
       easing: options.easing ?? "cubic-bezier(0.2, 0.7, 0.2, 1)",
       fill: options.fill ?? "both",
       delay: shortenMotionDelay(options.delay ?? 0)
@@ -303,7 +303,7 @@
   }
 
   function animateOut(element, options = {}) {
-    const duration = options.duration ?? 220;
+    const duration = options.duration ?? 150;
     const frames = options.frames ?? [
       { opacity: 1, transform: "translateY(0) scale(1)" },
       { opacity: 0, transform: "translateY(8px) scale(0.985)" }
@@ -319,7 +319,7 @@
     }
     const token = (transitionTokens.get(element) || 0) + 1;
     transitionTokens.set(element, token);
-    const duration = options.duration ?? 150;
+    const duration = options.duration ?? 102;
     return animate(element, [
       { opacity: 1, transform: "translateY(0)" },
       { opacity: 0, transform: "translateY(6px)" }
@@ -329,7 +329,7 @@
       return animate(element, [
         { opacity: 0, transform: "translateY(-5px)" },
         { opacity: 1, transform: "translateY(0)" }
-      ], { duration: options.enterDuration ?? 250 });
+      ], { duration: options.enterDuration ?? 170 });
     });
   }
 
@@ -341,7 +341,7 @@
       element.textContent = next;
       return;
     }
-    swap(element, () => { element.textContent = next; }, { duration: 110, enterDuration: 190 });
+    swap(element, () => { element.textContent = next; }, { duration:75, enterDuration:129 });
   }
 
   const menuTokens = new WeakMap();
@@ -365,11 +365,11 @@
       const panel = animate(nav, [
         { opacity: 0, transform: "translateY(-10px) scaleY(0.985)", transformOrigin: "top" },
         { opacity: 1, transform: "translateY(0) scaleY(1)", transformOrigin: "top" }
-      ], { duration: 260 });
+      ], { duration:177 });
       links.forEach((link, index) => animate(link, [
         { opacity: 0, transform: "translateY(-7px)" },
         { opacity: 1, transform: "translateY(0)" }
-      ], { duration: 210, delay: 24 + index * 28 }));
+      ], { duration:143, delay: 16 + index * 19 }));
       return panel;
     }
 
@@ -380,14 +380,14 @@
 
     const closing = [
       animateOut(nav, {
-        duration: 190,
+        duration:129,
         frames: [
           { opacity: 1, transform: "translateY(0) scaleY(1)", transformOrigin: "top" },
           { opacity: 0, transform: "translateY(-7px) scaleY(0.99)", transformOrigin: "top" }
         ]
       }),
       ...links.map(link => animateOut(link, {
-        duration: 190,
+        duration:129,
         frames: [
           { opacity: 1, transform: "translateY(0)" },
           { opacity: 0, transform: "translateY(-4px)" }
@@ -405,7 +405,7 @@
   function closeDialog(dialog, options = {}) {
     if (!dialog?.open || closingDialogs.has(dialog)) return Promise.resolve();
     closingDialogs.add(dialog);
-    const duration = options.duration ?? 220;
+    const duration = options.duration ?? 150;
     return Promise.all([
       animateOut(dialog, {
         duration,
@@ -414,7 +414,7 @@
           { opacity: 0, transform: "translateY(9px) scale(0.985)" }
         ]
       }),
-      animateBackdropOut(dialog, Math.max(160, duration - 20))
+      animateBackdropOut(dialog, Math.max(109, duration - 14))
     ]).then(() => {
       if (dialog.open) dialog.close();
     }).finally(() => closingDialogs.delete(dialog));
