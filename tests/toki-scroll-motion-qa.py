@@ -68,10 +68,21 @@ def main() -> None:
     assert "MOTION_DURATION_FACTOR = 0.42" in motion, "WAAPI choreography should use the accelerated duration factor."
     assert "CSS_MOTION_PLAYBACK_RATE = 2" in motion, "CSS animations should play at double speed."
     assert "Math.min(index, 4) * 18 + \"ms\"" in motion, "Stagger delays should be capped at 72ms."
-    assert "preloadObserver.observe(element)" in motion, "Motion targets must register with the preloader observer."
+    assert "preloadObserver?.observe(element)" in motion, "Motion targets must register with the preloader observer."
     assert 'rootMargin: "1100px 0px 1100px 0px"' in motion, "Motion assets should warm one viewport ahead."
+    assert 'node.querySelectorAll("img[loading=\'lazy\']")' in motion and "observeLazyImages(node)" in motion, (
+        "All lazy images, including images outside motion targets, must be scheduled for early preload."
+    )
+    preload_observer = motion.split("function createPreloadObserver()", 1)[1].split("observer = createObserver()", 1)[0]
+    assert "if (reduced" not in preload_observer, (
+        "Upcoming image preloading must remain active when reduced motion is enabled."
+    )
+    reduced_motion_branch = motion.split('if (reduced) {', 1)[1].split('} else {', 1)[0]
+    assert "preloadObserver = createPreloadObserver()" in reduced_motion_branch and "observeLazyImages(document)" in reduced_motion_branch, (
+        "Reduced-motion visitors must retain advance image loading without running animations."
+    )
     assert 'image.loading = "eager"' in motion and "image.decode()" in motion, (
-        "Images inside upcoming motion content should be fetched and decoded before reveal."
+        "Images inside upcoming content should be fetched and decoded before reveal."
     )
     homepage_head = (ROOT / "index.html").read_text(encoding="utf-8").split("</head>", 1)[0]
     for asset in (
