@@ -100,6 +100,53 @@
 
   root.classList.add("motion-system-ready", "motion-ready");
 
+  /* Shorten site motion without changing the official startup logo sequence. */
+  const MOTION_DURATION_FACTOR = 0.78;
+  const CSS_MOTION_PLAYBACK_RATE = 1.28;
+  const STARTUP_LOGO_SELECTOR = ".toki-intro-curtain, .toki-intro-curtain *, .toki-intro-logo";
+
+  function isStartupLogoAnimation(animation) {
+    if (String(animation?.animationName || "").startsWith("tokiIntro")) return true;
+    const target = animation?.effect?.target;
+    if (!target || target.nodeType !== Node.ELEMENT_NODE) return false;
+    return target.matches(STARTUP_LOGO_SELECTOR) ||
+      Boolean(target.closest(".toki-intro-curtain"));
+  }
+
+  function accelerateAnimation(animation) {
+    if (reduced || !animation || isStartupLogoAnimation(animation)) return;
+    if (Math.abs(animation.playbackRate - CSS_MOTION_PLAYBACK_RATE) < 0.001) return;
+    try {
+      if (typeof animation.updatePlaybackRate === "function") {
+        animation.updatePlaybackRate(CSS_MOTION_PLAYBACK_RATE);
+      } else {
+        animation.playbackRate = CSS_MOTION_PLAYBACK_RATE;
+      }
+    } catch {
+      /* Keep the original effect if a browser rejects a playback-rate update. */
+    }
+  }
+
+  function accelerateRunningAnimations() {
+    if (reduced || typeof document.getAnimations !== "function") return;
+    document.getAnimations().forEach(accelerateAnimation);
+  }
+
+  function accelerateAnimationsOnEvent(event) {
+    if (reduced || !event.target || typeof event.target.getAnimations !== "function") return;
+    event.target.getAnimations().forEach(accelerateAnimation);
+  }
+
+  document.addEventListener("animationstart", accelerateAnimationsOnEvent, true);
+  document.addEventListener("transitionrun", accelerateAnimationsOnEvent, true);
+  accelerateRunningAnimations();
+
+  function shortenMotionTime(value) {
+    return typeof value === "number" && Number.isFinite(value) && value > 0
+      ? Math.max(80, Math.round(value * MOTION_DURATION_FACTOR))
+      : value;
+  }
+
   /* Resolve profile name for an element, respecting explicit markup attributes. */
   function resolveProfile(element) {
     if (element.dataset.motion) return element.dataset.motion;
@@ -222,10 +269,10 @@
     const previous = activeAnimations.get(element);
     previous?.cancel();
     const animation = element.animate(frames, {
-      duration: options.duration ?? 220,
+      duration: shortenMotionTime(options.duration ?? 220),
       easing: options.easing ?? "cubic-bezier(0.2, 0.7, 0.2, 1)",
       fill: options.fill ?? "both",
-      delay: options.delay ?? 0
+      delay: shortenMotionTime(options.delay ?? 0)
     });
     activeAnimations.set(element, animation);
     return animation.finished.catch(() => {}).then(() => {
@@ -241,7 +288,7 @@
     try {
       const animation = dialog.animate(
         [{ opacity: 1 }, { opacity: 0 }],
-        { duration, easing: "ease-in", fill: "both", pseudoElement: "::backdrop" }
+        { duration: shortenMotionTime(duration), easing: "ease-in", fill: "both", pseudoElement: "::backdrop" }
       );
       return animation.finished.catch(() => {}).then(() => animation.cancel());
     } catch {
@@ -389,13 +436,13 @@
       { opacity: 0.9, transform: "translate(-50%, -50%) scale(0.25)" },
       { opacity: 0.45, transform: "translate(-50%, -50%) scale(1.15)", offset: 0.35 },
       { opacity: 0, transform: "translate(-50%, -50%) scale(2.1)" }
-    ], { duration: 480, easing: "cubic-bezier(0.16, 1, 0.3, 1)" });
+    ], { duration: shortenMotionTime(480), easing: "cubic-bezier(0.16, 1, 0.3, 1)" });
 
     streak?.animate([
       { opacity: 0, transform: "translateX(-120%) skewX(-18deg)" },
       { opacity: 0.55, transform: "translateX(0%) skewX(-18deg)", offset: 0.3 },
       { opacity: 0, transform: "translateX(130%) skewX(-18deg)" }
-    ], { duration: 520, easing: "cubic-bezier(0.16, 1, 0.3, 1)" });
+    ], { duration: shortenMotionTime(520), easing: "cubic-bezier(0.16, 1, 0.3, 1)" });
   }
 
   function pulseMetric(element) {
@@ -405,7 +452,7 @@
       { transform: "scale(1.18) translateY(-3px)", filter: "brightness(1.25)", textShadow: "0 0 24px rgba(195, 42, 57, 0.85)" },
       { transform: "scale(0.97)", filter: "brightness(1.06)" },
       { transform: "scale(1)", filter: "brightness(1)", textShadow: "0 0 14px rgba(195, 42, 57, 0.25)" }
-    ], { duration: 460, easing: "cubic-bezier(0.34, 1.48, 0.64, 1)" });
+    ], { duration: shortenMotionTime(460), easing: "cubic-bezier(0.34, 1.48, 0.64, 1)" });
   }
 
   /* Unified intersection & scroll visibility management for [data-reveal] + .motion-item. */
