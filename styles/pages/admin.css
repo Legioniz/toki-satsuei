@@ -103,7 +103,7 @@ body.admin-body{
   letter-spacing:.14em;
   text-transform:uppercase;
   cursor:pointer;
-  transition:background var(--dur-2, .2s);
+  transition:background var(--dur-2, 0.136s);
 }
 .admin-btn:hover{
   background:#fff;
