@@ -1,6 +1,6 @@
 const SECURITY_HEADERS = {
   "Content-Security-Policy":
-    "default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; frame-ancestors 'self'; script-src 'self' https://static.sketchfab.com https://challenges.cloudflare.com https://*.challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://pjuwrngnrrvdiwqspkic.supabase.co https://challenges.cloudflare.com https://*.challenges.cloudflare.com https://*.cloudflareinsights.com; frame-src 'self' https://sketchfab.com https://*.sketchfab.com https://challenges.cloudflare.com https://*.challenges.cloudflare.com; upgrade-insecure-requests",
+    "default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; frame-ancestors 'self'; script-src 'self' https://static.sketchfab.com https://challenges.cloudflare.com https://*.challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https:; connect-src 'self' https://pjuwrngnrrvdiwqspkic.supabase.co https://challenges.cloudflare.com https://*.challenges.cloudflare.com https://*.cloudflareinsights.com; frame-src 'self' https://sketchfab.com https://*.sketchfab.com https://challenges.cloudflare.com https://*.challenges.cloudflare.com; upgrade-insecure-requests",
   "X-Frame-Options": "SAMEORIGIN",
   "X-Content-Type-Options": "nosniff",
   "Referrer-Policy": "strict-origin-when-cross-origin",

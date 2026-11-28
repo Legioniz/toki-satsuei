@@ -14,8 +14,8 @@ import re
 import tempfile
 from pathlib import Path
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlparse
-from urllib.request import Request, urlopen
+from urllib.parse import urlparse, urlsplit
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from PIL import Image, ImageOps
 
@@ -27,6 +27,12 @@ MAX_IMAGE_BYTES = 25 * 1024 * 1024
 MAX_FONT_BYTES = 4 * 1024 * 1024
 MAX_CSS_BYTES = 512 * 1024
 TARGET_WIDTHS = (480, 960, 1536)
+ALLOWED_ASSET_HOSTS = frozenset({
+    "media.base44.com",
+    "fonts.googleapis.com",
+    "fonts.gstatic.com",
+    "raw.githubusercontent.com",
+})
 
 PHOTOGRAPHS = (
     {
@@ -102,16 +108,39 @@ EXPECTED_FONT_FACES = {
 }
 
 
+def validate_asset_url(url: str) -> None:
+    parsed = urlsplit(url)
+    try:
+        port = parsed.port
+    except ValueError as error:
+        raise ValueError(f"Invalid asset URL port: {url}") from error
+    if (
+        parsed.scheme != "https"
+        or (parsed.hostname or "").lower() not in ALLOWED_ASSET_HOSTS
+        or parsed.username is not None
+        or parsed.password is not None
+        or port not in (None, 443)
+    ):
+        raise ValueError(f"Refusing unapproved asset URL: {url}")
+
+
+class AllowlistedHTTPSRedirectHandler(HTTPRedirectHandler):
+    """Reject redirects to hosts outside the explicitly approved asset origins."""
+
+    def redirect_request(self, request, file_pointer, code, message, headers, new_url):
+        validate_asset_url(new_url)
+        return super().redirect_request(request, file_pointer, code, message, headers, new_url)
+
+
+ASSET_OPENER = build_opener(AllowlistedHTTPSRedirectHandler)
+
+
 def fetch_bytes(url: str, limit: int) -> bytes:
-    parsed = urlparse(url)
-    if parsed.scheme != "https" or not parsed.hostname:
-        raise ValueError(f"Refusing non-HTTPS asset URL: {url}")
+    validate_asset_url(url)
     request = Request(url, headers={"User-Agent": USER_AGENT, "Accept": "*/*"})
     try:
-        with urlopen(request, timeout=45) as response:
-            final_host = urlparse(response.geturl()).hostname
-            if final_host not in {"media.base44.com", "fonts.googleapis.com", "fonts.gstatic.com", "raw.githubusercontent.com"}:
-                raise ValueError(f"Unexpected asset redirect host: {final_host}")
+        with ASSET_OPENER.open(request, timeout=45) as response:
+            validate_asset_url(response.geturl())
             content_length = response.headers.get("Content-Length")
             if content_length and int(content_length) > limit:
                 raise ValueError(f"Asset exceeds size limit ({content_length} bytes): {url}")
@@ -123,7 +152,6 @@ def fetch_bytes(url: str, limit: int) -> bytes:
     if not payload:
         raise ValueError(f"Empty response for asset: {url}")
     return payload
-
 
 def atomic_write(path: Path, payload: bytes) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -428,8 +456,13 @@ def verify_assets() -> None:
         ("fonts-caveat.css", expected_by_bundle["handwritten"]),
     ):
         css = (FONT_ROOT / bundle).read_text(encoding="utf-8")
-        if "fonts.gstatic.com" in css or "https://" in css or "font-display: swap" not in css:
-            raise ValueError(f"Generated {bundle} contains a remote source or lacks font-display: swap")
+        if "font-display: swap" not in css:
+            raise ValueError(f"Generated {bundle} lacks font-display: swap")
+        for match in re.finditer(r"""url\(\s*(['"]?)(.*?)\1\s*\)""", css, re.IGNORECASE):
+            reference = match.group(2).strip()
+            parsed = urlsplit(reference)
+            if parsed.scheme or parsed.netloc or not parsed.path.startswith("/assets/fonts/"):
+                raise ValueError(f"Generated {bundle} contains a non-local font reference: {reference}")
         if css.count("@font-face") != len(filenames):
             raise ValueError(f"Generated {bundle} has an unexpected number of font faces")
         for filename in filenames:
