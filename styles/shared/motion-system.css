@@ -40,7 +40,7 @@
   place-items: center;
   background:
     radial-gradient(circle at 50% 48%, rgba(163, 31, 45, 0.22), rgba(9, 9, 11, 0.98) 62%, #050506 100%);
-  animation: tokiIntroCurtainOut 0.96s var(--ease-quart-in-out) 0.04s forwards;
+  animation: tokiIntroCurtainOut 0.68s var(--ease-quart-in-out) 0.02s forwards;
 }
 .toki-intro-stage {
   position: relative;
