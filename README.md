@@ -104,6 +104,12 @@ The builder expands named @custom-media breakpoints into ordinary browser @media
 
 The production workflow regenerates all six bundles from these source modules before running stylesheet QA and assembling the Pages/Workers artifacts. The static-site preflight then checks that the generated bundles are current. This prevents stale generated CSS from blocking packaging and ensures the deployed artifact reflects the checked-in source order. For local work, regenerate with `python scripts/build-css.py` before running `python scripts/build-css.py --check`.
 
+### Performance and accessibility checks
+
+The production verification pipeline runs axe-core against all seven packaged routes using WCAG 2.2 A/AA and best-practice rules. Critical and serious violations fail CI; moderate/minor findings and axe's manual-review items are retained in the JSON report. Lighthouse CI runs mobile audits for the same seven routes and stores HTML/JSON reports as a GitHub Actions artifact. Initial Lighthouse score and Core Web Vitals thresholds are warnings until stable baselines are established.
+
+The browser matrix adds mobile WebKit with an iPhone Safari user agent and mobile Chromium with an Android Chrome user agent. These are engine/viewport emulations, not physical iPhone or Android devices. The checks cover horizontal overflow and visible image decoding; actual-device Safari/Chrome validation remains a separate release QA activity.
+
 ## Runtime integration map
 
 The site is delivered as seven static pages backed by unified bundled CSS (scripts/build-css.py), shared progressive motion/effects, and modular JavaScript controllers:
