@@ -216,3 +216,9 @@
     position: static;
   }
 }
+
+#pricing-calculator #calc-apply-to-booking.calc-apply-btn:hover {
+  background-color: var(--toki-button-surface, #b82837) !important;
+  border-color: #a31f2d !important;
+  transform: translateY(-2px);
+}
