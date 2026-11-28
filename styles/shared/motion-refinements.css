@@ -2,10 +2,9 @@
 
 /* One focal section at a time: the chapter rail brightens as its scene enters focus. */
 .toki-scroll-scene > .toki-scene-track::after {
-  transition:
-    opacity 180ms var(--ease-shutter-snap),
-    box-shadow 220ms var(--ease-expo-out),
-    background-color 180ms var(--ease-shutter-snap);
+  transition:opacity 122.4ms var(--ease-shutter-snap),
+    box-shadow 149.6ms var(--ease-expo-out),
+    background-color 122.4ms var(--ease-shutter-snap);
 }
 .toki-scroll-scene.is-scene-active > .toki-scene-track::before {
   opacity: 1;
@@ -18,7 +17,7 @@
 }
 .toki-scroll-scene.is-scene-active .section-heading > div:first-child::after {
   box-shadow: 0 0 14px rgba(195, 42, 57, 0.28);
-  transition: box-shadow 260ms var(--ease-expo-out);
+  transition:box-shadow 176.8ms var(--ease-expo-out);
 }
 
 /* Keep the darkroom overlays inexpensive on constrained devices. */
@@ -30,7 +29,7 @@ html[data-motion-tier="lite"] .toki-vf-ring-outer,
 html[data-motion-tier="lite"] .toki-vf-ring-mid,
 html[data-motion-tier="lite"] .toki-vf-ring-inner,
 html[data-motion-tier="lite"] .toki-vf-corners {
-  animation: none !important;
+  animation:none !important;
 }
 
 /* Preserve the masthead across supported cross-document view transitions. */
@@ -38,18 +37,18 @@ html[data-motion-tier="lite"] .toki-vf-corners {
   view-transition-name: toki-header;
 }
 ::view-transition-old(root) {
-  animation: tokiPageExit 180ms var(--ease-in-out-sine) both;
+  animation:tokiPageExit 122.4ms var(--ease-in-out-sine) both;
 }
 ::view-transition-new(root) {
-  animation: tokiPageEnter 420ms var(--ease-expo-out) both;
+  animation:tokiPageEnter 285.6ms var(--ease-expo-out) both;
 }
 ::view-transition-group(toki-header) {
-  animation-duration: 360ms;
+  animation-duration:244.8ms;
   animation-timing-function: var(--ease-shutter-snap);
 }
 ::view-transition-old(toki-header),
 ::view-transition-new(toki-header) {
-  animation-duration: 360ms;
+  animation-duration:244.8ms;
   animation-timing-function: var(--ease-shutter-snap);
 }
 @keyframes tokiPageExit {
@@ -78,12 +77,11 @@ html.motion-system-ready :where(
   .admin-btn, .lightbox-nav, .lightbox-close, .menu-toggle
 ) {
   transform-origin: center;
-  transition:
-    transform 180ms var(--ease-spring-detent),
-    color 180ms var(--ease-shutter-snap),
-    border-color 180ms var(--ease-shutter-snap),
-    background-color 180ms var(--ease-shutter-snap),
-    box-shadow 220ms var(--ease-expo-out);
+  transition:transform 122.4ms var(--ease-spring-detent),
+    color 122.4ms var(--ease-shutter-snap),
+    border-color 122.4ms var(--ease-shutter-snap),
+    background-color 122.4ms var(--ease-shutter-snap),
+    box-shadow 149.6ms var(--ease-expo-out);
 }
 html.motion-system-ready :where(
   .button, .nav-contact, .package-link, .filter-button,
@@ -107,7 +105,7 @@ html.motion-system-ready :where(
   ::view-transition-group(toki-header),
   ::view-transition-old(toki-header),
   ::view-transition-new(toki-header) {
-    animation: none !important;
+    animation:none !important;
   }
   .toki-scroll-scene.is-scene-active > .toki-scene-track::after {
     box-shadow: none;
@@ -117,19 +115,19 @@ html.motion-system-ready :where(
 
 /* Archive container transform: the selected album frame inherits the card's spatial origin. */
 ::view-transition-group(toki-album-container) {
-  animation-duration: 460ms;
+  animation-duration:312.8ms;
   animation-timing-function: var(--ease-shutter-snap);
 }
 ::view-transition-old(toki-album-container),
 ::view-transition-new(toki-album-container) {
-  animation-duration: 460ms;
+  animation-duration:312.8ms;
   animation-timing-function: var(--ease-shutter-snap);
 }
 
 /* Active chapter focus stays clear without adding another competing progress rail. */
 .toki-scroll-scene > .toki-scene-track {
   opacity: 0.48;
-  transition: opacity 260ms var(--ease-shutter-snap);
+  transition:opacity 176.8ms var(--ease-shutter-snap);
 }
 .toki-scroll-scene.is-scene-active > .toki-scene-track {
   opacity: 1;
@@ -139,33 +137,33 @@ html.motion-system-ready :where(
 }
 .toki-scroll-scene.is-scene-active .section-heading h2 em {
   text-shadow: 0 0 18px rgba(195, 42, 57, 0.2);
-  transition: text-shadow 320ms var(--ease-expo-out);
+  transition:text-shadow 217.6ms var(--ease-expo-out);
 }
 
 /* Lite devices keep the choreography, but skip its most expensive blur and sweep work. */
 html[data-motion-tier="lite"] .toki-hero-scanbeam {
-  animation: none !important;
+  animation:none !important;
   display: none !important;
 }
 html[data-motion-tier="lite"] .motion-item[data-motion="develop-print"].is-motion-visible,
 html[data-motion-tier="lite"] [data-reveal][data-motion="develop-print"].is-visible {
-  animation-duration: 580ms !important;
+  animation-duration:394.4ms !important;
   filter: none !important;
 }
 html[data-motion-tier="lite"] .motion-item[data-motion="spring-card"].is-motion-visible,
 html[data-motion-tier="lite"] [data-reveal][data-motion="spring-card"].is-visible {
-  animation-duration: 540ms !important;
+  animation-duration:367.2ms !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(toki-album-container),
   ::view-transition-old(toki-album-container),
   ::view-transition-new(toki-album-container) {
-    animation: none !important;
+    animation:none !important;
   }
   .toki-scroll-scene > .toki-scene-track {
     opacity: 0 !important;
-    transition: none !important;
+    transition:none !important;
   }
   .toki-scroll-scene.is-scene-active .section-heading h2 em {
     text-shadow: none !important;
@@ -317,16 +315,16 @@ html[data-motion-tier="lite"] [data-reveal][data-motion="spring-card"].is-visibl
   left: 0;
   z-index: 1000;
   will-change: transform;
-  transition: transform 280ms cubic-bezier(.2,.7,.2,1), visibility 0s linear 0s;
+  transition:transform 190.4ms cubic-bezier(.2,.7,.2,1), visibility 0s linear 0s;
 }
 .site-header.is-auto-hidden, .admin-header.is-auto-hidden, .client-header.is-auto-hidden {
   transform: translate3d(0, calc(-100% - 6px), 0) !important;
   visibility: hidden !important;
   pointer-events: none !important;
-  transition: transform 280ms cubic-bezier(.2,.7,.2,1), visibility 0s linear 280ms;
+  transition:transform 190.4ms cubic-bezier(.2,.7,.2,1), visibility 0s linear 190.4ms;
 }
 .site-header.is-initial-hidden {
-  transition: none !important;
+  transition:none !important;
   transform: translate3d(0, calc(-100% - 6px), 0) !important;
   visibility: hidden !important;
 }
