@@ -68,7 +68,7 @@ def source_file(target: str) -> Path:
 
 
 def verify_media_manifest(failures: list[str]) -> None:
-    path = ROOT / "data" / "data/media-library.json"
+    path = ROOT / "data" / "media-library.json"
     try:
         manifest = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
