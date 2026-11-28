@@ -142,11 +142,11 @@ Scripts load with `defer` in dependency order: shared motion first, shared page 
 
 ## Booking form human verification
 
-The booking form uses Cloudflare Turnstile with the `toki_booking` action and the `toki-satsuei.pages.dev` hostname (plus any explicitly configured custom domain). The browser sends the short-lived challenge token to the `portfolio-submit` Edge Function; Supabase verifies it with Cloudflare Siteverify before a booking is stored. Missing, invalid, expired, incorrectly scoped, or unverifiable booking tokens are rejected. TOKI booking verification fails closed when its dedicated server-side secret is not configured. The shared personal portfolio keeps its existing `TURNSTILE_SECRET_KEY` for inquiry and comment challenges.
+The booking form uses Cloudflare Turnstile with the `toki_booking` action. Its allowed hostnames must include `legioniz.github.io` for the official website and `toki-satsuei.pages.dev` for the secured mirror (plus any explicitly configured custom domain). The browser sends the short-lived challenge token to the `portfolio-submit` Edge Function; Supabase verifies it with Cloudflare Siteverify before a booking is stored. Missing, invalid, expired, incorrectly scoped, or unverifiable booking tokens are rejected. TOKI booking verification fails closed when its dedicated server-side secret is not configured. The shared personal portfolio keeps its existing `TURNSTILE_SECRET_KEY` for inquiry and comment challenges.
 
 ### One-time owner setup
 
-1. Create a Cloudflare Turnstile widget restricted to `toki-satsuei.pages.dev` and any explicitly configured production custom domain.
+1. Configure the Cloudflare Turnstile widget to allow `legioniz.github.io` and `toki-satsuei.pages.dev`, plus any explicitly configured production custom domain.
 2. Keep the site key in the public form markup in `booking.html`; it is designed to be public.
 3. In Supabase **Edge Functions → Secrets**, add `TOKI_TURNSTILE_SECRET_KEY` with the secret that matches the TOKI sitekey. Do not overwrite the existing `TURNSTILE_SECRET_KEY`; it is reserved for the personal portfolio's inquiry/comment widget.
 4. After the new secret is saved, deploy the updated `portfolio-submit` Edge Function.
