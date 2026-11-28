@@ -522,6 +522,7 @@
 
   function prepareScrollScenes(node = document) {
     matchingElements(node, SCROLL_SCENE_SELECTOR).forEach(scene => {
+      preloadObserver?.observe(scene);
       scene.classList.add("toki-scroll-scene");
       if (scene.matches(".hero-opening, .services-section, .policy-hero, .admin-main, .client-main")) {
         scene.classList.add("toki-scroll-scene--dark");
