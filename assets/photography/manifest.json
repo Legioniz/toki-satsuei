@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "hosting": "same-origin Cloudflare Pages",
+  "hosting": "same-origin static assets; official GitHub Pages and secured Cloudflare Pages mirror",
   "photographs": [
     {
       "slug": "behind-the-camera",
