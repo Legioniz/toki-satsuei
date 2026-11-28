@@ -214,11 +214,11 @@ def verify_photography() -> None:
 def verify_fonts() -> None:
     importer_source = (ROOT / "scripts/import_site_media.py").read_text(encoding="utf-8")
     if re.search(
-        r"""(?:url\(\s*['"]?../fonts/|["']path["']\s*:\s*["']/assets/fonts/)""",
+        r"""(?:url\(\s*['"]?/assets/fonts/|["']path["']\s*:\s*["']/assets/fonts/)""",
         importer_source,
     ):
         raise AssertionError(
-            "Font importer must emit ../fonts URLs relative to the assets/css bundle directory"
+            "Font importer must use bundle-relative ../fonts URLs, not root-absolute /assets/fonts URLs"
         )
     root = ROOT / "assets/fonts"
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
