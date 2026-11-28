@@ -86,7 +86,7 @@ def main() -> None:
             expected_styles = (
                 (".calculator-wrap .section-heading h2", "color", "rgb(245, 242, 235)"),
                 (".calculator-wrap .section-heading h2 em", "color", "rgb(216, 117, 125)"),
-                (".calculator-wrap .section-heading .section-aside", "color", "rgb(212, 204, 193)"),
+                ("#pricing-calculator .section-aside", "color", "rgb(212, 204, 193)"),
                 (".calc-label", "color", "rgb(245, 242, 235)"),
                 (".calc-select", "color", "rgb(255, 255, 255)"),
                 (".calc-select", "background-color", "rgb(20, 19, 20)"),
