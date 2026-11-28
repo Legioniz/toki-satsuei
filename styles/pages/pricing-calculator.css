@@ -69,7 +69,7 @@
   font-family: inherit;
   font-size: 14.5px;
   font-weight: 500;
-  transition: border-color var(--dur-2, .2s), box-shadow var(--dur-2, .2s);
+  transition:border-color var(--dur-2, 0.136s), box-shadow var(--dur-2, 0.136s);
 }
 .calc-select:focus, .calc-input:focus {
   outline: 2px solid #c32a39;
@@ -93,7 +93,7 @@
   cursor: pointer;
   display: grid;
   place-items: center;
-  transition: background var(--dur-1, .15s), border-color var(--dur-1, .15s), transform var(--dur-1, .15s);
+  transition:background var(--dur-1, 0.102s), border-color var(--dur-1, 0.102s), transform var(--dur-1, 0.102s);
 }
 .calc-btn-step:hover:not(:disabled) {
   background: #962a34;
@@ -199,7 +199,7 @@
   justify-content: center;
   gap: 10px;
   box-shadow: 0 4px 18px rgba(163, 31, 45, 0.35);
-  transition: transform var(--dur-2, .2s), background var(--dur-2, .2s), box-shadow var(--dur-2, .2s);
+  transition:transform var(--dur-2, 0.136s), background var(--dur-2, 0.136s), box-shadow var(--dur-2, 0.136s);
 }
 .calc-apply-btn:hover {
   --toki-button-surface: #b82837;
