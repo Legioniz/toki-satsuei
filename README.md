@@ -29,6 +29,23 @@ The complete standalone TOKI SATSUEI website, kept separate from the Legioniz pe
 - `docs/` contains design, brand, asset, data, and copyright documentation. The `supabase/` directory remains at the repository root for the conventional Supabase CLI layout.
 - `dist/` and `worker-dist/` are generated deployment outputs and are not committed.
 
+### Root-level files retained intentionally
+
+The root is kept small, but several files remain there because GitHub, the static hosts, or the existing CI commands discover them at predictable paths. They are not unclassified application source.
+
+| Files | Purpose |
+| --- | --- |
+| `.gitignore`, `.gitleaks.toml`, `.nojekyll` | Git ignore rules, Gitleaks allowlist, and the GitHub Pages no-Jekyll marker. |
+| `README.md`, `LICENSE`, `SECURITY.md` | GitHub repository overview, rights notice, and vulnerability-reporting policy. |
+| `index.html`, `booking.html`, `library.html`, `policies.html`, `admin.html`, `client-gallery.html`, `404.html` | Public route entrypoints. Keeping these at the published root preserves their current URLs and the host's 404 behavior. |
+| `robots.txt`, `sitemap.xml` | Search-engine discovery endpoints, served from the website root. |
+| `_headers` | Cloudflare Pages response-header and cache policy. The build stages it at the static output root; the GitHub Pages artifact removes it because GitHub Pages does not interpret this file. |
+| `wrangler.worker.jsonc` | Explicit Wrangler configuration used by the Worker build/deploy command. |
+| `lighthouserc.cjs` | Lighthouse CI configuration discovered by `lhci autorun`. |
+| `requirements-test.txt` | Pinned Python browser-test dependencies referenced directly by the CI install and audit commands. |
+
+Do not move these files solely to make the root empty. A future move should include the relevant host/CLI discovery setting and every workflow/documentation reference, followed by a full deployment regression.
+
 ## Official GitHub Pages deployment and Cloudflare security mirror
 
 The official public website is **[https://legioniz.github.io/toki-satsuei/](https://legioniz.github.io/toki-satsuei/)**. On every verified `main` commit, the production workflow uploads the same allowlisted `dist/` artifact to GitHub Pages with the pinned `actions/configure-pages`, `actions/upload-pages-artifact`, and `actions/deploy-pages` actions. The repository's GitHub Pages site is the canonical origin used in page metadata, the sitemap, and public links.
