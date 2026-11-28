@@ -115,16 +115,41 @@ def main() -> None:
             apply_button.hover()
             # Wait until the full hover transition has settled before asserting
             # the final color, outline, and lift. :hover alone is only the first frame.
-            page.wait_for_function(
-                """() => {
-                    const button = document.querySelector("#calc-apply-to-booking");
-                    if (!button || !button.matches(":hover")) return false;
+            try:
+                page.wait_for_function(
+                    """() => {
+                        const button = document.querySelector("#calc-apply-to-booking");
+                        if (!button || !button.matches(":hover")) return false;
+                        const style = getComputedStyle(button);
+                        return style.backgroundColor === "rgb(184, 40, 55)" &&
+                            style.borderTopColor === "rgb(163, 31, 45)";
+                    }""",
+                    timeout=4000,
+                )
+            except Exception as error:
+                hover_state = apply_button.evaluate("""button => {
                     const style = getComputedStyle(button);
-                    return style.backgroundColor === "rgb(184, 40, 55)" &&
-                        style.borderTopColor === "rgb(163, 31, 45)";
-                }""",
-                timeout=4000,
-            )
+                    const rect = button.getBoundingClientRect();
+                    const hit = document.elementFromPoint(
+                        rect.left + rect.width / 2,
+                        rect.top + rect.height / 2
+                    );
+                    return {
+                        isHovered: button.matches(":hover"),
+                        pageRuleMatches: button.matches(".calculator-wrap .calc-apply-btn:hover"),
+                        pageRoot: button.closest("#pricing-calculator")?.className ?? null,
+                        backgroundColor: style.backgroundColor,
+                        borderTopColor: style.borderTopColor,
+                        surfaceToken: style.getPropertyValue("--toki-button-surface").trim(),
+                        transform: style.transform,
+                        transitionProperty: style.transitionProperty,
+                        transitionDuration: style.transitionDuration,
+                        hitTarget: hit?.outerHTML?.slice(0, 220) ?? null
+                    };
+                }""")
+                raise AssertionError(
+                    f"Calculator hover cascade did not settle: {hover_state}"
+                ) from error
             hover_style = apply_button.evaluate("""button => {
                 const style = getComputedStyle(button);
                 return {
