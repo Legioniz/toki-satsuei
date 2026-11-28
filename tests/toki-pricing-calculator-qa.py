@@ -112,9 +112,23 @@ def main() -> None:
                 )
 
             apply_button = page.locator("#calc-apply-to-booking")
-            apply_button.hover()
+            # The page intentionally uses smooth scrolling; disable it for
+            # deterministic pointer geometry in this browser-only hover test.
+            page.evaluate("""() => {
+                document.documentElement.style.setProperty("scroll-behavior", "auto", "important");
+                document.body.style.setProperty("scroll-behavior", "auto", "important");
+            }""")
+            apply_button.scroll_into_view_if_needed()
+            button_box = apply_button.bounding_box()
+            assert button_box and button_box["width"] > 0 and button_box["height"] > 0, (
+                "Pricing calculator apply button must have visible geometry before hover QA."
+            )
+            page.mouse.move(
+                button_box["x"] + button_box["width"] / 2,
+                button_box["y"] + button_box["height"] / 2,
+            )
             # Wait until the full hover transition has settled before asserting
-            # the final color, outline, and lift. :hover alone is only the first frame.
+            # the final color and outline. :hover alone is only the first frame.
             try:
                 page.wait_for_function(
                     """() => {
@@ -138,6 +152,15 @@ def main() -> None:
                         isHovered: button.matches(":hover"),
                         pageRuleMatches: button.matches(".calculator-wrap .calc-apply-btn:hover"),
                         pageRoot: button.closest("#pricing-calculator")?.className ?? null,
+                        rect: {
+                            x: rect.x,
+                            y: rect.y,
+                            width: rect.width,
+                            height: rect.height
+                        },
+                        hoverChain: [...document.querySelectorAll(":hover")].map(node =>
+                            node.id || node.className || node.tagName
+                        ),
                         backgroundColor: style.backgroundColor,
                         borderTopColor: style.borderTopColor,
                         surfaceToken: style.getPropertyValue("--toki-button-surface").trim(),
