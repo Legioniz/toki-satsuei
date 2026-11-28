@@ -199,6 +199,8 @@ else:
         "actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b",
         "actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa",
         "actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e",
+        "Verify GitHub Pages publishing source is set to GitHub Actions",
+        "build_type",
         "pages: write",
         "id-token: write",
         "cloudflare/wrangler-action@v4.1.3",
