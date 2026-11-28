@@ -28,12 +28,12 @@ def main() -> None:
         path = ROOT / filename
         assert path.is_file() and path.stat().st_size > 0, f"Missing cinematic asset: {filename}"
 
-    css = (ROOT / "src" / "src/styles/shared/cinematic.css").read_text(encoding="utf-8")
+    css = (ROOT / "src" / "styles/shared/cinematic.css").read_text(encoding="utf-8")
     design_system = "\n".join(
         (ROOT / path).read_text(encoding="utf-8")
         for path in ("src/styles/tokens.css", "src/styles/base.css", "src/styles/components.css")
     )
-    motion_css = (ROOT / "src" / "src/styles/shared/motion-system.css").read_text(encoding="utf-8")
+    motion_css = (ROOT / "src" / "styles/shared/motion-system.css").read_text(encoding="utf-8")
     motion_js = (ROOT / "src" / "js" / "motion-system.js").read_text(encoding="utf-8")
     for token in ["--bg-canvas: #09090b", "--text-primary: #f5f2eb", "--text-secondary: #c7c1b6", "--accent-gold: #d8a448"]:
         assert token in design_system, f"Missing nocturne token: {token}"

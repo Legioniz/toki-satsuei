@@ -32,9 +32,9 @@ def main() -> None:
             f"{filename}: booking/home experience CSS should be page-scoped"
         )
 
-    css = (ROOT / "src" / "src/styles/pages/home-booking.css").read_text(encoding="utf-8")
-    enhancements = (ROOT / "src" / "src/styles/shared/site-enhancements.css").read_text(encoding="utf-8")
-    global_motion = (ROOT / "src" / "src/styles/shared/global-motion.css").read_text(encoding="utf-8")
+    css = (ROOT / "src" / "styles/pages/home-booking.css").read_text(encoding="utf-8")
+    enhancements = (ROOT / "src" / "styles/shared/site-enhancements.css").read_text(encoding="utf-8")
+    global_motion = (ROOT / "src" / "styles/shared/global-motion.css").read_text(encoding="utf-8")
     motion_js = (ROOT / "src" / "js" / "motion-system.js").read_text(encoding="utf-8")
     home_bundle = (ROOT / "assets/css/toki-home.css").read_text(encoding="utf-8")
     for selector in [
@@ -46,7 +46,7 @@ def main() -> None:
         assert selector in css, f"Experience layer is missing {selector}"
 
     assert "grid-template-columns: minmax(0, 1fr)" in enhancements
-    motion_refinements = (ROOT / "src" / "src/styles/shared/motion-refinements.css").read_text(encoding="utf-8")
+    motion_refinements = (ROOT / "src" / "styles/shared/motion-refinements.css").read_text(encoding="utf-8")
     assert ".toki-booking-sheet .form-split" in enhancements
     assert ".booking-page .toki-assurance__grid" in motion_refinements
     assert ".booking-page .toki-booking-sheet .booking-fieldset" in motion_refinements
@@ -64,13 +64,13 @@ def main() -> None:
     assert '<p class="eyebrow eyebrow--signal">Session guide</p>' in sessions, (
         "The session guide should use its explicit high-contrast signal label."
     )
-    session_refinements = (ROOT / "src" / "src/styles/shared/refinements.css").read_text(encoding="utf-8")
+    session_refinements = (ROOT / "src" / "styles/shared/refinements.css").read_text(encoding="utf-8")
     assert ".sessions-section > .section-heading > div > .eyebrow--signal" in session_refinements
     assert "color: #a31f2d" in session_refinements and "font-weight: 900" in session_refinements
     equipment = home.split('<section class="equipment-section', 1)[1].split('<section class="faq-section', 1)[0]
     assert equipment.count('data-equipment-angle=') == 5, "Equipment viewer must expose all five supplied 2D camera angles."
     assert 'data-equipment-mode="2d"' in equipment and 'data-equipment-mode="3d"' in equipment
-    assert "assets/equipment/camera/EOS-3000D-front.png" in equipment and "eos-3000d-angle-sprite.webp" not in (ROOT / "src" / "src/styles/pages/equipment.css").read_text(encoding="utf-8")
+    assert "assets/equipment/camera/EOS-3000D-front.png" in equipment and "eos-3000d-angle-sprite.webp" not in (ROOT / "src" / "styles/pages/equipment.css").read_text(encoding="utf-8")
     assert "https://sketchfab.com/3d-models/canon-eos-3000-7d57163f3bec464cbb213428e1c37cf7" in equipment
 
     viewer = (ROOT / "src" / "js" / "equipment-viewer.js").read_text(encoding="utf-8")

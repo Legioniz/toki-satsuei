@@ -32,13 +32,13 @@ class QuietHandler(SimpleHTTPRequestHandler):
 
 def main() -> None:
     motion = (ROOT / "src" / "js" / "motion-system.js").read_text(encoding="utf-8")
-    global_css = (ROOT / "src" / "src/styles/shared/global-motion.css").read_text(encoding="utf-8")
-    shared_motion_css = (ROOT / "src" / "src/styles/shared/motion-refinements.css").read_text(encoding="utf-8")
+    global_css = (ROOT / "src" / "styles/shared/global-motion.css").read_text(encoding="utf-8")
+    shared_motion_css = (ROOT / "src" / "styles/shared/motion-refinements.css").read_text(encoding="utf-8")
     design_system_css = "\\n".join(
         (ROOT / path).read_text(encoding="utf-8")
         for path in ("src/styles/tokens.css", "src/styles/base.css", "src/styles/components.css")
     )
-    intro_css = (ROOT / "src" / "src/styles/shared/motion-system.css").read_text(encoding="utf-8")
+    intro_css = (ROOT / "src" / "styles/shared/motion-system.css").read_text(encoding="utf-8")
     workflow = (ROOT / ".github/workflows/deploy.yml").read_text(encoding="utf-8")
     archive_script = (ROOT / "src" / "js" / "library.js").read_text(encoding="utf-8")
 
