@@ -177,6 +177,16 @@ def main():
     pricing_css = (ROOT / "styles/pages/pricing-calculator.css").read_text(encoding="utf-8")
     components_css = (ROOT / "styles/components.css").read_text(encoding="utf-8")
     home_booking_css = (ROOT / "styles/pages/home-booking.css").read_text(encoding="utf-8")
+    home_bundle = (ROOT / "toki-home.css").read_text(encoding="utf-8")
+    assert ".calculator-wrap .calc-apply-btn:hover" in pricing_css, (
+        "Pricing calculator hover must remain more specific than the shared button hover layer."
+    )
+    assert "--toki-button-surface:#b82837" in home_bundle, (
+        "Generated homepage bundle is missing the calculator's crimson hover surface token."
+    )
+    assert ".calculator-wrap .calc-apply-btn:hover" in home_bundle, (
+        "Generated homepage bundle is missing the page-scoped calculator hover rule."
+    )
     assert "!important" not in pricing_css
     assert ".calculator-wrap .section-heading .section-aside" in pricing_css
     assert ".calculator-wrap .section-aside" not in components_css
