@@ -5,8 +5,8 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from PIL import Image, ImageOps
 
@@ -51,6 +51,23 @@ EXPECTED_LICENSES = 4
 
 def sha256(payload: bytes) -> str:
     return hashlib.sha256(payload).hexdigest()
+
+
+def url_hosts(content: str) -> set[str]:
+    """Extract parsed URL hostnames; never treat arbitrary path text as a host."""
+    candidates = re.findall(r"https?://[^\\s\\\"'<>),;]+", content, re.IGNORECASE)
+    return {
+        parsed.hostname.lower()
+        for candidate in candidates
+        if (parsed := urlsplit(candidate)).hostname
+    }
+
+
+def assert_no_remote_visual_hosts(content: str, label: str) -> None:
+    forbidden = set(REMOTE_VISUAL_HOSTS)
+    found = forbidden.intersection(url_hosts(content))
+    if found:
+        raise AssertionError(f"{label} contains remote visual asset origins: {', '.join(sorted(found))}")
 
 
 def local_asset(public_path: str) -> Path:
@@ -162,8 +179,9 @@ def verify_fonts() -> None:
     font_css = (root / "fonts.css").read_text(encoding="utf-8")
     if font_css.count("@font-face") != EXPECTED_FONT_FACES:
         raise AssertionError("Local font stylesheet has an unexpected face count")
-    if "font-display: swap" not in font_css or "https://" in font_css:
-        raise AssertionError("Local font stylesheet is not self-hosted or lacks font-display: swap")
+    if "font-display: swap" not in font_css:
+        raise AssertionError("Local font stylesheet is missing font-display: swap")
+    assert_no_remote_visual_hosts(font_css, "Local font stylesheet")
     for face in faces:
         filename = Path(face["path"]).name
         if f'url("/assets/fonts/{filename}")' not in font_css:
@@ -173,8 +191,7 @@ def verify_fonts() -> None:
         css = (ROOT / bundle).read_text(encoding="utf-8")
         if css.count("@font-face") != EXPECTED_FONT_FACES:
             raise AssertionError(f"{bundle} must bundle all local font faces")
-        if "fonts.googleapis.com" in css or "fonts.gstatic.com" in css:
-            raise AssertionError(f"{bundle} still depends on Google Fonts")
+        assert_no_remote_visual_hosts(css, bundle)
         if "font-display:swap" not in css:
             raise AssertionError(f"{bundle} is missing font-display: swap")
         for face in faces:
@@ -187,9 +204,7 @@ def verify_pages(photo_manifest: dict[str, dict]) -> None:
     for page in PUBLIC_PAGES:
         content = (ROOT / page).read_text(encoding="utf-8")
         content_by_page[page] = content
-        for host in REMOTE_VISUAL_HOSTS:
-            if host in content:
-                raise AssertionError(f"{page} still references external visual host {host}")
+        assert_no_remote_visual_hosts(content, page)
         if not re.search(r'<link rel="stylesheet" href="\./toki-[^"]+\.css">', content):
             raise AssertionError(f"{page} is missing its generated page stylesheet")
 
@@ -273,9 +288,7 @@ def verify_content_security_policy() -> None:
         "fingerprint_assets.py": (ROOT / "scripts/fingerprint_assets.py").read_text(encoding="utf-8"),
     }
     for name, content in sources.items():
-        for host in REMOTE_VISUAL_HOSTS[1:]:
-            if host in content:
-                raise AssertionError(f"{name} still allows remote Google font origin {host}")
+        assert_no_remote_visual_hosts(content, name)
         if "style-src 'self' 'unsafe-inline'" not in content or "font-src 'self'" not in content:
             raise AssertionError(f"{name} does not restrict CSS/font resources to the site origin")
 
