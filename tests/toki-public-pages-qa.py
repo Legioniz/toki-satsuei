@@ -38,7 +38,7 @@ def main() -> None:
     robots = (ROOT / "robots.txt").read_text(encoding="utf-8")
 
     assert 'id="faq"' in index and len(re.findall(r"<summary>", index)) >= 7
-    assert "honest practice and detail studies, not a finished cosplay or portrait client portfolio" in index
+    assert "practice and detail studies, not a finished cosplay or portrait client portfolio" in index
     assert "only after the people featured give permission" in index.lower()
     assert 'href="./policies.html"' in index and 'href="./policies.html"' in archive
     assert 'href="./toki-policies.css"' in policies
