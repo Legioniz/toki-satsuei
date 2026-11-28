@@ -402,8 +402,11 @@ def verify_security_policy() -> None:
     fonts_css = (ROOT / "assets/fonts/fonts.css").read_text(encoding="utf-8")
     for reference in css_url_values(fonts_css):
         parsed = urlsplit(reference)
-        if parsed.scheme or parsed.netloc or not parsed.path.startswith("/assets/fonts/"):
-            raise AssertionError(f"Generated font CSS contains a non-local asset reference: {reference}")
+        if parsed.scheme or parsed.netloc or not parsed.path.startswith("./assets/fonts/"):
+            raise AssertionError(
+                "Generated font CSS must use repository-subpath-safe relative URLs, "
+                f"got {reference!r}"
+            )
 
 
 def main() -> None:
