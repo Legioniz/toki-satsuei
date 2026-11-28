@@ -55,7 +55,7 @@ def sha256(payload: bytes) -> str:
 
 def url_hosts(content: str) -> set[str]:
     """Extract parsed URL hostnames; never treat arbitrary path text as a host."""
-    candidates = re.findall(r"https?://[^\\s\\\"'<>),;]+", content, re.IGNORECASE)
+    candidates = re.findall(r'''https?://[^\s"'<>),;]+''', content, re.IGNORECASE)
     return {
         parsed.hostname.lower()
         for candidate in candidates
