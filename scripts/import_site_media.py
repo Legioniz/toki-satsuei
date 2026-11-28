@@ -65,9 +65,9 @@ PHOTOGRAPHS = (
 
 FONT_CSS_URL = (
     "https://fonts.googleapis.com/css2?"
-    "family=Caveat:wght@400;500;600;700&"
-    "family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&"
-    "family=DM+Sans:wght@400;500;600;700&"
+    "family=Caveat:wght@400..700&"
+    "family=Cormorant+Garamond:ital,wght@0,400..700;1,400..600&"
+    "family=DM+Sans:wght@400..700&"
     "family=Space+Mono:wght@400;700&display=swap"
 )
 
@@ -75,28 +75,27 @@ FONT_SPECS = {
     "Caveat": {
         "slug": "caveat",
         "license_dir": "caveat",
-        "faces": [("normal", weight) for weight in (400, 500, 600, 700)],
+        "faces": [("normal", "400 700")],
     },
     "Cormorant Garamond": {
         "slug": "cormorant-garamond",
         "license_dir": "cormorantgaramond",
-        "faces": [("normal", weight) for weight in (400, 500, 600, 700)]
-        + [("italic", weight) for weight in (400, 500, 600)],
+        "faces": [("normal", "400 700"), ("italic", "400 600")],
     },
     "DM Sans": {
         "slug": "dm-sans",
         "license_dir": "dmsans",
-        "faces": [("normal", weight) for weight in (400, 500, 600, 700)],
+        "faces": [("normal", "400 700")],
     },
     "Space Mono": {
         "slug": "space-mono",
         "license_dir": "spacemono",
-        "faces": [("normal", weight) for weight in (400, 700)],
+        "faces": [("normal", "400"), ("normal", "700")],
     },
 }
 
 EXPECTED_FONT_FACES = {
-    (family, style, str(weight))
+    (family, style, weight)
     for family, spec in FONT_SPECS.items()
     for style, weight in spec["faces"]
 }
@@ -281,13 +280,18 @@ def parse_font_faces(css: str) -> dict[tuple[str, str, str], str]:
         )
     return selected
 
+def font_filename(spec: dict, style: str, weight: str) -> str:
+    suffix = "italic" if style == "italic" else "normal"
+    weight_label = "variable" if " " in weight else weight
+    return f'{spec["slug"]}-{weight_label}-{suffix}.woff2'
+
+
 def build_fonts() -> dict:
     expected_files = []
     for family, spec in FONT_SPECS.items():
         for style, weight in spec["faces"]:
-            style_suffix = "italic" if style == "italic" else "normal"
-            filename = f'{spec["slug"]}-{weight}-{style_suffix}.woff2'
-            expected_files.append((family, style, str(weight), filename))
+            filename = font_filename(spec, style, weight)
+            expected_files.append((family, style, weight, filename))
 
     missing = [
         item for item in expected_files
@@ -314,7 +318,7 @@ def build_fonts() -> dict:
             {
                 "family": family,
                 "style": style,
-                "weight": int(weight),
+                "weight": weight if " " in weight else int(weight),
                 "path": f"/assets/fonts/{filename}",
                 "bytes": len(payload),
                 "sha256": sha256(payload),
@@ -331,7 +335,7 @@ def build_fonts() -> dict:
             atomic_write(license_path, license_payload)
 
     css_lines = [
-        "/* Self-hosted Latin WOFF2 faces. Font files are served from this site. */",
+        "/* Self-hosted Latin WOFF2 variable faces and static technical weights. */",
         "",
     ]
     for family, style, weight, filename in expected_files:
@@ -349,8 +353,14 @@ def build_fonts() -> dict:
         )
     atomic_write(FONT_ROOT / "fonts.css", "\n".join(css_lines).encode("utf-8"))
 
+    # Remove stale per-weight duplicates from the previous static-face importer.
+    expected_names = {item[3] for item in expected_files}
+    for stale in FONT_ROOT.glob("*.woff2"):
+        if stale.name not in expected_names:
+            stale.unlink()
+
     manifest = {
-        "version": 1,
+        "version": 2,
         "source": "Google Fonts CSS2 API, imported for self-hosting",
         "format": "WOFF2",
         "font_display": "swap",
@@ -361,7 +371,6 @@ def build_fonts() -> dict:
         (json.dumps(manifest, indent=2, ensure_ascii=False) + "\n").encode("utf-8"),
     )
     return manifest
-
 
 def verify_assets() -> None:
     for photo in PHOTOGRAPHS:
@@ -383,12 +392,19 @@ def verify_assets() -> None:
                 with Image.open(variant) as image:
                     if image.format != expected_format or image.size != (width, height):
                         raise ValueError(f"Invalid image variant: {variant}")
+    expected_font_names = set()
     for family, spec in FONT_SPECS.items():
         for style, weight in spec["faces"]:
-            suffix = "italic" if style == "italic" else "normal"
-            font = FONT_ROOT / f'{spec["slug"]}-{weight}-{suffix}.woff2'
+            font = FONT_ROOT / font_filename(spec, style, weight)
+            expected_font_names.add(font.name)
             if not font.is_file() or not font.read_bytes().startswith(b"wOF2"):
                 raise ValueError(f"Missing or invalid self-hosted font: {font}")
+    actual_font_names = {font.name for font in FONT_ROOT.glob("*.woff2")}
+    if actual_font_names != expected_font_names:
+        raise ValueError(
+            f"Self-hosted font set contains unexpected files: "
+            f"{sorted(actual_font_names ^ expected_font_names)}"
+        )
         license_path = FONT_ROOT / "licenses" / f'{spec["slug"]}-OFL.txt'
         if not license_path.is_file() or b"SIL OPEN FONT LICENSE" not in license_path.read_bytes().upper():
             raise ValueError(f"Missing SIL Open Font License: {license_path}")
