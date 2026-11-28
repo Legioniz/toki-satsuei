@@ -5,11 +5,13 @@ from __future__ import annotations
 from functools import partial
 from http.server import SimpleHTTPRequestHandler
 from pathlib import Path
-from toki_local_https_server import start_https_server
 
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
+import sys
+sys.path.insert(0, str(ROOT / "scripts" / "qa_support"))
+from toki_local_https_server import start_https_server
 SITE = ROOT / "dist"
 ROUTES = (
     "/",
