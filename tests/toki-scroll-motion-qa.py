@@ -78,7 +78,7 @@ def main() -> None:
         "./assets/fonts/dm-sans-variable-normal.woff2",
         "./assets/fonts/cormorant-garamond-variable-normal.woff2",
         "./assets/brand/Toki-Satsuei-Brushstroke-Emblem.png",
-        "./assets/photography/behind-the-camera-960.jpg",
+        "./assets/photography/behind-the-camera-960.webp",
         "./assets/photography/before-the-next-shot-960.webp",
         "./assets/photography/colour-in-the-quiet-960.webp",
     ):
