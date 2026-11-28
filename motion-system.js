@@ -289,7 +289,7 @@
     });
   }
 
-  function animateBackdropOut(dialog, duration = 210) {
+  function animateBackdropOut(dialog, duration = 143) {
     if (!dialog?.open || reduced || typeof dialog.animate !== "function") return Promise.resolve();
     try {
       const animation = dialog.animate(
@@ -442,13 +442,13 @@
       { opacity: 0.9, transform: "translate(-50%, -50%) scale(0.25)" },
       { opacity: 0.45, transform: "translate(-50%, -50%) scale(1.15)", offset: 0.35 },
       { opacity: 0, transform: "translate(-50%, -50%) scale(2.1)" }
-    ], { duration: shortenMotionTime(480), easing: "cubic-bezier(0.16, 1, 0.3, 1)" });
+    ], { duration: shortenMotionTime(326), easing: "cubic-bezier(0.16, 1, 0.3, 1)" });
 
     streak?.animate([
       { opacity: 0, transform: "translateX(-120%) skewX(-18deg)" },
       { opacity: 0.55, transform: "translateX(0%) skewX(-18deg)", offset: 0.3 },
       { opacity: 0, transform: "translateX(130%) skewX(-18deg)" }
-    ], { duration: shortenMotionTime(520), easing: "cubic-bezier(0.16, 1, 0.3, 1)" });
+    ], { duration: shortenMotionTime(354), easing: "cubic-bezier(0.16, 1, 0.3, 1)" });
   }
 
   function pulseMetric(element) {
@@ -458,7 +458,7 @@
       { transform: "scale(1.18) translateY(-3px)", filter: "brightness(1.25)", textShadow: "0 0 24px rgba(195, 42, 57, 0.85)" },
       { transform: "scale(0.97)", filter: "brightness(1.06)" },
       { transform: "scale(1)", filter: "brightness(1)", textShadow: "0 0 14px rgba(195, 42, 57, 0.25)" }
-    ], { duration: shortenMotionTime(460), easing: "cubic-bezier(0.34, 1.48, 0.64, 1)" });
+    ], { duration: shortenMotionTime(313), easing: "cubic-bezier(0.34, 1.48, 0.64, 1)" });
   }
 
   /* Unified intersection & scroll visibility management for [data-reveal] + .motion-item. */
