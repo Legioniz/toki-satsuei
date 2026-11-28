@@ -61,3 +61,7 @@ body/interface copy, and Space Mono for technical labels. Caveat is reserved for
 the handwritten homepage annotations and 404 art. It is only requested on the
 homepage and 404 route. Space Grotesk has been retired in favor of the
 already-loaded DM Sans.
+
+## Self-hosted typography
+
+Public pages load `assets/fonts/fonts.css` from the same Cloudflare Pages origin. The stylesheet declares local Latin WOFF2 faces with `font-display: swap`; the corresponding SIL Open Font License files are retained under `assets/fonts/licenses/`. Pages do not request Google Fonts CSS or font binaries at runtime.
