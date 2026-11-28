@@ -2,7 +2,7 @@
 
 ## Brand assets
 
-- Official logo master: `assets/brand/Toki-Satsuei-Brushstroke-Emblem.png` (submitted 1254 × 1254 PNG; stored unchanged).
+- Official logo asset: `assets/brand/Toki-Satsuei-Brushstroke-Emblem.png` (500 × 500 transparent PNG; palette-optimized with alpha transparency preserved).
 - Hero / behind-the-camera image: `assets/photography/originals/behind-the-camera.jpg`
 - Field study images:
   - `assets/photography/originals/between-turns.jpg`
@@ -33,6 +33,6 @@
 
 ## Protected contracts
 
-- Official logo and hosted photography remain unchanged.
+- The canonical logo filename and page placements remain unchanged; its image is the current owner-approved asset. Hosted photography remains unchanged.
 - Existing anchors, archive/policy URLs, booking field names, consent wording, and booking-integrity rules remain unchanged.
 - The site continues to describe the current public gallery as practice/detail studies until permissioned client work is available.

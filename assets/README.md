@@ -1,12 +1,12 @@
 # Original TOKI SATSUEI assets
 
-This folder stores the original camera-angle PNGs and official brushstroke emblem supplied by the owner.
+This folder stores the official TOKI logo asset and the five submitted camera-angle PNGs.
 
-- `brand/Toki-Satsuei-Brushstroke-Emblem.png`: 1254 × 1254 PNG.
+- `brand/Toki-Satsuei-Brushstroke-Emblem.png`: 500 × 500 transparent PNG, palette-optimized with alpha transparency preserved.
 - `equipment/camera/`: five camera-angle PNG masters, each 362 × 320.
 - `ASSET-MANIFEST.json`: source dimensions and SHA-256 checksums.
 
-These are master assets. Do not overwrite, lossy-convert, or upscale them. The site displays the camera angles at or below their native 362px width. The logo master has sufficient resolution for the website's current display sizes.
+The camera-angle images remain owner-submitted masters and must not be recompressed or upscaled. The logo is the current owner-approved web asset. Keep its canonical filename and transparency; do not upscale or recompress it.
 
 Client portfolio and private gallery photographs are separate and were not modified.
 

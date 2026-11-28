@@ -46,11 +46,8 @@ jobs:
           curl --fail --silent --show-error --location \
             "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/828ad26844891f5f884d701629655550_263916.png" \
             --output assets/equipment/camera/EOS-3000D-pop-up-flash.png
-          curl --fail --silent --show-error --location \
-            "https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/b450d51bbce4285f0c3bf987f5bc7798_Toki_Satsuei_Brushstroke_Emblem.png" \
-            --output assets/brand/Toki-Satsuei-Brushstroke-Emblem.png
 
-      - name: Verify every downloaded file is byte-identical to its submitted original
+      - name: Verify downloaded camera assets and checked-in logo asset
         shell: bash
         run: |
           set -euo pipefail
@@ -60,7 +57,7 @@ jobs:
           e5a9966b93dbbcbc4d87bd2f51e01c5bda5220d9aa88dd54c14f31b20c41a7f8  assets/equipment/camera/EOS-3000D-top.png
           584dd4df37044509d43d006a5d43bc16907074ce7ff3bd1747b0bee25e246437  assets/equipment/camera/EOS-3000D-right-side.png
           d2f1b5deaeaec0a78532665e7b51ff855cd44aba6b9aaafe4f65df042ab8b0ec  assets/equipment/camera/EOS-3000D-pop-up-flash.png
-          0dc7421ca9cb7542ca2b28a3cb907168219d41cb7de843f70fd1de3221ee3a06  assets/brand/Toki-Satsuei-Brushstroke-Emblem.png
+          010173a762942baa690e0b1ec24932c74457518bd989220c5cda305f3f28f335  assets/brand/Toki-Satsuei-Brushstroke-Emblem.png
           EOF
           sha256sum --check /tmp/toki-original-assets.sha256
           file assets/equipment/camera/*.png assets/brand/*.png

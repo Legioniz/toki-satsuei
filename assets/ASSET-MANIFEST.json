@@ -41,9 +41,9 @@
   "logo": {
     "path": "assets/brand/Toki-Satsuei-Brushstroke-Emblem.png",
     "format": "PNG",
-    "width": 1254,
-    "height": 1254,
-    "sha256": "0dc7421ca9cb7542ca2b28a3cb907168219d41cb7de843f70fd1de3221ee3a06"
+    "width": 500,
+    "height": 500,
+    "sha256": "010173a762942baa690e0b1ec24932c74457518bd989220c5cda305f3f28f335"
   },
   "client_photos": "Existing public and private client photo files and URLs are intentionally untouched."
 }

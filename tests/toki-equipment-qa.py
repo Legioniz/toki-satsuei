@@ -41,7 +41,7 @@ def main() -> None:
     for angle, asset in CAMERA_ASSETS.items():
         assert asset.is_file() and asset.stat().st_size > 100_000, f"{angle} original camera PNG is missing or incomplete."
         assert png_dimensions(asset) == (362, 320), f"{angle} source dimensions unexpectedly changed."
-    assert LOGO_ASSET.is_file() and LOGO_ASSET.stat().st_size > 800_000, "Submitted TOKI logo master is missing."
+    assert LOGO_ASSET.is_file() and LOGO_ASSET.stat().st_size > 15_000, "Current TOKI logo asset is missing or incomplete."
     home_markup = (ROOT / "index.html").read_text(encoding="utf-8")
     equipment_markup = home_markup.split('<section class="equipment-section"', 1)[1].split('<section class="faq-section"', 1)[0]
     assert 'id="equipment"' in equipment_markup, "Homepage equipment section is missing its navigation target."
@@ -53,7 +53,9 @@ def main() -> None:
     assert SKETCHFAB_MODEL in equipment_markup, "The current viewer must retain its linked Sketchfab reference."
     assert "equipment-community-photo" not in equipment_markup, "The retired community-photo panel must not return."
     assert "equipment-spec-panel" not in equipment_markup and "equipment-spec-disclosure" not in equipment_markup, "The retired equipment specification panel must not return."
-    assert png_dimensions(LOGO_ASSET) == (1254, 1254), "Submitted TOKI logo master dimensions unexpectedly changed."
+    logo_png = LOGO_ASSET.read_bytes()
+    assert png_dimensions(LOGO_ASSET) == (500, 500), "Current TOKI logo must remain at its submitted 500 × 500 dimensions."
+    assert logo_png[25] == 3 and b"tRNS" in logo_png, "Current TOKI logo must retain indexed PNG transparency."
     index_head = (ROOT / "index.html").read_text(encoding="utf-8").split("</head>", 1)[0]
     assert "http-equiv=\"Content-Security-Policy\"" in index_head
     assert "https://sketchfab.com" in index_head, "GitHub Pages must permit the Sketchfab iframe through the page meta policy."
