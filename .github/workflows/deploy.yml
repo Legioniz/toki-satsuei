@@ -118,6 +118,28 @@ jobs:
         run: python tests/toki-asset-integration-qa.py
       - name: Verify self-hosted photography and fonts
         run: python tests/toki-self-hosted-media-qa.py
+      - name: Export generated CSS bundles for cascade diagnostics
+        run: |
+          python - <<'PY'
+          import importlib.util
+          from pathlib import Path
+
+          spec = importlib.util.spec_from_file_location("css_builder", "scripts/build-css.py")
+          builder = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(builder)
+          output = Path("/tmp/css-build-diagnostics")
+          output.mkdir(parents=True, exist_ok=True)
+          for name in builder.BUNDLES:
+              (output / name).write_text(builder.build(name), encoding="utf-8")
+          PY
+
+      - name: Upload generated CSS diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: css-build-diagnostics
+          path: /tmp/css-build-diagnostics/
+          retention-days: 1
+
       - name: Verify allowlisted Pages and Workers static outputs
         run: python tests/toki-worker-static-build-qa.py
 
