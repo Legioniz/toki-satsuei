@@ -8,7 +8,7 @@ from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright
 
-PUBLIC=Path(__file__).resolve().parents[1]
+PUBLIC=Path(__file__).resolve().parents[1] / "dist"
 TEST_IMAGE="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
 FIXTURE={"schema_version":2,"brand":"TOKI SATSUEI","categories":[{
  "id":"cosplay","title":"Cosplay","description":"Character portraits and costume details.","code":"01","image_count":3,"video_count":0,"media_count":3,
@@ -345,7 +345,7 @@ def main():
 
    archive=context.new_page();archive_errors=[]
    archive.on("pageerror",lambda error:archive_errors.append(str(error)))
-   archive.route("**/media-library.json*",lambda route:route.fulfill(status=200,content_type="application/json",body=json.dumps(FIXTURE)))
+   archive.route("**/data/media-library.json*",lambda route:route.fulfill(status=200,content_type="application/json",body=json.dumps(FIXTURE)))
    archive.goto(base+"/library.html",wait_until="domcontentloaded")
    archive.wait_for_selector(".album-card")
    archive.wait_for_function("() => document.querySelector('.album-card')?.classList.contains('motion-item')")

@@ -385,7 +385,7 @@ const year=document.querySelector("#year");
 if(year)year.textContent=String(new Date().getFullYear());
 async function loadArchive(){
   try{
-    const response=await fetch("./media-library.json",{cache:"no-cache"});
+    const response=await fetch("./data/media-library.json",{cache:"no-cache"});
     if(!response.ok)throw new Error("Archive index is not available yet.");
     const manifest=await response.json();
     archiveCategories=Array.isArray(manifest.categories)?manifest.categories:[];

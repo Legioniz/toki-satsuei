@@ -5,7 +5,7 @@ import re
 
 ROOT = Path(__file__).resolve().parents[1]
 edge = (ROOT / "supabase" / "functions" / "portfolio-submit" / "index.ts").read_text(encoding="utf-8")
-site = (ROOT / "site.js").read_text(encoding="utf-8")
+site = (ROOT / "src" / "js" / "site.js").read_text(encoding="utf-8")
 readme = (ROOT / "README.md").read_text(encoding="utf-8")
 policy = (ROOT / "policies.html").read_text(encoding="utf-8")
 

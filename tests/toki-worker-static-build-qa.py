@@ -53,14 +53,20 @@ def verify_target(directory: Path, target: str) -> None:
         "404.html",
         "admin.html",
         "client-gallery.html",
-        "media-library.json",
-        "motion-system.js",
-        "site.js",
-        "availability.js",
-        "library.js",
-        "admin.js",
-        "client-gallery.js",
-        "equipment-viewer.js",
+        "data/media-library.json",
+        "assets/css/toki-home.css",
+        "assets/css/toki-archive.css",
+        "assets/css/toki-policies.css",
+        "assets/css/toki-404.css",
+        "assets/css/toki-admin.css",
+        "assets/css/toki-client.css",
+        "assets/js/motion-system.js",
+        "assets/js/site.js",
+        "assets/js/availability.js",
+        "assets/js/library.js",
+        "assets/js/admin.js",
+        "assets/js/client-gallery.js",
+        "assets/js/equipment-viewer.js",
     ):
         assert (directory / required).is_file(), f"{target} package is missing {required}"
 
@@ -72,11 +78,11 @@ def main() -> None:
     assert config.get("assets", {}).get("directory") == "./worker-dist", (
         "Worker must deploy the curated worker-dist directory, never the repository root"
     )
-    assert config.get("main") == "./worker.mjs", "Worker must use the security-header wrapper"
+    assert config.get("main") == "./src/worker/worker.mjs", "Worker must use the security-header wrapper"
     assets_config = config.get("assets", {})
     assert assets_config.get("binding") == "ASSETS", "Worker asset binding must be ASSETS"
     assert assets_config.get("run_worker_first") is True, "Worker wrapper must run for static asset requests"
-    assert (ROOT / "worker.mjs").is_file(), "Worker runtime wrapper is missing"
+    assert (ROOT / "src" / "worker" / "worker.mjs").is_file(), "Worker runtime wrapper is missing"
 
     with tempfile.TemporaryDirectory(prefix="toki-static-output-") as temporary:
         root = Path(temporary)

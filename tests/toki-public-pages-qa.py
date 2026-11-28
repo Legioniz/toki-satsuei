@@ -18,19 +18,19 @@ PUBLIC_PAGES = ["index.html", "booking.html", "library.html", "policies.html"]
 
 class QuietHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=str(ROOT), **kwargs)
+        super().__init__(*args, directory=str(ROOT / "dist"), **kwargs)
 
     def log_message(self, *args):
         pass
 
 
 def main() -> None:
-    for filename in [*PUBLIC_PAGES, "404.html", "styles/pages/policies.css", "robots.txt", "sitemap.xml"]:
+    for filename in [*PUBLIC_PAGES, "404.html", "src/styles/pages/policies.css", "robots.txt", "sitemap.xml"]:
         path = ROOT / filename
         assert path.is_file() and path.stat().st_size > 0, f"Missing public page asset: {filename}"
 
     index = (ROOT / "index.html").read_text(encoding="utf-8")
-    site = (ROOT / "site.js").read_text(encoding="utf-8")
+    site = (ROOT / "src" / "js" / "site.js").read_text(encoding="utf-8")
     booking = (ROOT / "booking.html").read_text(encoding="utf-8")
     archive = (ROOT / "library.html").read_text(encoding="utf-8")
     policies = (ROOT / "policies.html").read_text(encoding="utf-8")
@@ -41,7 +41,7 @@ def main() -> None:
     assert "honest practice and detail studies, not a finished cosplay or portrait client portfolio" in index
     assert "only after the people featured give permission" in index.lower()
     assert 'href="./policies.html"' in index and 'href="./policies.html"' in archive
-    assert 'href="./toki-policies.css"' in policies
+    assert 'href="./assets/css/toki-policies.css"' in policies
     assert 'id="consent"' in policies and 'id="pricing"' in policies and 'id="changes"' in policies
     assert "within 7 days after the session" in policies
     assert "20% of the final agreed package price" in policies

@@ -9,7 +9,7 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *args): pass
 
 def main():
-    handler = functools.partial(Quiet, directory=str(ROOT))
+    handler = functools.partial(Quiet, directory=str(ROOT / "dist"))
     with socketserver.TCPServer(("127.0.0.1", 0), handler) as server:
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()

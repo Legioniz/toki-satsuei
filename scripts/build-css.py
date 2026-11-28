@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CUSTOM_MEDIA = dict(re.findall(
     r"@custom-media\s+(--[\w-]+)\s+([^;]+);",
-    (ROOT / "styles" / "tokens.css").read_text(encoding="utf-8"),
+    (ROOT / "src" / "styles" / "tokens.css").read_text(encoding="utf-8"),
 ))
 
 # Logical legacy names are retained in the manifest/header for compatibility
@@ -19,30 +19,30 @@ CUSTOM_MEDIA = dict(re.findall(
 SOURCE_PATHS = {
     "self-hosted-fonts": ["assets/fonts/fonts.css"],
     "handwritten-font": ["assets/fonts/fonts-caveat.css"],
-    "styles": ["styles/shared/foundation.css"],
-    "refinement": ["styles/shared/refinements.css"],
-    "motion-system": ["styles/shared/motion-system.css"],
-    "cinematic": ["styles/shared/cinematic.css"],
-    "experience": ["styles/pages/home-booking.css"],
-    "fixes": ["styles/shared/compatibility-fixes.css"],
-    "orientation": ["styles/shared/orientation.css"],
-    "global-motion": ["styles/shared/global-motion.css"],
-    "site-enhancements": ["styles/shared/site-enhancements.css"],
-    "motion-refinements": ["styles/shared/motion-refinements.css"],
-    "mobile-nav": ["styles/shared/mobile-navigation.css"],
+    "styles": ["src/styles/shared/foundation.css"],
+    "refinement": ["src/styles/shared/refinements.css"],
+    "motion-system": ["src/styles/shared/motion-system.css"],
+    "cinematic": ["src/styles/shared/cinematic.css"],
+    "experience": ["src/styles/pages/home-booking.css"],
+    "fixes": ["src/styles/shared/compatibility-fixes.css"],
+    "orientation": ["src/styles/shared/orientation.css"],
+    "global-motion": ["src/styles/shared/global-motion.css"],
+    "site-enhancements": ["src/styles/shared/site-enhancements.css"],
+    "motion-refinements": ["src/styles/shared/motion-refinements.css"],
+    "mobile-nav": ["src/styles/shared/mobile-navigation.css"],
     "design-system": [
-        "styles/tokens.css",
-        "styles/base.css",
-        "styles/components.css",
+        "src/styles/tokens.css",
+        "src/styles/base.css",
+        "src/styles/components.css",
     ],
-    "policies": ["styles/pages/policies.css"],
-    "availability": ["styles/pages/availability.css"],
-    "pricing-calculator": ["styles/pages/pricing-calculator.css"],
-    "equipment": ["styles/pages/equipment.css"],
-    "library": ["styles/pages/archive.css"],
-    "admin": ["styles/pages/admin.css"],
-    "client-gallery": ["styles/pages/gallery.css"],
-    "pages": ["styles/pages/page-shells.css"],
+    "policies": ["src/styles/pages/policies.css"],
+    "availability": ["src/styles/pages/availability.css"],
+    "pricing-calculator": ["src/styles/pages/pricing-calculator.css"],
+    "equipment": ["src/styles/pages/equipment.css"],
+    "library": ["src/styles/pages/archive.css"],
+    "admin": ["src/styles/pages/admin.css"],
+    "client-gallery": ["src/styles/pages/gallery.css"],
+    "pages": ["src/styles/pages/page-shells.css"],
 }
 
 BUNDLES = {
@@ -87,7 +87,8 @@ def main() -> int:
     stale = []
     for name in BUNDLES:
         out = build(name)
-        path = ROOT / name
+        path = ROOT / "assets" / "css" / name
+        path.parent.mkdir(parents=True, exist_ok=True)
         if check:
             if not path.exists() or path.read_text(encoding="utf-8") != out:
                 stale.append(name)

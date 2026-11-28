@@ -23,12 +23,11 @@ PUBLIC_ROOT_FILES = (
     "404.html",
     "admin.html",
     "client-gallery.html",
-    "toki-home.css",
-    "toki-archive.css",
-    "toki-policies.css",
-    "toki-404.css",
-    "toki-admin.css",
-    "toki-client.css",
+    "robots.txt",
+    "sitemap.xml",
+)
+
+PUBLIC_JS_FILES = (
     "motion-system.js",
     "site.js",
     "equipment-viewer.js",
@@ -36,12 +35,9 @@ PUBLIC_ROOT_FILES = (
     "library.js",
     "admin.js",
     "client-gallery.js",
-    "media-library.json",
-    "robots.txt",
-    "sitemap.xml",
 )
 
-PUBLIC_DIRECTORIES = ("assets", "media-library")
+PUBLIC_DIRECTORIES = ("assets", "data")
 PAGES_ONLY_FILES = ("_headers",)
 PAGES_ONLY_MARKERS = (".nojekyll",)
 
@@ -53,20 +49,20 @@ REQUIRED_FILES = (
     "404.html",
     "admin.html",
     "client-gallery.html",
-    "toki-home.css",
-    "toki-archive.css",
-    "toki-policies.css",
-    "toki-404.css",
-    "toki-admin.css",
-    "toki-client.css",
-    "motion-system.js",
-    "site.js",
-    "equipment-viewer.js",
-    "availability.js",
-    "library.js",
-    "admin.js",
-    "client-gallery.js",
-    "media-library.json",
+    "assets/css/toki-home.css",
+    "assets/css/toki-archive.css",
+    "assets/css/toki-policies.css",
+    "assets/css/toki-404.css",
+    "assets/css/toki-admin.css",
+    "assets/css/toki-client.css",
+    "assets/js/motion-system.js",
+    "assets/js/site.js",
+    "assets/js/equipment-viewer.js",
+    "assets/js/availability.js",
+    "assets/js/library.js",
+    "assets/js/admin.js",
+    "assets/js/client-gallery.js",
+    "data/media-library.json",
     "robots.txt",
     "sitemap.xml",
     "assets/brand/Toki-Satsuei-Brushstroke-Emblem.png",
@@ -130,6 +126,16 @@ def build_static_site(target: str, output: Path | None = None) -> Path:
         shutil.copy2(ROOT / name, output / name)
     for name in PUBLIC_DIRECTORIES:
         shutil.copytree(ROOT / name, output / name)
+
+    # Runtime JavaScript is authored in src/js and published under assets/js.
+    js_output = output / "assets" / "js"
+    js_output.mkdir(parents=True, exist_ok=True)
+    for name in PUBLIC_JS_FILES:
+        source = ROOT / "src" / "js" / name
+        if not source.is_file():
+            raise FileNotFoundError(f"Required browser runtime is missing: {source}")
+        shutil.copy2(source, js_output / name)
+
     for marker in markers:
         (output / marker).touch()
 

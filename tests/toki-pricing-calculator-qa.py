@@ -34,7 +34,7 @@ def calculate_price(package: str, participants: int, extra_photos: int, extra_ti
 
 class QuietHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=str(ROOT), **kwargs)
+        super().__init__(*args, directory=str(ROOT / "dist"), **kwargs)
 
     def log_message(self, *args):
         pass

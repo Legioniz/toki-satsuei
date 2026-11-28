@@ -11,7 +11,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "scripts" / "qa_support"))
+sys.path.insert(0, str(ROOT / "tests" / "support"))
 from toki_local_https_server import start_https_server
 SITE = ROOT / "dist"
 AXE_SCRIPT = ROOT / "node_modules" / "axe-core" / "axe.min.js"

@@ -10,7 +10,7 @@ module.exports = {
         "https://127.0.0.1:8443/client-gallery.html",
         "https://127.0.0.1:8443/404.html"
       ],
-      startServerCommand: "python scripts/qa_support/toki_lighthouse_https_server.py",
+      startServerCommand: "python tests/support/toki_lighthouse_https_server.py",
       startServerReadyPattern: "TOKI_LHCI_SERVER_READY",
       numberOfRuns: 1,
       chromePath: process.env.CHROME_PATH,

@@ -12,16 +12,16 @@ ROOT = Path(__file__).resolve().parents[1]
 PAGES = ("index.html", "booking.html", "library.html", "policies.html", "404.html", "admin.html", "client-gallery.html")
 WORKFLOW = ROOT / ".github/workflows/deploy.yml"
 EXPECTED_CONSUMERS = {
-    "index.html": ("motion-system.js", "site.js", "equipment-viewer.js", "availability.js"),
-    "booking.html": ("motion-system.js", "site.js"),
-    "library.html": ("motion-system.js", "site.js", "library.js"),
-    "policies.html": ("motion-system.js", "site.js"),
-    "404.html": ("motion-system.js",),
-    "admin.html": ("motion-system.js", "admin.js"),
-    "client-gallery.html": ("motion-system.js", "client-gallery.js"),
+    "index.html": ("assets/js/motion-system.js", "assets/js/site.js", "assets/js/equipment-viewer.js", "assets/js/availability.js"),
+    "booking.html": ("assets/js/motion-system.js", "assets/js/site.js"),
+    "library.html": ("assets/js/motion-system.js", "assets/js/site.js", "assets/js/library.js"),
+    "policies.html": ("assets/js/motion-system.js", "assets/js/site.js"),
+    "404.html": ("assets/js/motion-system.js",),
+    "admin.html": ("assets/js/motion-system.js", "assets/js/admin.js"),
+    "client-gallery.html": ("assets/js/motion-system.js", "assets/js/client-gallery.js"),
 }
 EXPECTED_DATA = {
-    "media-library.json": "library.js",
+    "data/media-library.json": "assets/js/library.js",
 }
 
 
@@ -60,8 +60,15 @@ def local_path(value: str, base: Path) -> str | None:
         raise AssertionError(f"Local reference escapes the repository: {value}") from error
 
 
+def source_file(target: str) -> Path:
+    """Map a public URL to its authored repository source where applicable."""
+    if target.startswith("assets/js/"):
+        return ROOT / "src" / "js" / Path(target).name
+    return ROOT / target
+
+
 def verify_media_manifest(failures: list[str]) -> None:
-    path = ROOT / "media-library.json"
+    path = ROOT / "data" / "media-library.json"
     try:
         manifest = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
@@ -76,7 +83,7 @@ def verify_media_manifest(failures: list[str]) -> None:
             failures.append(f"Archive category id is missing or duplicated: {category_id!r}")
             continue
         seen.add(category_id)
-        if not (ROOT / "media-library" / category_id).is_dir():
+        if not (ROOT / "data" / "media-library" / category_id).is_dir():
             failures.append(f"Archive category has no upload folder: {category_id}")
         albums = category.get("albums", [])
         if int(category.get("album_count", -1)) != len(albums):
@@ -93,7 +100,7 @@ def verify_media_manifest(failures: list[str]) -> None:
                 media_total += 1
                 source = item.get("src", "")
                 target = local_path(source, Path("."))
-                if not target or not (ROOT / target).is_file():
+                if not target or not source_file(target).is_file():
                     failures.append(f"Archive media path is missing: {source}")
         expected = {
             "image_count": images,
@@ -113,7 +120,7 @@ def main() -> None:
         parser.feed((ROOT / page).read_text(encoding="utf-8"))
         page_refs[page] = parser
         for target in parser.local:
-            if not (ROOT / target).is_file():
+            if not source_file(target).is_file():
                 failures.append(f"{page} references missing local file: {target}")
         if len(parser.scripts) != len(set(parser.scripts)):
             failures.append(f"{page} loads a script more than once")
@@ -144,22 +151,23 @@ def main() -> None:
     for bundle in linked_styles:
         header = (ROOT / bundle).read_text(encoding="utf-8").splitlines()[0]
         bundled_sources.update(re.findall(r"([a-z0-9-]+\.css)", header.split("from", 1)[-1]))
-    for asset in sorted(path.name for path in ROOT.glob("*.css")):
-        if asset not in linked_styles and asset not in bundled_sources:
+    for asset in sorted((path.relative_to(ROOT)).as_posix() for path in (ROOT / "assets" / "css").glob("*.css")):
+        if asset not in linked_styles:
             failures.append(f"Unreferenced production stylesheet: {asset}")
-    for asset in sorted(path.name for path in ROOT.glob("*.js")):
-        if asset not in linked_scripts:
-            failures.append(f"Unreferenced production script: {asset}")
+    for source in sorted((ROOT / "src" / "js").glob("*.js")):
+        public_path = f"assets/js/{source.name}"
+        if public_path not in linked_scripts:
+            failures.append(f"Unreferenced production script: {public_path}")
 
     for stylesheet in linked_styles:
         source = (ROOT / stylesheet).read_text(encoding="utf-8")
         pattern = r"""url\(\s*(['"]?)(.*?)\1\s*\)"""
         for match in re.finditer(pattern, source, re.IGNORECASE):
             target = local_path(match.group(2), Path(stylesheet).parent)
-            if target and not (ROOT / target).is_file():
+            if target and not source_file(target).is_file():
                 failures.append(f"{stylesheet} references missing local asset: {target}")
 
-    script_sources = {name: (ROOT / name).read_text(encoding="utf-8") for name in linked_scripts}
+    script_sources = {name: source_file(name).read_text(encoding="utf-8") for name in linked_scripts}
     for data_file, consumer in EXPECTED_DATA.items():
         if data_file not in script_sources.get(consumer, ""):
             failures.append(f"{consumer} no longer references its data source {data_file}")

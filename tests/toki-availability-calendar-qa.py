@@ -18,7 +18,7 @@ PUBLISHABLE_KEY = "sb_publishable_PRGb0-smtTzCm9VHuM9NOQ_ZFh1wKRS"
 
 class QuietHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=str(ROOT), **kwargs)
+        super().__init__(*args, directory=str(ROOT / "dist"), **kwargs)
 
     def log_message(self, *args):
         pass
@@ -30,7 +30,7 @@ def month_key(value: date) -> str:
 
 def main() -> None:
     index = (ROOT / "index.html").read_text(encoding="utf-8")
-    script = (ROOT / "availability.js").read_text(encoding="utf-8")
+    script = (ROOT / "src" / "js" / "availability.js").read_text(encoding="utf-8")
     edge = (ROOT / "supabase/functions/toki-calendar/index.ts").read_text(encoding="utf-8")
     assert 'id="availability"' in index
     assert 'href="#availability"' in index

@@ -31,7 +31,7 @@ SKETCHFAB_MODEL = "https://sketchfab.com/3d-models/canon-eos-3000-7d57163f3bec46
 
 class QuietHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=str(ROOT), **kwargs)
+        super().__init__(*args, directory=str(ROOT / "dist"), **kwargs)
 
     def log_message(self, *args):
         pass
@@ -65,7 +65,7 @@ def main() -> None:
     assert "https://sketchfab.com" in frame_src, (
         "The deployed Content Security Policy must allow the Sketchfab iframe host."
     )
-    viewer_source = (ROOT / "equipment-viewer.js").read_text(encoding="utf-8")
+    viewer_source = (ROOT / "src" / "js" / "equipment-viewer.js").read_text(encoding="utf-8")
     assert 'modelUid = "7d57163f3bec464cbb213428e1c37cf7"' in viewer_source, "The Sketchfab controller must initialize the requested model ID."
     assert 'api.setTextureQuality("hd"' in viewer_source, "The Sketchfab controller must request its highest available texture quality."
     assert 'https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js' in viewer_source, "The Sketchfab Viewer API must be loaded for the 3D mode."
@@ -93,7 +93,7 @@ def main() -> None:
                 "Retired CSS/3D and SVG schematic models must not remain"
             )
             assert page.locator('script[src*="equipment.js"]').count() == 0, "Retired equipment controller is still loaded"
-            assert page.locator('script[src*="equipment-viewer.js"]').count() == 1, "Equipment viewer controller is not loaded"
+            assert page.locator('script[src*="assets/js/equipment-viewer.js"]').count() == 1, "Equipment viewer controller is not loaded"
 
             section.scroll_into_view_if_needed()
             photo = root.locator("[data-equipment-photo]")

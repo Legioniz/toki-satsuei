@@ -1,6 +1,6 @@
 {
   "name": "toki-satsuei",
-  "main": "./worker.mjs",
+  "main": "./src/worker/worker.mjs",
   "compatibility_date": "2026-11-27",
   "assets": {
     "directory": "./worker-dist",

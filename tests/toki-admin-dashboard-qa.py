@@ -73,7 +73,7 @@ MOCK_BOOKINGS = [
 
 class QuietHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=str(ROOT), **kwargs)
+        super().__init__(*args, directory=str(ROOT / "dist"), **kwargs)
 
     def log_message(self, *args):
         pass
@@ -88,8 +88,8 @@ def main() -> None:
     assert 'id="admin-search-input"' in admin_html
     assert 'id="admin-booking-tbody"' in admin_html
     assert 'id="admin-detail-modal"' in admin_html
-    assert 'toki-admin.css' in admin_html
-    assert 'admin.js' in admin_html
+    assert 'assets/css/toki-admin.css' in admin_html
+    assert 'assets/js/admin.js' in admin_html
 
     # 2. Browser interaction test with mocked auth and Supabase REST
     server = ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler))

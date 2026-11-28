@@ -64,14 +64,14 @@ These are implementation targets, not a claim of formal WCAG conformance or inde
 - Prefer direct official social links over an embedded social feed when there are too few current posts to make the feed useful.
 - Keep privacy information accurate and visitor-readable; detailed backend implementation belongs in developer documentation, not customer-facing policy copy.
 
-## Design system (styles/tokens.css, styles/base.css, styles/components.css)
+## Design system (src/styles/tokens.css, src/styles/base.css, src/styles/components.css)
 
 The editable design system is split by responsibility. The build composes these modules into the page-specific bundles; visitors never load the source modules individually.
 
-- **Tokens (styles/tokens.css):** colour roles (paper 60 / ink 30 / accent 10), a fluid 1.25 type scale (--step--1 to --step-4), an 8pt spacing scale (--s-1 to --s-8), motion durations and easings (--dur-*, --ease-*), sizing (--tap, --header-h), and named responsive breakpoints.
-- **Base (styles/base.css):** baseline typography, focus visibility, reading rhythm, and shared layout foundations.
-- **Components (styles/components.css):** reusable navigation, buttons, forms, cards, dialogs, interaction states, and adaptive component behavior.
-- **Page ownership:** cross-page legacy rules live in styles/shared/; page-family styling lives in styles/pages/. Keep the source order in scripts/build-css.py stable unless browser regression tests confirm that a reordering is safe.
+- **Tokens (src/styles/tokens.css):** colour roles (paper 60 / ink 30 / accent 10), a fluid 1.25 type scale (--step--1 to --step-4), an 8pt spacing scale (--s-1 to --s-8), motion durations and easings (--dur-*, --ease-*), sizing (--tap, --header-h), and named responsive breakpoints.
+- **Base (src/styles/base.css):** baseline typography, focus visibility, reading rhythm, and shared layout foundations.
+- **Components (src/styles/components.css):** reusable navigation, buttons, forms, cards, dialogs, interaction states, and adaptive component behavior.
+- **Page ownership:** cross-page legacy rules live in src/styles/shared/; page-family styling lives in src/styles/pages/. Keep the source order in scripts/build-css.py stable unless browser regression tests confirm that a reordering is safe.
 - **Build-time breakpoints:** named @custom-media tokens are expanded into standard @media conditions before a bundle reaches the browser.
 - **UX rules applied:** Fitts (48px targets, booking button in the thumb zone on phones), Hick (one primary action per view; the floating button hides over the hero and the form), Gestalt proximity (consistent section rhythm), Doherty (feedback under 400ms), Miller (session cards 4 > 2 > 1 columns, never an orphan).
 - **Adaptive:** fluid type and gutters; orientation and short-viewport rules for phones in landscape; safe-area insets for notches; dvh/svh units; hover:none and pointer:coarse handling; prefers-reduced-motion and prefers-contrast.

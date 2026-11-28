@@ -4,37 +4,37 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 EXPECTED = {
-    "index.html": "toki-home.css",
-    "booking.html": "toki-home.css",
-    "library.html": "toki-archive.css",
-    "policies.html": "toki-policies.css",
-    "404.html": "toki-404.css",
-    "admin.html": "toki-admin.css",
-    "client-gallery.html": "toki-client.css",
+    "index.html": "assets/css/toki-home.css",
+    "booking.html": "assets/css/toki-home.css",
+    "library.html": "assets/css/toki-archive.css",
+    "policies.html": "assets/css/toki-policies.css",
+    "404.html": "assets/css/toki-404.css",
+    "admin.html": "assets/css/toki-admin.css",
+    "client-gallery.html": "assets/css/toki-client.css",
 }
 REQUIRED_MODULES = (
-    "styles/tokens.css",
-    "styles/base.css",
-    "styles/components.css",
-    "styles/shared/foundation.css",
-    "styles/shared/refinements.css",
-    "styles/shared/cinematic.css",
-    "styles/shared/motion-system.css",
-    "styles/pages/home-booking.css",
-    "styles/shared/compatibility-fixes.css",
-    "styles/shared/orientation.css",
-    "styles/shared/global-motion.css",
-    "styles/shared/site-enhancements.css",
-    "styles/shared/motion-refinements.css",
-    "styles/shared/mobile-navigation.css",
-    "styles/pages/policies.css",
-    "styles/pages/availability.css",
-    "styles/pages/pricing-calculator.css",
-    "styles/pages/equipment.css",
-    "styles/pages/archive.css",
-    "styles/pages/admin.css",
-    "styles/pages/gallery.css",
-    "styles/pages/page-shells.css",
+    "src/styles/tokens.css",
+    "src/styles/base.css",
+    "src/styles/components.css",
+    "src/styles/shared/foundation.css",
+    "src/styles/shared/refinements.css",
+    "src/styles/shared/cinematic.css",
+    "src/styles/shared/motion-system.css",
+    "src/styles/pages/home-booking.css",
+    "src/styles/shared/compatibility-fixes.css",
+    "src/styles/shared/orientation.css",
+    "src/styles/shared/global-motion.css",
+    "src/styles/shared/site-enhancements.css",
+    "src/styles/shared/motion-refinements.css",
+    "src/styles/shared/mobile-navigation.css",
+    "src/styles/pages/policies.css",
+    "src/styles/pages/availability.css",
+    "src/styles/pages/pricing-calculator.css",
+    "src/styles/pages/equipment.css",
+    "src/styles/pages/archive.css",
+    "src/styles/pages/admin.css",
+    "src/styles/pages/gallery.css",
+    "src/styles/pages/page-shells.css",
 )
 def duplicate_css_rules(css):
     """Return exact duplicate CSS rules within the same at-rule context."""
@@ -124,7 +124,7 @@ def duplicate_css_rules(css):
 
 def main():
     for page, bundle in EXPECTED.items():
-        links = re.findall(r'<link rel="stylesheet" href="\./([a-z0-9-]+\.css)">',
+        links = re.findall(r'<link rel="stylesheet" href="\./(assets/css/[a-z0-9-]+\.css)">',
                            (ROOT / page).read_text(encoding="utf-8"))
         assert links == [bundle], f"{page} should link only {bundle}, found {links}"
         source = (ROOT / page).read_text(encoding="utf-8")
@@ -142,7 +142,7 @@ def main():
             + "; ".join(f"{selector} ({count} copies)" for (_, selector, _), count in duplicates.items())
         )
 
-    mobile_navigation = (ROOT / "styles/shared/mobile-navigation.css").read_text(encoding="utf-8")
+    mobile_navigation = (ROOT / "src/styles/shared/mobile-navigation.css").read_text(encoding="utf-8")
     assert mobile_navigation.count("@media (max-width: 820px)") == 1
     assert mobile_navigation.count(".site-header .primary-nav {") == 1
     sticky_guard = re.search(
@@ -162,7 +162,7 @@ def main():
     ):
         assert not (ROOT / retired).exists(), f"Page stylesheet remains at the repository root: {retired}"
 
-    tokens = (ROOT / "styles" / "tokens.css").read_text(encoding="utf-8")
+    tokens = (ROOT / "src" / "styles" / "tokens.css").read_text(encoding="utf-8")
     for name, query in (
         ("--toki-compact", "(max-width: 520px)"),
         ("--toki-mobile", "(max-width: 680px)"),
@@ -174,10 +174,10 @@ def main():
     builder = (ROOT / "scripts" / "build-css.py").read_text(encoding="utf-8")
     assert "CUSTOM_MEDIA" in builder and "@media" in builder, "The builder must expand custom media tokens before deployment"
 
-    pricing_css = (ROOT / "styles/pages/pricing-calculator.css").read_text(encoding="utf-8")
-    components_css = (ROOT / "styles/components.css").read_text(encoding="utf-8")
-    home_booking_css = (ROOT / "styles/pages/home-booking.css").read_text(encoding="utf-8")
-    home_bundle = (ROOT / "toki-home.css").read_text(encoding="utf-8")
+    pricing_css = (ROOT / "src/styles/pages/pricing-calculator.css").read_text(encoding="utf-8")
+    components_css = (ROOT / "src/styles/components.css").read_text(encoding="utf-8")
+    home_booking_css = (ROOT / "src/styles/pages/home-booking.css").read_text(encoding="utf-8")
+    home_bundle = (ROOT / "assets/css/toki-home.css").read_text(encoding="utf-8")
     calculator_hover = pricing_css.split(".calculator-wrap .calc-apply-btn:hover", 1)[1].split("}", 1)[0]
     assert "background-color: var(--toki-button-surface)" in calculator_hover, (
         "Calculator hover surface must be owned by the page-scoped rule."
@@ -212,7 +212,7 @@ def main():
         assert f'"{module}"' in builder, f"{module} is not mapped into the generated bundle manifest."
 
     for bundle in EXPECTED.values():
-        output = (ROOT / bundle).read_text(encoding="utf-8")
+        output = (ROOT / "assets" / "css" / Path(bundle).name).read_text(encoding="utf-8")
         assert "@custom-media" not in output, f"{bundle} leaks source-only custom media definitions"
         assert "@media (--toki-" not in output, f"{bundle} leaks unresolved breakpoint tokens"
 

@@ -7,8 +7,8 @@ from pathlib import Path
 from urllib.parse import quote
 
 ROOT=Path(__file__).resolve().parents[1]
-LIBRARY=ROOT/"media-library"
-OUTPUT=ROOT/"media-library.json"
+LIBRARY=ROOT/"data"/"media-library"
+OUTPUT=ROOT/"data"/"media-library.json"
 IMAGE_EXTENSIONS={".jpg",".jpeg",".png",".webp",".avif",".gif"}
 VIDEO_EXTENSIONS={".mp4",".webm"}
 MEDIA_EXTENSIONS=IMAGE_EXTENSIONS|VIDEO_EXTENSIONS
@@ -36,7 +36,7 @@ def media_record(path:Path,category_name:str,album_name:str)->dict:
  relative=path.relative_to(LIBRARY).as_posix()
  encoded="/".join(quote(part,safe="-._~") for part in relative.split("/"))
  title=label(path.stem)
- return {"type":"video" if path.suffix.casefold() in VIDEO_EXTENSIONS else "image","src":"./media-library/"+encoded,"title":title,"alt":f"{title} — {album_name}, {category_name}"}
+ return {"type":"video" if path.suffix.casefold() in VIDEO_EXTENSIONS else "image","src":"./data/media-library/"+encoded,"title":title,"alt":f"{title} — {album_name}, {category_name}"}
 
 def build_category(folder:Path)->dict:
  category_id=folder.name

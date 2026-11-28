@@ -382,7 +382,7 @@ def build_fonts() -> dict:
                 f"  font-style: {style};",
                 f"  font-weight: {weight};",
                 "  font-display: swap;",
-                f'  src: url("./assets/fonts/{filename}") format("woff2");',
+                f'  src: url("../fonts/{filename}") format("woff2");',
                 "}",
                 "",
             ]
@@ -461,12 +461,12 @@ def verify_assets() -> None:
         for match in re.finditer(r"""url\(\s*(['"]?)(.*?)\1\s*\)""", css, re.IGNORECASE):
             reference = match.group(2).strip()
             parsed = urlsplit(reference)
-            if parsed.scheme or parsed.netloc or not parsed.path.startswith("./assets/fonts/"):
+            if parsed.scheme or parsed.netloc or not parsed.path.startswith("../fonts/"):
                 raise ValueError(f"Generated {bundle} contains a non-local font reference: {reference}")
         if css.count("@font-face") != len(filenames):
             raise ValueError(f"Generated {bundle} has an unexpected number of font faces")
         for filename in filenames:
-            if f'url("./assets/fonts/{filename}")' not in css:
+            if f'url("../fonts/{filename}")' not in css:
                 raise ValueError(f"Generated {bundle} does not declare local font: {filename}")
 
     manifest = json.loads((PHOTOGRAPHY_ROOT / "manifest.json").read_text(encoding="utf-8"))

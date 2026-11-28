@@ -17,24 +17,24 @@ PAGES = ["index.html", "booking.html", "library.html", "policies.html", "404.htm
 
 class QuietHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=str(ROOT), **kwargs)
+        super().__init__(*args, directory=str(ROOT / "dist"), **kwargs)
 
     def log_message(self, *args):
         pass
 
 
 def main() -> None:
-    for filename in [*PAGES, "styles/shared/cinematic.css"]:
+    for filename in [*PAGES, "src/styles/shared/cinematic.css"]:
         path = ROOT / filename
         assert path.is_file() and path.stat().st_size > 0, f"Missing cinematic asset: {filename}"
 
-    css = (ROOT / "styles/shared/cinematic.css").read_text(encoding="utf-8")
+    css = (ROOT / "src" / "styles/shared/cinematic.css").read_text(encoding="utf-8")
     design_system = "\n".join(
         (ROOT / path).read_text(encoding="utf-8")
-        for path in ("styles/tokens.css", "styles/base.css", "styles/components.css")
+        for path in ("src/styles/tokens.css", "src/styles/base.css", "src/styles/components.css")
     )
-    motion_css = (ROOT / "styles/shared/motion-system.css").read_text(encoding="utf-8")
-    motion_js = (ROOT / "motion-system.js").read_text(encoding="utf-8")
+    motion_css = (ROOT / "src" / "styles/shared/motion-system.css").read_text(encoding="utf-8")
+    motion_js = (ROOT / "src" / "js" / "motion-system.js").read_text(encoding="utf-8")
     for token in ["--bg-canvas: #09090b", "--text-primary: #f5f2eb", "--text-secondary: #c7c1b6", "--accent-gold: #d8a448"]:
         assert token in design_system, f"Missing nocturne token: {token}"
     assert "*::-webkit-scrollbar" in design_system and "scrollbar-width: none" in design_system
@@ -55,11 +55,11 @@ def main() -> None:
     policy = (ROOT / "policies.html").read_text(encoding="utf-8")
     not_found = (ROOT / "404.html").read_text(encoding="utf-8")
     bundles = {
-        "home": ("index.html", "toki-home.css"),
-        "booking": ("booking.html", "toki-home.css"),
-        "archive": ("library.html", "toki-archive.css"),
-        "policies": ("policies.html", "toki-policies.css"),
-        "404": ("404.html", "toki-404.css"),
+        "home": ("index.html", "assets/css/toki-home.css"),
+        "booking": ("booking.html", "assets/css/toki-home.css"),
+        "archive": ("library.html", "assets/css/toki-archive.css"),
+        "policies": ("policies.html", "assets/css/toki-policies.css"),
+        "404": ("404.html", "assets/css/toki-404.css"),
     }
     for label, source in [("home", home), ("booking", (ROOT / "booking.html").read_text(encoding="utf-8")), ("archive", archive), ("policies", policy), ("404", not_found)]:
         page, bundle = bundles[label]
@@ -74,7 +74,7 @@ def main() -> None:
         ):
             assert f'font-family:"{family}"' in bundle_css, f"{label}: local {role} font is not bundled"
             assert "fonts.googleapis.com" not in bundle_css and "fonts.gstatic.com" not in bundle_css
-        if bundle in ("toki-home.css", "toki-404.css"):
+        if bundle in ("assets/css/toki-home.css", "assets/css/toki-404.css"):
             assert 'font-family:"Caveat"' in bundle_css, f"{label}: local handwritten font is not bundled"
         else:
             assert 'font-family:"Caveat"' not in bundle_css, f"{label}: unused handwritten font should not be in this bundle"
@@ -90,7 +90,7 @@ def main() -> None:
     assert "id=\"consent\"" in policy
     assert "frame not found" in not_found.lower()
 
-    manifest_path = ROOT / "media-library.json"
+    manifest_path = ROOT / "data/media-library.json"
     total_albums = 0
     if manifest_path.exists():
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -116,11 +116,11 @@ def main() -> None:
                 if filename in ("booking.html", "library.html", "policies.html"):
                     assert not any("caveat-" in url for url in font_requests), f"{filename}: unused Caveat font was downloaded"
                 expected_bundle = {
-                    "index.html": "toki-home.css",
-                    "booking.html": "toki-home.css",
-                    "library.html": "toki-archive.css",
-                    "policies.html": "toki-policies.css",
-                    "404.html": "toki-404.css",
+                    "index.html": "assets/css/toki-home.css",
+                    "booking.html": "assets/css/toki-home.css",
+                    "library.html": "assets/css/toki-archive.css",
+                    "policies.html": "assets/css/toki-policies.css",
+                    "404.html": "assets/css/toki-404.css",
                 }[filename]
                 assert page.locator(f"link[rel='stylesheet'][href*='{expected_bundle}']").count() == 1, f"{filename}: visual system bundle missing"
 

@@ -19,7 +19,7 @@ PUBLISHABLE_KEY = "sb_publishable_PRGb0-smtTzCm9VHuM9NOQ_ZFh1wKRS"
 
 class QuietHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=str(ROOT), **kwargs)
+        super().__init__(*args, directory=str(ROOT / "dist"), **kwargs)
 
     def log_message(self, *args):
         pass
@@ -47,7 +47,7 @@ def fill_valid_form(page) -> tuple[str, str]:
 def main() -> None:
     index = (ROOT / "index.html").read_text(encoding="utf-8")
     booking = (ROOT / "booking.html").read_text(encoding="utf-8")
-    site = (ROOT / "site.js").read_text(encoding="utf-8")
+    site = (ROOT / "src" / "js" / "site.js").read_text(encoding="utf-8")
     edge = (ROOT / "supabase/functions/portfolio-submit/index.ts").read_text(encoding="utf-8")
     policies = (ROOT / "policies.html").read_text(encoding="utf-8")
     assert 'id="inquiry-form"' not in index and 'href="./booking.html"' in index

@@ -218,7 +218,7 @@ def verify_fonts() -> None:
         importer_source,
     ):
         raise AssertionError(
-            "Font importer must emit ./assets/fonts URLs for GitHub Pages project-subpath hosting"
+            "Font importer must use bundle-relative ../fonts URLs, not root-absolute /assets/fonts URLs"
         )
     root = ROOT / "assets/fonts"
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
@@ -269,14 +269,14 @@ def verify_fonts() -> None:
             if (
                 parsed.scheme
                 or parsed.netloc
-                or not parsed.path.startswith("./assets/fonts/")
+                or not parsed.path.startswith("../fonts/")
                 or is_disallowed_visual_asset_url(reference)
             ):
                 raise AssertionError(f"Font CSS contains a non-local font URL: {reference}")
     for item in fonts:
         filename = Path(item["path"]).name
         source_css = caveat_css if item.get("family") == "Caveat" else shared_css
-        if f'url("./assets/fonts/{filename}")' not in source_css:
+        if f'url("../fonts/{filename}")' not in source_css:
             raise AssertionError(f"Font CSS source does not declare local face: {filename}")
 
     bundle_face_counts = {
@@ -288,14 +288,14 @@ def verify_fonts() -> None:
         "toki-client.css": 5,
     }
     for bundle_name, expected_count in bundle_face_counts.items():
-        bundle = (ROOT / bundle_name).read_text(encoding="utf-8")
+        bundle = (ROOT / "assets" / "css" / bundle_name).read_text(encoding="utf-8")
         if bundle.count("@font-face") != expected_count or "font-display:swap" not in bundle:
             raise AssertionError(f"{bundle_name} has an unexpected local font-face inventory")
         for item in fonts:
             filename = Path(item["path"]).name
             family = item.get("family")
             expected_here = family != "Caveat" or bundle_name in ("toki-home.css", "toki-404.css")
-            if expected_here and f'url("./assets/fonts/{filename}")' not in bundle:
+            if expected_here and f'url("../fonts/{filename}")' not in bundle:
                 raise AssertionError(f"{bundle_name} is missing the local font resource: {filename}")
             if not expected_here and filename in bundle:
                 raise AssertionError(f"{bundle_name} unnecessarily declares the Caveat font")
@@ -331,7 +331,7 @@ def verify_pages_and_loading() -> None:
             "client-gallery.html": "toki-client.css",
         }[page]
         stylesheets = re.findall(r'<link rel="stylesheet" href="([^"]+)">', content)
-        if stylesheets != [f"./{expected_bundle}"]:
+        if stylesheets != [f"./assets/css/{expected_bundle}"]:
             raise AssertionError(f"{page} must load exactly one page-scoped CSS bundle, found {stylesheets}")
 
     # GitHub Pages project sites are hosted below /<repository>/.
@@ -344,7 +344,7 @@ def verify_pages_and_loading() -> None:
         "toki-admin.css",
         "toki-client.css",
     ):
-        bundle = (ROOT / bundle_name).read_text(encoding="utf-8")
+        bundle = (ROOT / "assets" / "css" / bundle_name).read_text(encoding="utf-8")
         for reference in css_url_values(bundle):
             parsed_reference = urlsplit(reference.strip())
             if (
@@ -435,7 +435,7 @@ def verify_pages_and_loading() -> None:
 
 def verify_security_policy() -> None:
     headers = (ROOT / "_headers").read_text(encoding="utf-8")
-    worker = (ROOT / "worker.mjs").read_text(encoding="utf-8")
+    worker = (ROOT / "src" / "worker" / "worker.mjs").read_text(encoding="utf-8")
     header_policy = re.search(r"(?im)^\s*Content-Security-Policy:\s*(.+)$", headers)
     worker_policy = re.search(r'"Content-Security-Policy"\s*:\s*"([^"]+)"', worker)
     if not header_policy or not worker_policy:
@@ -443,7 +443,7 @@ def verify_security_policy() -> None:
     fingerprint_source = (ROOT / "scripts/fingerprint_assets.py").read_text(encoding="utf-8")
     policies = (
         ("_headers", header_policy.group(1).strip()),
-        ("worker.mjs", worker_policy.group(1).strip()),
+        ("src/worker/worker.mjs", worker_policy.group(1).strip()),
         ("fingerprint CSP", csp_from_fingerprint_source(fingerprint_source)),
     )
     for label, policy in policies:
@@ -458,7 +458,7 @@ def verify_security_policy() -> None:
     fonts_css = (ROOT / "assets/fonts/fonts.css").read_text(encoding="utf-8")
     for reference in css_url_values(fonts_css):
         parsed = urlsplit(reference)
-        if parsed.scheme or parsed.netloc or not parsed.path.startswith("./assets/fonts/"):
+        if parsed.scheme or parsed.netloc or not parsed.path.startswith("../fonts/"):
             raise AssertionError(
                 "Generated font CSS must use repository-subpath-safe relative URLs, "
                 f"got {reference!r}"
