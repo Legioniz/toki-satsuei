@@ -3,11 +3,18 @@
 ## Brand assets
 
 - Official logo master: `assets/brand/Toki-Satsuei-Brushstroke-Emblem.png` (submitted 1254 × 1254 PNG; stored unchanged).
-- Hero / behind-the-camera image: `https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/3db8c3355_242599.jpg`
+- Hero / behind-the-camera image: `assets/photography/originals/behind-the-camera.jpg`
 - Field study images:
-  - `https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/b21ff20c7_242600.jpg`
-  - `https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/e03bfd350_242598.jpg`
-  - `https://media.base44.com/images/public/6af6b70d3bc15f40b706af32/52f603569_242601.jpg`
+  - `assets/photography/originals/between-turns.jpg`
+  - `assets/photography/originals/colour-in-the-quiet.jpg`
+  - `assets/photography/originals/before-the-next-shot.jpg`
+
+## Photography asset pipeline
+
+- Approved public photography masters are retained byte-for-byte under `assets/photography/originals/`.
+- Responsive JPEG and WebP derivatives are generated at 480px, 960px, and source width (1536px) without cropping or upscaling.
+- `assets/photography/manifest.json` records dimensions, aspect ratio, alternative text, file sizes, and SHA-256 checksums for originals and variants.
+- Site delivery uses the same-origin Cloudflare Pages asset path. Below-the-fold gallery thumbnails are lazy-loaded; the homepage hero is eagerly loaded with high fetch priority.
 
 ## Equipment source assets
 
